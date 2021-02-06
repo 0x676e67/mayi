@@ -1,0 +1,8 @@
+logging:
+  level:
+    root: info
+  #file:
+    #max-size: 100MB
+    #name: ant-log
+    #max-history: 10
+debug: false

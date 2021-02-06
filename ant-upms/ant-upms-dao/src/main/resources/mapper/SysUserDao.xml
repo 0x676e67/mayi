@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zf1976.ant.upms.biz.dao.SysUserDao">
+    <!--新增 user-job 依赖关系-->
+    <insert id="savePositionRelationById">
+        insert into sys_user_position_relation(user_id, position_id)
+        values
+        <foreach collection="jobIds" item="jobId" separator=",">
+            (#{id}, #{jobId})
+        </foreach>
+    </insert>
+
+    <!--新增 user-role 依赖关系-->
+    <insert id="savaRoleRelationById">
+        insert into sys_user_role_relation(user_id, role_id)
+        values
+        <foreach collection="roleIds" item="roleId" separator=",">
+            (#{id}, #{roleId})
+        </foreach>
+    </insert>
+
+    <!--删除user-role 依赖关系-->
+    <delete id="deleteRoleRelationByIds">
+        delete
+        from sys_user_role_relation
+        where user_id
+        in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!--删除user-job 依赖关系-->
+    <delete id="deletePositionRelationByIds">
+        delete
+        from sys_user_position_relation
+        where user_id
+        in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!--根据角色id集合查询关联用户id集合-->
+    <select id="selectByRoleIds" resultType="java.lang.Long">
+        select distinct user_id
+        from sys_user_role_relation
+        where role_id
+        in
+        <foreach collection="roleIds" item="roleId" index="index" open="(" close=")" separator=",">
+            #{roleId}
+        </foreach>
+    </select>
+
+    <!--根据部门id集合查询关联用户id集合-->
+    <select id="selectByDepartmentIds" resultType="java.lang.Long">
+        select distinct user_id
+        from sys_user_role_relation join sys_role_department_relation srd
+            on sys_user_role_relation.role_id = srd.role_id
+        where srd.department_id
+        in
+        <foreach collection="departmentIds" item="departmentId" index="index" open="(" close=")" separator=",">
+            #{departmentId}
+        </foreach>
+    </select>
+</mapper>
