@@ -1,4 +1,4 @@
-package com.zf1976.ant.upms.biz.exp.base;
+package com.zf1976.ant.upms.biz.exception.base;
 
 /**
  * @author mac

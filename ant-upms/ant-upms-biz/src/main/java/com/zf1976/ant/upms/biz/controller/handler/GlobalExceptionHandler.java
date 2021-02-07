@@ -2,7 +2,7 @@ package com.zf1976.ant.upms.biz.controller.handler;
 
 import com.zf1976.ant.common.core.foundation.exception.BadBusinessException;
 import com.zf1976.ant.common.core.foundation.Result;
-import com.zf1976.ant.upms.biz.exp.base.SysBaseException;
+import com.zf1976.ant.upms.biz.exception.base.SysBaseException;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.helpers.MessageFormatter;
 import org.springframework.context.support.DefaultMessageSourceResolvable;

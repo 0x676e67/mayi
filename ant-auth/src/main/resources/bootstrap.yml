@@ -1,0 +1,10 @@
+server:
+  port: 7777
+
+spring:
+  application:
+    name: ant-auth
+  cloud:
+    nacos:
+      discovery:
+        server-addr: http://127.0.0.1:8848

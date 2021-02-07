@@ -1,7 +1,7 @@
-package com.zf1976.ant.upms.biz.exp;
+package com.zf1976.ant.upms.biz.exception;
 
-import com.zf1976.ant.upms.biz.exp.base.SysBaseException;
-import com.zf1976.ant.upms.biz.exp.enums.RoleState;
+import com.zf1976.ant.upms.biz.exception.base.SysBaseException;
+import com.zf1976.ant.upms.biz.exception.enums.RoleState;
 
 /**
  * @author mac

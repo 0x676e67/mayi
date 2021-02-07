@@ -1,30 +1,25 @@
-package com.zf1976.ant.upms.biz.exp.enums;
+package com.zf1976.ant.upms.biz.exception.enums;
 
 /**
  * @author mac
  * @date 2020/12/17
  **/
-public enum MenuState {
+public enum JobState {
 
     /**
      * 数据不存在
      */
-    MENU_NOT_FOUND(400, "菜单不存在"),
+    JOB_NOT_FOUND(400, "岗位不存在"),
 
     /**
      * 数据已存在
      */
-    MENU_EXISTING(400, "菜单：{}，已经存在"),
-
-    /**
-     * 信息已存在
-     */
-    MENU_INFO_EXISTING(400, "菜单信息：{}，已经存在"),
+    JOB_EXISTING(400, "岗位：{}，已经存在"),
 
     /**
      * 操作异常
      */
-    MENU_OPT_ERROR(400, "操作错误");
+    JOB_OPT_ERROR(400, "操作错误");
 
     /**
      * 状态值
@@ -36,7 +31,7 @@ public enum MenuState {
      */
     private final String reasonPhrase;
 
-    MenuState(int value, String reasonPhrase) {
+    JobState(int value, String reasonPhrase) {
         this.value = value;
         this.reasonPhrase = reasonPhrase;
     }

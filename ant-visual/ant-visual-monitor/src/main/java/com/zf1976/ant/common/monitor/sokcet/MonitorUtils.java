@@ -1,8 +1,5 @@
 package com.zf1976.ant.common.monitor.sokcet;
 
-
-import cn.hutool.core.date.BetweenFormater;
-import cn.hutool.core.date.DateUtil;
 import com.zf1976.ant.common.core.util.RequestUtils;
 import com.zf1976.ant.common.monitor.pojo.*;
 import org.slf4j.Logger;
@@ -17,6 +14,7 @@ import oshi.util.FormatUtil;
 import oshi.util.Util;
 import java.lang.management.ManagementFactory;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -27,8 +25,9 @@ import java.util.List;
 public class MonitorUtils {
 
     private static final Logger Log = LoggerFactory.getLogger(MonitorUtils.class);
-
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00");
+    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT_THREAD_LOCAL = ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd"));
+
 
     public static SystemInfoVo getSystemInfo() {
         SystemInfoVo systemInfoVo = new SystemInfoVo();
@@ -42,10 +41,12 @@ public class MonitorUtils {
             systemInfoVo.setMemory(getMemory(hardware.getMemory()));
             systemInfoVo.setSwap(getSwap(hardware.getMemory()));
             systemInfoVo.setDisk(getDisk(operatingSystem));
-            systemInfoVo.setDatetime(DateUtil.format(new Date(),"HH:mm:ss"));
+            systemInfoVo.setDatetime(DATE_FORMAT_THREAD_LOCAL.get().format(new Date()));
         } catch (Exception e) {
             e.printStackTrace();
             Log.error(e.getMessage(), e.getCause());
+        }finally {
+            DATE_FORMAT_THREAD_LOCAL.remove();
         }
         return systemInfoVo;
     }
@@ -151,7 +152,7 @@ public class MonitorUtils {
         long startTime = ManagementFactory.getRuntimeMXBean()
                                           .getStartTime();
         Date date = new Date(startTime);
-        String formatBetween = DateUtil.formatBetween(date, new Date(), BetweenFormater.Level.HOUR);
+        String formatBetween = DATE_FORMAT_THREAD_LOCAL.get().format(date);
         operatingSystemVo.setOs(operatingSystem.toString());
         operatingSystemVo.setIp(RequestUtils.getLocalAddress());
         operatingSystemVo.setRunningDay(formatBetween);

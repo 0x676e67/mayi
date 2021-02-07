@@ -17,7 +17,16 @@ dependencies {
     implementation project(':ant-common:ant-common-datasource')
     implementation project(':ant-visual:ant-visual-monitor')
     implementation project(':ant-common:ant-common-cache')
-    implementation 'junit:junit:4.12'
+    implementation('cn.hutool:hutool-poi:5.4.5')
+    implementation('org.apache.poi:poi-ooxml:4.1.2')
+    implementation('com.baomidou:mybatis-plus-boot-starter:3.3.1.tmp')
+    implementation('org.springframework.boot:spring-boot-starter-web:2.3.3.RELEASE')
+    implementation('org.springframework.boot:spring-boot-starter-test:2.3.3.RELEASE')
+    implementation('org.springframework.boot:spring-boot-starter-security:2.3.3.RELEASE')
+    implementation('org.springframework.boot:spring-boot-starter-validation:2.3.3.RELEASE')
+    implementation('org.springframework.boot:spring-boot-starter-cache:2.3.3.RELEASE')
+    implementation('org.springframework.boot:spring-boot-starter-data-redis:2.3.3.RELEASE')
+    runtimeOnly('org.springframework.boot:spring-boot-devtools:2.3.3.RELEASE')
 }
 test {
     useJUnitPlatform()

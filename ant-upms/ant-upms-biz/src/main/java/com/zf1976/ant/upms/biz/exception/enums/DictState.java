@@ -1,30 +1,25 @@
-package com.zf1976.ant.upms.biz.exp.enums;
+package com.zf1976.ant.upms.biz.exception.enums;
 
 /**
  * @author mac
  * @date 2020/12/17
  **/
-public enum RoleState {
+public enum DictState {
 
     /**
      * 数据不存在
      */
-    ROLE_NOT_FOUND(400, "角色不存在"),
+    DICT_NOT_FOUND(400, "字典不存在"),
 
     /**
      * 数据已存在
      */
-    ROLE_EXISTING(400, "角色：{}，已经存在"),
-
-    /**
-     * 存在依赖
-     */
-    ROLE_DEPENDS_ERROR(400, "角色存在用户依赖，不能删除"),
+    DICT_EXISTING(400, "字典：{}，已经存在"),
 
     /**
      * 操作异常
      */
-    ROLE_OPT_ERROR(400, "操作错误");
+    DICT_OPT_ERROR(400, "操作错误");
 
     /**
      * 状态值
@@ -36,7 +31,7 @@ public enum RoleState {
      */
     private final String reasonPhrase;
 
-    RoleState(int value, String reasonPhrase) {
+    DictState(int value, String reasonPhrase) {
         this.value = value;
         this.reasonPhrase = reasonPhrase;
     }

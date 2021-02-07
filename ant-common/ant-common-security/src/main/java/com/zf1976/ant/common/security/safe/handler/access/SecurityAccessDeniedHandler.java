@@ -22,7 +22,6 @@ public class SecurityAccessDeniedHandler implements AccessDeniedHandler {
      */
     @Override
     public void handle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AccessDeniedException e) {
-        e.printStackTrace();
         httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
     }
 }

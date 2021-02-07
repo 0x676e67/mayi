@@ -2,7 +2,6 @@ package com.zf1976.ant.common.core.foundation.query;
 
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.power.common.util.StringUtil;
-import com.zf1976.ant.common.core.foundation.query.AbstractQueryParam;
 import lombok.ToString;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;

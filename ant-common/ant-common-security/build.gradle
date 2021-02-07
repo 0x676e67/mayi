@@ -8,8 +8,14 @@ dependencies {
     implementation project(':ant-common:ant-common-component')
     implementation project(':ant-upms:ant-upms-api')
     implementation project(':ant-upms:ant-upms-dao')
-    implementation 'io.jsonwebtoken:jjwt-api:0.11.1'
-    implementation 'io.jsonwebtoken:jjwt-impl:0.11.1'
-    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.1'
-    implementation 'com.github.whvcse:easy-captcha:1.6.2'
+    implementation('io.jsonwebtoken:jjwt-api:0.11.1')
+    implementation('io.jsonwebtoken:jjwt-impl:0.11.1')
+    implementation('io.jsonwebtoken:jjwt-jackson:0.11.1')
+    implementation('com.github.whvcse:easy-captcha:1.6.2')
+    implementation('com.baomidou:mybatis-plus-boot-starter:3.3.1.tmp')
+    implementation('org.springframework.boot:spring-boot-starter-security:2.3.3.RELEASE')
+    implementation 'org.springframework.security:spring-security-test:5.3.4.RELEASE'
+    implementation('org.springframework.boot:spring-boot-starter-web:2.3.3.RELEASE')
+    implementation('org.springframework.boot:spring-boot-starter-cache:2.3.3.RELEASE')
+    implementation('org.springframework.boot:spring-boot-starter-data-redis:2.3.3.RELEASE')
 }

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.zf1976.ant.common.monitor.pojo.SystemInfoVo;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.compress.archivers.sevenz.CLI;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;

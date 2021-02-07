@@ -3,5 +3,9 @@
  */
 
 dependencies {
-    implementation 'com.baomidou:dynamic-datasource-spring-boot-starter:3.3.1'
+    implementation('org.springframework.boot:spring-boot-starter-web:2.3.3.RELEASE')
+    implementation('com.baomidou:dynamic-datasource-spring-boot-starter:3.3.1')
+    implementation('com.baomidou:mybatis-plus-boot-starter:3.3.1.tmp')
+    implementation('com.alibaba:druid-spring-boot-starter:1.1.22')
+    runtimeOnly 'mysql:mysql-connector-java:8.0.21'
 }
