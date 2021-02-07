@@ -1,6 +1,5 @@
 package com.zf1976.ant.common.encrypt.annotation;
 
-import javax.xml.bind.Element;
 import java.lang.annotation.*;
 
 /**
