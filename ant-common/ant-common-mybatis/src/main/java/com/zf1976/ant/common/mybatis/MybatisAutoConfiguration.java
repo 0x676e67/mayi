@@ -1,11 +1,13 @@
 package com.zf1976.ant.common.mybatis;
 
 import com.baomidou.mybatisplus.annotation.DbType;
+import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.baomidou.mybatisplus.core.parser.ISqlParser;
 import com.baomidou.mybatisplus.extension.parsers.BlockAttackSqlParser;
 import com.baomidou.mybatisplus.extension.plugins.OptimisticLockerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.pagination.optimize.JsqlParserCountOptimize;
+import com.zf1976.ant.common.mybatis.handle.MetaDataHandler;
 import com.zf1976.ant.common.mybatis.resolver.SqlFilterArgumentResolver;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Expression;
@@ -74,6 +76,13 @@ public class MybatisAutoConfiguration implements WebMvcConfigurer {
                                     .setCountSqlParser(new JsqlParserCountOptimize(true))
                                     .setLimit(-1);
 
+    }
+
+    @Bean
+    public GlobalConfig globalConfig() {
+        GlobalConfig globalConfig = new GlobalConfig();
+        globalConfig.setMetaObjectHandler(new MetaDataHandler());
+        return globalConfig;
     }
 
 }

@@ -282,19 +282,21 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      *
      * @param ids id collection
      */
-    private Set<Long> collectCurrentDeptTreeIds(Set<Long> ids, Supplier<Set<Long>> collectionIds) {
+    private Set<Long> collectCurrentDeptTreeIds(Set<Long> ids, Supplier<Set<Long>> supplier) {
         if (CollectionUtils.isEmpty(ids)) {
             return Collections.emptySet();
         }
-        Assert.notNull(collectionIds, "collectionIds can not been null");
-        collectionIds.get().addAll(ids);
+        Assert.notNull(supplier, "collectionIds can not been null");
+        supplier.get().addAll(ids);
+        Set<Long> set = supplier.get();
+        set.addAll(ids);
         ids.forEach(id -> {
             // 子部门id集合
             final Set<Long> collectIds = this.collectNextLowDeptIds(id, null);
             // 收集子部门id集合
-            this.collectCurrentDeptTreeIds(collectIds, collectionIds);
+            this.collectCurrentDeptTreeIds(collectIds, supplier);
         });
-        return collectionIds.get();
+        return set;
     }
 
     /**
@@ -302,22 +304,21 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      *
      * @param id current dept id
      * @param condition status
-     * @param collectChildrenIds collect
+     * @param supplier supplied object
      * @return ids
      */
-    private Set<Long> collectCurrentChildrenDeptIds(long id, Boolean condition, Supplier<Set<Long>> collectChildrenIds) {
+    private Set<Long> collectCurrentChildrenDeptIds(long id, Boolean condition, Supplier<Set<Long>> supplier) {
         // 子部门id集合
         final Set<Long> childrenIds = this.collectNextLowDeptIds(id, condition);
         if (!CollectionUtils.isEmpty(childrenIds)) {
             // collect
-            collectChildrenIds.get()
-                              .addAll(childrenIds);
+            supplier.get().addAll(childrenIds);
             // 继续往下子部门收集
             childrenIds.forEach(childrenId -> {
-                this.collectCurrentChildrenDeptIds(childrenId, condition, collectChildrenIds);
+                this.collectCurrentChildrenDeptIds(childrenId, condition, supplier);
             });
         }
-        return collectChildrenIds.get();
+        return supplier.get();
     }
 
     /**

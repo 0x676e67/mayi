@@ -51,7 +51,6 @@ public class SqlFilterArgumentResolver implements HandlerMethodArgumentResolver 
 	 * <p>
 	 * page 只支持查询 GET .如需解析POST获取请求报文体处理
 	 */
-	@SuppressWarnings("rawtypes")
 	@Override
 	public Object resolveArgument(@Nullable MethodParameter parameter, ModelAndViewContainer mavContainer,
 								  NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
