@@ -1,7 +1,6 @@
-package com.zf1976.ant.common.core.config;
+package com.zf1976.ant.upms.biz.config;
 
 import com.power.common.util.FileUtil;
-import com.zf1976.ant.common.core.dev.FileProperties;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;

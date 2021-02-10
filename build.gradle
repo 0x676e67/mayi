@@ -16,11 +16,11 @@ allprojects {
             extendsFrom annotationProcessor
         }
     }
+    //指定编译版本
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
 }
 subprojects {
-    //指定编译版本
-     sourceCompatibility = 1.8
-     targetCompatibility = 1.8
      repositories {
          mavenLocal()
          maven {

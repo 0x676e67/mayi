@@ -12,16 +12,16 @@ import org.springframework.security.config.annotation.method.configuration.Globa
  * @author ant
  * Create by Ant on 2020/10/14 8:10 下午
  */
-@Configuration
-@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
-public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
-
-    @Override
-    @Bean(name = "SecurityMethodSecurityExpressionHandler")
-    protected MethodSecurityExpressionHandler createExpressionHandler() {
-        DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
-        expressionHandler.setPermissionEvaluator(new SecurityPermissionEvaluator());
-        return expressionHandler;
-    }
-
-}
+//@Configuration
+//@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
+//public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
+//
+//    @Override
+//    @Bean(name = "SecurityMethodSecurityExpressionHandler")
+//    protected MethodSecurityExpressionHandler createExpressionHandler() {
+//        DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
+//        expressionHandler.setPermissionEvaluator(new SecurityPermissionEvaluator());
+//        return expressionHandler;
+//    }
+//
+//}

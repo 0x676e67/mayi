@@ -11,7 +11,7 @@ import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
 import com.zf1976.ant.common.component.load.annotation.Space;
 import com.zf1976.ant.common.component.mail.ValidateFactory;
 import com.zf1976.ant.common.component.mail.ValidateService;
-import com.zf1976.ant.common.core.dev.FileProperties;
+import com.zf1976.ant.upms.biz.config.FileProperties;
 import com.zf1976.ant.common.encrypt.RsaUtil;
 import com.zf1976.ant.common.encrypt.config.RsaProperties;
 import com.zf1976.ant.common.security.cache.session.Session;

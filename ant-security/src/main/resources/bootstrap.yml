@@ -1,0 +1,37 @@
+server:
+  port: 9000
+#spring配置
+spring:
+  datasource:
+    username: root
+    password: itcast
+    url: jdbc:mysql://localhost:3306/master?useSSL=false&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&autoReconnect=true&failOverReadOnly=false&maxReconnects=10&serverTimezone=GMT
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 20
+      max-lifetime: 1800000
+      minimum-idle: 5
+  profiles:                                                 #加载配置文件
+    active: conf,log,dev
+
+  jackson:                                                  #json序列化配置
+    time-zone: GMT+8
+    default-property-inclusion: non_null
+    date-format: yyyy-MM-dd HH:mm:ss
+
+  servlet:
+    multipart:
+      enabled: true
+
+#mybatis-plus 配置
+mybatis-plus:
+  global-config:
+    db-config:
+      update-strategy: ignored
+  configuration:
+    map-underscore-to-camel-case: true
+    #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath:/mapper/*Dao.xml
+  check-config-location: true
+  type-enums-package: com.zf1976.ant.upms.biz.pojo.enums

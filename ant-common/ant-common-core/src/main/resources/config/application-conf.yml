@@ -107,21 +107,5 @@ api-encrypt:
 ip.region:
   base-url: https://opendata.baidu.com/api.php?&format=json&resource_id=6006&query=
 
-#文件路径配置
-file:
-  config:
-    # 工作文件
-    work-file-path: /work
-    # 普通文件大小/M
-    file-max-size: 50
-    # 头像大小
-    avatar-max-size: 10
-    #请求相对路径
-    relative:
-      avatar-url: /avatar/**
-      file-url: /file/**
-    #实际路径（不完整）
-    real:
-      avatar-path: /avatar/
-      file-path: /file/
+
 

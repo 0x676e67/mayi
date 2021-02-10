@@ -10,7 +10,6 @@ dependencies {
     implementation project(':ant-upms:ant-upms-dao')
     implementation project(':ant-common:ant-common-core')
     implementation project(':ant-common:ant-common-log')
-    implementation project(':ant-security')
     implementation project(':ant-common:ant-common-encrypt')
     implementation project(':ant-common:ant-common-component')
     implementation project(':ant-common:ant-common-mybatis')
@@ -27,7 +26,6 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-cache:2.3.3.RELEASE')
     implementation('org.springframework.boot:spring-boot-starter-data-redis:2.3.3.RELEASE')
     implementation("org.springframework.boot:spring-boot-configuration-processor:2.3.3.RELEASE")
-    runtimeOnly('org.springframework.boot:spring-boot-devtools:2.3.3.RELEASE')
 }
 test {
     useJUnitPlatform()

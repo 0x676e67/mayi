@@ -2,14 +2,6 @@ server:
   port: 8888    #server 端口
 
 spring:
-  application:
-    name: ant-umps-biz
-  cloud:
-    nacos:
-      discovery:
-        server-addr: http://localhost:8848
-      config:
-        file-extension: yml #指定配置文件
   datasource:
     url: jdbc:mysql://localhost:3306/master?useSSL=false&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&autoReconnect=true&failOverReadOnly=false&maxReconnects=10&serverTimezone=GMT
     username: root
@@ -88,4 +80,20 @@ mybatis-plus:                                               #mybatis-plus 配置
   check-config-location: true
   type-enums-package: com.zf1976.ant.upms.biz.pojo.enums,com.zf1976.ant.common.log.pojo.enums
 
-
+#文件路径配置
+file:
+  config:
+    # 工作文件
+    work-file-path: /work
+    # 普通文件大小/M
+    file-max-size: 50
+    # 头像大小
+    avatar-max-size: 10
+    #请求相对路径
+    relative:
+      avatar-url: /avatar/**
+      file-url: /file/**
+    #实际路径（不完整）
+    real:
+      avatar-path: /avatar/
+      file-path: /file/

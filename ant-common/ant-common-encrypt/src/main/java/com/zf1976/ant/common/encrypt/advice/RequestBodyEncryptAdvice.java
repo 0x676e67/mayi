@@ -4,6 +4,7 @@ import com.power.common.util.Base64Util;
 import com.power.common.util.StringUtil;
 import com.zf1976.ant.common.encrypt.EncryptUtil;
 import com.zf1976.ant.common.encrypt.annotation.Decrypt;
+import com.zf1976.ant.common.encrypt.annotation.EnableEncrypt;
 import com.zf1976.ant.common.encrypt.config.SecretProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,7 @@ public class RequestBodyEncryptAdvice implements RequestBodyAdvice {
     public boolean supports(@NonNull MethodParameter methodParameter,
                             @NonNull Type type,
                             @NonNull Class<? extends HttpMessageConverter<?>> aClass) {
+
         // 全局开启加密 解密
         if (SecretProperties.OPEN_ENCRYPT) {
             // 默认解密
