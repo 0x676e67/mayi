@@ -44,13 +44,14 @@ public class RequestBodyEncryptAdvice implements RequestBodyAdvice {
                             @NonNull Type type,
                             @NonNull Class<? extends HttpMessageConverter<?>> aClass) {
 
-        // 全局开启加密 解密
-        if (SecretProperties.OPEN_ENCRYPT) {
-            // 默认解密
-            return true;
-        } else {
-            return methodParameter.getMethodAnnotation(Decrypt.class) != null;
-        }
+//        // 全局开启加密 解密
+//        if (SecretProperties.OPEN_ENCRYPT) {
+//            // 默认解密
+//            return true;
+//        } else {
+//            return methodParameter.getMethodAnnotation(Decrypt.class) != null;
+//        }
+        return false;
     }
 
     /**

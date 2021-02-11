@@ -43,13 +43,14 @@ public class ResponseBodyEncryptAdvice implements ResponseBodyAdvice<Object> {
     @Override
     public boolean supports(@NonNull MethodParameter returnType,
                             @NonNull Class<? extends HttpMessageConverter<?>> aClass) {
-        // 全局开启加密 解密
-        if (SecretProperties.OPEN_ENCRYPT) {
-            // 注解优于配置
-            return returnType.getMethodAnnotation(Allow.class) == null;
-        } else {
-            return returnType.getMethodAnnotation(Encrypt.class) != null;
-        }
+//        // 全局开启加密 解密
+//        if (SecretProperties.OPEN_ENCRYPT) {
+//            // 注解优于配置
+//            return returnType.getMethodAnnotation(Allow.class) == null;
+//        } else {
+//            return returnType.getMethodAnnotation(Encrypt.class) != null;
+//        }
+        return false;
     }
 
     /**

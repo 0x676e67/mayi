@@ -1,0 +1,53 @@
+plugins {
+    id 'org.springframework.boot' version '2.2.3.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+}
+
+sourceCompatibility = '1.8'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+ext {
+    set('springCloudVersion', "Hoxton.SR9")
+}
+
+dependencies {
+    implementation project(':ant-common:ant-common-core')
+    implementation project(':ant-common:ant-common-encrypt')
+    implementation project(':ant-common:ant-common-component')
+    implementation project(':ant-common:ant-common-mybatis')
+    implementation project(':ant-common:ant-common-datasource')
+    implementation project(':ant-upms:ant-upms-api')
+    implementation project(':ant-upms:ant-upms-dao')
+    implementation('io.jsonwebtoken:jjwt-api:0.11.1')
+    implementation('io.jsonwebtoken:jjwt-impl:0.11.1')
+    implementation('io.jsonwebtoken:jjwt-jackson:0.11.1')
+    implementation('com.github.whvcse:easy-captcha:1.6.2')
+    implementation('org.springframework.boot:spring-boot-starter-web')
+    implementation 'org.springframework.cloud:spring-cloud-starter-oauth2'
+    implementation 'org.springframework.cloud:spring-cloud-starter-security'
+    implementation 'com.alibaba.cloud:spring-cloud-alibaba-dependencies:2.2.3.RELEASE'
+    implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery:2.2.3.RELEASE'
+    implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config:2.2.3.RELEASE'
+    implementation('org.springframework.boot:spring-boot-configuration-processor')
+    implementation('org.springframework.boot:spring-boot-starter-jdbc')
+    implementation 'org.springframework.security:spring-security-test'
+    implementation('org.springframework.boot:spring-boot-starter-cache')
+    implementation('org.springframework.boot:spring-boot-starter-data-redis')
+    implementation('com.baomidou:mybatis-plus-boot-starter:3.3.1.tmp')
+
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
