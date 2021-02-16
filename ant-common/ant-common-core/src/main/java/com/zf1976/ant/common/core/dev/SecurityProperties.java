@@ -81,6 +81,11 @@ public class SecurityProperties {
     private Boolean enableRestore;
 
     /**
+     * jwt 证书密钥
+     */
+    private String rsaSecret;
+
+    /**
      * 白名单 uri
      */
     private String[] allowUri;

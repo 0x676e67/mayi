@@ -18,7 +18,6 @@ spring:
           filters:
              - StripPrefix=1
     nacos:
-      discovery:
-        server-addr: http://localhost:8848
       config:
         file-extension: yaml
+      server-addr: 139.224.81.120:8848

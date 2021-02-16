@@ -64,6 +64,8 @@ security:
   prefix-session-token: session-token-
   # 开启续期 策略
   enable-restore: true
+  # jwt证书 rsa密钥
+  rsa-secret: 123456
   # 应用唯一标识
   app-id: 1234567
   # 应用密钥
