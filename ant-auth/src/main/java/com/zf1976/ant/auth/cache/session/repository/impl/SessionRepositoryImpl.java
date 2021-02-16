@@ -1,9 +1,12 @@
 package com.zf1976.ant.auth.cache.session.repository.impl;
 
+import com.zf1976.ant.auth.AuthorizationConstants;
 import com.zf1976.ant.auth.cache.session.Session;
 import com.zf1976.ant.auth.cache.session.repository.SessionRepository;
 import com.zf1976.ant.common.core.dev.SecurityProperties;
+import com.zf1976.ant.common.core.util.RequestUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.Cursor;
@@ -28,6 +31,7 @@ public class SessionRepositoryImpl implements SessionRepository {
     private final SecurityProperties securityProperties;
     private final RedisTemplate<Object, Object> redisTemplate;
 
+
     private SessionRepositoryImpl(RedisTemplate<Object, Object> template, SecurityProperties securityProperties) {
         this.redisTemplate = template;
         this.securityProperties = securityProperties;
@@ -45,7 +49,7 @@ public class SessionRepositoryImpl implements SessionRepository {
                      .set(this.formatSessionId(id),
                              session,
                              this.getTokenExpired(),
-                             TimeUnit.MILLISECONDS);
+                             TimeUnit.SECONDS);
     }
 
     @Override
@@ -54,7 +58,7 @@ public class SessionRepositoryImpl implements SessionRepository {
                      .set(this.formatSessionToken(token),
                              id,
                              this.getTokenExpired(),
-                             TimeUnit.MILLISECONDS);
+                             TimeUnit.SECONDS);
     }
 
     @Override
@@ -63,12 +67,12 @@ public class SessionRepositoryImpl implements SessionRepository {
                      .set(this.formatSessionId(id),
                              session,
                              expired,
-                             TimeUnit.MILLISECONDS);
+                             TimeUnit.SECONDS);
         redisTemplate.opsForValue()
                      .set(this.formatSessionToken(session.getToken()),
                              id,
                              expired,
-                             TimeUnit.MILLISECONDS);
+                             TimeUnit.SECONDS);
     }
 
     @Override
@@ -96,7 +100,7 @@ public class SessionRepositoryImpl implements SessionRepository {
 
     @Override
     public Long selectSessionExpiredById(Long id) {
-        return redisTemplate.getExpire(this.formatSessionId(id), TimeUnit.MILLISECONDS);
+        return redisTemplate.getExpire(this.formatSessionId(id), TimeUnit.SECONDS);
     }
 
     @Override
@@ -128,7 +132,8 @@ public class SessionRepositoryImpl implements SessionRepository {
     }
 
     private long getTokenExpired() {
-        return securityProperties.getTokenExpiredTime();
+        return (Integer) RequestUtils.getRequest()
+                                     .getAttribute(AuthorizationConstants.EXPIRED);
     }
 
     /**

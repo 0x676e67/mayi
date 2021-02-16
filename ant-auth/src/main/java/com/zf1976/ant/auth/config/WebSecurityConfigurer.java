@@ -1,9 +1,7 @@
 package com.zf1976.ant.auth.config;
 
-import com.zf1976.ant.auth.safe.handler.access.SecurityAccessDeniedHandler;
-import com.zf1976.ant.auth.safe.handler.access.SecurityAuthenticationEntryPoint;
-import com.zf1976.ant.auth.safe.handler.logout.SecurityLogoutHandler;
-import com.zf1976.ant.auth.safe.handler.logout.SecurityLogoutSuccessHandler;
+import com.zf1976.ant.auth.handler.logout.Oauth2LogoutHandler;
+import com.zf1976.ant.auth.handler.logout.Oauth2LogoutSuccessHandler;
 import com.zf1976.ant.common.core.dev.SecurityProperties;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
@@ -54,15 +52,11 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
             .cors()
             .and()
             // 登出处理
-//            .logout()
-//            .logoutUrl("/auth/logout")
-//            .addLogoutHandler(new SecurityLogoutHandler())
-//            .logoutSuccessHandler(new SecurityLogoutSuccessHandler())
-//            .and()
-//            .exceptionHandling()
-//            .accessDeniedHandler(new SecurityAccessDeniedHandler())
-//            .authenticationEntryPoint(new SecurityAuthenticationEntryPoint())
-//            .and()
+            .logout()
+            .logoutUrl("/oauth/logout")
+            .addLogoutHandler(new Oauth2LogoutHandler())
+            .logoutSuccessHandler(new Oauth2LogoutSuccessHandler())
+            .and()
             // 防止iframe跨域
             .headers()
             .frameOptions()

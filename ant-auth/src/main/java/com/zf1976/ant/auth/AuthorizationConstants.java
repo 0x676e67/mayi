@@ -6,7 +6,6 @@ package com.zf1976.ant.auth;
  */
 public interface AuthorizationConstants {
 
-
     /**
      * oauth 缓存前缀
      */
@@ -46,5 +45,20 @@ public interface AuthorizationConstants {
      * 签发方
      */
     String ISSUER = "issuer";
+
+    /**
+     * 过期时间
+     */
+    String EXPIRED = "expired";
+
+    /**
+     * jwt 唯一标示
+     */
+    String JTI = "jti";
+
+    /**
+     * 签发时间
+     */
+    String IAT = "iat";
 
 }

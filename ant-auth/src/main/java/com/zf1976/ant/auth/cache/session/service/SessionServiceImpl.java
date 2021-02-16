@@ -6,7 +6,6 @@ import com.zf1976.ant.auth.pojo.vo.DepartmentVo;
 import com.zf1976.ant.auth.LoginUserDetails;
 import com.zf1976.ant.auth.cache.session.repository.SessionRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,8 +20,11 @@ import java.util.Optional;
 @Service
 public class SessionServiceImpl implements SessionService {
 
-    @Autowired
-    private SessionRepository repository;
+    private final SessionRepository repository;
+
+    public SessionServiceImpl(SessionRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public void save(String token,

@@ -1,6 +1,7 @@
 package com.zf1976.ant.auth;
 
 import com.zf1976.ant.auth.service.DynamicDataSourceService;
+import com.zf1976.ant.common.core.dev.SecurityProperties;
 import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
 import com.zf1976.ant.common.core.util.SpringContextHolder;
 import org.springframework.security.core.Authentication;
@@ -8,10 +9,13 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -23,11 +27,24 @@ public class SecurityContextHolder extends org.springframework.security.core.con
     private static final UserDetailsService USER_DETAILS_SERVICE;
     private static final DynamicDataSourceService DYNAMIC_DATA_SOURCE_SERVICE;
     private static final AntPathMatcher PATH_MATCHER;
+    private static final Map<Class<?>, Object> CONTENTS_MAP;
+    private static final SecurityProperties SECURITY_PROPERTIES;
 
     static {
+        SECURITY_PROPERTIES = SpringContextHolder.getBean(SecurityProperties.class);
         USER_DETAILS_SERVICE = SpringContextHolder.getBean(UserDetailsService.class);
         DYNAMIC_DATA_SOURCE_SERVICE = SpringContextHolder.getBean(DynamicDataSourceService.class);
         PATH_MATCHER = new AntPathMatcher();
+        CONTENTS_MAP = new HashMap<>();
+    }
+
+    public static void put(Class<?> clazz, Object object) {
+        Assert.isInstanceOf(clazz, object, "must be an instance of class");
+        CONTENTS_MAP.put(clazz, object);
+    }
+
+    public static <T> T get(Class<T> clazz){
+        return clazz.cast(CONTENTS_MAP.get(clazz));
     }
 
     /**
@@ -120,5 +137,9 @@ public class SecurityContextHolder extends org.springframework.security.core.con
         Set<String> allowedUri = getAllowedUri();
         return allowedUri.stream()
                          .anyMatch(var -> PATH_MATCHER.match(var, uri));
+    }
+
+    public static String getIssuer(){
+        return SECURITY_PROPERTIES.getTokenIssuer();
     }
  }

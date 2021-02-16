@@ -3,6 +3,7 @@ package com.zf1976.ant.common.core.foundation;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.power.common.util.DateTimeUtil;
 import lombok.Data;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.ObjectUtils;
 
 /**
@@ -125,6 +126,15 @@ public class Result<T> {
         vo.setSuccess(false);
         vo.setErrCode(errCode);
         vo.setErrMsg(errMsg);
+        vo.setTimestamp(DateTimeUtil.nowStrTime());
+        return vo;
+    }
+
+    public static Result fail(HttpStatus httpStatus) {
+        Result vo = new Result();
+        vo.setSuccess(false);
+        vo.setErrCode(httpStatus.value());
+        vo.setErrMsg(httpStatus.getReasonPhrase());
         vo.setTimestamp(DateTimeUtil.nowStrTime());
         return vo;
     }

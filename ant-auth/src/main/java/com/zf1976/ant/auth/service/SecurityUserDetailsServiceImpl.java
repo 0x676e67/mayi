@@ -78,9 +78,10 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
         if (!userInfoVo.getEnabled()) {
             throw new UserNotFountException(AuthenticationState.ACCOUNT_DISABLED);
         } else {
-            securityUserDetails = new LoginUserDetails(userInfoVo,
-                                                          this.grantedAuthorities(userInfoVo),
-                                                          this.getDataPermission(userInfoVo));
+            securityUserDetails = new LoginUserDetails(
+                    userInfoVo,
+                    this.grantedAuthorities(userInfoVo),
+                    this.getDataPermission(userInfoVo));
         }
         return securityUserDetails;
     }
