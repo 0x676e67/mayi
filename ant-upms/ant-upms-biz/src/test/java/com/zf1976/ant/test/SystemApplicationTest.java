@@ -1,6 +1,7 @@
 package com.zf1976.ant.test;
 
 import com.zf1976.ant.upms.biz.SystemApplication;
+import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 /**
@@ -10,6 +11,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest(classes = SystemApplication.class)
 public class SystemApplicationTest {
 
-    void contextLoads() {
+    @Test
+    public void contextLoads() {
+
     }
 }

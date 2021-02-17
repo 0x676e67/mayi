@@ -9,6 +9,7 @@ import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
+import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 
 import java.util.LinkedHashMap;
@@ -18,7 +19,7 @@ import java.util.Map;
  * @author mac
  * @date 2021/2/16
  **/
-public class JwtTokenEnhancer extends JwtAccessTokenConverter {
+public class JwtTokenEnhancer implements TokenEnhancer {
 
     @Override
     public OAuth2AccessToken enhance(OAuth2AccessToken oAuth2AccessToken, OAuth2Authentication oAuth2Authentication) {
@@ -38,7 +39,7 @@ public class JwtTokenEnhancer extends JwtAccessTokenConverter {
         ((DefaultOAuth2AccessToken) oAuth2AccessToken).setAdditionalInformation(additionalInformation);
         // 保存会话状态
         this.saveSessionState(oAuth2AccessToken, oAuth2Authentication);
-        return super.enhance(oAuth2AccessToken, oAuth2Authentication);
+        return oAuth2AccessToken;
     }
 
     public void saveSessionState(OAuth2AccessToken oAuth2AccessToken, OAuth2Authentication oAuth2Authentication) {

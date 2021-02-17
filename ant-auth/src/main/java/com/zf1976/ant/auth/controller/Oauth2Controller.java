@@ -75,7 +75,6 @@ public class Oauth2Controller {
     @GetMapping("/test")
      public void test(){
         String header = RequestUtils.getRequest().getParameter("token");
-        System.out.println(header);
         RedisTokenStore redisTokenStore = SecurityContextHolder.get(RedisTokenStore.class);
         OAuth2AccessToken oAuth2AccessToken = redisTokenStore.readAccessToken(header);
         OAuth2RefreshToken refreshToken = oAuth2AccessToken.getRefreshToken();

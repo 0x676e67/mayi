@@ -1,9 +1,11 @@
 package com.zf1976.ant.auth.config;
 
+import com.zf1976.ant.auth.authorize.filter.PasswordDecryptFilter;
 import com.zf1976.ant.auth.enhance.JwtTokenEnhancer;
 import com.zf1976.ant.auth.enhance.RedisTokenStoreEnhancer;
 import com.zf1976.ant.auth.handler.access.Oauth2AccessDeniedHandler;
 import com.zf1976.ant.auth.handler.access.Oauth2AuthenticationEntryPoint;
+import com.zf1976.ant.auth.interceptor.AuthorizationReturnInterceptor;
 import com.zf1976.ant.auth.service.SecurityUserDetailsServiceImpl;
 import com.zf1976.ant.common.core.dev.SecurityProperties;
 import org.springframework.context.annotation.Configuration;
@@ -18,13 +20,23 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.CompositeTokenGranter;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
+import org.springframework.security.oauth2.provider.token.TokenEnhancer;
+import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
+import org.springframework.web.servlet.AsyncHandlerInterceptor;
+import org.springframework.web.servlet.HandlerInterceptor;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.security.KeyPair;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author mac
@@ -68,7 +80,6 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
                 // oauth/token_key 公开密钥
                 .tokenKeyAccess("permitAll()")
                 .passwordEncoder(passwordEncoder);
-        //  .addTokenEndpointAuthenticationFilter(new SignatureAuthenticationFilter());
     }
 
     /**
@@ -90,12 +101,14 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
         RedisTokenStoreEnhancer tokenStoreEnhancer = new RedisTokenStoreEnhancer(this.getRedisConnectionFactory());
         TokenStore tokenStore = tokenStoreEnhancer.enhance();
+        CompositeTokenGranter tokenGranter = (CompositeTokenGranter) endpoints.getTokenGranter();
         endpoints.authenticationManager(authenticationManager)
                  .tokenStore(tokenStore)
                  .allowedTokenEndpointRequestMethods(HttpMethod.POST)
-                 .tokenEnhancer(jwtAccessTokenConverter())
+                 .tokenEnhancer(tokenEnhancerChain())
                  .userDetailsService(securityUserDetailsService)
-                 .reuseRefreshTokens(false);
+                 .reuseRefreshTokens(false)
+                 .addInterceptor(new AuthorizationReturnInterceptor());
     }
 
     /**
@@ -107,8 +120,15 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
         return factory.getKeyPair("jwt", secretChar);
     }
 
+    public TokenEnhancerChain tokenEnhancerChain() {
+        final TokenEnhancerChain enhancerChain = new TokenEnhancerChain();
+        final List<TokenEnhancer> asList = Arrays.asList(new JwtTokenEnhancer(), jwtAccessTokenConverter());
+        enhancerChain.setTokenEnhancers(asList);
+        return enhancerChain;
+    }
+
     private JwtAccessTokenConverter jwtAccessTokenConverter(){
-        final JwtAccessTokenConverter jwtAccessTokenConverter = new JwtTokenEnhancer();
+        final JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
         jwtAccessTokenConverter.setKeyPair(keyPair());
         jwtAccessTokenConverter.setSigningKey(securityProperties.getTokenBase64Secret());
         return jwtAccessTokenConverter;
