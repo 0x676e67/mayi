@@ -2,7 +2,7 @@ package com.zf1976.ant.auth.handler.login;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zf1976.ant.auth.exception.*;
-import com.zf1976.ant.common.core.foundation.Result;
+import com.zf1976.ant.common.core.foundation.ResultData;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -34,40 +34,40 @@ public class SecurityAuthenticationFailureHandler implements AuthenticationFailu
     public void onAuthenticationFailure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException {
         SecurityContextHolder.clearContext();
         ObjectMapper objectMapper = new ObjectMapper();
-        Result result = null;
+        ResultData result = null;
         if (e instanceof RsaDecryptException) {
             RsaDecryptException exception = (RsaDecryptException) e;
             httpServletResponse.setStatus(exception.getValue());
-            result = Result.fail(exception.getValue(), exception.getReasonPhrase());
+            result = ResultData.fail(exception.getValue(), exception.getReasonPhrase());
         }
         if (e instanceof CaptchaException) {
             CaptchaException exception = (CaptchaException) e;
             httpServletResponse.setStatus(exception.getValue());
-            result = Result.fail(exception.getValue(), exception.getReasonPhrase());
+            result = ResultData.fail(exception.getValue(), exception.getReasonPhrase());
         }
         if (e instanceof BadCredentialsException) {
             BadCredentialsException exception = (BadCredentialsException) e;
             httpServletResponse.setStatus(exception.getValue());
-            result = Result.fail(exception.getValue(), exception.getReasonPhrase());
+            result = ResultData.fail(exception.getValue(), exception.getReasonPhrase());
         }
         if (e instanceof PasswordException) {
             PasswordException exception = (PasswordException) e;
             httpServletResponse.setStatus(exception.getValue());
-            result = Result.fail(exception.getValue(), exception.getReasonPhrase());
+            result = ResultData.fail(exception.getValue(), exception.getReasonPhrase());
         }
         if (e instanceof UserNotFountException) {
             UserNotFountException exception = (UserNotFountException) e;
             httpServletResponse.setStatus(exception.getValue());
-            result = Result.fail(exception.getValue(), exception.getReasonPhrase());
+            result = ResultData.fail(exception.getValue(), exception.getReasonPhrase());
         }
         if (e instanceof AuthenticationServiceException) {
             AuthenticationServiceException exception = (AuthenticationServiceException) e;
             httpServletResponse.setStatus(HttpStatus.NOT_FOUND.value());
-            result = Result.fail(HttpStatus.NOT_FOUND.value(), exception.getMessage());
+            result = ResultData.fail(HttpStatus.NOT_FOUND.value(), exception.getMessage());
         }
         if (e != null && result == null) {
             httpServletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            result = Result.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
+            result = ResultData.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
         }
         Assert.notNull(result, "result cannot been null");
         result.setPath(httpServletRequest.getRequestURI());

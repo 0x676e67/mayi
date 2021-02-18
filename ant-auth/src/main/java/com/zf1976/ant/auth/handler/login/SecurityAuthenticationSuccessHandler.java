@@ -3,10 +3,10 @@ package com.zf1976.ant.auth.handler.login;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.power.common.util.Base64Util;
 import com.zf1976.ant.auth.filter.manager.SessionContextHolder;
-import com.zf1976.ant.common.core.foundation.Result;
+import com.zf1976.ant.auth.pojo.vo.LoginResponse;
+import com.zf1976.ant.common.core.foundation.ResultData;
 import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.encrypt.EncryptUtil;
-import com.zf1976.ant.auth.pojo.vo.LoginResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -47,7 +47,7 @@ public class SecurityAuthenticationSuccessHandler implements AuthenticationSucce
                      .setUser(userDetails);
         SessionContextHolder.set(token, userDetails);
         // 原始content
-        String rawContent = jsonMapper.writeValueAsString(Result.success(loginResponse));
+        String rawContent = jsonMapper.writeValueAsString(ResultData.success(loginResponse));
         // 加密后内容
         String result = EncryptUtil.encryptForAesByCbc(rawContent);
         httpServletResponse.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");

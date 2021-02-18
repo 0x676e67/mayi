@@ -4,9 +4,9 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.zf1976.ant.auth.filter.datasource.DynamicSecurityMetadataSource;
 import com.zf1976.ant.auth.filter.manager.DynamicAccessDecisionManager;
-import com.zf1976.ant.common.core.util.SpringContextHolder;
-import com.zf1976.ant.common.core.dev.SecurityProperties;
 import com.zf1976.ant.auth.service.DynamicDataSourceService;
+import com.zf1976.ant.common.core.dev.SecurityProperties;
+import com.zf1976.ant.common.core.util.SpringContextHolder;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.SecurityMetadataSource;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
@@ -53,24 +53,21 @@ public class DynamicSecurityFilter extends AbstractSecurityInterceptor implement
         FilterInvocation fi = new FilterInvocation(servletRequest, servletResponse, filterChain);
         //OPTIONS请求直接放行
         if (request.getMethod().equals(HttpMethod.OPTIONS.toString())) {
-            fi.getChain()
-              .doFilter(fi.getRequest(), fi.getResponse());
+            fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
             return;
         }
         //白名单请求直接放行
         PathMatcher pathMatcher = new AntPathMatcher();
         for (String path : this.loadAllowUrl()) {
             if (pathMatcher.match(path, request.getRequestURI())) {
-                fi.getChain()
-                  .doFilter(fi.getRequest(), fi.getResponse());
+                fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
                 return;
             }
         }
         //此处会调用AccessDecisionManager中的decide方法进行鉴权操作
         InterceptorStatusToken token = super.beforeInvocation(fi);
         try {
-            fi.getChain()
-              .doFilter(fi.getRequest(), fi.getResponse());
+            fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
         } finally {
             super.afterInvocation(token, null);
         }

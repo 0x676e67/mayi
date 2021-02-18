@@ -1,14 +1,14 @@
 package com.zf1976.ant.auth.handler.logout;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zf1976.ant.auth.JwtTokenProvider;
 import com.zf1976.ant.auth.cache.session.Session;
-import com.zf1976.ant.auth.filter.manager.SessionContextHolder;
+import com.zf1976.ant.auth.enums.AuthenticationState;
 import com.zf1976.ant.auth.exception.ExpiredJwtException;
 import com.zf1976.ant.auth.exception.IllegalAccessException;
 import com.zf1976.ant.auth.exception.IllegalJwtException;
-import com.zf1976.ant.auth.enums.AuthenticationState;
-import com.zf1976.ant.auth.JwtTokenProvider;
-import com.zf1976.ant.common.core.foundation.Result;
+import com.zf1976.ant.auth.filter.manager.SessionContextHolder;
+import com.zf1976.ant.common.core.foundation.ResultData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -90,21 +90,21 @@ public class Oauth2LogoutHandler implements LogoutHandler {
      * @throws IOException 向上抛异常
      */
     private void unSuccessLogoutHandler(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException {
-        Result fail = null;
+        ResultData fail = null;
         if (e instanceof ExpiredJwtException) {
             ExpiredJwtException exception = (ExpiredJwtException) e;
-            fail = Result.fail(exception.getValue(), exception.getReasonPhrase());
+            fail = ResultData.fail(exception.getValue(), exception.getReasonPhrase());
         }else if (e instanceof IllegalAccessException) {
             IllegalAccessException exception = (IllegalAccessException) e;
-            fail = Result.fail(exception.getValue(), exception.getReasonPhrase());
+            fail = ResultData.fail(exception.getValue(), exception.getReasonPhrase());
         } else if (e instanceof IllegalJwtException) {
             IllegalJwtException exception = (IllegalJwtException) e;
-            fail = Result.fail(exception.getValue(), exception.getReasonPhrase());
+            fail = ResultData.fail(exception.getValue(), exception.getReasonPhrase());
         } else if (e instanceof AuthenticationServiceException) {
             AuthenticationServiceException exception = (AuthenticationServiceException) e;
-            fail = Result.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+            fail = ResultData.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
         } else {
-            fail = Result.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
+            fail = ResultData.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
         }
         httpServletResponse.setStatus(HttpStatus.OK.value());
         httpServletResponse.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");

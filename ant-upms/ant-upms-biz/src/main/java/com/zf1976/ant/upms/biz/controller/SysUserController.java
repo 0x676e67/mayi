@@ -2,8 +2,10 @@ package com.zf1976.ant.upms.biz.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.common.component.mail.ValidateFactory;
-import com.zf1976.ant.common.log.annotation.Log;
+import com.zf1976.ant.common.core.foundation.ResultData;
 import com.zf1976.ant.common.core.foundation.query.RequestPage;
+import com.zf1976.ant.common.log.annotation.Log;
+import com.zf1976.ant.common.security.safe.annotation.Authorize;
 import com.zf1976.ant.upms.biz.pojo.dto.user.UpdateEmailDTO;
 import com.zf1976.ant.upms.biz.pojo.dto.user.UpdateInfoDTO;
 import com.zf1976.ant.upms.biz.pojo.dto.user.UpdatePasswordDTO;
@@ -13,8 +15,6 @@ import com.zf1976.ant.upms.biz.pojo.validate.ValidationInsertGroup;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationUpdateGroup;
 import com.zf1976.ant.upms.biz.pojo.vo.user.UserVO;
 import com.zf1976.ant.upms.biz.service.SysUserService;
-import com.zf1976.ant.common.core.foundation.Result;
-import com.zf1976.ant.common.security.safe.annotation.Authorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,71 +38,71 @@ public class SysUserController {
 
     @PostMapping("/page")
     @Authorize("user:list")
-    public Result<IPage<UserVO>> selectUserPage(@RequestBody RequestPage<UserQueryParam> requestPage) {
-        return Result.success(service.selectUserPage(requestPage));
+    public ResultData<IPage<UserVO>> selectUserPage(@RequestBody RequestPage<UserQueryParam> requestPage) {
+        return ResultData.success(service.selectUserPage(requestPage));
     }
 
     @Log(description = "添加用户")
     @PostMapping("/save")
     @Authorize("user:add")
-    public Result<Optional<Void>> saveUser(@RequestBody @Validated(ValidationInsertGroup.class) UserDTO dto) {
-        return Result.success(service.saveUser(dto));
+    public ResultData<Optional<Void>> saveUser(@RequestBody @Validated(ValidationInsertGroup.class) UserDTO dto) {
+        return ResultData.success(service.saveUser(dto));
     }
 
     @Log(description = "更新用户")
     @PutMapping("/update")
     @Authorize("user:edit")
-    public Result<Optional<Void>> updateUser(@RequestBody @Validated(ValidationUpdateGroup.class) UserDTO dto) {
-        return Result.success(service.updateUser(dto));
+    public ResultData<Optional<Void>> updateUser(@RequestBody @Validated(ValidationUpdateGroup.class) UserDTO dto) {
+        return ResultData.success(service.updateUser(dto));
     }
 
     @Log(description = "删除用户")
     @DeleteMapping("/delete")
     @Authorize("user:del")
-    public Result<Optional<Void>> deleteUser(@RequestBody Set<Long> ids) {
-        return Result.success(service.deleteUser(ids));
+    public ResultData<Optional<Void>> deleteUser(@RequestBody Set<Long> ids) {
+        return ResultData.success(service.deleteUser(ids));
     }
 
     @PostMapping("/position/{id}")
     @Authorize("user:list")
-    public Result<Set<Long>> getUserPositionIds(@PathVariable Long id) {
-        return Result.success(service.selectUserPositionIds(id));
+    public ResultData<Set<Long>> getUserPositionIds(@PathVariable Long id) {
+        return ResultData.success(service.selectUserPositionIds(id));
     }
 
     @PostMapping("/role/{id}")
     @Authorize("user:list")
-    public Result<Set<Long>> getUserRoleIds(@PathVariable Long id) {
-        return Result.success(service.selectUserRoleIds(id));
+    public ResultData<Set<Long>> getUserRoleIds(@PathVariable Long id) {
+        return ResultData.success(service.selectUserRoleIds(id));
     }
 
     @Log(description = "修改用户状态")
     @PatchMapping("/status")
-    public Result<Optional<Void>> setUserStatus(@RequestParam @NotNull Long id, @RequestParam @NotNull Boolean enabled) {
-        return Result.success(service.setUserStatus(id, enabled));
+    public ResultData<Optional<Void>> setUserStatus(@RequestParam @NotNull Long id, @RequestParam @NotNull Boolean enabled) {
+        return ResultData.success(service.setUserStatus(id, enabled));
     }
 
     @PostMapping("/update/avatar")
-    public Result<Optional<Void>> updateAvatar(@RequestParam("avatar") MultipartFile multipartFile) {
-        return Result.success(service.updateAvatar(multipartFile));
+    public ResultData<Optional<Void>> updateAvatar(@RequestParam("avatar") MultipartFile multipartFile) {
+        return ResultData.success(service.updateAvatar(multipartFile));
     }
 
     @PatchMapping("/update/password")
-    public Result<Optional<Void>> updatePass(@RequestBody @Validated UpdatePasswordDTO dto) {
-        return Result.success(service.updatePassword(dto));
+    public ResultData<Optional<Void>> updatePass(@RequestBody @Validated UpdatePasswordDTO dto) {
+        return ResultData.success(service.updatePassword(dto));
     }
 
     @PatchMapping("/update/email/{code}")
-    public Result<Optional<Void>> updateEmail(@PathVariable String code, @RequestBody @Validated UpdateEmailDTO dto) {
-        return Result.success(service.updateEmail(code, dto));
+    public ResultData<Optional<Void>> updateEmail(@PathVariable String code, @RequestBody @Validated UpdateEmailDTO dto) {
+        return ResultData.success(service.updateEmail(code, dto));
     }
 
     @GetMapping("/email/verify-code")
-    public Result<Optional<Void>> getEmailVerifyCode(@RequestParam String email) {
-        return Result.success(ValidateFactory.getInstance().sendMailValidate(email));
+    public ResultData<Optional<Void>> getEmailVerifyCode(@RequestParam String email) {
+        return ResultData.success(ValidateFactory.getInstance().sendMailValidate(email));
     }
 
     @PatchMapping("/update/info")
-    public Result<Optional<Void>> updateInfo(@RequestBody @Validated UpdateInfoDTO dto) {
-        return Result.success(service.updateInfo(dto));
+    public ResultData<Optional<Void>> updateInfo(@RequestBody @Validated UpdateInfoDTO dto) {
+        return ResultData.success(service.updateInfo(dto));
     }
 }

@@ -16,12 +16,13 @@ import org.springframework.stereotype.Repository;
 @EnableDiscoveryClient
 public class AuthApplication {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         SpringApplication.run(AuthApplication.class, args);
-        final String encrypt = EncryptUtil.encryptForRsaByPublicKey("123456");
-        final String decrypt = EncryptUtil.decryptForRsaByPrivateKey(encrypt);
-        System.out.println(encrypt);
-        System.out.println(decrypt);
+        try {
+            System.out.println(EncryptUtil.encryptForRsaByPublicKey("123456"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

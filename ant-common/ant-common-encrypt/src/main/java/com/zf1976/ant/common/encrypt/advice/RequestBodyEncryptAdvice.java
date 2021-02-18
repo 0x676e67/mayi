@@ -3,8 +3,6 @@ package com.zf1976.ant.common.encrypt.advice;
 import com.power.common.util.Base64Util;
 import com.power.common.util.StringUtil;
 import com.zf1976.ant.common.encrypt.EncryptUtil;
-import com.zf1976.ant.common.encrypt.annotation.Decrypt;
-import com.zf1976.ant.common.encrypt.annotation.EnableEncrypt;
 import com.zf1976.ant.common.encrypt.config.SecretProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,14 +42,14 @@ public class RequestBodyEncryptAdvice implements RequestBodyAdvice {
                             @NonNull Type type,
                             @NonNull Class<? extends HttpMessageConverter<?>> aClass) {
 
-//        // 全局开启加密 解密
+//        // 全局开启 解密
 //        if (SecretProperties.OPEN_ENCRYPT) {
 //            // 默认解密
 //            return true;
 //        } else {
 //            return methodParameter.getMethodAnnotation(Decrypt.class) != null;
 //        }
-        return false;
+        return true;
     }
 
     /**
@@ -70,7 +68,6 @@ public class RequestBodyEncryptAdvice implements RequestBodyAdvice {
                                            @NonNull MethodParameter methodParameter,
                                            @NonNull Type type,
                                            @NonNull Class<? extends HttpMessageConverter<?>> aClass) throws IOException {
-
         return new CustomizerHttpInputMessage(httpInputMessage);
     }
 
@@ -90,6 +87,7 @@ public class RequestBodyEncryptAdvice implements RequestBodyAdvice {
                                 @NonNull MethodParameter methodParameter,
                                 @NonNull Type type,
                                 @NonNull Class<? extends HttpMessageConverter<?>> aClass) {
+
         return body;
     }
 
@@ -120,11 +118,10 @@ public class RequestBodyEncryptAdvice implements RequestBodyAdvice {
         private static final String ARRAY_START = "{";
         private static final String ARRAY_END = "}";
 
-        public CustomizerHttpInputMessage(HttpInputMessage httpInputMessage) throws IOException {
+        public CustomizerHttpInputMessage(HttpInputMessage httpInputMessage) {
             this.showLog = SecretProperties.SHOW_LOG;
             this.headers = httpInputMessage.getHeaders();
             this.httpInputMessage = httpInputMessage;
-
         }
 
         @Override

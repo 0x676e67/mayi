@@ -1,4 +1,4 @@
-package com.zf1976.ant.auth.authorize;
+package com.zf1976.ant.auth.serialize;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;

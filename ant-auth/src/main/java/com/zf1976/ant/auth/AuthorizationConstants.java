@@ -61,4 +61,14 @@ public interface AuthorizationConstants {
      */
     String IAT = "iat";
 
+    /**
+     * 用户名
+     */
+    String USERNAME = "username";
+
+    /**
+     * 密码
+     */
+    String PASSWORD = "password";
+
 }

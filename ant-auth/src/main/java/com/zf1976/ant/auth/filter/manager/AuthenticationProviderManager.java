@@ -22,9 +22,7 @@ import java.util.List;
 public class AuthenticationProviderManager implements AuthenticationManager {
 
     private final List<AuthenticationProvider> providers;
-
     private final AuthenticationManager parent;
-
 
     public AuthenticationProviderManager() {
         this(new CaptchaAuthenticationProvider(),

@@ -1,15 +1,15 @@
 package com.zf1976.ant.auth.service;
 
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
-import com.zf1976.ant.auth.pojo.vo.RoleVo;
-import com.zf1976.ant.auth.pojo.vo.UserInfoVo;
+import com.zf1976.ant.auth.LoginUserDetails;
 import com.zf1976.ant.auth.enums.AuthenticationState;
 import com.zf1976.ant.auth.exception.UserNotFountException;
+import com.zf1976.ant.auth.pojo.vo.RoleVo;
+import com.zf1976.ant.auth.pojo.vo.UserInfoVo;
+import com.zf1976.ant.common.core.dev.SecurityProperties;
 import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
-import com.zf1976.ant.auth.LoginUserDetails;
 import com.zf1976.ant.upms.biz.dao.*;
 import com.zf1976.ant.upms.biz.pojo.po.*;
-import com.zf1976.ant.common.core.dev.SecurityProperties;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  * @author mac
  * Create by Ant on 2020/9/2 下午7:02
  */
-@Service("securityUserDetailsService")
+@Service("userDetailsService")
 public class SecurityUserDetailsServiceImpl implements UserDetailsService {
 
     private final SecurityProperties securityConfig;

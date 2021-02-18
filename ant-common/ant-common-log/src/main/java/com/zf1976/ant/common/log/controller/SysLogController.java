@@ -1,7 +1,7 @@
 package com.zf1976.ant.common.log.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.zf1976.ant.common.core.foundation.Result;
+import com.zf1976.ant.common.core.foundation.ResultData;
 import com.zf1976.ant.common.core.foundation.query.RequestPage;
 import com.zf1976.ant.common.log.pojo.vo.base.AbstractLogVO;
 import com.zf1976.ant.common.log.query.LogQueryParam;
@@ -26,27 +26,27 @@ public class SysLogController {
     }
 
     @PostMapping("/page")
-    public Result<IPage<AbstractLogVO>> selectLogPage(@RequestBody RequestPage<LogQueryParam> requestPage) {
-        return Result.success(service.selectLogPage(requestPage));
+    public ResultData<IPage<AbstractLogVO>> selectLogPage(@RequestBody RequestPage<LogQueryParam> requestPage) {
+        return ResultData.success(service.selectLogPage(requestPage));
     }
 
     @PostMapping("/users/page")
-    public Result<IPage<AbstractLogVO>> selectUserLogPage(@RequestBody RequestPage<LogQueryParam> requestPage) {
-        return Result.success(service.selectUserLogPage(requestPage));
+    public ResultData<IPage<AbstractLogVO>> selectUserLogPage(@RequestBody RequestPage<LogQueryParam> requestPage) {
+        return ResultData.success(service.selectUserLogPage(requestPage));
     }
 
     @DeleteMapping("/delete")
-    public Result<Optional<Void>> deleteLog(@RequestBody Set<Long> ids) {
-        return Result.success(service.deleteLog(ids));
+    public ResultData<Optional<Void>> deleteLog(@RequestBody Set<Long> ids) {
+        return ResultData.success(service.deleteLog(ids));
     }
 
     @DeleteMapping("/delete/error")
-    public Result<Optional<Void>> deleteErrorLog() {
-        return Result.success(service.deleteErrorLog());
+    public ResultData<Optional<Void>> deleteErrorLog() {
+        return ResultData.success(service.deleteErrorLog());
     }
 
     @DeleteMapping("/delete/info")
-    public Result<Optional<Void>> deleteInfoLog() {
-        return Result.success(service.deleteInfoLog());
+    public ResultData<Optional<Void>> deleteInfoLog() {
+        return ResultData.success(service.deleteInfoLog());
     }
 }

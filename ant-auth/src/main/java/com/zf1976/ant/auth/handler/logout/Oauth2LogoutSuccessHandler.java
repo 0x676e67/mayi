@@ -1,7 +1,7 @@
 package com.zf1976.ant.auth.handler.logout;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zf1976.ant.common.core.foundation.Result;
+import com.zf1976.ant.common.core.foundation.ResultData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -25,7 +25,7 @@ public class Oauth2LogoutSuccessHandler implements LogoutSuccessHandler {
     @Override
     public void onLogoutSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException, ServletException {
         httpServletResponse.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
-        objectMapper.writeValue(httpServletResponse.getOutputStream(), Result.success());
+        objectMapper.writeValue(httpServletResponse.getOutputStream(), ResultData.success());
         log.info("{}", "已登出");
     }
 }

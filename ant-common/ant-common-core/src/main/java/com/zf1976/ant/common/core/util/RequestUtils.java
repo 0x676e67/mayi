@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author mac
@@ -229,9 +227,15 @@ public final class RequestUtils extends RequestContextHolder {
      * @return request
      */
     public static HttpServletRequest getRequest() {
-        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) getRequestAttributes();
-        Assert.notNull(servletRequestAttributes, "servlet request cannot been null");
-        return servletRequestAttributes.getRequest();
+        ServletRequestAttributes servletRequestAttributes = null;
+        try {
+            servletRequestAttributes = getServletRequestAttrs();
+            Assert.notNull(servletRequestAttributes, "servlet request cannot been null");
+            return servletRequestAttributes.getRequest();
+        } catch (Exception ignored) {
+            return (HttpServletRequest) servletRequestAttributes;
+        }
+
     }
 
     /**

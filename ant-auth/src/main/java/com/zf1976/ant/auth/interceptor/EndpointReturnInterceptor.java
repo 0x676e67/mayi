@@ -1,18 +1,21 @@
 package com.zf1976.ant.auth.interceptor;
 
+import lombok.SneakyThrows;
 import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 /**
  * @author ant
  * Create by Ant on 2021/2/17 8:32 PM
  */
 
-public class AuthorizationReturnInterceptor implements HandlerInterceptor {
+public class EndpointReturnInterceptor implements HandlerInterceptor {
 
+    @SneakyThrows
     @Override
     public boolean preHandle(@NonNull HttpServletRequest request,
                              @NonNull HttpServletResponse response,
