@@ -4,6 +4,7 @@ import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.auth.handler.logout.Oauth2LogoutHandler;
 import com.zf1976.ant.auth.handler.logout.Oauth2LogoutSuccessHandler;
 import com.zf1976.ant.common.core.dev.SecurityProperties;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,9 +29,10 @@ import java.security.KeyPair;
 @EnableWebSecurity
 public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
-    private final SecurityProperties securityProperties;
+    private SecurityProperties securityProperties;
 
-    public WebSecurityConfigurer(SecurityProperties securityProperties) {
+    @Autowired
+    public void setSecurityProperties(SecurityProperties securityProperties) {
         this.securityProperties = securityProperties;
     }
 

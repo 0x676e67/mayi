@@ -1,13 +1,9 @@
 package com.zf1976.ant.auth.handler.logout;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zf1976.ant.auth.JwtTokenProvider;
-import com.zf1976.ant.auth.cache.session.Session;
-import com.zf1976.ant.auth.enums.AuthenticationState;
 import com.zf1976.ant.auth.exception.ExpiredJwtException;
 import com.zf1976.ant.auth.exception.IllegalAccessException;
 import com.zf1976.ant.auth.exception.IllegalJwtException;
-import com.zf1976.ant.auth.filter.manager.SessionContextHolder;
 import com.zf1976.ant.common.core.foundation.ResultData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,12 +15,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
-import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Objects;
 
 /**
  * @author mac
@@ -40,34 +34,19 @@ public class Oauth2LogoutHandler implements LogoutHandler {
      *
      * @param request request
      */
-    private void validateMethod(HttpServletRequest request) {
+    private void support(HttpServletRequest request) {
         final String method = request.getMethod();
-        if (StringUtils.isEmpty(method)) {
-            throw new IllegalAccessException(AuthenticationState.ILLEGAL_ACCESS);
-        }
-        if (!method.equals(HttpMethod.DELETE.name())) {
+        if (!method.equals(HttpMethod.POST.name())) {
             throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
         }
-
     }
 
     @Override
     public void logout(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) {
         AuthenticationException authenticationException = null;
         try {
-            validateMethod(httpServletRequest);
-            String token = JwtTokenProvider.getRequestToken(httpServletRequest);
-            // 一次验证token是否过期 可能未过期但已经销毁 即使本地存在 已过期也不允许使用
-            if (StringUtils.isEmpty(token) || JwtTokenProvider.validateExpired(token)) {
-                throw new IllegalAccessException(AuthenticationState.ILLEGAL_ACCESS);
-            }
-            // 二次验证token是否过期
-            Long id = JwtTokenProvider.getSessionId(token);
-            final Session session = SessionContextHolder.get(id);
-            if (Objects.isNull(session) || !StringUtils.hasText(token)) {
-                throw new ExpiredJwtException(AuthenticationState.EXPIRED_JWT);
-            }
-            SessionContextHolder.removeSession(token);
+            this.support(httpServletRequest);
+
         } catch (ExpiredJwtException | IllegalJwtException | IllegalAccessException | AuthenticationServiceException e) {
             authenticationException = e;
         }

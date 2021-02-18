@@ -48,12 +48,12 @@ public class SecurityContextHolder extends org.springframework.security.core.con
         return (RSAPublicKey) keyPairPublic;
     }
 
-    public static void put(Class<?> clazz, Object object) {
+    public static void setShareObject(Class<?> clazz, Object object) {
         Assert.isInstanceOf(clazz, object, "must be an instance of class");
         CONTENTS_MAP.put(clazz, object);
     }
 
-    public static <T> T get(Class<T> clazz){
+    public static <T> T getShareObject(Class<T> clazz){
         return clazz.cast(CONTENTS_MAP.get(clazz));
     }
 

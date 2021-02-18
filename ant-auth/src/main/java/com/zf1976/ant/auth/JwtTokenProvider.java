@@ -3,9 +3,8 @@ package com.zf1976.ant.auth;
 
 import com.zf1976.ant.auth.enums.AuthenticationState;
 import com.zf1976.ant.auth.exception.IllegalAccessException;
-import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
 import com.zf1976.ant.common.core.dev.SecurityProperties;
-
+import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -15,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.util.StringUtils;
+
 import javax.servlet.http.HttpServletRequest;
 import java.security.Key;
 import java.util.Arrays;
@@ -30,13 +30,9 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
 
     private static final SecurityProperties CONFIG;
-
     private static final JwtBuilder JWT_BUILDER;
-
     private static final JwtParser JWT_PARSER;
-
     public static final String DELIMITER = ",";
-
     public static final String ONE_BLANK_SPACE = " ";
 
 

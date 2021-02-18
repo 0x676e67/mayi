@@ -81,7 +81,6 @@ public class TokenEndpointEnhancerController {
             OAuth2AccessToken oAuth2AccessToken = responseEntity.getBody();
             if (responseEntity.getStatusCode().is2xxSuccessful() && oAuth2AccessToken != null) {
                 ResultData<OAuth2AccessToken> success = ResultData.success(oAuth2AccessToken);
-                System.out.println(success);
                 return ResultData.success(oAuth2AccessToken);
             }
             throw new InsufficientAuthenticationException("Client authentication failed.");

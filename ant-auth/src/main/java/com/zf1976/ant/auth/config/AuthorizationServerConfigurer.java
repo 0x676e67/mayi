@@ -1,5 +1,6 @@
 package com.zf1976.ant.auth.config;
 
+import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.auth.enhance.JwtTokenEnhancer;
 import com.zf1976.ant.auth.enhance.RedisTokenStoreEnhancer;
 import com.zf1976.ant.auth.handler.access.Oauth2AccessDeniedHandler;
@@ -100,6 +101,7 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
         RedisTokenStoreEnhancer tokenStoreEnhancer = new RedisTokenStoreEnhancer(this.getRedisConnectionFactory());
         TokenStore tokenStore = tokenStoreEnhancer.enhance();
+        SecurityContextHolder.setShareObject(TokenStore.class, tokenStore);
         endpoints.authenticationManager(authenticationManager)
                  .tokenStore(tokenStore)
                  .allowedTokenEndpointRequestMethods(HttpMethod.POST)
