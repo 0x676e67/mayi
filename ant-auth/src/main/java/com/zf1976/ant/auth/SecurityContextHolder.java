@@ -3,16 +3,22 @@ package com.zf1976.ant.auth;
 import com.zf1976.ant.auth.service.DynamicDataSourceService;
 import com.zf1976.ant.common.core.dev.SecurityProperties;
 import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
-import com.zf1976.ant.common.core.util.SpringContextHolder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.security.KeyPair;
+import java.security.PublicKey;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,21 +27,25 @@ import java.util.Set;
 /**
  * @author mac
  */
+@Component
 public class SecurityContextHolder extends org.springframework.security.core.context.SecurityContextHolder {
 
     private static final String ANONYMOUS_AUTH = "anonymousUser";
-    private static final UserDetailsService USER_DETAILS_SERVICE;
-    private static final DynamicDataSourceService DYNAMIC_DATA_SOURCE_SERVICE;
-    private static final AntPathMatcher PATH_MATCHER;
-    private static final Map<Class<?>, Object> CONTENTS_MAP;
-    private static final SecurityProperties SECURITY_PROPERTIES;
+    private static final AntPathMatcher PATH_MATCHER= new AntPathMatcher();
+    private static final Map<Class<?>, Object> CONTENTS_MAP = new HashMap<>();
+    private static KeyPair KEY_PAIR;
+    private static UserDetailsService userDetailsService;
+    private static DynamicDataSourceService dynamicDataSourceService;
+    private static SecurityProperties securityProperties;
 
-    static {
-        SECURITY_PROPERTIES = SpringContextHolder.getBean(SecurityProperties.class);
-        USER_DETAILS_SERVICE = SpringContextHolder.getBean(UserDetailsService.class);
-        DYNAMIC_DATA_SOURCE_SERVICE = SpringContextHolder.getBean(DynamicDataSourceService.class);
-        PATH_MATCHER = new AntPathMatcher();
-        CONTENTS_MAP = new HashMap<>();
+    public static KeyPair getKeyPair(){
+        return KEY_PAIR;
+    }
+
+    public static RSAPublicKey getPublicKey(){
+        final KeyPair keyPair = SecurityContextHolder.getKeyPair();
+        final PublicKey keyPairPublic = keyPair.getPublic();
+        return (RSAPublicKey) keyPairPublic;
     }
 
     public static void put(Class<?> clazz, Object object) {
@@ -55,7 +65,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
     public static UserDetails getDetails(){
         final Authentication authentication = getContext().getAuthentication();
         final String username = (String) authentication.getPrincipal();
-        return USER_DETAILS_SERVICE.loadUserByUsername(username);
+        return userDetailsService.loadUserByUsername(username);
     }
 
     /**
@@ -127,7 +137,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
         // 匿名方向uri
         String[] allowUri = ApplicationConfigUtils.getSecurityProperties()
                                                       .getAllowUri();
-        Set<String> allow = DYNAMIC_DATA_SOURCE_SERVICE.getAllowUri();
+        Set<String> allow = dynamicDataSourceService.getAllowUri();
         allow.addAll(Arrays.asList(allowUri));
         return allow;
     }
@@ -140,6 +150,37 @@ public class SecurityContextHolder extends org.springframework.security.core.con
     }
 
     public static String getIssuer(){
-        return SECURITY_PROPERTIES.getTokenIssuer();
+        return securityProperties.getTokenIssuer();
     }
- }
+
+    @Autowired
+    public void setSecurityProperties(SecurityProperties securityProperties) {
+        SecurityContextHolder.securityProperties = securityProperties;
+        initKeyPair();
+    }
+
+    @Autowired
+    public void setUserDetailsService(UserDetailsService userDetailsService) {
+        SecurityContextHolder.userDetailsService = userDetailsService;
+    }
+
+    @Autowired
+    public void setDynamicDataSourceService(DynamicDataSourceService dynamicDataSourceService) {
+        SecurityContextHolder.dynamicDataSourceService = dynamicDataSourceService;
+    }
+
+    public void initKeyPair(){
+        /*
+         * 从classpath下的密钥库中获取密钥对(公钥+私钥)
+         */
+        if (KEY_PAIR == null) {
+            synchronized (SecurityContextHolder.class) {
+                if (KEY_PAIR == null) {
+                    final char[] secret = securityProperties.getRsaSecret().toCharArray();
+                    KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(new ClassPathResource("root.jks"), secret);
+                    KEY_PAIR = keyStoreKeyFactory.getKeyPair("root", secret);
+                }
+            }
+        }
+    }
+}

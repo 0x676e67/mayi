@@ -9,6 +9,11 @@ spring:
       config:
         file-extension: yaml
       server-addr: 139.224.81.120:8848
+      discovery:
+        register-enabled: false
+        enabled: false
+    discovery:
+      enabled: false
 
   datasource:
     username: root

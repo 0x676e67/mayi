@@ -6,8 +6,9 @@ import com.zf1976.ant.auth.handler.access.Oauth2AccessDeniedHandler;
 import com.zf1976.ant.auth.handler.access.Oauth2AuthenticationEntryPoint;
 import com.zf1976.ant.auth.interceptor.EndpointReturnInterceptor;
 import com.zf1976.ant.common.core.dev.SecurityProperties;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
@@ -24,7 +25,6 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
-import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 
 import javax.sql.DataSource;
 import java.security.KeyPair;
@@ -37,6 +37,8 @@ import java.util.List;
  **/
 @Configuration
 @EnableAuthorizationServer
+@Order(-111111111)
+@ConditionalOnBean(SecurityProperties.class)
 public class AuthorizationServerConfigurer extends AuthorizationServerConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
@@ -45,14 +47,22 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
     private final AuthenticationManager authenticationManager;
     private final RedisTemplate<Object,Object> template;
     private final SecurityProperties securityProperties;
+    private final KeyPair keyPair;
 
-    public AuthorizationServerConfigurer(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder, DataSource dataSource, AuthenticationManager authenticationManager, RedisTemplate<Object, Object> template, SecurityProperties securityProperties) {
+    public AuthorizationServerConfigurer(UserDetailsService userDetailsService,
+                                         PasswordEncoder passwordEncoder,
+                                         DataSource dataSource,
+                                         AuthenticationManager authenticationManager,
+                                         RedisTemplate<Object, Object> template,
+                                         SecurityProperties securityProperties,
+                                         KeyPair keyPair) {
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
         this.dataSource = dataSource;
         this.authenticationManager = authenticationManager;
         this.template = template;
         this.securityProperties = securityProperties;
+        this.keyPair = keyPair;
     }
 
     /**
@@ -101,15 +111,6 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
 
     }
 
-    /**
-     * 从classpath下的密钥库中获取密钥对(公钥+私钥)
-     */
-    public KeyPair keyPair() {
-        final char[] secretChar = securityProperties.getRsaSecret().toCharArray();
-        KeyStoreKeyFactory factory = new KeyStoreKeyFactory(new ClassPathResource("jwt.jks"), secretChar );
-        return factory.getKeyPair("jwt", secretChar);
-    }
-
     public TokenEnhancerChain tokenEnhancerChain() {
         final TokenEnhancerChain enhancerChain = new TokenEnhancerChain();
         final List<TokenEnhancer> asList = Arrays.asList(new JwtTokenEnhancer(), jwtAccessTokenConverter());
@@ -119,7 +120,7 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
 
     private JwtAccessTokenConverter jwtAccessTokenConverter(){
         final JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
-        jwtAccessTokenConverter.setKeyPair(keyPair());
+        jwtAccessTokenConverter.setKeyPair(this.keyPair);
         jwtAccessTokenConverter.setSigningKey(securityProperties.getTokenBase64Secret());
         return jwtAccessTokenConverter;
     }

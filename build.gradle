@@ -7,10 +7,10 @@ configurations.all() {
 allprojects {
     apply plugin: 'java'
     apply plugin: 'maven'
+    apply from: this.rootProject.file('config.gradle')
 
     group = 'com.zf1976'
     version = '0.0.1-SNAPSHOT'
-
     configurations {
         compileOnly {
             extendsFrom annotationProcessor

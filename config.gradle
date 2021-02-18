@@ -1,0 +1,4 @@
+ext {
+    springbootVersion="2.2.3:RELEASE"
+    nacosVersion="2.2.3:RELEASE"
+}

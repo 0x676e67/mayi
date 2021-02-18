@@ -6,6 +6,7 @@ plugins {
 
 sourceCompatibility = '1.8'
 
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
@@ -14,6 +15,7 @@ configurations {
 ext {
     set('springCloudVersion', "Hoxton.SR9")
 }
+
 
 dependencies {
     implementation project(':ant-common:ant-common-core')
@@ -27,16 +29,18 @@ dependencies {
     implementation('io.jsonwebtoken:jjwt-impl:0.11.1')
     implementation('io.jsonwebtoken:jjwt-jackson:0.11.1')
     implementation('com.github.whvcse:easy-captcha:1.6.2')
+    implementation 'com.github.shalousun:common-util:1.9.2'
     implementation('org.springframework.boot:spring-boot-starter-web')
     implementation('org.springframework.boot:spring-boot-starter-aop')
     implementation 'org.springframework.cloud:spring-cloud-starter-oauth2'
     implementation 'org.springframework.cloud:spring-cloud-starter-security'
-//    implementation 'com.alibaba.cloud:spring-cloud-alibaba-dependencies:2.2.3.RELEASE'
-//    implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery:2.2.3.RELEASE'
-//    implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config:2.2.3.RELEASE'
+    implementation 'com.alibaba.cloud:spring-cloud-alibaba-dependencies:2.2.3.RELEASE'
+    implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery:2.2.3.RELEASE'
+    implementation('com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config:2.2.3.RELEASE')
     implementation('org.springframework.boot:spring-boot-configuration-processor')
     implementation('org.springframework.boot:spring-boot-starter-jdbc')
-    implementation 'org.springframework.security:spring-security-test'
+    implementation('org.springframework.security:spring-security-test')
+    implementation('org.springframework.security:spring-security-oauth2-jose')
     implementation('org.springframework.boot:spring-boot-test')
     implementation('org.springframework.boot:spring-boot-starter-cache')
     implementation('org.springframework.boot:spring-boot-starter-data-redis')

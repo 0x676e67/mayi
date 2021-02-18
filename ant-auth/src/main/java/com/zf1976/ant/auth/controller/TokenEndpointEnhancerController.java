@@ -1,5 +1,7 @@
 package com.zf1976.ant.auth.controller;
 
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
 import com.wf.captcha.base.Captcha;
 import com.zf1976.ant.auth.AuthorizationConstants;
 import com.zf1976.ant.auth.SecurityContextHolder;
@@ -8,7 +10,6 @@ import com.zf1976.ant.auth.cache.validate.service.CaptchaService;
 import com.zf1976.ant.auth.pojo.vo.CaptchaVo;
 import com.zf1976.ant.common.core.dev.CaptchaProperties;
 import com.zf1976.ant.common.core.foundation.ResultData;
-import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.encrypt.EncryptUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -47,11 +49,12 @@ public class TokenEndpointEnhancerController {
     private final TokenEndpoint tokenEndpoint;
     private final WebResponseExceptionTranslator<OAuth2Exception> providerExceptionHandler = new DefaultWebResponseExceptionTranslator();
 
-    public TokenEndpointEnhancerController(CaptchaService captchaService, CaptchaProperties captchaConfig, TokenEndpoint tokenEndpoint) {
+    public TokenEndpointEnhancerController(CaptchaService captchaService,
+                                           CaptchaProperties captchaConfig,
+                                           TokenEndpoint tokenEndpoint) {
         this.captchaService = captchaService;
         this.captchaConfig = captchaConfig;
         this.tokenEndpoint = tokenEndpoint;
-
     }
 
     @GetMapping("/token")
@@ -114,9 +117,11 @@ public class TokenEndpointEnhancerController {
         return ResultData.success(SecurityContextHolder.getDetails());
     }
 
-    @GetMapping("/rsa/key")
-    public ResultData<String> rsaPublicKey() {
-        return ResultData.success(SpringContextHolder.getProperties("rsa.public-key").toString());
+    @GetMapping("/rsa/secret")
+    public ResultData<Object> rsaPublicKey() {
+        final RSAPublicKey publicKey = SecurityContextHolder.getPublicKey();
+        final RSAKey key = new RSAKey.Builder(publicKey).build();
+        return ResultData.success(new JWKSet(key).toJSONObject(true));
     }
 
     @ExceptionHandler({HttpRequestMethodNotSupportedException.class})
