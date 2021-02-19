@@ -1,6 +1,6 @@
 package com.zf1976.ant.auth.enhance;
 
-import com.zf1976.ant.auth.AuthorizationConstants;
+import com.zf1976.ant.auth.AuthConstants;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
@@ -18,7 +18,7 @@ public class RedisTokenStoreEnhancer {
     }
 
     public TokenStore enhance() {
-        tokenStore.setPrefix(AuthorizationConstants.PROJECT_OAUTH_TOKEN);
+        tokenStore.setPrefix(AuthConstants.PROJECT_OAUTH_TOKEN);
         return tokenStore;
     }
 

@@ -3,7 +3,7 @@ package com.zf1976.ant.auth.controller;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.wf.captcha.base.Captcha;
-import com.zf1976.ant.auth.AuthorizationConstants;
+import com.zf1976.ant.auth.AuthConstants;
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.auth.cache.support.CaptchaGenerator;
 import com.zf1976.ant.auth.cache.validate.service.CaptchaService;
@@ -68,11 +68,11 @@ public class TokenEndpointEnhancerController {
             throw new InsufficientAuthenticationException("There is no client authentication. Try adding an appropriate authentication filter.");
         } else {
             // 用户加密后密码
-            final String password = parameters.get(AuthorizationConstants.PASSWORD);
+            final String password = parameters.get(AuthConstants.PASSWORD);
             if (password != null) {
                 try {
                     final String rawPassword = EncryptUtil.decryptForRsaByPrivateKey(password);
-                    parameters.put(AuthorizationConstants.PASSWORD, rawPassword);
+                    parameters.put(AuthConstants.PASSWORD, rawPassword);
                 } catch (Exception e) {
                     throw new InsufficientAuthenticationException("Client authentication failed.");
                 }

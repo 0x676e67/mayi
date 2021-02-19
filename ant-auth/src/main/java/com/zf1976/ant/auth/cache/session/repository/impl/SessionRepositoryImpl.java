@@ -1,12 +1,11 @@
 package com.zf1976.ant.auth.cache.session.repository.impl;
 
-import com.zf1976.ant.auth.AuthorizationConstants;
+import com.zf1976.ant.auth.AuthConstants;
 import com.zf1976.ant.auth.cache.session.Session;
 import com.zf1976.ant.auth.cache.session.repository.SessionRepository;
 import com.zf1976.ant.common.core.dev.SecurityProperties;
 import com.zf1976.ant.common.core.util.RequestUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.Cursor;
@@ -133,7 +132,7 @@ public class SessionRepositoryImpl implements SessionRepository {
 
     private long getTokenExpired() {
         return (Integer) RequestUtils.getRequest()
-                                     .getAttribute(AuthorizationConstants.EXPIRED);
+                                     .getAttribute(AuthConstants.EXPIRED);
     }
 
     /**

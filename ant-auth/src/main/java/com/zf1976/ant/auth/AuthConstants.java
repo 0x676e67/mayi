@@ -4,7 +4,7 @@ package com.zf1976.ant.auth;
  * @author ant
  * Create by Ant on 2021/2/16 12:54 PM
  */
-public interface AuthorizationConstants {
+public interface AuthConstants {
 
     /**
      * oauth 缓存前缀

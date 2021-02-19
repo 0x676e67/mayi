@@ -1,14 +1,14 @@
 package com.zf1976.ant.auth.filter;
 
+import com.zf1976.ant.auth.JwtTokenProvider;
 import com.zf1976.ant.auth.cache.session.Session;
 import com.zf1976.ant.auth.enums.AuthenticationState;
-import com.zf1976.ant.auth.filter.manager.SessionContextHolder;
-import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
-import com.zf1976.ant.common.core.dev.SecurityProperties;
-import com.zf1976.ant.auth.JwtTokenProvider;
 import com.zf1976.ant.auth.exception.ExpiredJwtException;
 import com.zf1976.ant.auth.exception.IllegalAccessException;
 import com.zf1976.ant.auth.exception.IllegalJwtException;
+import com.zf1976.ant.auth.filter.manager.SessionContextHolder;
+import com.zf1976.ant.common.core.dev.SecurityProperties;
+import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -47,8 +47,7 @@ public class SecurityJwtAuthenticationFilter extends OncePerRequestFilter {
      */
     private static boolean validateAllowUri(HttpServletRequest request) {
         // 匿名放行uri
-        String[] allowUri = ApplicationConfigUtils.getSecurityProperties()
-                                                      .getAllowUri();
+        String[] allowUri = ApplicationConfigUtils.getSecurityProperties().getAllowUri();
         // 请求uri
         String requestUri = request.getRequestURI();
         return Arrays.stream(allowUri)
@@ -56,9 +55,7 @@ public class SecurityJwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest httpServletRequest,
-                                    @NonNull HttpServletResponse httpServletResponse,
-                                    @NonNull FilterChain filterChain) throws IOException, ServletException {
+    protected void doFilterInternal(@NonNull HttpServletRequest httpServletRequest, @NonNull HttpServletResponse httpServletResponse, @NonNull FilterChain filterChain) throws IOException, ServletException {
         // 无请求头直接放行 或在放行名单 直接放行
         if (!hasMethod(httpServletRequest) || validateAllowUri(httpServletRequest)) {
             filterChain.doFilter(httpServletRequest, httpServletResponse);
