@@ -6,9 +6,9 @@ package com.zf1976.ant.auth.enums;
  **/
 public enum AuthenticationType {
 
-    //==============================
-    //基础类型校验，每种类型用一个标志位记录
-    //==============================
+    //===============================//
+    //基础类型校验，每种类型用一个标志位记录//
+    //===============================//
 
     /**
      * 0001
@@ -35,9 +35,9 @@ public enum AuthenticationType {
      */
     USERNAME_WITH_PASSWORD(1 << 4,"用户名 + 密码"),
 
-    //=================================
-    //后台所支持等认证方式，由上面枚举值任意搭配
-    //=================================
+    //==================================//
+    //后台所支持等认证方式，由上面枚举值任意搭配//
+    //==================================//
 
     /**
      * 0011
@@ -57,28 +57,17 @@ public enum AuthenticationType {
     /**
      * 11111
      */
-    ALL(PHONE_WITH_PASSWORD.value |
-            PHONE_WITH_VC.value |
-            EMAIL_WITH_PASSWORD.value |
-            EMAIL_WITH_VC_PASSWORD.value |
-            USERNAME_PHONE_OR_EMAIL__WITH_PASSWORD.value |
-            USERNAME_WITH_PASSWORD.value, "所有方式");
+    ALL(PHONE_WITH_PASSWORD.value | PHONE_WITH_VC.value | EMAIL_WITH_PASSWORD.value | EMAIL_WITH_VC_PASSWORD.value | USERNAME_PHONE_OR_EMAIL__WITH_PASSWORD.value | USERNAME_WITH_PASSWORD.value, "所有方式");
 
 
     private final int value;
-    private final String description;
 
     AuthenticationType(int value, String description) {
         this.value = value;
-        this.description = description;
     }
 
     public boolean matchType(int value) {
         return ((value & this.value) == this.value);
     }
 
-    public static void main(String[] args) {
-        AuthenticationType email = EMAIL_WITH_PASSWORD;
-        System.out.println(email.matchType(31));
-    }
 }
