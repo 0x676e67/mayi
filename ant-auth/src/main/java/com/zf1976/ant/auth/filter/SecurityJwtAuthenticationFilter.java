@@ -1,12 +1,12 @@
 package com.zf1976.ant.auth.filter;
 
 import com.zf1976.ant.auth.JwtTokenProvider;
+import com.zf1976.ant.auth.SessionContextHolder;
 import com.zf1976.ant.auth.cache.session.Session;
 import com.zf1976.ant.auth.enums.AuthenticationState;
 import com.zf1976.ant.auth.exception.ExpiredJwtException;
 import com.zf1976.ant.auth.exception.IllegalAccessException;
 import com.zf1976.ant.auth.exception.IllegalJwtException;
-import com.zf1976.ant.auth.filter.manager.SessionContextHolder;
 import com.zf1976.ant.common.core.dev.SecurityProperties;
 import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
 import org.slf4j.Logger;
@@ -103,7 +103,7 @@ public class SecurityJwtAuthenticationFilter extends OncePerRequestFilter {
             throw new IllegalAccessException(AuthenticationState.ILLEGAL_ACCESS);
         }
         Long id = JwtTokenProvider.getSessionId(token);
-        Session session = SessionContextHolder.get(token);
+        Session session = SessionContextHolder.readSession(token);
         long remainingTime;
         if (session != null) {
             if (CONFIG.getEnableRestore() & (remainingTime = SessionContextHolder.getExpired(id)) > 0) {
@@ -117,7 +117,7 @@ public class SecurityJwtAuthenticationFilter extends OncePerRequestFilter {
                 Assert.notNull(refreshToken, "token cannot been null");
                 session.setToken(refreshToken);
                 // 更新session
-                SessionContextHolder.refresh(id, session, remainingTime);
+                SessionContextHolder.refreshSession(id, session, remainingTime);
                 httpServletResponse.setHeader(HttpHeaders.AUTHORIZATION, refreshToken);
                 return refreshToken;
             } else if (remainingTime > 0) {

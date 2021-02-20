@@ -1,11 +1,10 @@
-package com.zf1976.ant.auth.filter.manager;
+package com.zf1976.ant.auth;
 
 import com.zf1976.ant.auth.cache.session.Session;
-import com.zf1976.ant.common.core.util.RequestUtils;
-import com.zf1976.ant.common.core.util.SpringContextHolder;
-import com.zf1976.ant.auth.LoginUserDetails;
 import com.zf1976.ant.auth.cache.session.repository.SessionRepository;
 import com.zf1976.ant.auth.cache.session.service.SessionService;
+import com.zf1976.ant.common.core.util.RequestUtils;
+import com.zf1976.ant.common.core.util.SpringContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,7 +33,7 @@ public class SessionContextHolder {
      * @param userDetails        用户会话details
      * @param httpServletRequest 请求
      */
-    public static void set(String token, UserDetails userDetails) {
+    public static void storeSession(String token, UserDetails userDetails) {
         SERVICE.save(token, (LoginUserDetails) userDetails, RequestUtils.getRequest());
     }
 
@@ -44,7 +43,7 @@ public class SessionContextHolder {
      * @param id token
      * @return session
      */
-    public static Session get(Long id) {
+    public static Session readSession(Long id) {
         return SERVICE.get(id);
     }
 
@@ -54,7 +53,7 @@ public class SessionContextHolder {
      * @param token token
      * @return session
      */
-    public static Session get(String token) {
+    public static Session readSession(String token) {
         return SERVICE.get(token);
     }
 
@@ -64,7 +63,7 @@ public class SessionContextHolder {
      * @param id id
      * @param session session
      */
-    public static void refresh(Long id, Session session) {
+    public static void refreshSession(Long id, Session session) {
         HttpServletRequest request = RequestUtils.getRequest();
         session.setIp(RequestUtils.getIpAddress(request))
                .setIpRegion(RequestUtils.getIpRegion(request))
@@ -80,7 +79,7 @@ public class SessionContextHolder {
      * @param session session
      * @param expired expiry time
      */
-    public static void refresh(Long id, Session session, Long expired) {
+    public static void refreshSession(Long id, Session session, Long expired) {
         HttpServletRequest request = RequestUtils.getRequest();
         session.setIp(RequestUtils.getIpAddress(request))
                .setIpRegion(RequestUtils.getIpRegion(request))
@@ -96,7 +95,7 @@ public class SessionContextHolder {
      * @param userDetails        userDetails
      * @param httpServletRequest request
      */
-    public static void refresh(String token, LoginUserDetails userDetails, HttpServletRequest httpServletRequest) {
+    public static void refreshSession(String token, LoginUserDetails userDetails, HttpServletRequest httpServletRequest) {
         SERVICE.update(token, userDetails, httpServletRequest);
     }
 

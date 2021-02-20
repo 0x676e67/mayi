@@ -13,8 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -43,21 +45,9 @@ public class Oauth2LogoutHandler implements LogoutHandler {
 
     @Override
     public void logout(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) {
-        AuthenticationException authenticationException = null;
-        try {
-            this.support(httpServletRequest);
-
-        } catch (ExpiredJwtException | IllegalJwtException | IllegalAccessException | AuthenticationServiceException e) {
-            authenticationException = e;
-        }
-        if (authenticationException != null) {
-            SecurityContextHolder.clearContext();
-            try {
-                this.unSuccessLogoutHandler(httpServletRequest, httpServletResponse, authenticationException);
-            } catch (IOException e) {
-                log.error(e.getMessage(), e);
-            }
-        }
+        Assert.isInstanceOf(OAuth2Authentication.class, authentication);
+        OAuth2Authentication oAuth2Authentication = (OAuth2Authentication) authentication;
+        OAuth2Request oAuth2Request = oAuth2Authentication.getOAuth2Request();
     }
 
     /**

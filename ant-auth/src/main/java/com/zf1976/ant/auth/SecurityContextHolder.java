@@ -32,7 +32,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
 
     private static final String ANONYMOUS_AUTH = "anonymousUser";
     private static final AntPathMatcher PATH_MATCHER= new AntPathMatcher();
-    private static final Map<Class<?>, Object> CONTENTS_MAP = new HashMap<>();
+    private static final Map<Class<?>, Object> CONTENTS_MAP = new HashMap<>(16);
     private static KeyPair KEY_PAIR;
     private static UserDetailsService userDetailsService;
     private static DynamicDataSourceService dynamicDataSourceService;
@@ -57,13 +57,17 @@ public class SecurityContextHolder extends org.springframework.security.core.con
         return clazz.cast(CONTENTS_MAP.get(clazz));
     }
 
+    public static Authentication getAuthentication() {
+        return getContext().getAuthentication();
+    }
+
     /**
      * 获取当前用户
      *
      * @return userDetails
      */
     public static UserDetails getDetails(){
-        final Authentication authentication = getContext().getAuthentication();
+        final Authentication authentication = getAuthentication();
         final String username = (String) authentication.getPrincipal();
         return userDetailsService.loadUserByUsername(username);
     }
@@ -74,8 +78,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
      * @return id
      */
     public static Long getPrincipalId() {
-        String token = ((String) getContext().getAuthentication()
-                                             .getCredentials());
+        String token = ((String) getAuthentication().getCredentials());
         return JwtTokenProvider.getSessionId(token);
     }
 
@@ -85,8 +88,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
      * @return 用户名
      */
     public static String getPrincipal() {
-        String token = (String) getContext().getAuthentication()
-                                            .getCredentials();
+        String token = (String) getAuthentication().getCredentials();
         try {
             return JwtTokenProvider.getClaims(token)
                                    .getSubject();
@@ -102,8 +104,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
      * @return token
      */
     public static String getCredentials() {
-        return ((String) getContext().getAuthentication()
-                                     .getCredentials());
+        return ((String) getAuthentication().getCredentials());
     }
 
     /**
@@ -111,11 +112,10 @@ public class SecurityContextHolder extends org.springframework.security.core.con
      * @return ture / false
      */
     public static boolean isSuperAdmin() {
-        return getContext().getAuthentication()
-                           .getAuthorities()
-                           .stream()
-                           .map(GrantedAuthority::getAuthority)
-                           .anyMatch(s -> s.equals(ApplicationConfigUtils.getSecurityProperties().getAdmin()));
+        return getAuthentication().getAuthorities()
+                                  .stream()
+                                  .map(GrantedAuthority::getAuthority)
+                                  .anyMatch(s -> s.equals(ApplicationConfigUtils.getSecurityProperties().getAdmin()));
     }
 
     /**
@@ -142,6 +142,12 @@ public class SecurityContextHolder extends org.springframework.security.core.con
         return allow;
     }
 
+    /**
+     * 验证uri
+     *
+     * @param request request
+     * @return /
+     */
     public static boolean validateUri(HttpServletRequest request) {
         String uri = request.getRequestURI();
         Set<String> allowedUri = getAllowedUri();
@@ -149,8 +155,28 @@ public class SecurityContextHolder extends org.springframework.security.core.con
                          .anyMatch(var -> PATH_MATCHER.match(var, uri));
     }
 
+    /**
+     * 获取签发方
+     *
+     * @return /
+     */
     public static String getIssuer(){
         return securityProperties.getTokenIssuer();
+    }
+
+    /**
+     * 从classpath下的密钥库中获取密钥对(公钥+私钥)
+     */
+    public void initKeyPair(){
+        if (KEY_PAIR == null) {
+            synchronized (SecurityContextHolder.class) {
+                if (KEY_PAIR == null) {
+                    final char[] secret = securityProperties.getRsaSecret().toCharArray();
+                    KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(new ClassPathResource("root.jks"), secret);
+                    KEY_PAIR = keyStoreKeyFactory.getKeyPair("root", secret);
+                }
+            }
+        }
     }
 
     @Autowired
@@ -167,20 +193,5 @@ public class SecurityContextHolder extends org.springframework.security.core.con
     @Autowired
     public void setDynamicDataSourceService(DynamicDataSourceService dynamicDataSourceService) {
         SecurityContextHolder.dynamicDataSourceService = dynamicDataSourceService;
-    }
-
-    public void initKeyPair(){
-        /*
-         * 从classpath下的密钥库中获取密钥对(公钥+私钥)
-         */
-        if (KEY_PAIR == null) {
-            synchronized (SecurityContextHolder.class) {
-                if (KEY_PAIR == null) {
-                    final char[] secret = securityProperties.getRsaSecret().toCharArray();
-                    KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(new ClassPathResource("root.jks"), secret);
-                    KEY_PAIR = keyStoreKeyFactory.getKeyPair("root", secret);
-                }
-            }
-        }
     }
 }

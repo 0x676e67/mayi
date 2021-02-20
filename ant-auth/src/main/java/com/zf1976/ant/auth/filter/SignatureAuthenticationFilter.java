@@ -1,11 +1,11 @@
 package com.zf1976.ant.auth.filter;
 
+import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.auth.enums.SignatureState;
+import com.zf1976.ant.auth.exception.SignatureException;
 import com.zf1976.ant.auth.filter.signature.SignatureAuthenticationStrategy;
 import com.zf1976.ant.auth.filter.signature.SignaturePattern;
 import com.zf1976.ant.auth.filter.signature.StandardSignature;
-import com.zf1976.ant.auth.SecurityContextHolder;
-import com.zf1976.ant.auth.exception.SignatureException;
 import com.zf1976.ant.auth.filter.signature.impl.OpenSignatureAuthenticationStrategy;
 import com.zf1976.ant.auth.filter.signature.impl.SecretSignatureAuthenticationStrategy;
 import org.slf4j.Logger;
@@ -31,11 +31,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SignatureAuthenticationFilter extends OncePerRequestFilter {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(SignatureAuthenticationFilter.class);
-    private final Map<SignaturePattern, SignatureAuthenticationStrategy> strategies;
+    private final Map<SignaturePattern, SignatureAuthenticationStrategy> strategies = new ConcurrentHashMap<>(2);
 
     public SignatureAuthenticationFilter() {
         super();
-        this.strategies = new ConcurrentHashMap<>(2);
         this.init();
     }
 
@@ -60,9 +59,7 @@ public class SignatureAuthenticationFilter extends OncePerRequestFilter {
      * @throws IOException io exception
      */
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest var1,
-                                    @NonNull HttpServletResponse var2,
-                                    @NonNull FilterChain var3) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest var1, @NonNull HttpServletResponse var2, @NonNull FilterChain var3) throws ServletException, IOException {
         // 在放行名单 直接放行
         if (SecurityContextHolder.validateUri(var1)) {
             var3.doFilter(var1, var2);

@@ -2,10 +2,9 @@ package com.zf1976.ant.auth.handler.login;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.power.common.util.Base64Util;
-import com.zf1976.ant.auth.filter.manager.SessionContextHolder;
+import com.zf1976.ant.auth.SessionContextHolder;
 import com.zf1976.ant.auth.pojo.vo.LoginResponse;
 import com.zf1976.ant.common.core.foundation.ResultData;
-import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.encrypt.EncryptUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +26,7 @@ import java.io.IOException;
 public class SecurityAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-    private final ObjectMapper jsonMapper = SpringContextHolder.getBean(ObjectMapper.class);
+    private final ObjectMapper jsonMapper = new ObjectMapper();
 
     /**
      * 登陆成功处理
@@ -45,7 +44,7 @@ public class SecurityAuthenticationSuccessHandler implements AuthenticationSucce
         final LoginResponse loginResponse = new LoginResponse();
         loginResponse.setToken(token)
                      .setUser(userDetails);
-        SessionContextHolder.set(token, userDetails);
+        SessionContextHolder.storeSession(token, userDetails);
         // 原始content
         String rawContent = jsonMapper.writeValueAsString(ResultData.success(loginResponse));
         // 加密后内容

@@ -3,13 +3,13 @@ package com.zf1976.ant.auth.config;
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.auth.enhance.JwtTokenEnhancer;
 import com.zf1976.ant.auth.enhance.RedisTokenStoreEnhancer;
+import com.zf1976.ant.auth.filter.provider.DaoAuthenticationEnhancerProvider;
 import com.zf1976.ant.auth.handler.access.Oauth2AccessDeniedHandler;
 import com.zf1976.ant.auth.handler.access.Oauth2AuthenticationEntryPoint;
 import com.zf1976.ant.auth.interceptor.EndpointReturnInterceptor;
-import com.zf1976.ant.common.core.dev.SecurityProperties;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.context.SmartLifecycle;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
@@ -21,11 +21,14 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.client.ClientDetailsUserDetailsService;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
+import org.springframework.util.Assert;
+import org.springframework.util.ReflectionUtils;
 
 import javax.sql.DataSource;
 import java.security.KeyPair;
@@ -38,31 +41,30 @@ import java.util.List;
  **/
 @Configuration
 @EnableAuthorizationServer
-@Order(-111111111)
-@ConditionalOnBean(SecurityProperties.class)
-public class AuthorizationServerConfigurer extends AuthorizationServerConfigurerAdapter {
+public class AuthorizationServerConfigurer extends AuthorizationServerConfigurerAdapter implements SmartLifecycle {
 
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
     private final DataSource dataSource;
     private final AuthenticationManager authenticationManager;
     private final RedisTemplate<Object,Object> template;
-    private final SecurityProperties securityProperties;
     private final KeyPair keyPair;
+    private JwtAccessTokenConverter jwtAccessTokenConverter;
+    private AuthorizationServerSecurityConfigurer authorizationServerSecurityConfigurer;
+    private JdbcClientDetailsService jdbcClientDetailsService;
+    private boolean isRunning = false;
 
     public AuthorizationServerConfigurer(UserDetailsService userDetailsService,
                                          PasswordEncoder passwordEncoder,
                                          DataSource dataSource,
                                          AuthenticationManager authenticationManager,
                                          RedisTemplate<Object, Object> template,
-                                         SecurityProperties securityProperties,
                                          KeyPair keyPair) {
-        this.userDetailsService = userDetailsService;
+        this.userDetailsService =  userDetailsService;
         this.passwordEncoder = passwordEncoder;
         this.dataSource = dataSource;
         this.authenticationManager = authenticationManager;
         this.template = template;
-        this.securityProperties = securityProperties;
         this.keyPair = keyPair;
     }
 
@@ -71,6 +73,9 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
      */
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) {
+        this.authorizationServerSecurityConfigurer = security;
+        Assert.notNull(this.authorizationServerSecurityConfigurer,"authorizationServerSecurityConfigurer object cannot been null");
+        ReflectionUtils.findMethod(AuthorizationServerSecurityConfigurer.class, "");
         security.allowFormAuthenticationForClients()
                 .authenticationEntryPoint(new Oauth2AuthenticationEntryPoint())
                 .accessDeniedHandler(new Oauth2AccessDeniedHandler())
@@ -89,7 +94,10 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
         JdbcClientDetailsService jdbcClientDetailsService = new JdbcClientDetailsService(dataSource);
         jdbcClientDetailsService.setPasswordEncoder(passwordEncoder);
         clients.withClientDetails(jdbcClientDetailsService);
+        this.jdbcClientDetailsService = jdbcClientDetailsService;
     }
+
+
 
     /**
      * 认证端点
@@ -99,8 +107,8 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
      */
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
-        RedisTokenStoreEnhancer tokenStoreEnhancer = new RedisTokenStoreEnhancer(this.getRedisConnectionFactory());
-        TokenStore tokenStore = tokenStoreEnhancer.enhance();
+        RedisConnectionFactory redisConnectionFactory = this.template.getRequiredConnectionFactory();
+        TokenStore tokenStore = new RedisTokenStoreEnhancer(redisConnectionFactory).enhance();
         SecurityContextHolder.setShareObject(TokenStore.class, tokenStore);
         endpoints.authenticationManager(authenticationManager)
                  .tokenStore(tokenStore)
@@ -113,22 +121,52 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
 
     }
 
-    public TokenEnhancerChain tokenEnhancerChain() {
+    @Bean
+    public JwtAccessTokenConverter jwtAccessTokenConverter(){
+        if (this.jwtAccessTokenConverter == null) {
+            this.jwtAccessTokenConverter = new JwtAccessTokenConverter();
+            this.jwtAccessTokenConverter.setKeyPair(this.keyPair);
+        }
+        return jwtAccessTokenConverter;
+    }
+
+    private TokenEnhancerChain tokenEnhancerChain() {
         final TokenEnhancerChain enhancerChain = new TokenEnhancerChain();
         final List<TokenEnhancer> asList = Arrays.asList(new JwtTokenEnhancer(), jwtAccessTokenConverter());
         enhancerChain.setTokenEnhancers(asList);
         return enhancerChain;
     }
 
-    private JwtAccessTokenConverter jwtAccessTokenConverter(){
-        final JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
-        jwtAccessTokenConverter.setKeyPair(this.keyPair);
-        jwtAccessTokenConverter.setSigningKey(securityProperties.getTokenBase64Secret());
-        return jwtAccessTokenConverter;
+
+    /**
+     * 所有bean初始化完成
+     * 增强Oauth Provide客户端处理
+     */
+    @Override
+    public void start() {
+        ClientDetailsUserDetailsService clientDetailsUserDetailsService = new ClientDetailsUserDetailsService(this.jdbcClientDetailsService);
+        DaoAuthenticationEnhancerProvider daoClientAuthenticationEnhancerProvider = DaoAuthenticationEnhancerProvider.builder()
+                                                                                                                     .setPasswordEncoder(this.passwordEncoder)
+                                                                                                                     .setUserDetailsService(clientDetailsUserDetailsService)
+                                                                                                                     .build();
+        this.authorizationServerSecurityConfigurer.and()
+                                                  .authenticationProvider(daoClientAuthenticationEnhancerProvider);
+        this.isRunning = true;
     }
 
-    private RedisConnectionFactory getRedisConnectionFactory() {
-        return this.template.getRequiredConnectionFactory();
+    @Override
+    public void stop() {
+
     }
 
+
+    @Override
+    public boolean isRunning() {
+        return this.isRunning;
+    }
+
+    @Override
+    public void stop(Runnable callback) {
+        callback.run();
+    }
 }

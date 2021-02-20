@@ -21,7 +21,7 @@ public class ApplicationConfigUtils {
     }
 
     @Autowired
-    public static void setSecurityProperties(SecurityProperties securityProperties) {
+    public void setSecurityProperties(SecurityProperties securityProperties) {
         ApplicationConfigUtils.securityProperties = securityProperties;
     }
 
@@ -30,7 +30,7 @@ public class ApplicationConfigUtils {
     }
 
     @Autowired
-    public static void setCaptchaProperties(CaptchaProperties captchaProperties) {
+    public void setCaptchaProperties(CaptchaProperties captchaProperties) {
         ApplicationConfigUtils.captchaProperties = captchaProperties;
     }
 
@@ -39,7 +39,7 @@ public class ApplicationConfigUtils {
     }
 
     @Autowired
-    public static void setCacheProperties(CacheProperties cacheProperties) {
+    public void setCacheProperties(CacheProperties cacheProperties) {
         ApplicationConfigUtils.cacheProperties = cacheProperties;
     }
 }

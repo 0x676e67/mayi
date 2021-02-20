@@ -1,6 +1,6 @@
 package com.zf1976.ant.auth.filter;
 
-import com.nimbusds.jose.JWSObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.power.common.util.StringUtil;
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.common.core.dev.SecurityProperties;
@@ -8,11 +8,17 @@ import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
+import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
 import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.util.AntPathMatcher;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -28,25 +34,74 @@ import java.util.Arrays;
  */
 public class Oauth2TokenAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final AntPathMatcher MATCHER = new AntPathMatcher();
-    private static final String TOKEN_PREFIX = "Bearer ";
     private final Logger log = LoggerFactory.getLogger(this.getClass());
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final SecurityProperties config = ApplicationConfigUtils.getSecurityProperties();
+    private final TokenStore tokenStore = SecurityContextHolder.getShareObject(TokenStore.class);
+    private final TokenExtractor tokenExtractor = new BearerTokenExtractor();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @SneakyThrows
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws IOException, ServletException {
         // 无请求头直接放行 或在放行名单 直接放行
-        final String token = this.getToken(request);
-        if (StringUtil.isEmpty(token) || validateAllowUri(request)) {
+        Authentication authentication = this.tokenExtractor.extract(request);
+        String accessToken;
+        if (authentication instanceof PreAuthenticatedAuthenticationToken) {
+            accessToken = (String) authentication.getPrincipal();
+            if (StringUtil.isEmpty(accessToken) || validateAllowUri(request)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+        } else {
+            if (this.log.isDebugEnabled()) {
+                this.log.error("Jwt filter error at: {}", this.getFilterName());
+            }
             filterChain.doFilter(request, response);
             return;
         }
-        final TokenStore tokenStore = SecurityContextHolder.getShareObject(TokenStore.class);
-
-        final JWSObject parse = JWSObject.parse(token);
+        // 查询token
+        try {
+            OAuth2AccessToken oAuth2AccessToken = this.tokenStore.readAccessToken(accessToken);
+            if (oAuth2AccessToken == null) {
+                throw new InvalidTokenException("Token was not recognised");
+            } else if (oAuth2AccessToken.isExpired()) {
+                throw new InvalidTokenException("Token has expired");
+            }
+            OAuth2Authentication oAuth2Authentication = this.tokenStore.readAuthentication(oAuth2AccessToken);
+            SecurityContext context = SecurityContextHolder.getContext();
+            if (context != null) {
+                if (context.getAuthentication() != null) {
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+                context.setAuthentication(oAuth2Authentication);
+            } else {
+                throw new ServletException("Authentication error at:" + this.getFilterName());
+            }
+        } catch (InvalidTokenException e) {
+            this.handleException(e, response);
+            return;
+        }
+        filterChain.doFilter(request, response);
     }
 
+    /**
+     * 处理异常
+     *
+     * @param e exception
+     * @param response response
+     * @throws Exception throw
+     */
+    public void handleException(Exception e, HttpServletResponse response) throws Exception {
+        if (this.log.isDebugEnabled()) {
+            this.logger.info("Handling error: " + e.getClass().getSimpleName() + ", " + e.getMessage());
+        }
+        InvalidTokenException e400 = new InvalidTokenException(e.getMessage());
+        response.setContentType("application/json");
+        response.setStatus(e400.getHttpErrorCode());
+        objectMapper.writeValue(response.getOutputStream(), e400);
+    }
 
     /**
      * 验证请求uri是否在放行名单
@@ -59,20 +114,6 @@ public class Oauth2TokenAuthenticationFilter extends OncePerRequestFilter {
         String[] allowUri = config.getAllowUri();
         // 请求uri
         String requestUri = request.getRequestURI();
-        return Arrays.stream(allowUri).anyMatch(url -> MATCHER.match(url, requestUri));
-    }
-
-    /**
-     * 获取请求头 token
-     *
-     * @param request 请求
-     * @return token
-     */
-    public String getToken(HttpServletRequest request) {
-        String token = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (!StringUtils.isEmpty(token)) {
-            return token.replace(TOKEN_PREFIX, StringUtil.ENMPTY);
-        }
-        return null;
+        return Arrays.stream(allowUri).anyMatch(url -> pathMatcher.match(url, requestUri));
     }
 }

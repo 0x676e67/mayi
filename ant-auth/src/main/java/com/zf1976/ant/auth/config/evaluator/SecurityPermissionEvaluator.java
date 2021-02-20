@@ -1,14 +1,14 @@
 package com.zf1976.ant.auth.config.evaluator;
 
-import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.auth.JwtTokenProvider;
+import com.zf1976.ant.auth.SecurityContextHolder;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 /**
  * 存在原生hasAuthority不需要再添加次评估，否则将校验两次
@@ -21,10 +21,7 @@ public class SecurityPermissionEvaluator implements PermissionEvaluator {
         if (SecurityContextHolder.isSuperAdmin()) {
             return true;
         } else {
-            return authentication.getAuthorities()
-                                 .stream()
-                                 .map(GrantedAuthority::getAuthority)
-                                 .collect(Collectors.toSet())
+            return AuthorityUtils.authorityListToSet(authentication.getAuthorities())
                                  .containsAll(Arrays.asList(permission));
         }
 

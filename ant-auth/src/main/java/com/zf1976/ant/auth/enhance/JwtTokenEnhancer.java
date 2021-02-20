@@ -3,7 +3,7 @@ package com.zf1976.ant.auth.enhance;
 import com.zf1976.ant.auth.AuthConstants;
 import com.zf1976.ant.auth.LoginUserDetails;
 import com.zf1976.ant.auth.SecurityContextHolder;
-import com.zf1976.ant.auth.filter.manager.SessionContextHolder;
+import com.zf1976.ant.auth.SessionContextHolder;
 import com.zf1976.ant.common.core.util.RequestUtils;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -52,7 +52,7 @@ public class JwtTokenEnhancer implements TokenEnhancer {
         RequestUtils.getRequest()
                     .setAttribute(AuthConstants.EXPIRED, expiration);
         // 保存会话
-        SessionContextHolder.set(tokenValue, userDetails);
+        SessionContextHolder.storeSession(tokenValue, userDetails);
     }
 
     public Long getId(OAuth2Authentication oAuth2Authentication) {

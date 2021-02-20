@@ -1,10 +1,10 @@
 package com.zf1976.ant.auth.filter.provider;
 
-import com.zf1976.ant.auth.filter.manager.SessionContextHolder;
-import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
-import com.zf1976.ant.common.core.dev.SecurityProperties;
-import com.zf1976.ant.auth.LoginUserDetails;
 import com.zf1976.ant.auth.JwtTokenProvider;
+import com.zf1976.ant.auth.LoginUserDetails;
+import com.zf1976.ant.auth.SessionContextHolder;
+import com.zf1976.ant.common.core.dev.SecurityProperties;
+import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

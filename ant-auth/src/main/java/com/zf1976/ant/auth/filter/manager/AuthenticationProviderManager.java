@@ -25,10 +25,10 @@ public class AuthenticationProviderManager implements AuthenticationManager {
     private final AuthenticationManager parent;
 
     public AuthenticationProviderManager() {
-        this(new CaptchaAuthenticationProvider(),
-                new SecurityAuthenticationProvider(),
-                new WebSessionRegisterProvider());
+        this(new CaptchaAuthenticationProvider(), new SecurityAuthenticationProvider(), new WebSessionRegisterProvider());
     }
+
+
 
     public AuthenticationProviderManager(AuthenticationProvider... providers) {
         this(Arrays.asList(providers), null);

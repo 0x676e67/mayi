@@ -143,6 +143,12 @@ public class ResultData<T> {
         return vo;
     }
 
+    /**
+     * 返回失败消息
+     *
+     * @param httpStatus status
+     * @return /
+     */
     public static ResultData fail(HttpStatus httpStatus) {
         ResultData vo = new ResultData();
         vo.setSuccess(false);
@@ -153,6 +159,11 @@ public class ResultData<T> {
         return vo;
     }
 
+    /**
+     * 获取请求路径
+     *
+     * @return uri
+     */
     public static String getUri() {
         return RequestUtils.getRequest()
                            .getRequestURI();

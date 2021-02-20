@@ -1,19 +1,16 @@
 package com.zf1976.ant.auth.controller;
 
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.RSAKey;
 import com.wf.captcha.base.Captcha;
-import com.zf1976.ant.auth.AuthConstants;
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.auth.cache.support.CaptchaGenerator;
 import com.zf1976.ant.auth.cache.validate.service.CaptchaService;
 import com.zf1976.ant.auth.pojo.vo.CaptchaVo;
 import com.zf1976.ant.common.core.dev.CaptchaProperties;
 import com.zf1976.ant.common.core.foundation.ResultData;
-import com.zf1976.ant.common.encrypt.EncryptUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,12 +21,12 @@ import org.springframework.security.oauth2.provider.ClientRegistrationException;
 import org.springframework.security.oauth2.provider.endpoint.TokenEndpoint;
 import org.springframework.security.oauth2.provider.error.DefaultWebResponseExceptionTranslator;
 import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
+import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.util.AlternativeJdkIdGenerator;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.security.interfaces.RSAPublicKey;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -44,14 +41,16 @@ public class TokenEndpointEnhancerController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final AlternativeJdkIdGenerator ALTERNATIVE_JDK_ID_GENERATOR = new AlternativeJdkIdGenerator();
+    private final WebResponseExceptionTranslator<OAuth2Exception> providerExceptionHandler = new DefaultWebResponseExceptionTranslator();
     private final CaptchaService captchaService;
     private final CaptchaProperties captchaConfig;
     private final TokenEndpoint tokenEndpoint;
-    private final WebResponseExceptionTranslator<OAuth2Exception> providerExceptionHandler = new DefaultWebResponseExceptionTranslator();
+    private final JwtAccessTokenConverter converter;
 
     public TokenEndpointEnhancerController(CaptchaService captchaService,
                                            CaptchaProperties captchaConfig,
                                            TokenEndpoint tokenEndpoint) {
+        this.converter = SecurityContextHolder.getShareObject(JwtAccessTokenConverter.class);
         this.captchaService = captchaService;
         this.captchaConfig = captchaConfig;
         this.tokenEndpoint = tokenEndpoint;
@@ -67,23 +66,21 @@ public class TokenEndpointEnhancerController {
         if (!(principal instanceof Authentication)) {
             throw new InsufficientAuthenticationException("There is no client authentication. Try adding an appropriate authentication filter.");
         } else {
-            // 用户加密后密码
-            final String password = parameters.get(AuthConstants.PASSWORD);
-            if (password != null) {
-                try {
-                    final String rawPassword = EncryptUtil.decryptForRsaByPrivateKey(password);
-                    parameters.put(AuthConstants.PASSWORD, rawPassword);
-                } catch (Exception e) {
-                    throw new InsufficientAuthenticationException("Client authentication failed.");
-                }
-            }
             ResponseEntity<OAuth2AccessToken> responseEntity = this.tokenEndpoint.postAccessToken(principal, parameters);
             OAuth2AccessToken oAuth2AccessToken = responseEntity.getBody();
             if (responseEntity.getStatusCode().is2xxSuccessful() && oAuth2AccessToken != null) {
-                ResultData<OAuth2AccessToken> success = ResultData.success(oAuth2AccessToken);
                 return ResultData.success(oAuth2AccessToken);
             }
             throw new InsufficientAuthenticationException("Client authentication failed.");
+        }
+    }
+
+    @GetMapping("/token_key")
+    public Map<String, String> getKey(Principal principal) {
+        if (principal == null && !this.converter.isPublic()) {
+            throw new AccessDeniedException("You need to authenticate to see a shared key");
+        } else {
+            return this.converter.getKey();
         }
     }
 
@@ -114,13 +111,6 @@ public class TokenEndpointEnhancerController {
     @GetMapping("/info")
     public ResultData<UserDetails> getUserInfo(){
         return ResultData.success(SecurityContextHolder.getDetails());
-    }
-
-    @GetMapping("/rsa/secret")
-    public ResultData<Object> rsaPublicKey() {
-        final RSAPublicKey publicKey = SecurityContextHolder.getPublicKey();
-        final RSAKey key = new RSAKey.Builder(publicKey).build();
-        return ResultData.success(new JWKSet(key).toJSONObject(true));
     }
 
     @ExceptionHandler({HttpRequestMethodNotSupportedException.class})
