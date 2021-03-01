@@ -57,6 +57,7 @@ public class Oauth2TokenAuthenticationFilter extends OncePerRequestFilter {
             if (this.log.isDebugEnabled()) {
                 this.log.error("Jwt filter error at: {}", this.getFilterName());
             }
+            SecurityContextHolder.clearContext();
             filterChain.doFilter(request, response);
             return;
         }
