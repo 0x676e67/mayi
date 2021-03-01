@@ -11,12 +11,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.power.common.util.StringUtil;
-import com.zf1976.ant.common.core.foundation.query.RequestPage;
-import com.zf1976.ant.upms.biz.service.util.LambdaMethodUtils;
 import com.zf1976.ant.common.core.foundation.exception.BadBusinessException;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
-import com.zf1976.ant.upms.biz.pojo.query.annotation.Param;
 import com.zf1976.ant.common.core.foundation.query.AbstractQueryParam;
+import com.zf1976.ant.common.core.foundation.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.annotation.Param;
+import com.zf1976.ant.upms.biz.service.util.LambdaMethodUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.*;
@@ -44,11 +44,9 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractService.class);
     private static final AlternativeJdkIdGenerator JDK_ID_GENERATOR = new AlternativeJdkIdGenerator();
     public static final String SYS_TEM_DIR = System.getProperty("java.io.tmpdir") + File.separator;
-    private final ThreadLocal<QueryChainWrapper<E>> queryChainWrapperThreadLocal;
-    private final ThreadLocal<RequestPage<? extends AbstractQueryParam>> requestPageThreadLocal;
+    private final ThreadLocal<QueryChainWrapper<E>> queryChainWrapperThreadLocal = new ThreadLocal<>();
+    private final ThreadLocal<RequestPage<? extends AbstractQueryParam>> requestPageThreadLocal = new ThreadLocal<>();
     public AbstractService() {
-        this.queryChainWrapperThreadLocal = new ThreadLocal<>();
-        this.requestPageThreadLocal = new ThreadLocal<>();
         this.removeThreadLocalVariable();
     }
 
