@@ -27,6 +27,7 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-cache:2.3.3.RELEASE')
     implementation('org.springframework.boot:spring-boot-starter-data-redis:2.3.3.RELEASE')
     implementation("org.springframework.boot:spring-boot-configuration-processor:2.3.3.RELEASE")
+    implementation('org.springframework.cloud:spring-cloud-starter-openfeign')
 }
 test {
     useJUnitPlatform()

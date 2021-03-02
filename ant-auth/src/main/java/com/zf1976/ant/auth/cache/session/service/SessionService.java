@@ -1,7 +1,7 @@
 package com.zf1976.ant.auth.cache.session.service;
 
+import com.zf1976.ant.auth.AntUserDetails;
 import com.zf1976.ant.auth.cache.session.Session;
-import com.zf1976.ant.auth.LoginUserDetails;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,7 +18,7 @@ public interface SessionService {
      * @param token       令牌
      * @param request     详情
      */
-    void save(String token, LoginUserDetails userDetails, HttpServletRequest request);
+    void save(String token, AntUserDetails userDetails, HttpServletRequest request);
 
     /**
      * 更新会话
@@ -27,7 +27,7 @@ public interface SessionService {
      * @param userDetails 详情
      * @param request     详情
      */
-    void update(String token, LoginUserDetails userDetails, HttpServletRequest request);
+    void update(String token, AntUserDetails userDetails, HttpServletRequest request);
 
     /**
      * 更新会话

@@ -1,10 +1,15 @@
 package com.zf1976.ant.auth.handler.logout;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zf1976.ant.auth.AntUserDetails;
+import com.zf1976.ant.auth.SecurityContextHolder;
+import com.zf1976.ant.auth.SessionContextHolder;
+import com.zf1976.ant.auth.enums.AuthenticationState;
 import com.zf1976.ant.auth.exception.ExpiredJwtException;
 import com.zf1976.ant.auth.exception.IllegalAccessException;
 import com.zf1976.ant.auth.exception.IllegalJwtException;
 import com.zf1976.ant.common.core.foundation.ResultData;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -13,8 +18,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.common.OAuth2RefreshToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.OAuth2Request;
+import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
+import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.util.Assert;
 
@@ -30,6 +39,8 @@ import java.io.IOException;
 public class Oauth2LogoutHandler implements LogoutHandler {
 
     public final Logger log = LoggerFactory.getLogger(this.getClass());
+    private final TokenStore tokenStore = SecurityContextHolder.getShareObject(TokenStore.class);
+    private final TokenExtractor tokenExtractor = new BearerTokenExtractor();
 
     /**
      * 校验请求方法
@@ -43,11 +54,40 @@ public class Oauth2LogoutHandler implements LogoutHandler {
         }
     }
 
+    @SneakyThrows
     @Override
     public void logout(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) {
+        this.support(httpServletRequest);
         Assert.isInstanceOf(OAuth2Authentication.class, authentication);
         OAuth2Authentication oAuth2Authentication = (OAuth2Authentication) authentication;
-        OAuth2Request oAuth2Request = oAuth2Authentication.getOAuth2Request();
+        final AntUserDetails antUserDetails = (AntUserDetails) oAuth2Authentication.getUserAuthentication().getPrincipal();
+        try {
+            if (!oAuth2Authentication.isAuthenticated()) {
+                throw new ExpiredJwtException(AuthenticationState.ILLEGAL_ACCESS);
+            }
+            if (antUserDetails == null) {
+                throw new ExpiredJwtException(AuthenticationState.EXPIRED_JWT);
+            }
+            final Long id = antUserDetails.getId();
+            Assert.notNull(id, "id cannot been null");
+            final Object principal = this.tokenExtractor.extract(httpServletRequest)
+                                                        .getPrincipal();
+            if (!(principal instanceof String)) {
+                throw new ExpiredJwtException(AuthenticationState.EXPIRED_JWT);
+            }
+            String accessToken = (String) principal;
+            final OAuth2AccessToken oAuth2AccessToken = this.tokenStore.readAccessToken(accessToken);
+            final OAuth2RefreshToken oAuth2RefreshToken = oAuth2AccessToken.getRefreshToken();
+            // 删除access token
+            this.tokenStore.removeAccessToken(oAuth2AccessToken);
+            // 删除refresh token
+            this.tokenStore.removeRefreshToken(oAuth2RefreshToken);
+            // 删除回话
+            SessionContextHolder.removeSession(id);
+        } catch (AuthenticationException e) {
+            this.unSuccessLogoutHandler(httpServletRequest, httpServletResponse, e);
+            throw e;
+        }
     }
 
     /**
@@ -59,7 +99,7 @@ public class Oauth2LogoutHandler implements LogoutHandler {
      * @throws IOException 向上抛异常
      */
     private void unSuccessLogoutHandler(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException {
-        ResultData fail = null;
+        ResultData fail;
         if (e instanceof ExpiredJwtException) {
             ExpiredJwtException exception = (ExpiredJwtException) e;
             fail = ResultData.fail(exception.getValue(), exception.getReasonPhrase());

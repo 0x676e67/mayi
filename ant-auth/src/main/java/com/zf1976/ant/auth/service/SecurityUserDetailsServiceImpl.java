@@ -1,7 +1,7 @@
 package com.zf1976.ant.auth.service;
 
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
-import com.zf1976.ant.auth.LoginUserDetails;
+import com.zf1976.ant.auth.AntUserDetails;
 import com.zf1976.ant.auth.enums.AuthenticationState;
 import com.zf1976.ant.auth.exception.UserNotFountException;
 import com.zf1976.ant.auth.pojo.vo.RoleVo;
@@ -12,7 +12,6 @@ import com.zf1976.ant.upms.biz.dao.*;
 import com.zf1976.ant.upms.biz.pojo.po.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -55,8 +54,8 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) {
-        LoginUserDetails securityUserDetails;
+    public org.springframework.security.core.userdetails.UserDetails loadUserByUsername(String username) {
+        AntUserDetails securityUserDetails;
         // 初步验证用户是否存在
         SysUser user = ChainWrappers.lambdaQueryChain(this.sysUserDao)
                                     .eq(SysUser::getUsername, username)
@@ -78,7 +77,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
         if (!userInfoVo.getEnabled()) {
             throw new UserNotFountException(AuthenticationState.ACCOUNT_DISABLED);
         } else {
-            securityUserDetails = new LoginUserDetails(
+            securityUserDetails = new AntUserDetails(
                     userInfoVo,
                     this.grantedAuthorities(userInfoVo),
                     this.getDataPermission(userInfoVo));

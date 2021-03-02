@@ -58,7 +58,7 @@ public class JwtTokenProvider {
      * @return token
      */
     public static String createToken(Authentication authentication) {
-        final LoginUserDetails userDetails = (LoginUserDetails) authentication.getDetails();
+        final AntUserDetails userDetails = (AntUserDetails) authentication.getDetails();
         final String uuid = (String) authentication.getCredentials();
         final String authorities = authentication.getAuthorities()
                                            .stream()

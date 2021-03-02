@@ -1,8 +1,8 @@
-package com.zf1976.ant.auth.filter.manager;
+package com.zf1976.ant.auth.filter.deprecate.manager;
 
-import com.zf1976.ant.auth.filter.provider.CaptchaAuthenticationProvider;
-import com.zf1976.ant.auth.filter.provider.SecurityAuthenticationProvider;
-import com.zf1976.ant.auth.filter.provider.WebSessionRegisterProvider;
+import com.zf1976.ant.auth.filter.deprecate.provider.CaptchaAuthenticationProvider;
+import com.zf1976.ant.auth.filter.deprecate.provider.SecurityAuthenticationProvider;
+import com.zf1976.ant.auth.filter.deprecate.provider.WebSessionRegisterProvider;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;

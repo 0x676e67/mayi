@@ -1,7 +1,7 @@
 package com.zf1976.ant.auth.enhance;
 
+import com.zf1976.ant.auth.AntUserDetails;
 import com.zf1976.ant.auth.AuthConstants;
-import com.zf1976.ant.auth.LoginUserDetails;
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.auth.SessionContextHolder;
 import com.zf1976.ant.common.core.util.RequestUtils;
@@ -45,7 +45,7 @@ public class JwtTokenEnhancer implements TokenEnhancer {
         // 获取token
         String tokenValue = oAuth2AccessToken.getValue();
         // 获取用户认证登录细节
-        LoginUserDetails userDetails = (LoginUserDetails) oAuth2Authentication.getPrincipal();
+        AntUserDetails userDetails = (AntUserDetails) oAuth2Authentication.getPrincipal();
         // 获取token过期时间
         Integer expiration = oAuth2AccessToken.getExpiresIn();
         // 设置token过期时间
@@ -56,7 +56,7 @@ public class JwtTokenEnhancer implements TokenEnhancer {
     }
 
     public Long getId(OAuth2Authentication oAuth2Authentication) {
-        LoginUserDetails loginUserDetails = (LoginUserDetails) oAuth2Authentication.getPrincipal();
+        AntUserDetails loginUserDetails = (AntUserDetails) oAuth2Authentication.getPrincipal();
         return loginUserDetails.getId();
     }
 }

@@ -1,7 +1,7 @@
-package com.zf1976.ant.auth.filter.provider;
+package com.zf1976.ant.auth.filter.deprecate.provider;
 
+import com.zf1976.ant.auth.AntUserDetails;
 import com.zf1976.ant.auth.JwtTokenProvider;
-import com.zf1976.ant.auth.LoginUserDetails;
 import com.zf1976.ant.auth.SessionContextHolder;
 import com.zf1976.ant.common.core.dev.SecurityProperties;
 import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
@@ -21,7 +21,7 @@ public class WebSessionRegisterProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         final String token = JwtTokenProvider.createToken(authentication);
-        final LoginUserDetails userDetails = (LoginUserDetails) authentication.getDetails();
+        final AntUserDetails userDetails = (AntUserDetails) authentication.getDetails();
         //校验登陆状态 踢下线
         if (CONFIG.getTokenSingle()) {
             SessionContextHolder.removeSession(userDetails.getId());

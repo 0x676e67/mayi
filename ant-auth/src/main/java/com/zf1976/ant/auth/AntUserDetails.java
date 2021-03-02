@@ -3,7 +3,6 @@ package com.zf1976.ant.auth;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zf1976.ant.auth.pojo.vo.UserInfoVo;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Set;
@@ -13,13 +12,13 @@ import java.util.stream.Collectors;
  * @author mac
  * Create by Ant on 2020/9/2 下午7:00
  */
-public class LoginUserDetails implements UserDetails {
+public class AntUserDetails implements org.springframework.security.core.userdetails.UserDetails {
 
     private final UserInfoVo userInfo;
     private final Set<Long> dataScopes;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public LoginUserDetails(UserInfoVo userInfo, Collection<? extends GrantedAuthority> authorities, Set<Long> dataScopes) {
+    public AntUserDetails(UserInfoVo userInfo, Collection<? extends GrantedAuthority> authorities, Set<Long> dataScopes) {
         this.userInfo = userInfo;
         this.dataScopes = dataScopes;
         this.authorities = authorities;

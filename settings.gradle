@@ -19,6 +19,7 @@ include(':ant-visual:ant-visual-monitor')
 include(':ant-visual')
 include(':ant-auth')
 include(':ant-gateway')
+include('ant-antiReptile')
 project(':ant-common:ant-common-core').projectDir = file('ant-common/ant-common-core')
 project(':ant-common:ant-common-component').projectDir = file('ant-common/ant-common-component')
 project(':ant-common:ant-common-datasource').projectDir = file('ant-common/ant-common-datasource')
@@ -30,3 +31,5 @@ project(':ant-upms:ant-upms-biz').projectDir = file('ant-upms/ant-upms-biz')
 project(':ant-upms:ant-upms-api').projectDir = file('ant-upms/ant-upms-api')
 project(':ant-upms:ant-upms-dao').projectDir = file('ant-upms/ant-upms-dao')
 project(':ant-visual:ant-visual-monitor').projectDir = file('ant-visual/ant-visual-monitor')
+include 'ant-antiReptile'
+

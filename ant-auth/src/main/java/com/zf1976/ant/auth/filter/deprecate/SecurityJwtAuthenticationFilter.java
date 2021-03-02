@@ -1,4 +1,4 @@
-package com.zf1976.ant.auth.filter;
+package com.zf1976.ant.auth.filter.deprecate;
 
 import com.zf1976.ant.auth.JwtTokenProvider;
 import com.zf1976.ant.auth.SessionContextHolder;

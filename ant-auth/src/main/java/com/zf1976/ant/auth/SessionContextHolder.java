@@ -5,7 +5,6 @@ import com.zf1976.ant.auth.cache.session.repository.SessionRepository;
 import com.zf1976.ant.auth.cache.session.service.SessionService;
 import com.zf1976.ant.common.core.util.RequestUtils;
 import com.zf1976.ant.common.core.util.SpringContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
@@ -33,8 +32,8 @@ public class SessionContextHolder {
      * @param userDetails        用户会话details
      * @param httpServletRequest 请求
      */
-    public static void storeSession(String token, UserDetails userDetails) {
-        SERVICE.save(token, (LoginUserDetails) userDetails, RequestUtils.getRequest());
+    public static void storeSession(String token, org.springframework.security.core.userdetails.UserDetails userDetails) {
+        SERVICE.save(token, (AntUserDetails) userDetails, RequestUtils.getRequest());
     }
 
     /**
@@ -95,7 +94,7 @@ public class SessionContextHolder {
      * @param userDetails        userDetails
      * @param httpServletRequest request
      */
-    public static void refreshSession(String token, LoginUserDetails userDetails, HttpServletRequest httpServletRequest) {
+    public static void refreshSession(String token, AntUserDetails userDetails, HttpServletRequest httpServletRequest) {
         SERVICE.update(token, userDetails, httpServletRequest);
     }
 

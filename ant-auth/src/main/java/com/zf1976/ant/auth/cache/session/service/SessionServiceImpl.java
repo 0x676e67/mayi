@@ -1,10 +1,10 @@
 package com.zf1976.ant.auth.cache.session.service;
 
+import com.zf1976.ant.auth.AntUserDetails;
 import com.zf1976.ant.auth.cache.session.Session;
-import com.zf1976.ant.common.core.util.RequestUtils;
-import com.zf1976.ant.auth.pojo.vo.DepartmentVo;
-import com.zf1976.ant.auth.LoginUserDetails;
 import com.zf1976.ant.auth.cache.session.repository.SessionRepository;
+import com.zf1976.ant.auth.pojo.vo.DepartmentVo;
+import com.zf1976.ant.common.core.util.RequestUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +28,7 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     public void save(String token,
-                     LoginUserDetails userDetails,
+                     AntUserDetails userDetails,
                      HttpServletRequest request) {
         try {
             Long id = userDetails.getId();
@@ -54,7 +54,7 @@ public class SessionServiceImpl implements SessionService {
     }
 
     @Override
-    public void update(String token, LoginUserDetails userDetails, HttpServletRequest request) {
+    public void update(String token, AntUserDetails userDetails, HttpServletRequest request) {
         try{
             this.remove(userDetails.getId());
             this.save(token, userDetails, request);
