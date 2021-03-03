@@ -1,6 +1,6 @@
 package com.zf1976.ant.auth.config.evaluator;
 
-import com.zf1976.ant.auth.JwtTokenProvider;
+import com.zf1976.ant.common.security.JwtTokenProvider;
 import com.zf1976.ant.auth.SecurityContextHolder;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;

@@ -28,9 +28,7 @@ dependencies {
     implementation 'com.alibaba.cloud:spring-cloud-alibaba-dependencies:2.2.3.RELEASE'
     implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery:2.2.3.RELEASE'
     implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config:2.2.3.RELEASE'
-    compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-    annotationProcessor 'org.projectlombok:lombok'
 }
 
 dependencyManagement {

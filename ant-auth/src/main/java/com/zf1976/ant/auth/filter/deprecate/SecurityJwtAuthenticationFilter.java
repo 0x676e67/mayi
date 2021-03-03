@@ -1,12 +1,12 @@
 package com.zf1976.ant.auth.filter.deprecate;
 
-import com.zf1976.ant.auth.JwtTokenProvider;
-import com.zf1976.ant.auth.SessionContextHolder;
-import com.zf1976.ant.auth.cache.session.Session;
-import com.zf1976.ant.auth.enums.AuthenticationState;
-import com.zf1976.ant.auth.exception.ExpiredJwtException;
-import com.zf1976.ant.auth.exception.IllegalAccessException;
-import com.zf1976.ant.auth.exception.IllegalJwtException;
+import com.zf1976.ant.common.security.JwtTokenProvider;
+import com.zf1976.ant.common.security.SessionContextHolder;
+import com.zf1976.ant.common.security.cache.session.Session;
+import com.zf1976.ant.common.security.enums.AuthenticationState;
+import com.zf1976.ant.common.security.exception.ExpiredJwtException;
+import com.zf1976.ant.common.security.exception.IllegalAccessException;
+import com.zf1976.ant.common.security.exception.IllegalJwtException;
 import com.zf1976.ant.common.core.dev.SecurityProperties;
 import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
 import org.slf4j.Logger;

@@ -6,10 +6,8 @@ import com.zf1976.ant.common.core.dev.SecurityProperties;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
 import com.zf1976.ant.common.core.util.RedisUtils;
 import com.zf1976.ant.common.core.util.StringUtils;
-import com.zf1976.ant.common.security.cache.session.repository.SessionRepository;
-import com.zf1976.ant.common.security.safe.SecurityContextHolder;
-import com.zf1976.ant.common.security.safe.filter.manager.SessionContextHolder;
 import com.zf1976.ant.common.core.foundation.query.RequestPage;
+import com.zf1976.ant.common.security.cache.session.repository.SessionRepository;
 import com.zf1976.ant.upms.biz.convert.SessionConvert;
 import com.zf1976.ant.upms.biz.pojo.query.SessionQueryParam;
 import com.zf1976.ant.upms.biz.pojo.vo.SessionVO;
@@ -17,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
@@ -106,9 +103,9 @@ public class SysOnlineService {
 
     public Optional<Void> forceOffline(Set<Long> ids) {
         ids.forEach(id -> {
-            if (!ObjectUtils.nullSafeEquals(id, SecurityContextHolder.getPrincipalId())){
-                SessionContextHolder.removeSession(id);
-            }
+//            if (!ObjectUtils.nullSafeEquals(id, SecurityContextHolder.getPrincipalId())){
+//                SessionContextHolder.removeSession(id);
+//            }
         });
         return Optional.empty();
     }

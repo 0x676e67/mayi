@@ -23,6 +23,7 @@ dependencies {
     implementation project(':ant-common:ant-common-component')
     implementation project(':ant-common:ant-common-mybatis')
     implementation project(':ant-common:ant-common-datasource')
+    implementation project(':ant-common:ant-common-security')
     implementation project(':ant-upms:ant-upms-api')
     implementation project(':ant-upms:ant-upms-dao')
     implementation('io.jsonwebtoken:jjwt-api:0.11.1')

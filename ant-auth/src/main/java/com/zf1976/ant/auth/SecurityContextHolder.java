@@ -1,8 +1,8 @@
 package com.zf1976.ant.auth;
 
-import com.zf1976.ant.auth.service.DynamicDataSourceService;
 import com.zf1976.ant.common.core.dev.SecurityProperties;
 import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
+import com.zf1976.ant.common.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.core.Authentication;
@@ -43,7 +43,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
     }
 
     public static RSAPublicKey getPublicKey(){
-        final KeyPair keyPair = SecurityContextHolder.getKeyPair();
+        final KeyPair keyPair = getKeyPair();
         final PublicKey keyPairPublic = keyPair.getPublic();
         return (RSAPublicKey) keyPairPublic;
     }

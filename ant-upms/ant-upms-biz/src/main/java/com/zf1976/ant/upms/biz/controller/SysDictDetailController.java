@@ -3,7 +3,6 @@ package com.zf1976.ant.upms.biz.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.common.core.foundation.ResultData;
 import com.zf1976.ant.common.core.foundation.query.RequestPage;
-import com.zf1976.ant.common.security.safe.annotation.Authorize;
 import com.zf1976.ant.upms.biz.pojo.dto.dict.DictDetailDTO;
 import com.zf1976.ant.upms.biz.pojo.query.DictDetailQueryParam;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationInsertGroup;
@@ -35,19 +34,19 @@ public class SysDictDetailController {
     }
 
     @PostMapping("/save")
-    @Authorize("dict:add")
+//    @Authorize("dict:add")
     public ResultData<Optional<Void>> saveDictDetail(@RequestBody @Validated(ValidationInsertGroup.class) DictDetailDTO dto) {
         return ResultData.success(service.saveDictDetail(dto));
     }
 
     @PutMapping("/update")
-    @Authorize("dict:edit")
+//    @Authorize("dict:edit")
     public ResultData<Optional<Void>> updateDictDetail(@RequestBody @Validated(ValidationUpdateGroup.class) DictDetailDTO dto) {
         return ResultData.success(service.updateDictDetail(dto));
     }
 
     @DeleteMapping("/delete/{id}")
-    @Authorize("dict:del")
+//    @Authorize("dict:del")
     public ResultData<Optional<Void>> deleteDictDetailList(@PathVariable Long id) {
         return ResultData.success(service.deleteDictDetail(id));
     }

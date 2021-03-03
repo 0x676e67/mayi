@@ -1,8 +1,8 @@
 package com.zf1976.ant.auth.filter;
 
 import com.zf1976.ant.auth.SecurityContextHolder;
-import com.zf1976.ant.auth.enums.SignatureState;
-import com.zf1976.ant.auth.exception.SignatureException;
+import com.zf1976.ant.common.security.enums.SignatureState;
+import com.zf1976.ant.common.security.exception.SignatureException;
 import com.zf1976.ant.auth.filter.signature.SignatureAuthenticationStrategy;
 import com.zf1976.ant.auth.filter.signature.SignaturePattern;
 import com.zf1976.ant.auth.filter.signature.StandardSignature;

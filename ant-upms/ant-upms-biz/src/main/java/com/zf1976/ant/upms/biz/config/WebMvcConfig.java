@@ -32,8 +32,8 @@ public class WebMvcConfig implements WebMvcConfigurer, InitializingBean {
         registry.addMapping("/**" )
                 .allowedHeaders("*")
                 .allowedMethods("*")
-                .maxAge(1800)
-                .allowedOrigins("*");
+                .allowedOrigins("*")
+                .maxAge(1800);
     }
 
     /**

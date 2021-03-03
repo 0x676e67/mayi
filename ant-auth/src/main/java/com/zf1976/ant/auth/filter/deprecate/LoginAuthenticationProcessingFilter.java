@@ -2,13 +2,13 @@ package com.zf1976.ant.auth.filter.deprecate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.power.common.util.Base64Util;
-import com.zf1976.ant.auth.enums.AuthenticationState;
-import com.zf1976.ant.auth.exception.BadCredentialsException;
+import com.zf1976.ant.common.security.enums.AuthenticationState;
+import com.zf1976.ant.common.security.exception.BadCredentialsException;
 import com.zf1976.ant.auth.filter.deprecate.manager.AuthenticationProviderManager;
 import com.zf1976.ant.auth.handler.login.SecurityAuthenticationFailureHandler;
 import com.zf1976.ant.auth.handler.login.SecurityAuthenticationSuccessHandler;
-import com.zf1976.ant.auth.pojo.LoginDTO;
-import com.zf1976.ant.auth.pojo.dto.AuthenticationDto;
+import com.zf1976.ant.common.security.pojo.LoginDTO;
+import com.zf1976.ant.common.security.pojo.dto.AuthenticationDto;
 import com.zf1976.ant.common.encrypt.EncryptUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,9 +1,9 @@
 package com.zf1976.ant.upms.biz.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+
 import com.zf1976.ant.common.core.foundation.ResultData;
 import com.zf1976.ant.common.core.foundation.query.RequestPage;
-import com.zf1976.ant.common.security.safe.annotation.Authorize;
 import com.zf1976.ant.upms.biz.pojo.dto.menu.MenuDTO;
 import com.zf1976.ant.upms.biz.pojo.query.MenuQueryParam;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationInsertGroup;
@@ -38,31 +38,31 @@ public class SysMenuController {
     }
 
     @PostMapping("/page")
-    @Authorize("menu:list")
+//    @Authorize("menu:list")
     public ResultData<IPage<MenuVO>> selectMenuPage(@RequestBody RequestPage<MenuQueryParam> requestPage) {
         return ResultData.success(service.selectMenuPage(requestPage));
     }
 
     @PostMapping("/vertex/{id}")
-    @Authorize("menu:list")
+//    @Authorize("menu:list")
     public ResultData<IPage<MenuVO>> menuVertex(@PathVariable @NotNull Long id) {
         return ResultData.success(service.selectMenuVertex(id));
     }
 
     @PostMapping("/save")
-    @Authorize("menu:add")
+//    @Authorize("menu:add")
     public ResultData<Optional<Void>> saveMenu(@RequestBody @Validated(ValidationInsertGroup.class) MenuDTO dto) {
         return ResultData.success(service.saveMenu(dto));
     }
 
     @PutMapping("/update")
-    @Authorize("menu:edit")
+//    @Authorize("menu:edit")
     public ResultData<Optional<Void>> updateMenu(@RequestBody @Validated(ValidationUpdateGroup.class) MenuDTO dto) {
         return ResultData.success(service.updateMenu(dto));
     }
 
     @DeleteMapping("/delete")
-    @Authorize("menu:del")
+//    @Authorize("menu:del")
     public ResultData<Optional<Void>> deleteMenu(@RequestBody Set<Long> ids) {
         return ResultData.success(service.deleteMenuList(ids));
     }

@@ -2,7 +2,6 @@ package com.zf1976.ant.upms.biz.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
-import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.common.component.load.annotation.CaffeineEvict;
 import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
 import com.zf1976.ant.common.component.load.annotation.Space;
@@ -173,8 +172,8 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
                  throw new DepartmentException(DepartmentState.DEPARTMENT_EXISTING, dto.getName());
              });
         SysDepartment sysDept = this.convert.toEntity(dto);
-        String principal = SecurityContextHolder.getPrincipal();
-        sysDept.setCreateBy(principal);
+//        String principal = SecurityContextHolder.getPrincipal();
+//        sysDept.setCreateBy(principal);
         sysDept.setCreateTime(new Date());
         super.savaEntity(sysDept);
         return Optional.empty();
@@ -246,9 +245,9 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
     }
 
     private void update(DepartmentDTO dto, SysDepartment currentDept) {
-        final String principal = SecurityContextHolder.getPrincipal();
         this.convert.copyProperties(dto, currentDept);
-        currentDept.setUpdateBy(principal);
+//        final String principal = SecurityContextHolder.getPrincipal();
+//        currentDept.setUpdateBy(principal);
         currentDept.setUpdateTime(new Date());
         super.updateEntityById(currentDept);
     }

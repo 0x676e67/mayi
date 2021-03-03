@@ -1,9 +1,9 @@
 package com.zf1976.ant.auth.filter.deprecate.provider;
 
-import com.zf1976.ant.auth.cache.validate.service.CaptchaService;
-import com.zf1976.ant.auth.enums.AuthenticationState;
-import com.zf1976.ant.auth.exception.CaptchaException;
-import com.zf1976.ant.auth.pojo.LoginDTO;
+import com.zf1976.ant.common.security.cache.validate.service.CaptchaService;
+import com.zf1976.ant.common.security.enums.AuthenticationState;
+import com.zf1976.ant.common.security.exception.CaptchaException;
+import com.zf1976.ant.common.security.pojo.LoginDTO;
 import com.zf1976.ant.common.core.util.SpringContextHolder;
 import lombok.SneakyThrows;
 import org.springframework.security.authentication.AuthenticationProvider;

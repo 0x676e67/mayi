@@ -1,8 +1,8 @@
 package com.zf1976.ant.auth.handler.login;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zf1976.ant.auth.exception.*;
 import com.zf1976.ant.common.core.foundation.ResultData;
+import com.zf1976.ant.common.security.exception.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationServiceException;

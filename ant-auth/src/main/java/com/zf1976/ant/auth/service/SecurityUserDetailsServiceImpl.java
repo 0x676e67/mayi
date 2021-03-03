@@ -1,11 +1,12 @@
 package com.zf1976.ant.auth.service;
 
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
-import com.zf1976.ant.auth.AntUserDetails;
-import com.zf1976.ant.auth.enums.AuthenticationState;
-import com.zf1976.ant.auth.exception.UserNotFountException;
-import com.zf1976.ant.auth.pojo.vo.RoleVo;
-import com.zf1976.ant.auth.pojo.vo.UserInfoVo;
+import com.zf1976.ant.common.security.AntUserDetails;
+import com.zf1976.ant.auth.convert.UserConversion;
+import com.zf1976.ant.common.security.enums.AuthenticationState;
+import com.zf1976.ant.common.security.exception.UserNotFountException;
+import com.zf1976.ant.common.security.pojo.vo.RoleVo;
+import com.zf1976.ant.common.security.pojo.vo.UserInfoVo;
 import com.zf1976.ant.common.core.dev.SecurityProperties;
 import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
 import com.zf1976.ant.upms.biz.dao.*;

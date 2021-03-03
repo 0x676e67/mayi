@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
 import com.zf1976.ant.common.component.load.annotation.CaffeineEvict;
 import com.zf1976.ant.common.component.load.annotation.Space;
-import com.zf1976.ant.common.security.safe.SecurityContextHolder;
 import com.zf1976.ant.upms.biz.dao.SysDictDao;
 import com.zf1976.ant.upms.biz.dao.SysDictDetailDao;
 import com.zf1976.ant.upms.biz.pojo.po.SysDict;
@@ -79,9 +78,9 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
     @CaffeineEvict(namespace = Space.DICT_DETAIL)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> saveDictDetail(DictDetailDTO dto) {
-        final String principal = SecurityContextHolder.getPrincipal();
         SysDictDetail sysDictDetail = convert.toEntity(dto);
-        sysDictDetail.setCreateBy(principal);
+//        final String principal = SecurityContextHolder.getPrincipal();
+//        sysDictDetail.setCreateBy(principal);
         sysDictDetail.setCreateTime(new Date());
         super.savaEntity(sysDictDetail);
         return Optional.empty();
@@ -101,9 +100,9 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
                                            .eq(SysDictDetail::getDictId, dto.getDictId())
                                            .oneOpt()
                                            .orElseThrow(() -> new DictException(DictState.DICT_NOT_FOUND));
-        String principal = SecurityContextHolder.getPrincipal();
         this.convert.copyProperties(dto, sysDictDetail);
-        sysDictDetail.setUpdateBy(principal);
+//        String principal = SecurityContextHolder.getPrincipal();
+//        sysDictDetail.setUpdateBy(principal);
         sysDictDetail.setUpdateTime(new Date());
         super.updateEntityById(sysDictDetail);
         return Optional.empty();

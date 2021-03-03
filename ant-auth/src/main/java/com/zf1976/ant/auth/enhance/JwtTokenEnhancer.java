@@ -1,9 +1,9 @@
 package com.zf1976.ant.auth.enhance;
 
-import com.zf1976.ant.auth.AntUserDetails;
-import com.zf1976.ant.auth.AuthConstants;
+import com.zf1976.ant.common.security.AntUserDetails;
+import com.zf1976.ant.common.security.AuthConstants;
 import com.zf1976.ant.auth.SecurityContextHolder;
-import com.zf1976.ant.auth.SessionContextHolder;
+import com.zf1976.ant.common.security.SessionContextHolder;
 import com.zf1976.ant.common.core.util.RequestUtils;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;

@@ -2,9 +2,9 @@ package com.zf1976.ant.auth.controller;
 
 import com.wf.captcha.base.Captcha;
 import com.zf1976.ant.auth.SecurityContextHolder;
-import com.zf1976.ant.auth.cache.support.CaptchaGenerator;
-import com.zf1976.ant.auth.cache.validate.service.CaptchaService;
-import com.zf1976.ant.auth.pojo.vo.CaptchaVo;
+import com.zf1976.ant.common.security.cache.support.CaptchaGenerator;
+import com.zf1976.ant.common.security.cache.validate.service.CaptchaService;
+import com.zf1976.ant.common.security.pojo.vo.CaptchaVo;
 import com.zf1976.ant.common.core.dev.CaptchaProperties;
 import com.zf1976.ant.common.core.foundation.ResultData;
 import org.slf4j.Logger;

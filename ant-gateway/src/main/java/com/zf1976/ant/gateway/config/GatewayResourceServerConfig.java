@@ -17,6 +17,8 @@ public class GatewayResourceServerConfig {
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity httpSecurity) {
+        httpSecurity.oauth2ResourceServer()
+                    .jwt();
         httpSecurity.csrf()
                     // 关闭csrf
                     .disable()
@@ -24,10 +26,8 @@ public class GatewayResourceServerConfig {
                     .cors()
                     .and()
                     .authorizeExchange()
-                    .pathMatchers("/actuator/**").permitAll()
+                    .pathMatchers("/actuator/**","/oauth").permitAll()
                     .anyExchange().authenticated();
-        httpSecurity.oauth2ResourceServer()
-                    .jwt();
         return httpSecurity.build();
     }
 }

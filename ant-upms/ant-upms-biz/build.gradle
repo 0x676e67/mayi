@@ -3,6 +3,8 @@
  */
 plugins{
     id 'org.springframework.boot' version '2.3.3.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
 }
 
 dependencies {
@@ -16,18 +18,17 @@ dependencies {
     implementation project(':ant-common:ant-common-datasource')
     implementation project(':ant-visual:ant-visual-monitor')
     implementation project(':ant-common:ant-common-cache')
-    implementation project(':ant-auth')
+    implementation project(':ant-common:ant-common-security')
     implementation('cn.hutool:hutool-poi:5.4.5')
     implementation('org.apache.poi:poi-ooxml:4.1.2')
     implementation('com.baomidou:mybatis-plus-boot-starter:3.3.1.tmp')
-    implementation('org.springframework.boot:spring-boot-starter-web:2.3.3.RELEASE')
-    implementation('org.springframework.boot:spring-boot-starter-test:2.3.3.RELEASE')
-    implementation('org.springframework.boot:spring-boot-starter-security:2.3.3.RELEASE')
-    implementation('org.springframework.boot:spring-boot-starter-validation:2.3.3.RELEASE')
-    implementation('org.springframework.boot:spring-boot-starter-cache:2.3.3.RELEASE')
-    implementation('org.springframework.boot:spring-boot-starter-data-redis:2.3.3.RELEASE')
-    implementation("org.springframework.boot:spring-boot-configuration-processor:2.3.3.RELEASE")
-    implementation('org.springframework.cloud:spring-cloud-starter-openfeign')
+    implementation('org.springframework.boot:spring-boot-starter-web')
+    implementation('org.springframework.boot:spring-boot-starter-test')
+    implementation('org.springframework.boot:spring-boot-starter-security')
+    implementation('org.springframework.boot:spring-boot-starter-validation')
+    implementation('org.springframework.boot:spring-boot-starter-cache')
+    implementation('org.springframework.boot:spring-boot-starter-data-redis')
+    implementation("org.springframework.boot:spring-boot-configuration-processor")
 }
 test {
     useJUnitPlatform()

@@ -4,7 +4,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.zf1976.ant.auth.filter.datasource.DynamicSecurityMetadataSource;
 import com.zf1976.ant.auth.filter.manager.DynamicAccessDecisionManager;
-import com.zf1976.ant.auth.service.DynamicDataSourceService;
+import com.zf1976.ant.auth.DynamicDataSourceService;
 import com.zf1976.ant.common.core.dev.SecurityProperties;
 import com.zf1976.ant.common.core.util.SpringContextHolder;
 import org.springframework.http.HttpMethod;

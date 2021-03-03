@@ -3,7 +3,6 @@ package com.zf1976.ant.upms.biz.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.common.core.foundation.ResultData;
 import com.zf1976.ant.common.core.foundation.query.RequestPage;
-import com.zf1976.ant.common.security.safe.annotation.Authorize;
 import com.zf1976.ant.upms.biz.pojo.dto.dict.DictDTO;
 import com.zf1976.ant.upms.biz.pojo.query.DictQueryParam;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationInsertGroup;
@@ -37,25 +36,25 @@ public class SysDictController {
     }
 
     @PostMapping("/save")
-    @Authorize("dict:add")
+//    @Authorize("dict:add")
     public ResultData<Optional<Void>> saveDict(@RequestBody @Validated({ValidationInsertGroup.class}) DictDTO dto) {
         return ResultData.success(service.saveDict(dto));
     }
 
     @PutMapping("/update")
-    @Authorize("dict:edit")
+//    @Authorize("dict:edit")
     public ResultData<Optional<Void>> updateDict(@RequestBody @Validated(ValidationUpdateGroup.class) DictDTO dto) {
         return ResultData.success(service.updateDict(dto));
     }
 
     @DeleteMapping("/delete")
-    @Authorize("dict:del")
+//    @Authorize("dict:del")
     public ResultData<Optional<Void>> deleteDictList(@RequestBody Set<Long> ids) {
         return ResultData.success(service.deleteDictList(ids));
     }
 
     @PostMapping("/download")
-    @Authorize("dict:list")
+//    @Authorize("dict:list")
     public ResultData<Optional<Void>> downloadDictExcel(@RequestBody RequestPage<DictQueryParam> requestPage, HttpServletResponse response) {
         return ResultData.success(service.downloadDictExcel(requestPage, response));
     }

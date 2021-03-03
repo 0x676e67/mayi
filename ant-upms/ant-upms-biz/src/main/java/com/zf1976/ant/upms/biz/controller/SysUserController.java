@@ -5,7 +5,7 @@ import com.zf1976.ant.common.component.mail.ValidateFactory;
 import com.zf1976.ant.common.core.foundation.ResultData;
 import com.zf1976.ant.common.core.foundation.query.RequestPage;
 import com.zf1976.ant.common.log.annotation.Log;
-import com.zf1976.ant.common.security.safe.annotation.Authorize;
+
 import com.zf1976.ant.upms.biz.pojo.dto.user.UpdateEmailDTO;
 import com.zf1976.ant.upms.biz.pojo.dto.user.UpdateInfoDTO;
 import com.zf1976.ant.upms.biz.pojo.dto.user.UpdatePasswordDTO;
@@ -37,40 +37,40 @@ public class SysUserController {
     }
 
     @PostMapping("/page")
-    @Authorize("user:list")
+//    @Authorize("user:list")
     public ResultData<IPage<UserVO>> selectUserPage(@RequestBody RequestPage<UserQueryParam> requestPage) {
         return ResultData.success(service.selectUserPage(requestPage));
     }
 
     @Log(description = "添加用户")
     @PostMapping("/save")
-    @Authorize("user:add")
+//    @Authorize("user:add")
     public ResultData<Optional<Void>> saveUser(@RequestBody @Validated(ValidationInsertGroup.class) UserDTO dto) {
         return ResultData.success(service.saveUser(dto));
     }
 
     @Log(description = "更新用户")
     @PutMapping("/update")
-    @Authorize("user:edit")
+//    @Authorize("user:edit")
     public ResultData<Optional<Void>> updateUser(@RequestBody @Validated(ValidationUpdateGroup.class) UserDTO dto) {
         return ResultData.success(service.updateUser(dto));
     }
 
     @Log(description = "删除用户")
     @DeleteMapping("/delete")
-    @Authorize("user:del")
+//    @Authorize("user:del")
     public ResultData<Optional<Void>> deleteUser(@RequestBody Set<Long> ids) {
         return ResultData.success(service.deleteUser(ids));
     }
 
     @PostMapping("/position/{id}")
-    @Authorize("user:list")
+////    @Authorize("user:list")
     public ResultData<Set<Long>> getUserPositionIds(@PathVariable Long id) {
         return ResultData.success(service.selectUserPositionIds(id));
     }
 
     @PostMapping("/role/{id}")
-    @Authorize("user:list")
+//    @Authorize("user:list")
     public ResultData<Set<Long>> getUserRoleIds(@PathVariable Long id) {
         return ResultData.success(service.selectUserRoleIds(id));
     }

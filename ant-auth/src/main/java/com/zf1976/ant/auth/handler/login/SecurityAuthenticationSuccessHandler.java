@@ -2,8 +2,8 @@ package com.zf1976.ant.auth.handler.login;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.power.common.util.Base64Util;
-import com.zf1976.ant.auth.SessionContextHolder;
-import com.zf1976.ant.auth.pojo.vo.LoginResponse;
+import com.zf1976.ant.common.security.SessionContextHolder;
+import com.zf1976.ant.common.security.pojo.vo.LoginResponse;
 import com.zf1976.ant.common.core.foundation.ResultData;
 import com.zf1976.ant.common.encrypt.EncryptUtil;
 import org.slf4j.Logger;
