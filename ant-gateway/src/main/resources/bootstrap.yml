@@ -21,3 +21,9 @@ spring:
       config:
         file-extension: yaml
       server-addr: 139.224.81.120:8848
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:9000/oauth/token_key

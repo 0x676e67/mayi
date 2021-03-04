@@ -75,7 +75,6 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
     public void configure(AuthorizationServerSecurityConfigurer security) {
         this.authorizationServerSecurityConfigurer = security;
         Assert.notNull(this.authorizationServerSecurityConfigurer,"authorizationServerSecurityConfigurer object cannot been null");
-        ReflectionUtils.findMethod(AuthorizationServerSecurityConfigurer.class, "");
         security.allowFormAuthenticationForClients()
                 .authenticationEntryPoint(new Oauth2AuthenticationEntryPoint())
                 .accessDeniedHandler(new Oauth2AccessDeniedHandler())

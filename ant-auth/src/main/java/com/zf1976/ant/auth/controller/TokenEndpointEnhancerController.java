@@ -9,6 +9,7 @@ import com.zf1976.ant.common.core.dev.CaptchaProperties;
 import com.zf1976.ant.common.core.foundation.ResultData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
@@ -49,11 +50,12 @@ public class TokenEndpointEnhancerController {
 
     public TokenEndpointEnhancerController(CaptchaService captchaService,
                                            CaptchaProperties captchaConfig,
-                                           TokenEndpoint tokenEndpoint) {
-        this.converter = SecurityContextHolder.getShareObject(JwtAccessTokenConverter.class);
+                                           TokenEndpoint tokenEndpoint,
+                                           JwtAccessTokenConverter jwtAccessTokenConverter) {
         this.captchaService = captchaService;
         this.captchaConfig = captchaConfig;
         this.tokenEndpoint = tokenEndpoint;
+        this.converter = jwtAccessTokenConverter;
     }
 
     @GetMapping("/token")
