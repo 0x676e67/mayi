@@ -6,6 +6,9 @@ spring:
     name: ant-gateway
   cloud:
     gateway:
+      httpclient:
+        connect-timeout: 1000
+        response-timeout: 5s
       discovery:
         locator:
           enabled: true # 启用自动根据服务ID生成路由
@@ -14,16 +17,14 @@ spring:
         - id: ant-auth
           uri: http://localhost:9000
           predicates:
-             - Path=/ant-auth/**
+             - Path=/oauth/**
+        - id: ant-upms-bzi
+          uri: http://localhost:8080
+          predicates:
+            - Path=/admin/v1/**
           filters:
-             - StripPrefix=1 # 移除前缀
+            - PrefixPath=2
     nacos:
       config:
         file-extension: yaml
       server-addr: 139.224.81.120:8848
-
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: http://localhost:9000/oauth/token_key

@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
  * @date 2021/2/11
  **/
 @Component
-public class GatewayReactiveAuthenticationManager implements ReactiveAuthorizationManager<AuthorizationContext> {
+public class GatewayReactiveAuthorizationManager implements ReactiveAuthorizationManager<AuthorizationContext> {
 
     @Override
     public Mono<AuthorizationDecision> check(Mono<Authentication> mono, AuthorizationContext authorizationContext) {

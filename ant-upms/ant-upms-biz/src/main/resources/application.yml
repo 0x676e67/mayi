@@ -1,5 +1,5 @@
 server:
-  port: 8888    #server 端口
+  port: 8080    #server 端口
 
 spring:
   datasource:
