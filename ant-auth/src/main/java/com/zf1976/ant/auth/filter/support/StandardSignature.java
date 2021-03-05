@@ -1,4 +1,4 @@
-package com.zf1976.ant.auth.filter.signature;
+package com.zf1976.ant.auth.filter.support;
 
 /**
  * @author mac
@@ -8,12 +8,12 @@ public final class StandardSignature {
     /**
      * 应用唯一标识
      */
-    public static final String APP_ID = "app_id";
+    public static final String APPLY_ID = "apply_id";
 
     /**
      * 应用密钥
      */
-    public static final String APP_KEY = "app_key";
+    public static final String APPLY_SECRET = "apply_secret";
 
     /**
      * 时间戳

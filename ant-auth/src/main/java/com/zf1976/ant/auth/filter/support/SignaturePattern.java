@@ -1,4 +1,4 @@
-package com.zf1976.ant.auth.filter.signature;
+package com.zf1976.ant.auth.filter.support;
 
 /**
  *  签名策略模式枚举

@@ -25,12 +25,15 @@ import java.util.Optional;
 @Aspect
 @Slf4j(topic = "[caffeine]-[cache]")
 @Component
-public class CaffeineCacheAspect implements SmartLifecycle {
+public class CaffeineCacheAspect {
 
-    private static boolean isRunning = false;
-    private SpringElExpressionHandler handler;
-    private CaffeineCacheProvider<Object, Object> caffeineCacheProvider;
-
+    private final SpringElExpressionHandler handler;
+    private final CaffeineCacheProvider<Object, Object> caffeineCacheProvider;
+    public CaffeineCacheAspect() {
+        this.caffeineCacheProvider = new CaffeineCacheProvider<>();
+        this.handler = new SpringElExpressionHandler();
+        this.checkStatus();
+    }
     private void checkStatus() {
         Assert.notNull(this.handler, "Uninitialized!");
         Assert.notNull(this.caffeineCacheProvider, "Uninitialized!");
@@ -64,7 +67,7 @@ public class CaffeineCacheAspect implements SmartLifecycle {
         String[] dependOnNamespace = annotation.dependsOn();
         if (StringUtil.isEmpty(annotation.key())) {
             Arrays.stream(dependOnNamespace)
-                  .forEachOrdered(dependOn -> this.caffeineCacheProvider.invalidate(dependOn));
+                  .forEachOrdered(this.caffeineCacheProvider::invalidate);
             this.caffeineCacheProvider.invalidate(namespace);
         } else {
             String key = this.handler.parse(method, joinPointArgs, annotation.key(), String.class, null);
@@ -84,21 +87,4 @@ public class CaffeineCacheAspect implements SmartLifecycle {
                                              .getPrincipal();
     }
 
-    @Override
-    public void start() {
-        this.caffeineCacheProvider = new CaffeineCacheProvider<>();
-        this.handler = new SpringElExpressionHandler();
-        this.checkStatus();
-        isRunning = true;
-    }
-
-    @Override
-    public void stop() {
-        isRunning = false;
-    }
-
-    @Override
-    public boolean isRunning() {
-        return isRunning;
-    }
 }

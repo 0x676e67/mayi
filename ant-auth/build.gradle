@@ -22,7 +22,6 @@ dependencies {
     implementation project(':ant-common:ant-common-encrypt')
     implementation project(':ant-common:ant-common-component')
     implementation project(':ant-common:ant-common-mybatis')
-    implementation project(':ant-common:ant-common-datasource')
     implementation project(':ant-common:ant-common-security')
     implementation project(':ant-upms:ant-upms-api')
     implementation project(':ant-upms:ant-upms-dao')
@@ -46,6 +45,7 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-cache')
     implementation('org.springframework.boot:spring-boot-starter-data-redis')
     implementation('com.baomidou:mybatis-plus-boot-starter:3.3.1.tmp')
+    runtimeOnly 'mysql:mysql-connector-java:8.0.21'
 
 }
 

@@ -1,9 +1,10 @@
 package com.zf1976.ant.auth.filter.deprecate.provider;
 
+import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.security.AntUserDetails;
 import com.zf1976.ant.common.security.JwtTokenProvider;
 import com.zf1976.ant.common.security.SessionContextHolder;
-import com.zf1976.ant.common.core.dev.SecurityProperties;
+import com.zf1976.ant.common.security.SecurityProperties;
 import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,7 +17,7 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class WebSessionRegisterProvider implements AuthenticationProvider {
 
-    private static final SecurityProperties CONFIG = ApplicationConfigUtils.getSecurityProperties();
+    private static final SecurityProperties CONFIG = SpringContextHolder.getBean(SecurityProperties.class);
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {

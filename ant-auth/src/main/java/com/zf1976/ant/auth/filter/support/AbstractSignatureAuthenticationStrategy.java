@@ -1,14 +1,12 @@
-package com.zf1976.ant.auth.filter.signature;
+package com.zf1976.ant.auth.filter.support;
 
 import com.power.common.util.StringUtil;
-import com.zf1976.ant.common.core.dev.SecurityProperties;
-import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
+import com.zf1976.ant.auth.enhance.JdbcClientDetailsServiceEnhancer;
 import com.zf1976.ant.common.core.util.CaffeineCacheUtils;
 import com.zf1976.ant.common.encrypt.EncryptUtil;
+import com.zf1976.ant.common.security.SecurityContextHolder;
 import com.zf1976.ant.common.security.exception.SignatureException;
 import com.zf1976.ant.common.security.enums.SignatureState;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
@@ -21,12 +19,13 @@ import java.util.*;
  **/
 public abstract class AbstractSignatureAuthenticationStrategy implements SignatureAuthenticationStrategy{
 
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractSignatureAuthenticationStrategy.class);
     protected Map<String, SignatureState> stateMap = new HashMap<>(4);
     protected Long preventReplyAttackTime = 60000L;
+    private final JdbcClientDetailsServiceEnhancer clientService;
 
     protected AbstractSignatureAuthenticationStrategy() {
-        stateMap.put(StandardSignature.APP_ID, SignatureState.MISSING_APP_ID);
+        this.clientService = SecurityContextHolder.getShareObject(JdbcClientDetailsServiceEnhancer.class);
+        stateMap.put(StandardSignature.APPLY_ID, SignatureState.MISSING_APP_ID);
         stateMap.put(StandardSignature.TIMESTAMP, SignatureState.MISSING_TIMESTAMP);
         stateMap.put(StandardSignature.NONCE_STR, SignatureState.MISSING_NONCE_STR);
         stateMap.put(StandardSignature.SIGNATURE, SignatureState.MISSING_SIGN);
@@ -52,10 +51,8 @@ public abstract class AbstractSignatureAuthenticationStrategy implements Signatu
         return sign;
     }
 
-    protected String getAndValidateAppId(HttpServletRequest request) {
-        String appKey = request.getParameter(StandardSignature.APP_ID);
-        this.validateAppId(appKey, this.getAppId());
-        return appKey;
+    protected String getApplyId(HttpServletRequest request) {
+        return request.getParameter(StandardSignature.APPLY_ID);
     }
 
     protected String getAndValidateSignature(Map<String, String> kv) {
@@ -66,16 +63,8 @@ public abstract class AbstractSignatureAuthenticationStrategy implements Signatu
         return sign;
     }
 
-    protected String getAndValidateAppId(Map<String, String> kv) {
-        String appKey = kv.get(StandardSignature.APP_ID);
-        this.validateAppId(appKey, this.getAppId());
-        return appKey;
-    }
-
-    private void validateAppId(String key, String realKey) {
-        if (!ObjectUtils.nullSafeEquals(key, realKey)) {
-            throw new SignatureException(SignatureState.MISSING_APP_ID);
-        }
+    protected String getApplyId(Map<String, String> kv) {
+        return kv.get(StandardSignature.APPLY_ID);
     }
 
 
@@ -157,44 +146,21 @@ public abstract class AbstractSignatureAuthenticationStrategy implements Signatu
      * @param timestamp 时间戳
      * @return /
      */
-    protected String generateSignature(String appId,String nonceStr, Long timestamp) {
+    protected String generateSignature(String applyId,String nonceStr, Long timestamp) {
+        String applySecret = this.findApplySecret(applyId);
         List<String> params = new ArrayList<>();
-        params.add(StandardSignature.APP_ID + "=" + appId);
-        params.add(StandardSignature.APP_KEY + "=" + this.getAppKey());
+        params.add(StandardSignature.APPLY_SECRET + "=" + applySecret);
+        params.add(StandardSignature.APPLY_ID + "=" + applyId);
         params.add(StandardSignature.NONCE_STR + "=" + nonceStr);
         params.add(StandardSignature.TIMESTAMP + "=" + timestamp.toString());
         params.sort(String::compareTo);
         String signatureParams = String.join("&", params);
-        return EncryptUtil.signatureByHmacSha1(signatureParams);
+        return EncryptUtil.signatureByHmacSha1(signatureParams, applySecret);
     }
 
-    /**
-     * 获取应用唯一标识
-     *
-     * @return /
-     */
-    protected String getAppId() {
-        return this.getSecurityProperties()
-                   .getAppId();
-    }
-
-    /**
-     * 获取应用密钥
-     *
-     * @return /
-     */
-    private String getAppKey() {
-        return this.getSecurityProperties()
-                   .getAppKey();
-    }
-
-    /**
-     * 获取安全配置
-     *
-     * @return /
-     */
-    private SecurityProperties getSecurityProperties() {
-        return ApplicationConfigUtils.getSecurityProperties();
+    private String findApplySecret(String applyId) {
+        return this.clientService.loadClientByClientId(applyId)
+                                 .getClientSecret();
     }
 
 }

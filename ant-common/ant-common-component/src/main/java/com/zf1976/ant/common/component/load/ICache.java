@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 /**
  * @author WINDOWS
  */
-public interface ICaffeineCache<K, V> {
+public interface ICache<K, V> {
 
     /**
      * 缓存配置

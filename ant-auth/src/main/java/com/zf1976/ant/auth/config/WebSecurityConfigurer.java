@@ -1,15 +1,19 @@
 package com.zf1976.ant.auth.config;
 
-import com.zf1976.ant.auth.SecurityContextHolder;
+import com.zf1976.ant.auth.AuthProperties;
+import com.zf1976.ant.auth.filter.DynamicSecurityFilter;
 import com.zf1976.ant.auth.filter.Oauth2TokenAuthenticationFilter;
+import com.zf1976.ant.auth.filter.SignatureAuthenticationFilter;
 import com.zf1976.ant.auth.filter.provider.DaoAuthenticationEnhancerProvider;
 import com.zf1976.ant.auth.handler.logout.Oauth2LogoutHandler;
 import com.zf1976.ant.auth.handler.logout.Oauth2LogoutSuccessHandler;
-import com.zf1976.ant.common.core.dev.SecurityProperties;
+import com.zf1976.ant.common.security.SecurityProperties;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
@@ -21,7 +25,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 
 import java.security.KeyPair;
 
@@ -37,11 +44,14 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
     private final SecurityProperties securityProperties;
     private final PasswordEncoder passwordEncoder;
     private final UserDetailsService userDetailsService;
+    private final AuthProperties authProperties;
 
     public WebSecurityConfigurer(SecurityProperties securityProperties,
-                                 UserDetailsService userDetailsService) {
+                                 UserDetailsService userDetailsService,
+                                 AuthProperties authProperties) {
         this.securityProperties = securityProperties;
         this.userDetailsService = userDetailsService;
+        this.authProperties = authProperties;
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
@@ -52,8 +62,11 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
     @Bean
     @DependsOn(value = "securityProperties")
+    @ConditionalOnMissingBean
     public KeyPair keyPair() {
-        return SecurityContextHolder.getKeyPair();
+        ClassPathResource classPathResource = new ClassPathResource("root.jks");
+        KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(classPathResource, securityProperties.getRsaSecret().toCharArray());
+        return keyStoreKeyFactory.getKeyPair("root", securityProperties.getRsaSecret().toCharArray());
     }
 
     /**
@@ -80,8 +93,6 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
                                                                                    .setUserDetailsService(this.userDetailsService)
                                                                                    .build();
         auth.authenticationProvider(authenticationEnhancerProvider);
-        // auth.parentAuthenticationManager(providerManager);
-        // ProviderManager providerManager = new ProviderManager(Collections.singletonList(authenticationEnhancerProvider));
     }
 
     /**
@@ -127,6 +138,12 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
             .anyRequest()
             .authenticated()
             .and()
+            .addFilterAt(new DynamicSecurityFilter(), FilterSecurityInterceptor.class)
             .addFilterBefore(new Oauth2TokenAuthenticationFilter(), LogoutFilter.class);
+
+        if (this.authProperties.getEnableSignature()) {
+            http.addFilterBefore(new SignatureAuthenticationFilter(), SecurityContextPersistenceFilter.class);
+        }
     }
+
 }

@@ -24,12 +24,6 @@ public class EncryptUtil {
 
     private static final String HMAC_SHA_1 = "HmacSHA1";
     private static final String HMAC_SHA_256 = "HmacSHA256";
-    private static final String APP_KEY;
-
-    static {
-        APP_KEY = ApplicationConfigUtils.getSecurityProperties()
-                                        .getAppKey();
-    }
 
     /**
      * rsa公钥加密
@@ -129,8 +123,8 @@ public class EncryptUtil {
      * @param content content
      * @return /
      */
-    public static String signatureByHmacSha1(String content) {
-        return toHmacSha(content, HMAC_SHA_1);
+    public static String signatureByHmacSha1(String content, String applyKey) {
+        return toHmacSha(content, applyKey, HMAC_SHA_1);
     }
 
     /**
@@ -139,13 +133,13 @@ public class EncryptUtil {
      * @param content content
      * @return /
      */
-    public static String signatureByHmacSha256(String content) {
-        return toHmacSha(content, HMAC_SHA_256);
+    public static String signatureByHmacSha256(String content, String applyKey) {
+        return toHmacSha(content, applyKey, HMAC_SHA_256);
     }
 
-    private static String toHmacSha(String content, String hmacSha256) {
+    private static String toHmacSha(String content, String applyKey, String hmacSha256) {
         try {
-            Mac mac = getMac(hmacSha256);
+            Mac mac = getMac(hmacSha256, applyKey);
             byte[] contentBytes = content.getBytes(StandardCharsets.UTF_8);
             byte[] encode = mac.doFinal(contentBytes);
             return byteToHex(encode);
@@ -155,8 +149,8 @@ public class EncryptUtil {
         return StringUtil.ENMPTY;
     }
 
-    private static Mac getMac(String algorithm) throws NoSuchAlgorithmException, InvalidKeyException {
-        SecretKey secretKey = new SecretKeySpec(EncryptUtil.APP_KEY.getBytes(StandardCharsets.UTF_8), algorithm);
+    private static Mac getMac(String algorithm, String applyKey) throws NoSuchAlgorithmException, InvalidKeyException {
+        SecretKey secretKey = new SecretKeySpec(applyKey.getBytes(StandardCharsets.UTF_8), algorithm);
         Mac mac = Mac.getInstance(algorithm);
         mac.init(secretKey);
         return mac;

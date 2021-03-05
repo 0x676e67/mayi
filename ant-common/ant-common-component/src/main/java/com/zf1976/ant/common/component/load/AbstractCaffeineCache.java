@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author WINDOWS
  */
-public abstract class AbstractCaffeineCache<K, V> implements ICaffeineCache<K, V> {
+public abstract class AbstractCaffeineCache<K, V> implements ICache<K, V> {
 
     public static final byte MAP_INITIAL_CAPACITY = 16;
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractCaffeineCache.class);

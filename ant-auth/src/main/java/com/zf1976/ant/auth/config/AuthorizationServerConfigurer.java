@@ -1,12 +1,15 @@
 package com.zf1976.ant.auth.config;
 
-import com.zf1976.ant.auth.SecurityContextHolder;
+import com.zf1976.ant.auth.enhance.JdbcClientDetailsServiceEnhancer;
+import com.zf1976.ant.common.security.SecurityContextHolder;
 import com.zf1976.ant.auth.enhance.JwtTokenEnhancer;
 import com.zf1976.ant.auth.enhance.RedisTokenStoreEnhancer;
 import com.zf1976.ant.auth.filter.provider.DaoAuthenticationEnhancerProvider;
 import com.zf1976.ant.auth.handler.access.Oauth2AccessDeniedHandler;
 import com.zf1976.ant.auth.handler.access.Oauth2AuthenticationEntryPoint;
 import com.zf1976.ant.auth.interceptor.EndpointReturnInterceptor;
+import org.bouncycastle.operator.KeyWrapper;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,7 +31,6 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.util.Assert;
-import org.springframework.util.ReflectionUtils;
 
 import javax.sql.DataSource;
 import java.security.KeyPair;
@@ -45,27 +47,26 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
 
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
-    private final DataSource dataSource;
     private final AuthenticationManager authenticationManager;
+    private final JdbcClientDetailsServiceEnhancer jdbcClientDetailsServiceEnhancer;
     private final RedisTemplate<Object,Object> template;
     private final KeyPair keyPair;
-    private JwtAccessTokenConverter jwtAccessTokenConverter;
     private AuthorizationServerSecurityConfigurer authorizationServerSecurityConfigurer;
-    private JdbcClientDetailsService jdbcClientDetailsService;
     private boolean isRunning = false;
 
     public AuthorizationServerConfigurer(UserDetailsService userDetailsService,
                                          PasswordEncoder passwordEncoder,
-                                         DataSource dataSource,
                                          AuthenticationManager authenticationManager,
                                          RedisTemplate<Object, Object> template,
-                                         KeyPair keyPair) {
+                                         KeyPair keyPair,
+                                         JdbcClientDetailsServiceEnhancer jdbcClientDetailsServiceEnhancer) {
         this.userDetailsService =  userDetailsService;
         this.passwordEncoder = passwordEncoder;
-        this.dataSource = dataSource;
         this.authenticationManager = authenticationManager;
         this.template = template;
         this.keyPair = keyPair;
+        this.jdbcClientDetailsServiceEnhancer = jdbcClientDetailsServiceEnhancer;
+        SecurityContextHolder.setShareObject(JdbcClientDetailsServiceEnhancer.class, this.jdbcClientDetailsServiceEnhancer);
     }
 
     /**
@@ -78,8 +79,8 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
         security.allowFormAuthenticationForClients()
                 .authenticationEntryPoint(new Oauth2AuthenticationEntryPoint())
                 .accessDeniedHandler(new Oauth2AccessDeniedHandler())
-                // oauth/check_token公开
-                .checkTokenAccess("permitAll()")
+                // oauth/check_token 禁止访问
+                .checkTokenAccess("denyAll()")
                 // oauth/token_key 公开密钥
                 .tokenKeyAccess("permitAll()")
                 .passwordEncoder(passwordEncoder);
@@ -90,10 +91,8 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
      */
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-        JdbcClientDetailsService jdbcClientDetailsService = new JdbcClientDetailsService(dataSource);
-        jdbcClientDetailsService.setPasswordEncoder(passwordEncoder);
-        clients.withClientDetails(jdbcClientDetailsService);
-        this.jdbcClientDetailsService = jdbcClientDetailsService;
+        this.jdbcClientDetailsServiceEnhancer.setPasswordEncoder(passwordEncoder);
+        clients.withClientDetails(this.jdbcClientDetailsServiceEnhancer);
     }
 
 
@@ -120,12 +119,9 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
 
     }
 
-    @Bean
-    public JwtAccessTokenConverter jwtAccessTokenConverter(){
-        if (this.jwtAccessTokenConverter == null) {
-            this.jwtAccessTokenConverter = new JwtAccessTokenConverter();
-            this.jwtAccessTokenConverter.setKeyPair(this.keyPair);
-        }
+    private JwtAccessTokenConverter jwtAccessTokenConverter(){
+        JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
+        jwtAccessTokenConverter.setKeyPair(this.keyPair);
         return jwtAccessTokenConverter;
     }
 
@@ -143,13 +139,13 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
      */
     @Override
     public void start() {
-        ClientDetailsUserDetailsService clientDetailsUserDetailsService = new ClientDetailsUserDetailsService(this.jdbcClientDetailsService);
+        Assert.notNull(this.authorizationServerSecurityConfigurer, "authorizationServerSecurityConfigurer cannot been null!");
+        ClientDetailsUserDetailsService clientDetailsUserDetailsService = new ClientDetailsUserDetailsService(this.jdbcClientDetailsServiceEnhancer);
         DaoAuthenticationEnhancerProvider daoClientAuthenticationEnhancerProvider = DaoAuthenticationEnhancerProvider.builder()
                                                                                                                      .setPasswordEncoder(this.passwordEncoder)
                                                                                                                      .setUserDetailsService(clientDetailsUserDetailsService)
                                                                                                                      .build();
-        this.authorizationServerSecurityConfigurer.and()
-                                                  .authenticationProvider(daoClientAuthenticationEnhancerProvider);
+        this.authorizationServerSecurityConfigurer.and().authenticationProvider(daoClientAuthenticationEnhancerProvider);
         this.isRunning = true;
     }
 

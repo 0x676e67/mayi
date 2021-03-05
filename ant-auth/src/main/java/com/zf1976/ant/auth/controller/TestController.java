@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.RestController;
  * @date 2021/2/19
  **/
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/oauth")
 public class TestController {
 
     @GetMapping("/test")
-    @PreAuthorize("hasAuthority('admin')")
+    @PreAuthorize("hasPermission('','demo')")
     public ResultData<?> test(){
-        return ResultData.success();
+        return ResultData.success("micro test");
     }
 }

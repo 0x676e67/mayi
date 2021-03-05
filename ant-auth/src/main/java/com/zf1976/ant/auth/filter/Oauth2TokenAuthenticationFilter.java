@@ -2,8 +2,9 @@ package com.zf1976.ant.auth.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.power.common.util.StringUtil;
-import com.zf1976.ant.auth.SecurityContextHolder;
-import com.zf1976.ant.common.core.dev.SecurityProperties;
+import com.zf1976.ant.common.core.util.SpringContextHolder;
+import com.zf1976.ant.common.security.SecurityContextHolder;
+import com.zf1976.ant.common.security.SecurityProperties;
 import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
@@ -36,7 +37,7 @@ public class Oauth2TokenAuthenticationFilter extends OncePerRequestFilter {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
-    private final SecurityProperties config = ApplicationConfigUtils.getSecurityProperties();
+    private final SecurityProperties config = SpringContextHolder.getBean(SecurityProperties.class);
     private final TokenStore tokenStore = SecurityContextHolder.getShareObject(TokenStore.class);
     private final TokenExtractor tokenExtractor = new BearerTokenExtractor();
     private final ObjectMapper objectMapper = new ObjectMapper();

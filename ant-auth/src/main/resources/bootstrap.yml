@@ -24,10 +24,13 @@ spring:
       maximum-pool-size: 20
       max-lifetime: 1800000
       minimum-idle: 5
-  profiles:                                                 #加载配置文件
+
+  #加载配置文件
+  profiles:
     active: conf,log,dev
 
-  jackson:                                                  #json序列化配置
+  #json序列化配置
+  jackson:
     time-zone: GMT+8
     default-property-inclusion: non_null
     date-format: yyyy-MM-dd HH:mm:ss
@@ -47,3 +50,6 @@ mybatis-plus:
   mapper-locations: classpath:/mapper/*Dao.xml
   check-config-location: true
   type-enums-package: com.zf1976.ant.upms.biz.pojo.enums
+
+auth:
+  enable-signature: false

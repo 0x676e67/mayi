@@ -1,7 +1,6 @@
 package com.zf1976.ant.auth.config;
 
-import com.zf1976.ant.auth.config.evaluator.SecurityPermissionEvaluator;
-import org.springframework.context.annotation.Bean;
+import com.zf1976.ant.auth.evaluator.SecurityPermissionEvaluator;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
@@ -17,7 +16,6 @@ import org.springframework.security.config.annotation.method.configuration.Globa
 public class MethodSecurityConfiguration extends GlobalMethodSecurityConfiguration {
 
     @Override
-    @Bean(name = "SecurityMethodSecurityExpressionHandler")
     protected MethodSecurityExpressionHandler createExpressionHandler() {
         DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
         expressionHandler.setPermissionEvaluator(new SecurityPermissionEvaluator());

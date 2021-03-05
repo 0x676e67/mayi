@@ -1,5 +1,6 @@
 package com.zf1976.ant.auth.filter.deprecate;
 
+import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.security.JwtTokenProvider;
 import com.zf1976.ant.common.security.SessionContextHolder;
 import com.zf1976.ant.common.security.cache.session.Session;
@@ -7,7 +8,7 @@ import com.zf1976.ant.common.security.enums.AuthenticationState;
 import com.zf1976.ant.common.security.exception.ExpiredJwtException;
 import com.zf1976.ant.common.security.exception.IllegalAccessException;
 import com.zf1976.ant.common.security.exception.IllegalJwtException;
-import com.zf1976.ant.common.core.dev.SecurityProperties;
+import com.zf1976.ant.common.security.SecurityProperties;
 import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,7 @@ import java.util.Arrays;
 public class SecurityJwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityJwtAuthenticationFilter.class);
-    private static final SecurityProperties CONFIG = ApplicationConfigUtils.getSecurityProperties();
+    private static final SecurityProperties CONFIG = SpringContextHolder.getBean(SecurityProperties.class);
     private static final AntPathMatcher MATCHER = new AntPathMatcher();
 
     /**
@@ -47,7 +48,7 @@ public class SecurityJwtAuthenticationFilter extends OncePerRequestFilter {
      */
     private static boolean validateAllowUri(HttpServletRequest request) {
         // 匿名放行uri
-        String[] allowUri = ApplicationConfigUtils.getSecurityProperties().getAllowUri();
+        String[] allowUri = CONFIG.getAllowUri();
         // 请求uri
         String requestUri = request.getRequestURI();
         return Arrays.stream(allowUri)

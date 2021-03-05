@@ -1,13 +1,15 @@
 package com.zf1976.ant.auth.filter;
 
-import com.zf1976.ant.auth.SecurityContextHolder;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zf1976.ant.common.core.foundation.ResultData;
+import com.zf1976.ant.common.security.SecurityContextHolder;
 import com.zf1976.ant.common.security.enums.SignatureState;
 import com.zf1976.ant.common.security.exception.SignatureException;
-import com.zf1976.ant.auth.filter.signature.SignatureAuthenticationStrategy;
-import com.zf1976.ant.auth.filter.signature.SignaturePattern;
-import com.zf1976.ant.auth.filter.signature.StandardSignature;
-import com.zf1976.ant.auth.filter.signature.impl.OpenSignatureAuthenticationStrategy;
-import com.zf1976.ant.auth.filter.signature.impl.SecretSignatureAuthenticationStrategy;
+import com.zf1976.ant.auth.filter.support.SignatureAuthenticationStrategy;
+import com.zf1976.ant.auth.filter.support.SignaturePattern;
+import com.zf1976.ant.auth.filter.support.StandardSignature;
+import com.zf1976.ant.auth.filter.support.impl.OpenSignatureAuthenticationStrategy;
+import com.zf1976.ant.auth.filter.support.impl.SecretSignatureAuthenticationStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
@@ -32,7 +34,7 @@ public class SignatureAuthenticationFilter extends OncePerRequestFilter {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(SignatureAuthenticationFilter.class);
     private final Map<SignaturePattern, SignatureAuthenticationStrategy> strategies = new ConcurrentHashMap<>(2);
-
+    private final ObjectMapper objectMapper = new ObjectMapper();
     public SignatureAuthenticationFilter() {
         super();
         this.init();
@@ -52,38 +54,44 @@ public class SignatureAuthenticationFilter extends OncePerRequestFilter {
     /**
      * 签名认证过滤 / 根据请求参数条件选择相应策略
      *
-     * @param var1 request
-     * @param var2 response
-     * @param var3 filter chain
+     * @param request request
+     * @param response response
+     * @param filterChain filter chain
      * @throws ServletException servlet exception
      * @throws IOException io exception
      */
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest var1, @NonNull HttpServletResponse var2, @NonNull FilterChain var3) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         // 在放行名单 直接放行
-        if (SecurityContextHolder.validateUri(var1)) {
-            var3.doFilter(var1, var2);
+        if (SecurityContextHolder.validateUri(request)) {
+            filterChain.doFilter(request, response);
             return;
         }
-        SignatureException signatureException = null;
-        try {
-            String signaturePattern = var1.getHeader(StandardSignature.SIGN_PATTERN);
-            if (signaturePattern == null) {
-                throw new SignatureException(SignatureState.NULL_PARAMS_DATA);
-            }
-            final SignaturePattern pattern = SignaturePattern.valueOf(signaturePattern);
-            this.executeStrategy(pattern, var1);
-        } catch (SignatureException e) {
-            signatureException = e;
-        } catch (Exception e) {
-            signatureException = new SignatureException(SignatureState.ERROR, e.getMessage());
-        }
-        if (signatureException != null) {
-            var2.setStatus(signatureException.getValue());
+        String signaturePattern;
+        signaturePattern = request.getHeader(StandardSignature.SIGN_PATTERN);
+        if (signaturePattern == null) {
+            this.handlerException(response, new SignatureException(SignatureState.NULL_PARAMS_DATA));
             SecurityContextHolder.clearContext();
             return;
         }
-        var3.doFilter(var1, var2);
+        try {
+            final SignaturePattern pattern = SignaturePattern.valueOf(signaturePattern);
+            this.executeStrategy(pattern, request);
+        } catch (Exception e) {
+            this.handlerException(response, new SignatureException(SignatureState.ERROR, e.getMessage()));
+            SecurityContextHolder.clearContext();
+            return;
+        }
+        filterChain.doFilter(request, response);
+    }
+
+    private void handlerException(HttpServletResponse response, SignatureException signatureException) {
+        response.setStatus(signatureException.getValue());
+        try {
+            this.objectMapper.writeValue(response.getOutputStream(), ResultData.fail(signatureException.getReasonPhrase()));
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e.getCause());
+        }
     }
 
     /**

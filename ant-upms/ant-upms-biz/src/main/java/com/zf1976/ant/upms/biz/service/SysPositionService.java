@@ -16,7 +16,6 @@ import com.zf1976.ant.upms.biz.pojo.dto.position.PositionDTO;
 import com.zf1976.ant.upms.biz.pojo.query.PositionQueryParam;
 import com.zf1976.ant.upms.biz.pojo.vo.job.JobExcelVO;
 import com.zf1976.ant.upms.biz.pojo.vo.job.PositionVO;
-import com.zf1976.ant.common.security.safe.SecurityContextHolder;
 import com.zf1976.ant.upms.biz.exception.enums.JobState;
 import com.zf1976.ant.upms.biz.exception.enums.UserState;
 import com.zf1976.ant.upms.biz.exception.JobException;
@@ -93,9 +92,9 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
              .ifPresent(sysJob -> {
                  throw new JobException(JobState.JOB_EXISTING, sysJob.getName());
              });
-        final String principal = SecurityContextHolder.getPrincipal();
         SysPosition sysJob = convert.toEntity(dto);
-        sysJob.setCreateBy(principal);
+//        final String principal = SecurityContextHolder.getPrincipal();
+//        sysJob.setCreateBy(principal);
         sysJob.setCreateTime(new Date());
         super.savaEntity(sysJob);
         return Optional.empty();
@@ -123,9 +122,9 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
                      throw new JobException(JobState.JOB_EXISTING, var1.getName());
                  });
         }
-        final String principal = SecurityContextHolder.getPrincipal();
         this.convert.copyProperties(dto, sysJob);
-        sysJob.setUpdateBy(principal);
+//        final String principal = SecurityContextHolder.getPrincipal();
+//        sysJob.setUpdateBy(principal);
         sysJob.setUpdateTime(new Date());
         super.updateEntityById(sysJob);
         return Optional.empty();

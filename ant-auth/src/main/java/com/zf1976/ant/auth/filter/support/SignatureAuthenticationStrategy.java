@@ -1,4 +1,4 @@
-package com.zf1976.ant.auth.filter.signature;
+package com.zf1976.ant.auth.filter.support;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;

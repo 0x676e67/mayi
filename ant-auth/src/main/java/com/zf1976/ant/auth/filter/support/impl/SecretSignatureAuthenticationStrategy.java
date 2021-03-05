@@ -1,13 +1,13 @@
-package com.zf1976.ant.auth.filter.signature.impl;
+package com.zf1976.ant.auth.filter.support.impl;
 
 import com.google.common.base.Splitter;
 import com.power.common.util.Base64Util;
 import com.power.common.util.StringUtil;
 import com.zf1976.ant.common.security.enums.SignatureState;
 import com.zf1976.ant.common.security.exception.SignatureException;
-import com.zf1976.ant.auth.filter.signature.AbstractSignatureAuthenticationStrategy;
-import com.zf1976.ant.auth.filter.signature.SignaturePattern;
-import com.zf1976.ant.auth.filter.signature.StandardSignature;
+import com.zf1976.ant.auth.filter.support.AbstractSignatureAuthenticationStrategy;
+import com.zf1976.ant.auth.filter.support.SignaturePattern;
+import com.zf1976.ant.auth.filter.support.StandardSignature;
 import com.zf1976.ant.common.core.util.CaffeineCacheUtils;
 import com.zf1976.ant.common.encrypt.EncryptUtil;
 import org.springframework.util.NumberUtils;
@@ -38,25 +38,25 @@ public class SecretSignatureAuthenticationStrategy extends AbstractSignatureAuth
             throw new SignatureException(SignatureState.NULL_PARAMS_VALUE);
         }
         // 解析
-        Map<String, String> kvMap = this.validateAndParse(base64Content);
+        Map<String, String> contentMap = this.validateAndParse(base64Content);
         // 获取时间戳
         Long timestamp;
         try {
-            String timestampStr = kvMap.get(StandardSignature.TIMESTAMP);
+            String timestampStr = contentMap.get(StandardSignature.TIMESTAMP);
             timestamp = NumberUtils.parseNumber(timestampStr, Long.class);
         } catch (Exception e) {
             throw new SignatureException(SignatureState.MISSING_TIMESTAMP, e.getMessage());
         }
         // 随机字符串
-        String nonceStr = kvMap.get(StandardSignature.NONCE_STR);
+        String nonceStr = contentMap.get(StandardSignature.NONCE_STR);
         // 防重放校验
         super.validatePreventReplyAttack(nonceStr, timestamp);
         // 获取应用唯一标识
-        String appId = super.getAndValidateAppId(kvMap);
+        String applyId = super.getApplyId(contentMap);
         // 构建签名
-        String generateSignature = super.generateSignature(appId, nonceStr, timestamp);
+        String generateSignature = super.generateSignature(applyId, nonceStr, timestamp);
         // 获取原签名
-        String rawSignature = super.getAndValidateSignature(kvMap);
+        String rawSignature = super.getAndValidateSignature(contentMap);
         // 校验签名是否相同
         super.validateSignature(rawSignature, generateSignature);
         // 签名校验成功，缓存签名防止重放

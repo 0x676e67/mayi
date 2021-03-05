@@ -1,24 +1,17 @@
-package com.zf1976.ant.auth;
+package com.zf1976.ant.common.security;
 
-import com.zf1976.ant.common.core.dev.SecurityProperties;
 import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
-import com.zf1976.ant.common.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.security.KeyPair;
-import java.security.PublicKey;
-import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,20 +26,9 @@ public class SecurityContextHolder extends org.springframework.security.core.con
     private static final String ANONYMOUS_AUTH = "anonymousUser";
     private static final AntPathMatcher PATH_MATCHER= new AntPathMatcher();
     private static final Map<Class<?>, Object> CONTENTS_MAP = new HashMap<>(16);
-    private static KeyPair KEY_PAIR;
     private static UserDetailsService userDetailsService;
     private static DynamicDataSourceService dynamicDataSourceService;
     private static SecurityProperties securityProperties;
-
-    public static KeyPair getKeyPair(){
-        return KEY_PAIR;
-    }
-
-    public static RSAPublicKey getPublicKey(){
-        final KeyPair keyPair = getKeyPair();
-        final PublicKey keyPairPublic = keyPair.getPublic();
-        return (RSAPublicKey) keyPairPublic;
-    }
 
     public static void setShareObject(Class<?> clazz, Object object) {
         Assert.isInstanceOf(clazz, object, "must be an instance of class");
@@ -115,7 +97,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
         return getAuthentication().getAuthorities()
                                   .stream()
                                   .map(GrantedAuthority::getAuthority)
-                                  .anyMatch(s -> s.equals(ApplicationConfigUtils.getSecurityProperties().getAdmin()));
+                                  .anyMatch(s -> s.equals(securityProperties.getAdmin()));
     }
 
     /**
@@ -125,7 +107,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
      * @return /
      */
     public static boolean validateSuperAdmin(String principal) {
-        return ObjectUtils.nullSafeEquals(principal, ApplicationConfigUtils.getSecurityProperties().getAdmin());
+        return ObjectUtils.nullSafeEquals(principal, securityProperties.getAdmin());
     }
 
     /**
@@ -135,8 +117,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
      */
     public static Set<String> getAllowedUri() {
         // 匿名方向uri
-        String[] allowUri = ApplicationConfigUtils.getSecurityProperties()
-                                                      .getAllowUri();
+        String[] allowUri = securityProperties.getAllowUri();
         Set<String> allow = dynamicDataSourceService.getAllowUri();
         allow.addAll(Arrays.asList(allowUri));
         return allow;
@@ -164,25 +145,10 @@ public class SecurityContextHolder extends org.springframework.security.core.con
         return securityProperties.getTokenIssuer();
     }
 
-    /**
-     * 从classpath下的密钥库中获取密钥对(公钥+私钥)
-     */
-    public void initKeyPair(){
-        if (KEY_PAIR == null) {
-            synchronized (SecurityContextHolder.class) {
-                if (KEY_PAIR == null) {
-                    final char[] secret = securityProperties.getRsaSecret().toCharArray();
-                    KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(new ClassPathResource("root.jks"), secret);
-                    KEY_PAIR = keyStoreKeyFactory.getKeyPair("root", secret);
-                }
-            }
-        }
-    }
 
     @Autowired
     public void setSecurityProperties(SecurityProperties securityProperties) {
         SecurityContextHolder.securityProperties = securityProperties;
-        initKeyPair();
     }
 
     @Autowired

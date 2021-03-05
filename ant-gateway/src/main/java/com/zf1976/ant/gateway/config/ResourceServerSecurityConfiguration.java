@@ -1,5 +1,7 @@
 package com.zf1976.ant.gateway.config;
 
+import com.zf1976.ant.gateway.manager.GatewayReactiveAuthorizationManager;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -8,6 +10,7 @@ import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
@@ -33,12 +36,15 @@ public class ResourceServerSecurityConfiguration {
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity httpSecurity) {
-        httpSecurity.csrf()
+        httpSecurity.httpBasic().disable()
+                    .csrf()
                     // 关闭csrf
                     .disable()
                     // 允许跨域
                     .cors()
                     .and()
+                    // 关闭表单登录
+                    .formLogin().disable()
                     .authorizeExchange(authorizeExchangeSpec -> {
                         authorizeExchangeSpec.pathMatchers("/actuator/**","/oauth/**").permitAll()
                                              .anyExchange()
@@ -55,6 +61,7 @@ public class ResourceServerSecurityConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtConverter() {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();

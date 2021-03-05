@@ -1,11 +1,10 @@
 package com.zf1976.ant.common.security;
 
 
-import com.zf1976.ant.common.security.AntUserDetails;
+import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.security.enums.AuthenticationState;
 import com.zf1976.ant.common.security.exception.ExpiredJwtException;
 import com.zf1976.ant.common.security.exception.IllegalAccessException;
-import com.zf1976.ant.common.core.dev.SecurityProperties;
 import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -39,7 +38,7 @@ public class JwtTokenProvider {
 
 
     static {
-        CONFIG = ApplicationConfigUtils.getSecurityProperties();
+        CONFIG = SpringContextHolder.getBean(SecurityProperties.class);
         byte[] keyByte = Decoders.BASE64.decode(CONFIG.getTokenBase64Secret());
         Key secretKey = Keys.hmacShaKeyFor(keyByte);
         JWT_PARSER = Jwts.parserBuilder()
@@ -105,7 +104,7 @@ public class JwtTokenProvider {
             claims = getClaims(token);
         } catch (Exception e) {
             // 转为自定义异常 抛出处理
-            throw new ExpiredJwtException(AuthenticationState.EXPIRED_JWT);
+            throw new ExpiredJwtException(AuthenticationState.EXPIRED_JWT, e);
         }
         String authorities = (String) claims.get(CONFIG.getTokenAuthoritiesKey());
         Set<SimpleGrantedAuthority> grantedAuthorities;

@@ -1,7 +1,9 @@
 package com.zf1976.ant.auth.controller;
 
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
 import com.wf.captcha.base.Captcha;
-import com.zf1976.ant.auth.SecurityContextHolder;
+import com.zf1976.ant.common.security.SecurityContextHolder;
 import com.zf1976.ant.common.security.cache.support.CaptchaGenerator;
 import com.zf1976.ant.common.security.cache.validate.service.CaptchaService;
 import com.zf1976.ant.common.security.pojo.vo.CaptchaVo;
@@ -9,7 +11,6 @@ import com.zf1976.ant.common.core.dev.CaptchaProperties;
 import com.zf1976.ant.common.core.foundation.ResultData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
@@ -22,12 +23,14 @@ import org.springframework.security.oauth2.provider.ClientRegistrationException;
 import org.springframework.security.oauth2.provider.endpoint.TokenEndpoint;
 import org.springframework.security.oauth2.provider.error.DefaultWebResponseExceptionTranslator;
 import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
-import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.util.AlternativeJdkIdGenerator;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.Serializable;
+import java.security.KeyPair;
 import java.security.Principal;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -46,16 +49,16 @@ public class TokenEndpointEnhancerController {
     private final CaptchaService captchaService;
     private final CaptchaProperties captchaConfig;
     private final TokenEndpoint tokenEndpoint;
-    private final JwtAccessTokenConverter converter;
+    private final KeyPair keyPair;
 
     public TokenEndpointEnhancerController(CaptchaService captchaService,
                                            CaptchaProperties captchaConfig,
                                            TokenEndpoint tokenEndpoint,
-                                           JwtAccessTokenConverter jwtAccessTokenConverter) {
+                                           KeyPair keyPair) {
         this.captchaService = captchaService;
         this.captchaConfig = captchaConfig;
         this.tokenEndpoint = tokenEndpoint;
-        this.converter = jwtAccessTokenConverter;
+        this.keyPair = keyPair;
     }
 
     @GetMapping("/token")
@@ -78,11 +81,13 @@ public class TokenEndpointEnhancerController {
     }
 
     @GetMapping("/token_key")
-    public Map<String, String> getKey(Principal principal) {
-        if (principal == null && !this.converter.isPublic()) {
+    public Serializable getKey(Principal principal) {
+        if (principal == null && (this.keyPair.getPublic() == null)) {
             throw new AccessDeniedException("You need to authenticate to see a shared key");
         } else {
-            return this.converter.getKey();
+            RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
+            RSAKey key = new RSAKey.Builder(publicKey).build();
+            return new JWKSet(key).toJSONObject();
         }
     }
 

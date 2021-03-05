@@ -1,14 +1,14 @@
 package com.zf1976.ant.auth.service;
 
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
+import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.security.AntUserDetails;
 import com.zf1976.ant.auth.convert.UserConversion;
 import com.zf1976.ant.common.security.enums.AuthenticationState;
 import com.zf1976.ant.common.security.exception.UserNotFountException;
 import com.zf1976.ant.common.security.pojo.vo.RoleVo;
 import com.zf1976.ant.common.security.pojo.vo.UserInfoVo;
-import com.zf1976.ant.common.core.dev.SecurityProperties;
-import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
+import com.zf1976.ant.common.security.SecurityProperties;
 import com.zf1976.ant.upms.biz.dao.*;
 import com.zf1976.ant.upms.biz.pojo.po.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 @Service("userDetailsService")
 public class SecurityUserDetailsServiceImpl implements UserDetailsService {
 
-    private final SecurityProperties securityConfig;
+    private final SecurityProperties securityProperties;
     private final SysDepartmentDao sysDepartmentDao;
     private final SysUserDao sysUserDao;
     private final SysRoleDao sysRoleDao;
@@ -49,7 +49,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
         this.sysDepartmentDao = sysDepartmentDao;
         this.sysRoleDao = sysRoleDao;
         this.sysMenuDao = sysMenuDao;
-        this.securityConfig = securityConfig;
+        this.securityProperties = securityConfig;
         this.positionDao = positionDao;
         this.convert = UserConversion.INSTANCE;
     }
@@ -109,7 +109,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
     private Set<Long> getDataPermission(UserInfoVo userInfo) {
 
         // 超级管理员
-        if (ObjectUtils.nullSafeEquals(userInfo.getUsername(), this.securityConfig.getAdmin())) {
+        if (ObjectUtils.nullSafeEquals(userInfo.getUsername(), this.securityProperties.getAdmin())) {
             Set<Long> allDataPermission = this.sysDepartmentDao.selectList(null)
                                                                .stream()
                                                                .map(SysDepartment::getId)
@@ -181,9 +181,9 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
      */
     private List<GrantedAuthority> grantedAuthorities(UserInfoVo userInfo) {
         Set<String> authorities = new HashSet<>();
-        String markerAdmin = ApplicationConfigUtils.getSecurityProperties().getAdmin();
+        String markerAdmin = securityProperties.getAdmin();
         if (userInfo.getUsername().equals(markerAdmin)) {
-            authorities.add(securityConfig.getAdmin());
+            authorities.add(securityProperties.getAdmin());
             return authorities.stream()
                               .map(SimpleGrantedAuthority::new)
                               .collect(Collectors.toList());

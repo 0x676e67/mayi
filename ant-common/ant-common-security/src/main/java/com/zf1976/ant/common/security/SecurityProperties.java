@@ -1,4 +1,4 @@
-package com.zf1976.ant.common.core.dev;
+package com.zf1976.ant.common.security;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -90,13 +90,4 @@ public class SecurityProperties {
      */
     private String[] allowUri;
 
-    /**
-     * 应用唯一标识
-     */
-    private String appId;
-
-    /**
-     * 应用密钥
-     */
-    private String appKey;
 }

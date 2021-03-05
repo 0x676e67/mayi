@@ -1,10 +1,10 @@
-package com.zf1976.ant.auth.filter.signature.impl;
+package com.zf1976.ant.auth.filter.support.impl;
 
 import com.zf1976.ant.common.security.enums.SignatureState;
 import com.zf1976.ant.common.security.exception.SignatureException;
-import com.zf1976.ant.auth.filter.signature.AbstractSignatureAuthenticationStrategy;
-import com.zf1976.ant.auth.filter.signature.SignaturePattern;
-import com.zf1976.ant.auth.filter.signature.StandardSignature;
+import com.zf1976.ant.auth.filter.support.AbstractSignatureAuthenticationStrategy;
+import com.zf1976.ant.auth.filter.support.SignaturePattern;
+import com.zf1976.ant.auth.filter.support.StandardSignature;
 import com.zf1976.ant.common.core.util.CaffeineCacheUtils;
 import org.springframework.util.NumberUtils;
 
@@ -41,9 +41,9 @@ public class OpenSignatureAuthenticationStrategy extends AbstractSignatureAuthen
         // 防重放校验
         super.validatePreventReplyAttack(nonceStr, timestamp);
         // 验证应用标识
-        String appId = super.getAndValidateAppId(request);
+        String applyId = super.getApplyId(request);
         // 构建签名
-        String generateSignature = super.generateSignature(appId, nonceStr, timestamp);
+        String generateSignature = super.generateSignature(applyId, nonceStr, timestamp);
         // 校验签名是否相同
         super.validateSignature(rawSignature, generateSignature);
         // 签名校验成功，缓存签名防止重放

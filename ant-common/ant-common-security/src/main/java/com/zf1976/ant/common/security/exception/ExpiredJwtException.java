@@ -12,10 +12,16 @@ public class ExpiredJwtException extends AuthenticationException {
 
     private final String reasonPhrase;
 
-    public ExpiredJwtException(AuthenticationState e) {
-        super(e.getReasonPhrase());
-        this.value = e.getValue();
-        this.reasonPhrase = e.getReasonPhrase();
+    public ExpiredJwtException(AuthenticationState state) {
+        super(state.getReasonPhrase());
+        this.value = state.getValue();
+        this.reasonPhrase = state.getReasonPhrase();
+    }
+
+    public ExpiredJwtException(AuthenticationState state, Throwable throwable) {
+        super(state.getReasonPhrase(), throwable);
+        this.value = state.getValue();
+        this.reasonPhrase = state.getReasonPhrase();
     }
 
     public int getValue() {
