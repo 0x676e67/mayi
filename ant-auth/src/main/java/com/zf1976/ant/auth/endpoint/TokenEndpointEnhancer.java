@@ -1,14 +1,14 @@
-package com.zf1976.ant.auth.controller;
+package com.zf1976.ant.auth.endpoint;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.wf.captcha.base.Captcha;
+import com.zf1976.ant.common.core.dev.CaptchaProperties;
+import com.zf1976.ant.common.core.foundation.ResultData;
 import com.zf1976.ant.common.security.SecurityContextHolder;
 import com.zf1976.ant.common.security.cache.support.CaptchaGenerator;
 import com.zf1976.ant.common.security.cache.validate.service.CaptchaService;
 import com.zf1976.ant.common.security.pojo.vo.CaptchaVo;
-import com.zf1976.ant.common.core.dev.CaptchaProperties;
-import com.zf1976.ant.common.core.foundation.ResultData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +41,7 @@ import java.util.concurrent.TimeUnit;
  */
 @RestController
 @RequestMapping("/oauth")
-public class TokenEndpointEnhancerController {
+public class TokenEndpointEnhancer {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final AlternativeJdkIdGenerator ALTERNATIVE_JDK_ID_GENERATOR = new AlternativeJdkIdGenerator();
@@ -51,10 +51,10 @@ public class TokenEndpointEnhancerController {
     private final TokenEndpoint tokenEndpoint;
     private final KeyPair keyPair;
 
-    public TokenEndpointEnhancerController(CaptchaService captchaService,
-                                           CaptchaProperties captchaConfig,
-                                           TokenEndpoint tokenEndpoint,
-                                           KeyPair keyPair) {
+    public TokenEndpointEnhancer(CaptchaService captchaService,
+                                 CaptchaProperties captchaConfig,
+                                 TokenEndpoint tokenEndpoint,
+                                 KeyPair keyPair) {
         this.captchaService = captchaService;
         this.captchaConfig = captchaConfig;
         this.tokenEndpoint = tokenEndpoint;

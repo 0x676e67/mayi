@@ -1,4 +1,4 @@
-package com.zf1976.ant.auth.controller;
+package com.zf1976.ant.auth.endpoint;
 
 import com.zf1976.ant.common.core.foundation.ResultData;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  **/
 @RestController
 @RequestMapping("/oauth")
-public class TestController {
+public class TestEndpoint {
 
     @GetMapping("/test")
     @PreAuthorize("hasPermission('','demo')")

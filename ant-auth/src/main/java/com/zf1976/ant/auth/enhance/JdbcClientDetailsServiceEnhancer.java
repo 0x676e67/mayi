@@ -20,7 +20,7 @@ import java.util.List;
  * @author mac
  * @date 2021/3/5
  **/
-@Service()
+@Service
 public class JdbcClientDetailsServiceEnhancer extends JdbcClientDetailsService {
 
     public JdbcClientDetailsServiceEnhancer(DataSource dataSource) {

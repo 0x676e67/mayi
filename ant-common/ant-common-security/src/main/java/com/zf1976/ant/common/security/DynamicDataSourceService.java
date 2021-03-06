@@ -45,7 +45,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
     }
 
     public void test() {
-        Map<Class<?>, String> classStringMap = this.actionsScanner.doScan("com.zf1976.*.controller");
+        Map<Class<?>, String> classStringMap = this.actionsScanner.doScan("com.zf1976.*.endpoint");
         for (Map.Entry<Class<?>, String> classStringEntry : classStringMap.entrySet()) {
             Class<?> aClass = classStringEntry.getKey();
             RequestMapping requestMapping = aClass.getAnnotation(RequestMapping.class);

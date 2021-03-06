@@ -56,4 +56,4 @@ spring:
         wall:
           config:
             multi-statement-allow: true
-      aop-patterns: com.zf1976.app.*.controller.*
+      aop-patterns: com.zf1976.app.*.endpoint.*

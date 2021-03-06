@@ -1,5 +1,6 @@
 package com.zf1976.ant.gateway.config;
 
+import com.zf1976.ant.gateway.filter.GatewayRouteFilter;
 import com.zf1976.ant.gateway.manager.GatewayReactiveAuthorizationManager;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -8,9 +9,9 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
@@ -26,11 +27,11 @@ import reactor.core.publisher.Mono;
  **/
 @Configuration
 @EnableWebFluxSecurity
-public class ResourceServerSecurityConfiguration {
+public class ResourceServerSecurityConfigurer {
 
     private final ReactiveAuthorizationManager<AuthorizationContext> reactiveAuthorizationManager;
 
-    public ResourceServerSecurityConfiguration(GatewayReactiveAuthorizationManager reactiveAuthenticationManager) {
+    public ResourceServerSecurityConfigurer(GatewayReactiveAuthorizationManager reactiveAuthenticationManager) {
         this.reactiveAuthorizationManager = reactiveAuthenticationManager;
     }
 
@@ -56,7 +57,8 @@ public class ResourceServerSecurityConfiguration {
                             jwtSpec.jwtAuthenticationConverter(this.jwtConverter())
                                    .jwkSetUri("http://localhost:9000/oauth/token_key");
                         }).bearerTokenConverter(new ServerBearerTokenAuthenticationConverter());
-                    });
+                    })
+                    .addFilterBefore(new GatewayRouteFilter(), SecurityWebFiltersOrder.HTTP_BASIC);
         return httpSecurity.build();
     }
 

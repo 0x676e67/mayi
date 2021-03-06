@@ -1,17 +1,14 @@
 package com.zf1976.ant.auth.config;
 
 import com.zf1976.ant.auth.enhance.JdbcClientDetailsServiceEnhancer;
-import com.zf1976.ant.common.security.SecurityContextHolder;
 import com.zf1976.ant.auth.enhance.JwtTokenEnhancer;
 import com.zf1976.ant.auth.enhance.RedisTokenStoreEnhancer;
 import com.zf1976.ant.auth.filter.provider.DaoAuthenticationEnhancerProvider;
 import com.zf1976.ant.auth.handler.access.Oauth2AccessDeniedHandler;
 import com.zf1976.ant.auth.handler.access.Oauth2AuthenticationEntryPoint;
 import com.zf1976.ant.auth.interceptor.EndpointReturnInterceptor;
-import org.bouncycastle.operator.KeyWrapper;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import com.zf1976.ant.common.security.SecurityContextHolder;
 import org.springframework.context.SmartLifecycle;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -25,14 +22,12 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.client.ClientDetailsUserDetailsService;
-import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.util.Assert;
 
-import javax.sql.DataSource;
 import java.security.KeyPair;
 import java.util.Arrays;
 import java.util.List;
@@ -79,11 +74,14 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
         security.allowFormAuthenticationForClients()
                 .authenticationEntryPoint(new Oauth2AuthenticationEntryPoint())
                 .accessDeniedHandler(new Oauth2AccessDeniedHandler())
-                // oauth/check_token 禁止访问
-                .checkTokenAccess("denyAll()")
+                // oauth/check_token 认证后访问
+                .checkTokenAccess("isAuthenticated()")
                 // oauth/token_key 公开密钥
                 .tokenKeyAccess("permitAll()")
-                .passwordEncoder(passwordEncoder);
+                .passwordEncoder(passwordEncoder)
+                .addTokenEndpointAuthenticationFilter((request,response, chain) -> {
+                    chain.doFilter(request, response);
+                });
     }
 
     /**
