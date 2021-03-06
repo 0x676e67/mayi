@@ -1,6 +1,7 @@
 package com.zf1976.ant.gateway.filter;
 
 import com.power.common.util.StringUtil;
+import com.zf1976.ant.gateway.GatewayRouteConstants;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -39,6 +40,11 @@ public class GatewayRouteFilter implements WebFilter {
     public Mono<Void> filter(@NonNull ServerWebExchange serverWebExchange,@NonNull WebFilterChain webFilterChain) {
         final ServerHttpRequest request = serverWebExchange.getRequest();
         final ServerHttpResponse response = serverWebExchange.getResponse();
+        String requestUri = request.getURI().getPath();
+        // 认证中心路由放行
+        if (pathMatcher.match(GatewayRouteConstants.AUTH_ROUTE, requestUri)) {
+            return webFilterChain.filter(serverWebExchange);
+        }
         String token = this.token(request);
         return webFilterChain.filter(serverWebExchange);
     }
