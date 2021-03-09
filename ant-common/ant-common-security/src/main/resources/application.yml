@@ -71,7 +71,7 @@ security:
   # 应用密钥
   app-key: abcdefg
   # 白名单URI
-  allow-uri:
+  ignore-uri:
     - /api/monitor
     # swagger 文档
     - /swagger-ui.html

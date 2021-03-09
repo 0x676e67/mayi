@@ -88,6 +88,6 @@ public class SecurityProperties {
     /**
      * 白名单 uri
      */
-    private String[] allowUri;
+    private String[] ignoreUri;
 
 }

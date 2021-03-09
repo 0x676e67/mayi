@@ -1,5 +1,9 @@
 
 dependencies {
+//    implementation'com.fasterxml.jackson.core:jackson-core:2.10.0'
+//    implementation'com.fasterxml.jackson.core:jackson-databind:2.10.0'
+//    implementation('com.fasterxml.jackson.core:jackson-annotations:2.10.0')
+//    implementation('javax:javaee-api:6.0')
     implementation('org.springframework.boot:spring-boot-starter-web:2.3.3.RELEASE')
     implementation('org.springframework.boot:spring-boot-starter-cache:2.3.3.RELEASE')
     implementation('org.springframework.boot:spring-boot-starter-data-redis:2.3.3.RELEASE')

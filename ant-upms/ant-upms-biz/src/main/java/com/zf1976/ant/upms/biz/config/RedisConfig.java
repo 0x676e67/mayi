@@ -1,4 +1,4 @@
-package com.zf1976.ant.common.core.config;
+package com.zf1976.ant.upms.biz.config;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;

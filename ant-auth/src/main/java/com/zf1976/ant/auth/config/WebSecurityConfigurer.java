@@ -131,7 +131,7 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
             .antMatchers(HttpMethod.OPTIONS, "/**")
             .permitAll()
             // 白名单
-            .antMatchers(securityProperties.getAllowUri())
+            .antMatchers(securityProperties.getIgnoreUri())
             .permitAll()
             .antMatchers("/oauth/**")
             .permitAll()

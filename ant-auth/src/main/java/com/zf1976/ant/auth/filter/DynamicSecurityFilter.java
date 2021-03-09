@@ -4,9 +4,9 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.zf1976.ant.auth.filter.datasource.DynamicSecurityMetadataSource;
 import com.zf1976.ant.auth.filter.manager.DynamicAccessDecisionManager;
+import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.security.DynamicDataSourceService;
 import com.zf1976.ant.common.security.SecurityProperties;
-import com.zf1976.ant.common.core.util.SpringContextHolder;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.SecurityMetadataSource;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
@@ -76,7 +76,7 @@ public class DynamicSecurityFilter extends AbstractSecurityInterceptor implement
     private Collection<String> loadAllowUrl() {
         // 配置文件白名单
         Set<String> dynamicAllow = this.dynamicDataSourceService.getAllowUri();
-        Set<String> defaultAllow = Stream.of(this.securityConfig.getAllowUri())
+        Set<String> defaultAllow = Stream.of(this.securityConfig.getIgnoreUri())
                                            .collect(Collectors.toSet());
         return Lists.newArrayList(Iterables.concat(dynamicAllow, defaultAllow));
     }

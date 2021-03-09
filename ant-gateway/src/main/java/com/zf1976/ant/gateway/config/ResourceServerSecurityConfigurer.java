@@ -1,6 +1,6 @@
 package com.zf1976.ant.gateway.config;
 
-import com.zf1976.ant.gateway.filter.GatewayRouteFilter;
+import com.zf1976.ant.gateway.filter.Oauth2TokenAuthenticationFilter;
 import com.zf1976.ant.gateway.manager.GatewayReactiveAuthorizationManager;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -58,7 +58,8 @@ public class ResourceServerSecurityConfigurer {
                                    .jwkSetUri("http://localhost:9000/oauth/token_key");
                         }).bearerTokenConverter(new ServerBearerTokenAuthenticationConverter());
                     })
-                    .addFilterBefore(new GatewayRouteFilter(), SecurityWebFiltersOrder.HTTP_BASIC);
+                    .addFilterBefore(new Oauth2TokenAuthenticationFilter("http://localhost:9000/oauth/check_token"),
+                            SecurityWebFiltersOrder.HTTP_BASIC);
         return httpSecurity.build();
     }
 

@@ -1,6 +1,5 @@
 package com.zf1976.ant.common.security;
 
-import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -117,7 +116,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
      */
     public static Set<String> getAllowedUri() {
         // 匿名方向uri
-        String[] allowUri = securityProperties.getAllowUri();
+        String[] allowUri = securityProperties.getIgnoreUri();
         Set<String> allow = dynamicDataSourceService.getAllowUri();
         allow.addAll(Arrays.asList(allowUri));
         return allow;

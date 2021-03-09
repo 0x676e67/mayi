@@ -1,24 +1,28 @@
 package com.zf1976.ant.gateway.filter;
 
-import com.power.common.util.StringUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zf1976.ant.gateway.GatewayRouteConstants;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.lang.NonNull;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrors;
-import org.springframework.security.oauth2.server.resource.web.server.ServerBearerTokenAuthenticationConverter;
-import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,12 +32,21 @@ import java.util.regex.Pattern;
  * @author ant
  * Create by Ant on 2021/3/6 8:52 AM
  */
-public class GatewayRouteFilter implements WebFilter {
+public class Oauth2TokenAuthenticationFilter implements WebFilter {
     private final Pattern authorizationPattern = Pattern.compile(
             "^Bearer (?<token>[a-zA-Z0-9-._~+/]+)=*$",
             Pattern.CASE_INSENSITIVE);
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
-    private final ServerAuthenticationConverter bearerConverter = new ServerBearerTokenAuthenticationConverter();
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final String[] ignoreUri = new String[]{};
+    private final WebClient webClient;
+    private String checkTokenUrl;
+
+    public Oauth2TokenAuthenticationFilter(String checkTokenUtl) {
+        this.webClient = WebClient.builder()
+                                  .baseUrl(checkTokenUrl)
+                                  .build();
+    }
 
     @Override
     @NonNull
@@ -45,8 +58,38 @@ public class GatewayRouteFilter implements WebFilter {
         if (pathMatcher.match(GatewayRouteConstants.AUTH_ROUTE, requestUri)) {
             return webFilterChain.filter(serverWebExchange);
         }
-        String token = this.token(request);
+        // 白名单放行
+        for (String ignored : ignoreUri) {
+            if (pathMatcher.match(ignored, requestUri)) {
+                return webFilterChain.filter(serverWebExchange);
+            }
+        }
+        // 管理中心路由
+        if (pathMatcher.match(GatewayRouteConstants.ADMIN_ROUTE, requestUri)) {
+            try {
+                String token = this.token(request);
+                // 无请求token放行
+                if (StringUtils.isEmpty(token)) {
+                    return webFilterChain.filter(serverWebExchange);
+                } else {
+
+                }
+                return webFilterChain.filter(serverWebExchange);
+            } catch (AuthenticationException e) {
+                return this.exceptionHandler(response, e);
+            }
+        }
         return webFilterChain.filter(serverWebExchange);
+    }
+
+    public Oauth2TokenAuthenticationFilter setCheckTokenUrl(String checkTokenUrl) {
+        this.checkTokenUrl = checkTokenUrl;
+        return this;
+    }
+
+    private void checkToken(String token) {
+        this.webClient.get()
+                .acceptCharset(Charset.defaultCharset());
     }
 
     private String token(ServerHttpRequest request) {
@@ -75,7 +118,7 @@ public class GatewayRouteFilter implements WebFilter {
                 return matcher.group("token");
             }
         } else {
-            return StringUtil.ENMPTY;
+            return null;
         }
     }
 
@@ -85,5 +128,11 @@ public class GatewayRouteFilter implements WebFilter {
 
     private BearerTokenError bearerTokenError(){
         return BearerTokenErrors.invalidToken("invalid token!");
+    }
+
+    private Mono<Void> exceptionHandler(ServerHttpResponse response, AuthenticationException e) {
+        response.setStatusCode(HttpStatus.UNAUTHORIZED);
+        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+        return response.writeWith(Flux.error(e));
     }
 }

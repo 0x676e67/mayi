@@ -2,14 +2,13 @@ package com.zf1976.ant.auth.filter.deprecate;
 
 import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.security.JwtTokenProvider;
+import com.zf1976.ant.common.security.SecurityProperties;
 import com.zf1976.ant.common.security.SessionContextHolder;
 import com.zf1976.ant.common.security.cache.session.Session;
 import com.zf1976.ant.common.security.enums.AuthenticationState;
 import com.zf1976.ant.common.security.exception.ExpiredJwtException;
 import com.zf1976.ant.common.security.exception.IllegalAccessException;
 import com.zf1976.ant.common.security.exception.IllegalJwtException;
-import com.zf1976.ant.common.security.SecurityProperties;
-import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -48,7 +47,7 @@ public class SecurityJwtAuthenticationFilter extends OncePerRequestFilter {
      */
     private static boolean validateAllowUri(HttpServletRequest request) {
         // 匿名放行uri
-        String[] allowUri = CONFIG.getAllowUri();
+        String[] allowUri = CONFIG.getIgnoreUri();
         // 请求uri
         String requestUri = request.getRequestURI();
         return Arrays.stream(allowUri)

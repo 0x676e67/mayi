@@ -74,8 +74,8 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
         security.allowFormAuthenticationForClients()
                 .authenticationEntryPoint(new Oauth2AuthenticationEntryPoint())
                 .accessDeniedHandler(new Oauth2AccessDeniedHandler())
-                // oauth/check_token 认证后访问
-                .checkTokenAccess("isAuthenticated()")
+                // oauth/check_token 允许访问
+                .checkTokenAccess("permitAll()")
                 // oauth/token_key 公开密钥
                 .tokenKeyAccess("permitAll()")
                 .passwordEncoder(passwordEncoder)
@@ -149,7 +149,7 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
 
     @Override
     public void stop() {
-
+        this.isRunning = false;
     }
 
 
@@ -158,8 +158,4 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
         return this.isRunning;
     }
 
-    @Override
-    public void stop(Runnable callback) {
-        callback.run();
-    }
 }
