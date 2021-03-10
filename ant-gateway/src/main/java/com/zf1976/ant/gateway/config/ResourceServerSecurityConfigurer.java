@@ -1,5 +1,6 @@
 package com.zf1976.ant.gateway.config;
 
+import com.zf1976.ant.gateway.AuthProperties;
 import com.zf1976.ant.gateway.filter.Oauth2TokenAuthenticationFilter;
 import com.zf1976.ant.gateway.manager.GatewayReactiveAuthorizationManager;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -30,9 +31,12 @@ import reactor.core.publisher.Mono;
 public class ResourceServerSecurityConfigurer {
 
     private final ReactiveAuthorizationManager<AuthorizationContext> reactiveAuthorizationManager;
+    private final AuthProperties properties;
 
-    public ResourceServerSecurityConfigurer(GatewayReactiveAuthorizationManager reactiveAuthenticationManager) {
+    public ResourceServerSecurityConfigurer(GatewayReactiveAuthorizationManager reactiveAuthenticationManager,
+                                            AuthProperties properties) {
         this.reactiveAuthorizationManager = reactiveAuthenticationManager;
+        this.properties = properties;
     }
 
     @Bean
@@ -55,10 +59,10 @@ public class ResourceServerSecurityConfigurer {
                     .oauth2ResourceServer(oAuth2ResourceServerSpec -> {
                         oAuth2ResourceServerSpec.jwt(jwtSpec -> {
                             jwtSpec.jwtAuthenticationConverter(this.jwtConverter())
-                                   .jwkSetUri("http://localhost:9000/oauth/token_key");
+                                   .jwkSetUri(properties.getJwkSetUri());
                         }).bearerTokenConverter(new ServerBearerTokenAuthenticationConverter());
                     })
-                    .addFilterBefore(new Oauth2TokenAuthenticationFilter("http://localhost:9000/oauth/check_token"),
+                    .addFilterBefore(new Oauth2TokenAuthenticationFilter(properties.getJwtCheckUri()),
                             SecurityWebFiltersOrder.HTTP_BASIC);
         return httpSecurity.build();
     }

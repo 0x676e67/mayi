@@ -36,3 +36,4 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: http://localhost:9000/oauth/token_key
+          jwt-check-uri: http://localhost:9000/oauth/check_token
