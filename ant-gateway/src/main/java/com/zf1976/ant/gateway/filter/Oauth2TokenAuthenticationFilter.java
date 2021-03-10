@@ -1,7 +1,10 @@
 package com.zf1976.ant.gateway.filter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.power.common.model.CommonResult;
 import com.zf1976.ant.gateway.GatewayRouteConstants;
+import com.zf1976.ant.gateway.util.JsonUtil;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -9,20 +12,22 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrors;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,20 +42,15 @@ public class Oauth2TokenAuthenticationFilter implements WebFilter {
             "^Bearer (?<token>[a-zA-Z0-9-._~+/]+)=*$",
             Pattern.CASE_INSENSITIVE);
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private final String[] ignoreUri = new String[]{};
     private final WebClient webClient;
-    private String checkTokenUrl;
 
-    public Oauth2TokenAuthenticationFilter(String checkTokenUtl) {
-        this.webClient = WebClient.builder()
-                                  .baseUrl(checkTokenUrl)
-                                  .build();
+    public Oauth2TokenAuthenticationFilter(String checkTokenUrl) {
+        this.webClient = WebClient.create(checkTokenUrl);
     }
-
     @Override
     @NonNull
-    public Mono<Void> filter(@NonNull ServerWebExchange serverWebExchange,@NonNull WebFilterChain webFilterChain) {
+    public Mono<Void> filter(@NonNull ServerWebExchange serverWebExchange, @NonNull WebFilterChain webFilterChain) {
         final ServerHttpRequest request = serverWebExchange.getRequest();
         final ServerHttpResponse response = serverWebExchange.getResponse();
         String requestUri = request.getURI().getPath();
@@ -72,24 +72,35 @@ public class Oauth2TokenAuthenticationFilter implements WebFilter {
                 if (StringUtils.isEmpty(token)) {
                     return webFilterChain.filter(serverWebExchange);
                 } else {
-
+                    if (this.checkToken(token)) {
+                        return webFilterChain.filter(serverWebExchange);
+                    } else {
+                        BearerTokenError bearerTokenError = this.bearerTokenError();
+                        throw new OAuth2AuthenticationException(bearerTokenError);
+                    }
                 }
-                return webFilterChain.filter(serverWebExchange);
             } catch (AuthenticationException e) {
+                SecurityContextHolder.clearContext();
                 return this.exceptionHandler(response, e);
             }
         }
         return webFilterChain.filter(serverWebExchange);
     }
 
-    public Oauth2TokenAuthenticationFilter setCheckTokenUrl(String checkTokenUrl) {
-        this.checkTokenUrl = checkTokenUrl;
-        return this;
-    }
-
-    private void checkToken(String token) {
-        this.webClient.get()
-                .acceptCharset(Charset.defaultCharset());
+    @SuppressWarnings("all")
+    private boolean checkToken(String token) {
+        final ClientResponse[] clientResponses = new ClientResponse[1];
+        try {
+            this.webClient.get()
+                          .uri(uriBuilder -> uriBuilder.queryParam("token", token)
+                                                       .build())
+                          .acceptCharset(Charset.defaultCharset())
+                          .exchange()
+                          .doOnSuccess(response -> clientResponses[0] = response);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return clientResponses[0] != null && clientResponses[0].statusCode().is2xxSuccessful();
     }
 
     private String token(ServerHttpRequest request) {
@@ -130,9 +141,20 @@ public class Oauth2TokenAuthenticationFilter implements WebFilter {
         return BearerTokenErrors.invalidToken("invalid token!");
     }
 
+    @SuppressWarnings("rawtypes")
     private Mono<Void> exceptionHandler(ServerHttpResponse response, AuthenticationException e) {
         response.setStatusCode(HttpStatus.UNAUTHORIZED);
-        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-        return response.writeWith(Flux.error(e));
+        response.getHeaders().set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+        response.getHeaders().set("Access-Control-Allow-Origin", "*");
+        response.getHeaders().set("Cache-Control", "no-cache");
+        CommonResult fail = CommonResult.fail(String.valueOf(HttpStatus.UNAUTHORIZED.value()), e.getMessage());
+        String body = JsonUtil.toJsonString(fail);
+        DataBuffer buffer = response.bufferFactory()
+                                    .wrap(body.getBytes(StandardCharsets.UTF_8));
+        return response.writeWith(Mono.just(buffer))
+                       .doOnError(error -> {
+                           DataBufferUtils.release(buffer);
+                       });
+
     }
 }
