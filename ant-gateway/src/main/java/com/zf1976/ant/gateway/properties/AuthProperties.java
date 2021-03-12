@@ -1,4 +1,4 @@
-package com.zf1976.ant.gateway;
+package com.zf1976.ant.gateway.properties;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

@@ -1,8 +1,8 @@
 package com.zf1976.ant.gateway.config;
 
-import com.zf1976.ant.gateway.AuthProperties;
 import com.zf1976.ant.gateway.filter.Oauth2TokenAuthenticationFilter;
 import com.zf1976.ant.gateway.manager.GatewayReactiveAuthorizationManager;
+import com.zf1976.ant.gateway.properties.AuthProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

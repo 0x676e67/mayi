@@ -3,11 +3,14 @@ package com.zf1976.ant.gateway.filter;
 import com.power.common.model.CommonResult;
 import com.zf1976.ant.gateway.GatewayRouteConstants;
 import com.zf1976.ant.gateway.util.JsonUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.lang.NonNull;
@@ -19,15 +22,14 @@ import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrors;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
-import org.springframework.web.reactive.function.client.ClientResponse;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,16 +40,25 @@ import java.util.regex.Pattern;
  * Create by Ant on 2021/3/6 8:52 AM
  */
 public class Oauth2TokenAuthenticationFilter implements WebFilter {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Pattern authorizationPattern = Pattern.compile(
             "^Bearer (?<token>[a-zA-Z0-9-._~+/]+)=*$",
             Pattern.CASE_INSENSITIVE);
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final String[] ignoreUri = new String[]{};
-    private final WebClient webClient;
+    RestTemplate restTemplate = new RestTemplate();
+    private String jwtCheckUrl;
+
 
     public Oauth2TokenAuthenticationFilter(String checkTokenUrl) {
-        this.webClient = WebClient.create(checkTokenUrl);
+        this.jwtCheckUrl = checkTokenUrl + "?token={value}";
     }
+
+    public Oauth2TokenAuthenticationFilter setJwtCheckUrl(String jwtCheckUrl) {
+        this.jwtCheckUrl = jwtCheckUrl + "?token={value}";
+        return this;
+    }
+
     @Override
     @NonNull
     public Mono<Void> filter(@NonNull ServerWebExchange serverWebExchange, @NonNull WebFilterChain webFilterChain) {
@@ -89,18 +100,13 @@ public class Oauth2TokenAuthenticationFilter implements WebFilter {
 
     @SuppressWarnings("all")
     private boolean checkToken(String token) {
-        final ClientResponse[] clientResponses = new ClientResponse[1];
         try {
-            this.webClient.get()
-                          .uri(uriBuilder -> uriBuilder.queryParam("token", token)
-                                                       .build())
-                          .acceptCharset(Charset.defaultCharset())
-                          .exchange()
-                          .doOnSuccess(response -> clientResponses[0] = response);
-        } catch (Exception e) {
-            e.printStackTrace();
+            ResponseEntity<Map> responseEntity = this.restTemplate.getForEntity(this.jwtCheckUrl, Map.class, token);
+            return responseEntity != null && responseEntity.getStatusCode().is2xxSuccessful();
+        } catch (Exception ignored) {
+            System.out.println(ignored);
         }
-        return clientResponses[0] != null && clientResponses[0].statusCode().is2xxSuccessful();
+        return false;
     }
 
     private String token(ServerHttpRequest request) {
@@ -152,9 +158,7 @@ public class Oauth2TokenAuthenticationFilter implements WebFilter {
         DataBuffer buffer = response.bufferFactory()
                                     .wrap(body.getBytes(StandardCharsets.UTF_8));
         return response.writeWith(Mono.just(buffer))
-                       .doOnError(error -> {
-                           DataBufferUtils.release(buffer);
-                       });
+                       .doOnError(error -> DataBufferUtils.release(buffer));
 
     }
 }
