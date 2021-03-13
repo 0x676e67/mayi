@@ -1,11 +1,8 @@
 plugins {
-    id 'org.springframework.boot' version '2.2.3.RELEASE'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'org.springframework.boot' version "${springPluginVersion}"
+    id 'io.spring.dependency-management' version "${springDependencyManagerVersion}"
     id 'java'
 }
-
-sourceCompatibility = '1.8'
-
 
 configurations {
     compileOnly {
@@ -14,6 +11,7 @@ configurations {
 }
 ext {
     set('springCloudVersion', "Hoxton.SR9")
+    jwtVersion = "0.11.1"
 }
 
 
@@ -25,18 +23,18 @@ dependencies {
     implementation project(':ant-common:ant-common-security')
     implementation project(':ant-upms:ant-upms-api')
     implementation project(':ant-upms:ant-upms-dao')
-    implementation('io.jsonwebtoken:jjwt-api:0.11.1')
-    implementation('io.jsonwebtoken:jjwt-impl:0.11.1')
-    implementation('io.jsonwebtoken:jjwt-jackson:0.11.1')
+    implementation("io.jsonwebtoken:jjwt-api:${jwtVersion}")
+    implementation("io.jsonwebtoken:jjwt-impl:${jwtVersion}")
+    implementation("io.jsonwebtoken:jjwt-jackson:${jwtVersion}")
     implementation('com.github.whvcse:easy-captcha:1.6.2')
     implementation 'com.github.shalousun:common-util:1.9.2'
     implementation('org.springframework.boot:spring-boot-starter-web')
     implementation('org.springframework.boot:spring-boot-starter-aop')
     implementation 'org.springframework.cloud:spring-cloud-starter-oauth2'
     implementation 'org.springframework.cloud:spring-cloud-starter-security'
-    implementation 'com.alibaba.cloud:spring-cloud-alibaba-dependencies:2.2.3.RELEASE'
-    implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery:2.2.3.RELEASE'
-    implementation('com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config:2.2.3.RELEASE')
+    implementation "com.alibaba.cloud:spring-cloud-alibaba-dependencies:${nacosVersion}"
+    implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery:${nacosVersion}"
+    implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config:${nacosVersion}"
     implementation('org.springframework.boot:spring-boot-configuration-processor')
     implementation('org.springframework.boot:spring-boot-starter-jdbc')
     implementation('org.springframework.security:spring-security-test')
@@ -44,8 +42,8 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-test')
     implementation('org.springframework.boot:spring-boot-starter-cache')
     implementation('org.springframework.boot:spring-boot-starter-data-redis')
-    implementation('com.baomidou:mybatis-plus-boot-starter:3.3.1.tmp')
-    runtimeOnly 'mysql:mysql-connector-java:8.0.21'
+    implementation("com.baomidou:mybatis-plus-boot-starter:${mybatisPlusVersion}")
+    runtimeOnly("mysql:mysql-connector-java:${mysqlconnectorVersion}")
 
 }
 

@@ -4,7 +4,7 @@
 
 dependencies {
     implementation project(':ant-common:ant-common-core')
-    implementation('com.baomidou:mybatis-plus-boot-starter:3.3.1.tmp')
-    implementation('org.springframework.boot:spring-boot-starter-web:2.3.3.RELEASE')
-    implementation 'org.springframework.boot:spring-boot-starter-validation:2.3.3.RELEASE'
+    implementation("com.baomidou:mybatis-plus-boot-starter:${mybatisPlusVersion}")
+    implementation("org.springframework.boot:spring-boot-starter-web:${springbootVersion}")
+    implementation ("org.springframework.boot:spring-boot-starter-validation:${springbootVersion}")
 }

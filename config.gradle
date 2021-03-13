@@ -1,4 +1,6 @@
 ext {
-    springbootVersion="2.2.3:RELEASE"
-    nacosVersion="2.2.3:RELEASE"
+    springbootVersion="2.2.3.RELEASE"
+    nacosVersion="2.2.3.RELEASE"
+    mybatisPlusVersion="3.3.1.tmp"
+    mysqlconnectorVersion = "8.0.21"
 }

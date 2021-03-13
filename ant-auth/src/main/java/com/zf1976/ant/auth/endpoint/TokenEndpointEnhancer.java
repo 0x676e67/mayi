@@ -1,7 +1,5 @@
 package com.zf1976.ant.auth.endpoint;
 
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.RSAKey;
 import com.wf.captcha.base.Captcha;
 import com.zf1976.ant.common.core.dev.CaptchaProperties;
 import com.zf1976.ant.common.core.foundation.ResultData;
@@ -12,7 +10,6 @@ import com.zf1976.ant.common.security.pojo.vo.CaptchaVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,10 +24,7 @@ import org.springframework.util.AlternativeJdkIdGenerator;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.Serializable;
-import java.security.KeyPair;
 import java.security.Principal;
-import java.security.interfaces.RSAPublicKey;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -49,16 +43,14 @@ public class TokenEndpointEnhancer {
     private final CaptchaService captchaService;
     private final CaptchaProperties captchaConfig;
     private final TokenEndpoint tokenEndpoint;
-    private final KeyPair keyPair;
 
     public TokenEndpointEnhancer(CaptchaService captchaService,
                                  CaptchaProperties captchaConfig,
-                                 TokenEndpoint tokenEndpoint,
-                                 KeyPair keyPair) {
+                                 TokenEndpoint tokenEndpoint
+    ) {
         this.captchaService = captchaService;
         this.captchaConfig = captchaConfig;
         this.tokenEndpoint = tokenEndpoint;
-        this.keyPair = keyPair;
     }
 
     @GetMapping("/token")
@@ -79,18 +71,6 @@ public class TokenEndpointEnhancer {
             throw new InsufficientAuthenticationException("Client authentication failed.");
         }
     }
-
-    @GetMapping("/token_key")
-    public Serializable getKey(Principal principal) {
-        if (principal == null && (this.keyPair.getPublic() == null)) {
-            throw new AccessDeniedException("You need to authenticate to see a shared key");
-        } else {
-            RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
-            RSAKey key = new RSAKey.Builder(publicKey).build();
-            return new JWKSet(key).toJSONObject();
-        }
-    }
-
 
     @GetMapping("/code")
     public ResponseEntity<CaptchaVo> getVerifyCode() {

@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.RedisConnectionUtils;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
@@ -63,14 +64,18 @@ public class RedisUtils {
                                              .build();
         Set<String> keys = new HashSet<>();
         final RedisConnectionFactory connectionFactory = REDIS_TEMPLATE.getRequiredConnectionFactory();
-        try (RedisConnection connection = connectionFactory.getConnection()) {
+        RedisConnection connection = null;
+        try {
+            connection = connectionFactory.getConnection();
             final Cursor<byte[]> cursor = connection.scan(scanOptions);
             while (cursor.hasNext()) {
                 keys.add(new String(cursor.next()));
             }
             return keys;
-        }catch (Exception e) {
+        } catch (Exception e) {
             LOG.error(e.getMessage(), e.getCause());
+        } finally {
+            RedisConnectionUtils.releaseConnection(connection, connectionFactory, true);
         }
         return keys;
     }
@@ -89,7 +94,9 @@ public class RedisUtils {
                                              .build();
         Set<String> keys = new HashSet<>();
         final RedisConnectionFactory connectionFactory = REDIS_TEMPLATE.getRequiredConnectionFactory();
-        try (RedisConnection connection = connectionFactory.getConnection()) {
+        RedisConnection connection = null;
+        try {
+            connection = connectionFactory.getConnection();
             final Cursor<byte[]> cursor = connection.scan(scanOptions);
             int tempIndex = 0;
             int fromIndex = page * pageSize;
@@ -108,6 +115,8 @@ public class RedisUtils {
             return keys;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e.getCause());
+        } finally {
+            RedisConnectionUtils.releaseConnection(connection, connectionFactory, true);
         }
         return keys;
     }

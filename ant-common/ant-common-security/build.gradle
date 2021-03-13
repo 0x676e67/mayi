@@ -9,21 +9,23 @@ repositories {
     mavenCentral()
 }
 
+ext {
+    jwtVersion = "0.11.1"
+}
+
 dependencies {
     implementation project(':ant-upms:ant-upms-api')
     implementation project(':ant-upms:ant-upms-dao')
     implementation project(':ant-common:ant-common-core')
     implementation project(':ant-common:ant-common-component')
-    implementation('io.jsonwebtoken:jjwt-api:0.11.1')
-    implementation('io.jsonwebtoken:jjwt-impl:0.11.1')
-    implementation('io.jsonwebtoken:jjwt-jackson:0.11.1')
     implementation('com.github.whvcse:easy-captcha:1.6.2')
-    implementation('org.springframework.boot:spring-boot-starter-web:2.2.3.RELEASE')
-    implementation('org.springframework.boot:spring-boot-starter-security:2.2.3.RELEASE')
-    implementation('org.springframework.boot:spring-boot-starter-data-redis:2.2.3.RELEASE')
-    implementation('com.baomidou:mybatis-plus-boot-starter:3.3.1.tmp')
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    implementation("io.jsonwebtoken:jjwt-api:${jwtVersion}")
+    implementation("io.jsonwebtoken:jjwt-impl:${jwtVersion}")
+    implementation("io.jsonwebtoken:jjwt-jackson:${jwtVersion}")
+    implementation("org.springframework.boot:spring-boot-starter-web:${springbootVersion}")
+    implementation("org.springframework.boot:spring-boot-starter-security:${springbootVersion}")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis:${springbootVersion}")
+    implementation("com.baomidou:mybatis-plus-boot-starter:${mybatisPlusVersion}")
 }
 
 test {

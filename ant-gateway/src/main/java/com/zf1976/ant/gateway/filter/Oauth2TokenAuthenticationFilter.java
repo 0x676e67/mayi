@@ -101,12 +101,12 @@ public class Oauth2TokenAuthenticationFilter implements WebFilter {
     @SuppressWarnings("all")
     private boolean checkToken(String token) {
         try {
+            // 向服务端校验token 有效性
             ResponseEntity<Map> responseEntity = this.restTemplate.getForEntity(this.jwtCheckUrl, Map.class, token);
             return responseEntity != null && responseEntity.getStatusCode().is2xxSuccessful();
         } catch (Exception ignored) {
-            System.out.println(ignored);
+            return false;
         }
-        return false;
     }
 
     private String token(ServerHttpRequest request) {

@@ -5,5 +5,5 @@
 dependencies {
     implementation project(':ant-common:ant-common-core')
     implementation project(':ant-upms:ant-upms-api')
-    implementation('com.baomidou:mybatis-plus-boot-starter:3.3.1.tmp')
+    implementation("com.baomidou:mybatis-plus-boot-starter:${mybatisPlusVersion}")
 }

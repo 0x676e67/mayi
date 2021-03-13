@@ -1,10 +1,9 @@
 plugins {
-    id 'org.springframework.boot' version '2.3.0.RELEASE'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'org.springframework.boot' version "${gatewaySpringPluginVersion}"
+    id 'io.spring.dependency-management' version "${springDependencyManagerVersion}"
     id 'java'
 }
 
-sourceCompatibility = '1.8'
 
 configurations {
     compileOnly {
@@ -21,19 +20,15 @@ ext {
 }
 
 dependencies {
-    //implementation project(':ant-common:ant-common-core')
-    //implementation project(':ant-common:ant-common-security')
-    implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
-    implementation 'org.springframework.security:spring-security-oauth2-resource-server'
-    implementation 'org.springframework.security:spring-security-oauth2-jose'
-    implementation 'org.springframework.security:spring-security-config'
-    implementation('org.springframework.boot:spring-boot-starter-test:2.3.3.RELEASE')
-    implementation 'com.alibaba.cloud:spring-cloud-alibaba-dependencies:2.2.3.RELEASE'
-    implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery:2.2.3.RELEASE'
-    implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config:2.2.3.RELEASE'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    implementation "org.springframework.cloud:spring-cloud-starter-gateway"
+    implementation "org.springframework.security:spring-security-oauth2-resource-server"
+    implementation "org.springframework.security:spring-security-oauth2-jose"
+    implementation "org.springframework.security:spring-security-config"
+    implementation "org.springframework.boot:spring-boot-starter-test"
+    implementation "com.alibaba.cloud:spring-cloud-alibaba-dependencies:${nacosVersion}"
+    implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery:${nacosVersion}"
+    implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config:${nacosVersion}"
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 }
 
 dependencyManagement {
