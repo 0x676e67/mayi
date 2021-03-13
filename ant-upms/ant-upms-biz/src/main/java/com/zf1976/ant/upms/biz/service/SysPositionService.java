@@ -11,7 +11,7 @@ import com.zf1976.ant.upms.biz.pojo.po.SysUser;
 import com.zf1976.ant.upms.biz.convert.SysPositionConvert;
 import com.zf1976.ant.upms.biz.dao.SysPositionDao;
 import com.zf1976.ant.upms.biz.dao.SysUserDao;
-import com.zf1976.ant.common.core.foundation.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
 import com.zf1976.ant.upms.biz.pojo.dto.position.PositionDTO;
 import com.zf1976.ant.upms.biz.pojo.query.PositionQueryParam;
 import com.zf1976.ant.upms.biz.pojo.vo.job.JobExcelVO;

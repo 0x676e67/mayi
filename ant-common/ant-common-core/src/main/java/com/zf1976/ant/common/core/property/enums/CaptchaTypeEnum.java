@@ -1,4 +1,4 @@
-package com.zf1976.ant.common.core.dev.enums;
+package com.zf1976.ant.common.core.property.enums;
 
 /**
  * @author mac
@@ -22,7 +22,6 @@ public enum CaptchaTypeEnum {
      * 闪图
      */
     GIF,
-
     /**
      * spec
      */

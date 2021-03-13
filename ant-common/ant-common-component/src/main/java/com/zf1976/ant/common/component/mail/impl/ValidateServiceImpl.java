@@ -9,7 +9,7 @@ import com.zf1976.ant.common.core.util.RedisUtils;
 import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.core.foundation.exception.BadBusinessException;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
-import com.zf1976.ant.common.core.dev.ValidateProperties;
+import com.zf1976.ant.common.core.property.ValidateProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.javamail.JavaMailSender;

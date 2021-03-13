@@ -1,5 +1,6 @@
 package com.zf1976.ant.common.security;
 
+import com.zf1976.ant.common.core.property.SecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

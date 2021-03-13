@@ -13,7 +13,6 @@ spring:
         register-enabled: true
         enabled: true
 
-
   datasource:
     username: root
     password: itcast

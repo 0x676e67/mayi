@@ -11,7 +11,7 @@ import com.zf1976.ant.upms.biz.dao.SysDictDetailDao;
 import com.zf1976.ant.upms.biz.pojo.po.SysDict;
 import com.zf1976.ant.upms.biz.pojo.po.SysDictDetail;
 import com.zf1976.ant.upms.biz.convert.SysDictDetailConvert;
-import com.zf1976.ant.common.core.foundation.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
 import com.zf1976.ant.upms.biz.pojo.dto.dict.DictDetailDTO;
 import com.zf1976.ant.upms.biz.pojo.query.DictDetailQueryParam;

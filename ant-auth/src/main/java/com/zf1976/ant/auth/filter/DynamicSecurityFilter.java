@@ -6,7 +6,7 @@ import com.zf1976.ant.auth.filter.datasource.DynamicSecurityMetadataSource;
 import com.zf1976.ant.auth.filter.manager.DynamicAccessDecisionManager;
 import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.security.DynamicDataSourceService;
-import com.zf1976.ant.common.security.SecurityProperties;
+import com.zf1976.ant.common.core.property.SecurityProperties;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.SecurityMetadataSource;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;

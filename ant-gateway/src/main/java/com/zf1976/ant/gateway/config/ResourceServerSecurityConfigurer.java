@@ -1,5 +1,6 @@
 package com.zf1976.ant.gateway.config;
 
+import com.zf1976.ant.common.core.property.SecurityProperties;
 import com.zf1976.ant.gateway.filter.Oauth2TokenAuthenticationFilter;
 import com.zf1976.ant.gateway.manager.GatewayReactiveAuthorizationManager;
 import com.zf1976.ant.gateway.properties.AuthProperties;
@@ -21,6 +22,8 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
 import reactor.core.publisher.Mono;
 
+import java.util.Arrays;
+
 
 /**
  * @author mac
@@ -32,11 +35,14 @@ public class ResourceServerSecurityConfigurer {
 
     private final ReactiveAuthorizationManager<AuthorizationContext> reactiveAuthorizationManager;
     private final AuthProperties properties;
+    private final SecurityProperties securityProperties;
 
     public ResourceServerSecurityConfigurer(GatewayReactiveAuthorizationManager reactiveAuthenticationManager,
-                                            AuthProperties properties) {
+                                            AuthProperties properties,
+                                            SecurityProperties securityProperties) {
         this.reactiveAuthorizationManager = reactiveAuthenticationManager;
         this.properties = properties;
+        this.securityProperties = securityProperties;
     }
 
     @Bean
@@ -62,7 +68,8 @@ public class ResourceServerSecurityConfigurer {
                                    .jwkSetUri(properties.getJwkSetUri());
                         }).bearerTokenConverter(new ServerBearerTokenAuthenticationConverter());
                     })
-                    .addFilterBefore(new Oauth2TokenAuthenticationFilter(properties.getJwtCheckUri()),
+                    .addFilterBefore(new Oauth2TokenAuthenticationFilter(Arrays.asList(this.securityProperties.getIgnoreUri()),
+                                    properties.getJwtCheckUri()),
                             SecurityWebFiltersOrder.HTTP_BASIC);
         return httpSecurity.build();
     }
@@ -75,4 +82,5 @@ public class ResourceServerSecurityConfigurer {
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
         return new ReactiveJwtAuthenticationConverterAdapter(jwtAuthenticationConverter);
     }
+
 }

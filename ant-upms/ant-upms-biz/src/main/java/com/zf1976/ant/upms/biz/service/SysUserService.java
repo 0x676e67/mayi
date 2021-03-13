@@ -18,7 +18,7 @@ import com.zf1976.ant.common.security.cache.session.Session;
 import com.zf1976.ant.common.security.safe.SecurityUserDetails;
 import com.zf1976.ant.common.security.safe.SecurityContextHolder;
 import com.zf1976.ant.common.security.safe.filter.manager.SessionContextHolder;
-import com.zf1976.ant.common.core.foundation.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
 import com.zf1976.ant.common.core.foundation.exception.BadBusinessException;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
 import com.zf1976.ant.upms.biz.convert.SysUserConvert;

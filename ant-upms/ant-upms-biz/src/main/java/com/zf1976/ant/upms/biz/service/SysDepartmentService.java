@@ -7,7 +7,7 @@ import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
 import com.zf1976.ant.common.component.load.annotation.Space;
 import com.zf1976.ant.common.core.foundation.exception.BadBusinessException;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
-import com.zf1976.ant.common.core.foundation.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
 import com.zf1976.ant.upms.biz.convert.DepartmentConvert;
 import com.zf1976.ant.upms.biz.dao.SysDepartmentDao;
 import com.zf1976.ant.upms.biz.exception.DepartmentException;

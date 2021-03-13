@@ -1,6 +1,6 @@
-package com.zf1976.ant.common.core.dev;
+package com.zf1976.ant.common.core.property;
 
-import com.zf1976.ant.common.core.dev.enums.CaptchaTypeEnum;
+import com.zf1976.ant.common.core.property.enums.CaptchaTypeEnum;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

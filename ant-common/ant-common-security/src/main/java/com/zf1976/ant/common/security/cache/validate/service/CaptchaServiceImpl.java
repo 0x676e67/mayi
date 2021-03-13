@@ -4,7 +4,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.power.common.util.StringUtil;
 import com.zf1976.ant.common.security.cache.CacheCreationPolicy;
 import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
-import com.zf1976.ant.common.core.dev.CaptchaProperties;
+import com.zf1976.ant.common.core.property.CaptchaProperties;
 import com.zf1976.ant.common.security.cache.validate.repository.CaptchaRepositoryStrategy;
 import com.zf1976.ant.common.security.cache.validate.repository.impl.CaptchaLocalRepositoryStrategy;
 import com.zf1976.ant.common.security.cache.validate.repository.impl.CaptchaRedisRepositoryStrategy;

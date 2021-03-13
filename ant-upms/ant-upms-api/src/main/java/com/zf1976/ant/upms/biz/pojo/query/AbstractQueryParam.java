@@ -1,4 +1,4 @@
-package com.zf1976.ant.common.core.foundation.query;
+package com.zf1976.ant.upms.biz.pojo.query;
 
 /**
  * @author mac

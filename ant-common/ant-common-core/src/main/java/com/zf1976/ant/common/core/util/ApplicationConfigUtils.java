@@ -1,7 +1,7 @@
 package com.zf1976.ant.common.core.util;
 
-import com.zf1976.ant.common.core.dev.CacheProperties;
-import com.zf1976.ant.common.core.dev.CaptchaProperties;
+import com.zf1976.ant.common.core.property.CacheProperties;
+import com.zf1976.ant.common.core.property.CaptchaProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

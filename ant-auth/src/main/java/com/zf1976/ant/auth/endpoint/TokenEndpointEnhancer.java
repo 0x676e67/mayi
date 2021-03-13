@@ -1,7 +1,7 @@
 package com.zf1976.ant.auth.endpoint;
 
 import com.wf.captcha.base.Captcha;
-import com.zf1976.ant.common.core.dev.CaptchaProperties;
+import com.zf1976.ant.common.core.property.CaptchaProperties;
 import com.zf1976.ant.common.core.foundation.ResultData;
 import com.zf1976.ant.common.security.SecurityContextHolder;
 import com.zf1976.ant.common.security.cache.support.CaptchaGenerator;

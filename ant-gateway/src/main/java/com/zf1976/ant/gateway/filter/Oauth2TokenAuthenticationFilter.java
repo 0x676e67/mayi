@@ -29,6 +29,7 @@ import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,12 +46,13 @@ public class Oauth2TokenAuthenticationFilter implements WebFilter {
             "^Bearer (?<token>[a-zA-Z0-9-._~+/]+)=*$",
             Pattern.CASE_INSENSITIVE);
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
-    private final String[] ignoreUri = new String[]{};
-    RestTemplate restTemplate = new RestTemplate();
+    private final List<String> ignoreUri;
+    private final RestTemplate restTemplate = new RestTemplate();
     private String jwtCheckUrl;
 
 
-    public Oauth2TokenAuthenticationFilter(String checkTokenUrl) {
+    public Oauth2TokenAuthenticationFilter(List<String> ignoreUri, String checkTokenUrl) {
+        this.ignoreUri = ignoreUri;
         this.jwtCheckUrl = checkTokenUrl + "?token={value}";
     }
 
@@ -158,7 +160,10 @@ public class Oauth2TokenAuthenticationFilter implements WebFilter {
         DataBuffer buffer = response.bufferFactory()
                                     .wrap(body.getBytes(StandardCharsets.UTF_8));
         return response.writeWith(Mono.just(buffer))
-                       .doOnError(error -> DataBufferUtils.release(buffer));
+                       .doOnError(error -> {
+                           DataBufferUtils.release(buffer);
+                           logger.error(error.getMessage(), e);
+                       });
 
     }
 }

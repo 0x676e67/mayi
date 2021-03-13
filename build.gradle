@@ -45,9 +45,4 @@ subprojects {
          testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
      }
 
-    configurations {
-        compileOnly {
-            extendsFrom annotationProcessor
-        }
-    }
 }

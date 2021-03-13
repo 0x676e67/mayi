@@ -3,4 +3,5 @@ ext {
     nacosVersion="2.2.3.RELEASE"
     mybatisPlusVersion="3.3.1.tmp"
     mysqlconnectorVersion = "8.0.21"
+    springCloudVersion = "Hoxton.SR5"
 }

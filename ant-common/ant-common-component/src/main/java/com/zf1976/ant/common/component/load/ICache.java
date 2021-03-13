@@ -3,7 +3,7 @@ package com.zf1976.ant.common.component.load;
 
 import com.google.common.cache.Cache;
 import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
-import com.zf1976.ant.common.core.dev.CacheProperties;
+import com.zf1976.ant.common.core.property.CacheProperties;
 
 import java.util.function.Supplier;
 

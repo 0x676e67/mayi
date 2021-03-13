@@ -2,7 +2,7 @@ package com.zf1976.ant.auth.filter.deprecate;
 
 import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.security.JwtTokenProvider;
-import com.zf1976.ant.common.security.SecurityProperties;
+import com.zf1976.ant.common.core.property.SecurityProperties;
 import com.zf1976.ant.common.security.SessionContextHolder;
 import com.zf1976.ant.common.security.cache.session.Session;
 import com.zf1976.ant.common.security.enums.AuthenticationState;

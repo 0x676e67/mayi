@@ -11,7 +11,7 @@ import com.zf1976.ant.upms.biz.convert.SysRoleConvert;
 import com.zf1976.ant.upms.biz.dao.SysDepartmentDao;
 import com.zf1976.ant.upms.biz.dao.SysMenuDao;
 import com.zf1976.ant.upms.biz.dao.SysRoleDao;
-import com.zf1976.ant.common.core.foundation.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
 import com.zf1976.ant.upms.biz.pojo.dto.role.RoleDTO;
 import com.zf1976.ant.upms.biz.pojo.enums.DataPermissionEnum;
 import com.zf1976.ant.upms.biz.pojo.po.SysDepartment;

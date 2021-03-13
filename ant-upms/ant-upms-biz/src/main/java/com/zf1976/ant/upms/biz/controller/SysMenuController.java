@@ -3,7 +3,7 @@ package com.zf1976.ant.upms.biz.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
 import com.zf1976.ant.common.core.foundation.ResultData;
-import com.zf1976.ant.common.core.foundation.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
 import com.zf1976.ant.upms.biz.pojo.dto.menu.MenuDTO;
 import com.zf1976.ant.upms.biz.pojo.query.MenuQueryParam;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationInsertGroup;

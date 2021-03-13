@@ -1,11 +1,11 @@
 package com.zf1976.ant.common.security;
 
 
+import com.zf1976.ant.common.core.property.SecurityProperties;
 import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.security.enums.AuthenticationState;
 import com.zf1976.ant.common.security.exception.ExpiredJwtException;
 import com.zf1976.ant.common.security.exception.IllegalAccessException;
-import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;

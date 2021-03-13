@@ -4,8 +4,8 @@ package com.zf1976.ant.common.security.cache.support;
 import com.wf.captcha.*;
 import com.wf.captcha.base.Captcha;
 import com.zf1976.ant.common.core.util.SpringContextHolder;
-import com.zf1976.ant.common.core.dev.CaptchaProperties;
-import com.zf1976.ant.common.core.dev.enums.CaptchaTypeEnum;
+import com.zf1976.ant.common.core.property.CaptchaProperties;
+import com.zf1976.ant.common.core.property.enums.CaptchaTypeEnum;
 import lombok.Data;
 import org.springframework.util.StringUtils;
 

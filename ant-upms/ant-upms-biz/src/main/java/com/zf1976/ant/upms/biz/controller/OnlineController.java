@@ -2,7 +2,7 @@ package com.zf1976.ant.upms.biz.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.common.core.foundation.ResultData;
-import com.zf1976.ant.common.core.foundation.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
 import com.zf1976.ant.upms.biz.pojo.query.SessionQueryParam;
 import com.zf1976.ant.upms.biz.pojo.vo.SessionVO;
 import com.zf1976.ant.upms.biz.service.SysOnlineService;

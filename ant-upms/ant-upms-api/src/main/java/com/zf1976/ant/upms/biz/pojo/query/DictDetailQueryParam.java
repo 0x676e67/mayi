@@ -1,6 +1,5 @@
 package com.zf1976.ant.upms.biz.pojo.query;
 
-import com.zf1976.ant.common.core.foundation.query.AbstractQueryParam;
 import lombok.Data;
 
 /**
