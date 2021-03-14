@@ -1,4 +1,4 @@
-package com.zf1976.ant.common.core.property;
+package com.zf1976.ant.common.security;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

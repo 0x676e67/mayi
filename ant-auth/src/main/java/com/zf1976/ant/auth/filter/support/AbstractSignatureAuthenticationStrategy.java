@@ -4,7 +4,7 @@ import com.power.common.util.StringUtil;
 import com.zf1976.ant.auth.enhance.JdbcClientDetailsServiceEnhancer;
 import com.zf1976.ant.common.core.util.CaffeineCacheUtils;
 import com.zf1976.ant.common.encrypt.EncryptUtil;
-import com.zf1976.ant.common.security.SecurityContextHolder;
+import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.common.security.exception.SignatureException;
 import com.zf1976.ant.common.security.enums.SignatureState;
 import org.springframework.util.Assert;

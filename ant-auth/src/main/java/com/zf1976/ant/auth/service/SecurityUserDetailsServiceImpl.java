@@ -7,7 +7,7 @@ import com.zf1976.ant.common.security.enums.AuthenticationState;
 import com.zf1976.ant.common.security.exception.UserNotFountException;
 import com.zf1976.ant.common.security.pojo.vo.RoleVo;
 import com.zf1976.ant.common.security.pojo.vo.UserInfoVo;
-import com.zf1976.ant.common.core.property.SecurityProperties;
+import com.zf1976.ant.common.security.SecurityProperties;
 import com.zf1976.ant.upms.biz.dao.*;
 import com.zf1976.ant.upms.biz.pojo.po.*;
 import org.springframework.security.core.GrantedAuthority;

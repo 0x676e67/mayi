@@ -1,4 +1,4 @@
-package com.zf1976.ant.gateway.manager;
+package com.zf1976.ant.gateway.filter.manager;
 
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
@@ -6,7 +6,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
 /**

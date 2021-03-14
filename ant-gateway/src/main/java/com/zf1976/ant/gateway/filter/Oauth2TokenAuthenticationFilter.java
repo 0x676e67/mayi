@@ -1,5 +1,7 @@
 package com.zf1976.ant.gateway.filter;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.power.common.model.CommonResult;
 import com.zf1976.ant.gateway.GatewayRouteConstants;
 import com.zf1976.ant.gateway.util.JsonUtil;
@@ -29,8 +31,7 @@ import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,19 +47,14 @@ public class Oauth2TokenAuthenticationFilter implements WebFilter {
             "^Bearer (?<token>[a-zA-Z0-9-._~+/]+)=*$",
             Pattern.CASE_INSENSITIVE);
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
-    private final List<String> ignoreUri;
+    private Collection<String> ignoreUri;
     private final RestTemplate restTemplate = new RestTemplate();
     private String jwtCheckUrl;
 
 
-    public Oauth2TokenAuthenticationFilter(List<String> ignoreUri, String checkTokenUrl) {
+    public Oauth2TokenAuthenticationFilter(Collection<String> ignoreUri, String checkTokenUrl) {
         this.ignoreUri = ignoreUri;
         this.jwtCheckUrl = checkTokenUrl + "?token={value}";
-    }
-
-    public Oauth2TokenAuthenticationFilter setJwtCheckUrl(String jwtCheckUrl) {
-        this.jwtCheckUrl = jwtCheckUrl + "?token={value}";
-        return this;
     }
 
     @Override
@@ -81,23 +77,32 @@ public class Oauth2TokenAuthenticationFilter implements WebFilter {
         if (pathMatcher.match(GatewayRouteConstants.ADMIN_ROUTE, requestUri)) {
             try {
                 String token = this.token(request);
-                // 无请求token放行
-                if (StringUtils.isEmpty(token)) {
-                    return webFilterChain.filter(serverWebExchange);
-                } else {
-                    if (this.checkToken(token)) {
-                        return webFilterChain.filter(serverWebExchange);
-                    } else {
-                        BearerTokenError bearerTokenError = this.bearerTokenError();
-                        throw new OAuth2AuthenticationException(bearerTokenError);
-                    }
+                // 无请求token拒绝
+                if (StringUtils.isEmpty(token) && this.checkToken(token)) {
+                    BearerTokenError bearerTokenError = this.bearerTokenError();
+                    throw new OAuth2AuthenticationException(bearerTokenError);
                 }
+                return webFilterChain.filter(serverWebExchange);
             } catch (AuthenticationException e) {
                 SecurityContextHolder.clearContext();
                 return this.exceptionHandler(response, e);
             }
         }
         return webFilterChain.filter(serverWebExchange);
+    }
+
+    public Oauth2TokenAuthenticationFilter setJwtCheckUrl(String jwtCheckUrl) {
+        this.jwtCheckUrl = jwtCheckUrl + "?token={value}";
+        return this;
+    }
+
+    public Oauth2TokenAuthenticationFilter setIgnoreUri(Collection<String> ignoreUri) {
+        this.ignoreUri = ignoreUri;
+        return this;
+    }
+
+    public void addIgnoreUri(String ...ignoreUri) {
+         this.ignoreUri.addAll(Sets.newHashSet(ignoreUri));
     }
 
     @SuppressWarnings("all")

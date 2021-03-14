@@ -1,6 +1,11 @@
-package com.zf1976.ant.common.security;
+package com.zf1976.ant.auth;
 
-import com.zf1976.ant.common.core.property.SecurityProperties;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.zf1976.ant.auth.service.DynamicDataSourceService;
+import com.zf1976.ant.common.security.JwtTokenProvider;
+import com.zf1976.ant.common.security.SecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -9,13 +14,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author mac
@@ -115,12 +119,11 @@ public class SecurityContextHolder extends org.springframework.security.core.con
      *
      * @return /
      */
-    public static Set<String> getAllowedUri() {
-        // 匿名方向uri
-        String[] allowUri = securityProperties.getIgnoreUri();
-        Set<String> allow = dynamicDataSourceService.getAllowUri();
-        allow.addAll(Arrays.asList(allowUri));
-        return allow;
+    public static Collection<String> getAllowedUri() {
+        // 放行uri
+        List<String> allowUri = dynamicDataSourceService.getAllowUri();
+        CollectionUtils.mergeArrayIntoCollection(securityProperties.getIgnoreUri(), allowUri);
+        return allowUri;
     }
 
     /**
@@ -131,7 +134,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
      */
     public static boolean validateUri(HttpServletRequest request) {
         String uri = request.getRequestURI();
-        Set<String> allowedUri = getAllowedUri();
+        Collection<String> allowedUri = getAllowedUri();
         return allowedUri.stream()
                          .anyMatch(var -> PATH_MATCHER.match(var, uri));
     }
@@ -156,8 +159,4 @@ public class SecurityContextHolder extends org.springframework.security.core.con
         SecurityContextHolder.userDetailsService = userDetailsService;
     }
 
-    @Autowired
-    public void setDynamicDataSourceService(DynamicDataSourceService dynamicDataSourceService) {
-        SecurityContextHolder.dynamicDataSourceService = dynamicDataSourceService;
-    }
 }

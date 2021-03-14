@@ -4,7 +4,7 @@ import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.security.AntUserDetails;
 import com.zf1976.ant.common.security.JwtTokenProvider;
 import com.zf1976.ant.common.security.SessionContextHolder;
-import com.zf1976.ant.common.core.property.SecurityProperties;
+import com.zf1976.ant.common.security.SecurityProperties;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

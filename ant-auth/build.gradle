@@ -37,11 +37,11 @@ dependencies {
     implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config:${nacosVersion}"
     implementation('org.springframework.boot:spring-boot-configuration-processor')
     implementation('org.springframework.boot:spring-boot-starter-jdbc')
-    implementation('org.springframework.security:spring-security-test')
     implementation('org.springframework.security:spring-security-oauth2-jose')
-    implementation('org.springframework.boot:spring-boot-test')
     implementation('org.springframework.boot:spring-boot-starter-cache')
     implementation('org.springframework.boot:spring-boot-starter-data-redis')
+    implementation('org.springframework.security:spring-security-test')
+    implementation('org.springframework.boot:spring-boot-test')
     implementation("com.baomidou:mybatis-plus-boot-starter:${mybatisPlusVersion}")
     runtimeOnly("mysql:mysql-connector-java:${mysqlconnectorVersion}")
 

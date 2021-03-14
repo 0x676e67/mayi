@@ -6,7 +6,8 @@ package com.zf1976.ant.common.core.constants;
  * @author zlt
  * @date 2018/10/29
  */
-public interface CommonConstant {
+public interface
+CommonConstants {
     /**
      * 项目版本号(banner使用)
      */

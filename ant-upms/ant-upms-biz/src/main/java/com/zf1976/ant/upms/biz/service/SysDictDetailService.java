@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapp
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
 import com.zf1976.ant.common.component.load.annotation.CaffeineEvict;
-import com.zf1976.ant.common.component.load.annotation.Space;
+import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.upms.biz.dao.SysDictDao;
 import com.zf1976.ant.upms.biz.dao.SysDictDetailDao;
 import com.zf1976.ant.upms.biz.pojo.po.SysDict;
@@ -50,7 +50,7 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
      * @param requestPage page param
      * @return dict details page
      */
-    @CaffeinePut(namespace = Space.DICT_DETAIL, key = "#requestPage")
+    @CaffeinePut(namespace = Namespace.DICT_DETAIL, key = "#requestPage")
     public IPage<DictDetailVO> selectDictDetailPage(RequestPage<DictDetailQueryParam> requestPage) {
         DictDetailQueryParam param = requestPage.getQuery();
         Assert.notNull(param, BusinessMsgState.PARAM_ILLEGAL::getReasonPhrase);
@@ -75,7 +75,7 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
      * @param dto dto
      * @return /
      */
-    @CaffeineEvict(namespace = Space.DICT_DETAIL)
+    @CaffeineEvict(namespace = Namespace.DICT_DETAIL)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> saveDictDetail(DictDetailDTO dto) {
         SysDictDetail sysDictDetail = convert.toEntity(dto);
@@ -92,7 +92,7 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
      * @param dto dto
      * @return /
      */
-    @CaffeineEvict(namespace = Space.DICT_DETAIL)
+    @CaffeineEvict(namespace = Namespace.DICT_DETAIL)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateDictDetail(DictDetailDTO dto) {
         SysDictDetail sysDictDetail = super.lambdaQuery()
@@ -114,7 +114,7 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
      * @param id id
      * @return /
      */
-    @CaffeineEvict(namespace = Space.DICT_DETAIL)
+    @CaffeineEvict(namespace = Namespace.DICT_DETAIL)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deleteDictDetail(Long id) {
         if (!super.removeById(id)) {

@@ -1,7 +1,9 @@
 package com.zf1976.ant.auth.enhance;
 
+import com.zf1976.ant.auth.serialize.JacksonRedisTokenStoreSerializationStrategy;
 import com.zf1976.ant.common.security.AuthConstants;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
 

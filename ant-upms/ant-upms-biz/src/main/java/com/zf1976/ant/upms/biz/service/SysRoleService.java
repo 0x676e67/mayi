@@ -4,7 +4,7 @@ package com.zf1976.ant.upms.biz.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
 import com.zf1976.ant.common.component.load.annotation.CaffeineEvict;
-import com.zf1976.ant.common.component.load.annotation.Space;
+import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.security.safe.SecurityContextHolder;
 import com.zf1976.ant.upms.biz.pojo.po.SysMenu;
 import com.zf1976.ant.upms.biz.convert.SysRoleConvert;
@@ -56,7 +56,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      *
      * @return /
      */
-    @CaffeinePut(namespace = Space.ROLE, key = "list")
+    @CaffeinePut(namespace = Namespace.ROLE, key = "list")
     public IPage<RoleVO> selectAll() {
         IPage<SysRole> page = super.lambdaQuery()
                                    .select(SysRole::getId, SysRole::getName)
@@ -70,7 +70,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      * @param requestPage request page
      * @return /
      */
-    @CaffeinePut(namespace = Space.ROLE, key = "#requestPage")
+    @CaffeinePut(namespace = Namespace.ROLE, key = "#requestPage")
     public IPage<RoleVO> selectRolePage(RequestPage<RoleQueryParam> requestPage) {
         IPage<SysRole> sourcePage = this.queryChain()
                                         .setQueryParam(requestPage)
@@ -87,7 +87,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      *
      * @return math
      */
-    @CaffeinePut(namespace = Space.ROLE, key = "level")
+    @CaffeinePut(namespace = Namespace.ROLE, key = "level")
     public Integer getRoleLevel() {
         if (SecurityContextHolder.isSuperAdmin()) {
             return 0;
@@ -106,7 +106,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      * @param enabled 状态
      * @return /
      */
-    @CaffeineEvict(namespace = Space.ROLE, dependsOn = Space.USER)
+    @CaffeineEvict(namespace = Namespace.ROLE, dependsOn = Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> setRoleStatus(Long id, Boolean enabled) {
         SysRole sysRole = super.lambdaQuery()
@@ -166,7 +166,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      * @param dto role dto
      * @return /
      */
-    @CaffeineEvict(namespace = Space.ROLE, dependsOn = Space.USER)
+    @CaffeineEvict(namespace = Namespace.ROLE, dependsOn = Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> savaRole(RoleDTO dto) {
         // 范围消息
@@ -202,7 +202,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      * @param dto dto
      * @return /
      */
-    @CaffeineEvict(namespace = Space.ROLE, dependsOn = Space.USER)
+    @CaffeineEvict(namespace = Namespace.ROLE, dependsOn = Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateRole(RoleDTO dto) {
         // 范围消息
@@ -274,7 +274,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      * @param ids id集合
      * @return /
      */
-    @CaffeineEvict(namespace = Space.ROLE, dependsOn = Space.USER)
+    @CaffeineEvict(namespace = Namespace.ROLE, dependsOn = Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deleteRole(Set<Long> ids) {
         ids.forEach(id -> {

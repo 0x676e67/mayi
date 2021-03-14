@@ -1,5 +1,7 @@
 package com.zf1976.ant.common.component.load.annotation;
 
+import com.zf1976.ant.common.component.load.enums.CacheRelation;
+
 import java.lang.annotation.*;
 
 /**
@@ -30,4 +32,9 @@ public @interface CaffeineEvict {
      */
     String key() default "";
 
+    /**
+     * 缓存实现
+     * @return relation
+     */
+    CacheRelation relation() default CacheRelation.CAFFEINE;
 }

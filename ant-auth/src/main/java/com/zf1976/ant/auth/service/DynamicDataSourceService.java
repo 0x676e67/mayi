@@ -1,10 +1,15 @@
-package com.zf1976.ant.common.security;
+package com.zf1976.ant.auth.service;
 
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
+import com.google.common.collect.Lists;
 import com.zf1976.ant.common.component.action.ActionsScanner;
 import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
+import com.zf1976.ant.common.component.load.enums.CacheRelation;
+import com.zf1976.ant.common.core.constants.KeyConstants;
+import com.zf1976.ant.common.core.constants.Namespace;
+import com.zf1976.ant.common.security.SecurityProperties;
 import com.zf1976.ant.common.security.annotation.Authorize;
 import com.zf1976.ant.upms.biz.dao.SysPermissionDao;
 import com.zf1976.ant.upms.biz.dao.SysResourceDao;
@@ -36,10 +41,14 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
     private final SysResourceDao sysResourceDao;
     private final Map<String, String> matcherMethodMap;
     private final Set<String> allowMethodSet;
+    private final SecurityProperties securityProperties;
 
-    public DynamicDataSourceService(SysResourceDao sysResourceDao, ActionsScanner actionsScanner) {
+    public DynamicDataSourceService(SysResourceDao sysResourceDao,
+                                    ActionsScanner actionsScanner,
+                                    SecurityProperties securityProperties) {
         this.actionsScanner = actionsScanner;
         this.sysResourceDao = sysResourceDao;
+        this.securityProperties = securityProperties;
         this.matcherMethodMap = new ConcurrentHashMap<>(16);
         this.allowMethodSet = new CopyOnWriteArraySet<>();
     }
@@ -105,7 +114,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
         }
     }
 
-    @CaffeinePut(namespace = "dynamic", key = "loadDataSource")
+    @CaffeinePut(namespace = Namespace.DYNAMIC, key = KeyConstants.RESOURCES, relation = CacheRelation.REDIS)
     public Map<String, Collection<ConfigAttribute>> loadDataSource() {
         Map<String, Collection<ConfigAttribute>> matcherResourceMap = new ConcurrentHashMap<>(16);
         //清空缓存
@@ -189,9 +198,14 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
              });
     }
 
-    @CaffeinePut(namespace = "dynamic", key = "allow")
-    public Set<String> getAllowUri() {
-        return this.allowMethodSet;
+    /**
+     * redis 反序化回来变成set
+     * @return
+     */
+    @CaffeinePut(namespace = Namespace.DYNAMIC, key = KeyConstants.ALLOW, relation = CacheRelation.REDIS)
+    public List<String> getAllowUri() {
+        CollectionUtils.mergeArrayIntoCollection(securityProperties.getIgnoreUri(), this.allowMethodSet);
+        return Lists.newArrayList(this.allowMethodSet);
     }
 
 }

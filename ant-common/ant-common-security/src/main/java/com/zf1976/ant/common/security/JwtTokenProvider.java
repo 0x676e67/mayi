@@ -1,7 +1,6 @@
 package com.zf1976.ant.common.security;
 
 
-import com.zf1976.ant.common.core.property.SecurityProperties;
 import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.security.enums.AuthenticationState;
 import com.zf1976.ant.common.security.exception.ExpiredJwtException;

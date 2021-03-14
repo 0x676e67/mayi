@@ -12,6 +12,7 @@ import java.util.function.Supplier;
  */
 public interface ICache<K, V> {
 
+
     /**
      * 缓存配置
      */
@@ -41,11 +42,11 @@ public interface ICache<K, V> {
     /**
      * 获取缓存值，不做处理
      *
-     * @param nameSpace 缓存空间
+     * @param namespace 缓存空间
      * @param key       key
      * @return V
      */
-    V get(String nameSpace, K key);
+    V get(String namespace, K key);
 
     /**
      * 根据缓存空间 设置缓存值
@@ -86,11 +87,5 @@ public interface ICache<K, V> {
      */
     void invalidateAll();
 
-    /**
-     * get concurrency cache object
-     *
-     * @return cache object
-     */
-    Cache<K, V> getObject();
 
 }

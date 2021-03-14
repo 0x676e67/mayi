@@ -1,7 +1,8 @@
-package com.zf1976.ant.common.component.load;
+package com.zf1976.ant.common.component.load.impl;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.zf1976.ant.common.component.load.AbstractCaffeineCache;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
@@ -26,13 +27,13 @@ public class CaffeineCacheProvider<K, V> extends AbstractCaffeineCache<K, V> {
 
     private void checkStatus() {
         Assert.notNull(super.kvCache, "Uninitialized!");
-        Assert.notNull(super.cacheMap, "Uninitialized!");
+        Assert.notNull(super.cacheSpace, "Uninitialized!");
     }
 
     @Override
     protected void initialCache() {
         super.kvCache = this.loadCache(CACHE_PROPERTY_CONFIG.getExpireAlterWrite());
-        super.cacheMap = new ConcurrentHashMap<>(MAP_INITIAL_CAPACITY);
+        super.cacheSpace = new ConcurrentHashMap<>(MAP_INITIAL_CAPACITY);
     }
 
     @Override
@@ -58,64 +59,58 @@ public class CaffeineCacheProvider<K, V> extends AbstractCaffeineCache<K, V> {
 
     @Override
     public V get(String namespace, K key, Long expired, Supplier<V> supplier) {
-        Assert.notNull(namespace, "namespace can not been null");
-        Cache<K, V> kvCache = super.cacheMap.get(namespace);
+        Cache<K, V> kvCache = super.cacheSpace.get(namespace);
         if (kvCache == null) {
             kvCache = this.loadCache(expired);
-            super.cacheMap.put(namespace, kvCache);
+            super.cacheSpace.put(namespace, kvCache);
         }
         return this.getValue(kvCache, key, supplier);
     }
 
     @Override
     public V get(String namespace, K key, Supplier<V> supplier) {
-        Assert.notNull(namespace, "namespace can not been null");
-        Cache<K, V> kvCache = super.cacheMap.get(namespace);
+        Cache<K, V> kvCache = super.cacheSpace.get(namespace);
         if (kvCache == null) {
             kvCache = this.loadCache(CACHE_PROPERTY_CONFIG.getExpireAlterWrite());
-            super.cacheMap.put(namespace, kvCache);
+            super.cacheSpace.put(namespace, kvCache);
         }
         return this.getValue(kvCache, key, supplier);
     }
 
     @Override
     public V get(String namespace, K key) {
-        Assert.notNull(namespace, "namespace can not been null");
-        Cache<K, V> kvCache = super.cacheMap.get(namespace);
+        Cache<K, V> kvCache = super.cacheSpace.get(namespace);
         if (kvCache == null) {
-            return null;
+            kvCache = this.loadCache(CACHE_PROPERTY_CONFIG.getExpireAlterWrite());
+            super.cacheSpace.put(namespace, kvCache);
         }
         return this.getDefaultValue(kvCache, key);
     }
 
     @Override
     public void set(String namespace, K key, Long expired, V value) {
-        Assert.notNull(namespace, "namespace can not been null");
-        Cache<K, V> kvCache = super.cacheMap.get(namespace);
+        Cache<K, V> kvCache = super.cacheSpace.get(namespace);
         if (kvCache == null) {
             kvCache = this.loadCache(expired);
-            super.cacheMap.put(namespace, kvCache);
+            super.cacheSpace.put(namespace, kvCache);
         }
         kvCache.put(key, value);
     }
 
     @Override
     public void set(String namespace, K key, V value) {
-        Assert.notNull(namespace, "namespace can not been null");
         this.set(namespace, key, CACHE_PROPERTY_CONFIG.getExpireAlterWrite(), value);
     }
 
     @Override
     public void invalidate(String namespace) {
-        Assert.notNull(namespace, "namespace can not been null");
-        this.cacheMap.remove(namespace);
+        this.cacheSpace.remove(namespace);
         this.removeNamespaceLog(namespace);
     }
 
     @Override
     public void invalidate(String namespace, K key) {
-        Assert.notNull(namespace, "namespace can not been null");
-        Cache<K, V> kvCache = this.cacheMap.get(namespace);
+        Cache<K, V> kvCache = this.cacheSpace.get(namespace);
         if (kvCache != null) {
             kvCache.invalidate(key);
             this.removeNamespaceKeyLog(namespace, key);
@@ -124,7 +119,7 @@ public class CaffeineCacheProvider<K, V> extends AbstractCaffeineCache<K, V> {
 
     @Override
     public void invalidateAll() {
-        Set<Map.Entry<String, Cache<K, V>>> entrySet = this.cacheMap.entrySet();
+        Set<Map.Entry<String, Cache<K, V>>> entrySet = this.cacheSpace.entrySet();
         Iterator<Map.Entry<String, Cache<K, V>>> entryIterator = entrySet.iterator();
         while (entryIterator.hasNext()) {
             entryIterator.remove();

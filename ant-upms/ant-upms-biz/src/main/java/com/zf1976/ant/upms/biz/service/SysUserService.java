@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.power.common.util.ValidateUtil;
 import com.zf1976.ant.common.component.load.annotation.CaffeineEvict;
 import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
-import com.zf1976.ant.common.component.load.annotation.Space;
+import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.component.mail.ValidateFactory;
 import com.zf1976.ant.common.component.mail.ValidateService;
 import com.zf1976.ant.upms.biz.config.FileProperties;
@@ -89,7 +89,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param requestPage request page
      * @return /
      */
-    @CaffeinePut(namespace = Space.USER, key = "#requestPage", dynamicsKey = true)
+    @CaffeinePut(namespace = Namespace.USER, key = "#requestPage", dynamicsKey = true)
     public IPage<UserVO> selectUserPage(RequestPage<UserQueryParam> requestPage) {
         Assert.notNull(requestPage, "request page can not been null");
         IPage<SysUser> sourcePage;
@@ -278,7 +278,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param dto dto
      * @return /
      */
-    @CaffeineEvict(namespace =  Space.USER)
+    @CaffeineEvict(namespace =  Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateEmail(String code, UpdateEmailDTO dto) {
 
@@ -325,7 +325,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param dto dto
      * @return /
      */
-    @CaffeineEvict(namespace = Space.USER)
+    @CaffeineEvict(namespace = Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateInfo(UpdateInfoDTO dto) {
         SysUser sysUser = super.lambdaQuery()
@@ -361,7 +361,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param dto dto
      * @return /
      */
-    @CaffeineEvict(namespace =  Space.USER)
+    @CaffeineEvict(namespace =  Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> saveUser(UserDTO dto) {
         this.validatePhone(dto.getPhone());
@@ -401,7 +401,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param dto dto
      * @return /
      */
-    @CaffeineEvict(namespace =  Space.USER)
+    @CaffeineEvict(namespace =  Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateUser(UserDTO dto) {
         this.validatePhone(dto.getPhone());
@@ -485,7 +485,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param ids ids
      * @return /
      */
-    @CaffeineEvict(namespace =  Space.USER)
+    @CaffeineEvict(namespace =  Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deleteUser(Set<Long> ids) {
         if (SecurityContextHolder.isSuperAdmin()) {

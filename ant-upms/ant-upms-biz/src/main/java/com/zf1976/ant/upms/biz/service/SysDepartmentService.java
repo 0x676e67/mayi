@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.zf1976.ant.common.component.load.annotation.CaffeineEvict;
 import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
-import com.zf1976.ant.common.component.load.annotation.Space;
+import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.core.foundation.exception.BadBusinessException;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
 import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
@@ -47,7 +47,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      * @param requestPage page param
      * @return dept list page
      */
-    @CaffeinePut(namespace = Space.DEPARTMENT, key = "#requestPage")
+    @CaffeinePut(namespace = Namespace.DEPARTMENT, key = "#requestPage")
     public IPage<DepartmentVO> selectDeptPage(RequestPage<DeptQueryParam> requestPage) {
         IPage<SysDepartment> sourcePage = super.queryChain()
                                                .setQueryParam(requestPage)
@@ -61,7 +61,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      * @param id dept id
      * @return 满足前提条件的部门树
      */
-    @CaffeinePut(namespace = Space.DEPARTMENT, key = "#id")
+    @CaffeinePut(namespace = Namespace.DEPARTMENT, key = "#id")
     public IPage<DepartmentVO> selectDeptVertex(Long id) {
         // 记录是否存在
         super.lambdaQuery()
@@ -161,7 +161,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      * @param dto dto
      * @return /
      */
-    @CaffeineEvict(namespace = Space.DEPARTMENT, dependsOn = {Space.ROLE, Space.USER})
+    @CaffeineEvict(namespace = Namespace.DEPARTMENT, dependsOn = {Namespace.ROLE, Namespace.USER})
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> savaDept(DepartmentDTO dto) {
         // 确认部门是否存在
@@ -185,7 +185,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      * @param dto dto
      * @return /
      */
-    @CaffeineEvict(namespace = Space.DEPARTMENT, dependsOn = {Space.ROLE, Space.USER})
+    @CaffeineEvict(namespace = Namespace.DEPARTMENT, dependsOn = {Namespace.ROLE, Namespace.USER})
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateDept(DepartmentDTO dto) {
 
@@ -258,7 +258,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      * @param ids ids
      * @return /
      */
-    @CaffeineEvict(namespace = Space.DEPARTMENT,dependsOn = {Space.ROLE, Space.USER})
+    @CaffeineEvict(namespace = Namespace.DEPARTMENT,dependsOn = {Namespace.ROLE, Namespace.USER})
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deleteDeptList(Set<Long> ids) {
         final Set<Long> treeIds = this.collectCurrentDeptTreeIds(ids, HashSet::new);

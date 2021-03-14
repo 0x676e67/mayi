@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
 import com.zf1976.ant.common.component.load.annotation.CaffeineEvict;
-import com.zf1976.ant.common.component.load.annotation.Space;
+import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.upms.biz.pojo.po.SysPosition;
 import com.zf1976.ant.upms.biz.pojo.po.SysUser;
 import com.zf1976.ant.upms.biz.convert.SysPositionConvert;
@@ -53,7 +53,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
      * @param requestPage page param
      * @return job list
      */
-    @CaffeinePut(namespace = Space.JOB, key = "#requestPage")
+    @CaffeinePut(namespace = Namespace.JOB, key = "#requestPage")
     public IPage<PositionVO> selectPositionPage(RequestPage<PositionQueryParam> requestPage) {
         IPage<SysPosition> sourcePage = this.queryChain()
                                             .setQueryParam(requestPage)
@@ -83,7 +83,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
      * @param dto dto
      * @return /
      */
-    @CaffeineEvict(namespace = Space.JOB, dependsOn = "user")
+    @CaffeineEvict(namespace = Namespace.JOB, dependsOn = "user")
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> savePosition(PositionDTO dto) {
         super.lambdaQuery()
@@ -106,7 +106,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
      * @param dto dto
      * @return /
      */
-    @CaffeineEvict(namespace = Space.JOB, dependsOn = "user")
+    @CaffeineEvict(namespace = Namespace.JOB, dependsOn = "user")
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updatePosition(PositionDTO dto) {
         // 查询更新岗位是否存在
@@ -136,7 +136,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
      * @param ids id collection
      * @return /
      */
-    @CaffeineEvict(namespace = Space.JOB, dependsOn = "user")
+    @CaffeineEvict(namespace = Namespace.JOB, dependsOn = "user")
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deletePositionList(Set<Long> ids) {
         super.deleteByIds(ids);

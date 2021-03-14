@@ -1,5 +1,7 @@
 package com.zf1976.ant.common.component.load.annotation;
 
+import com.zf1976.ant.common.component.load.enums.CacheRelation;
+
 import java.lang.annotation.*;
 
 /**
@@ -36,4 +38,10 @@ public @interface CaffeinePut {
      * @return time
      */
     long expired() default -1;
+
+    /**
+     * 缓存实现
+     * @return relation
+     */
+    CacheRelation relation() default CacheRelation.CAFFEINE;
 }

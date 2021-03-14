@@ -1,13 +1,16 @@
 package com.zf1976.ant.gateway.config;
 
-import com.zf1976.ant.common.core.property.SecurityProperties;
+import com.zf1976.ant.common.core.constants.KeyConstants;
+import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.gateway.filter.Oauth2TokenAuthenticationFilter;
-import com.zf1976.ant.gateway.manager.GatewayReactiveAuthorizationManager;
+import com.zf1976.ant.gateway.filter.manager.GatewayReactiveAuthorizationManager;
 import com.zf1976.ant.gateway.properties.AuthProperties;
+import lombok.experimental.SuperBuilder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -22,7 +25,10 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
 import reactor.core.publisher.Mono;
 
-import java.util.Arrays;
+import java.awt.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -31,18 +37,19 @@ import java.util.Arrays;
  **/
 @Configuration
 @EnableWebFluxSecurity
+@SuppressWarnings("all")
 public class ResourceServerSecurityConfigurer {
 
     private final ReactiveAuthorizationManager<AuthorizationContext> reactiveAuthorizationManager;
     private final AuthProperties properties;
-    private final SecurityProperties securityProperties;
+    private final RedisTemplate<String, Map> redisTemplate;
 
     public ResourceServerSecurityConfigurer(GatewayReactiveAuthorizationManager reactiveAuthenticationManager,
                                             AuthProperties properties,
-                                            SecurityProperties securityProperties) {
+                                            RedisTemplate mapRedisTemplate) {
         this.reactiveAuthorizationManager = reactiveAuthenticationManager;
         this.properties = properties;
-        this.securityProperties = securityProperties;
+        this.redisTemplate = mapRedisTemplate;
     }
 
     @Bean
@@ -68,7 +75,7 @@ public class ResourceServerSecurityConfigurer {
                                    .jwkSetUri(properties.getJwkSetUri());
                         }).bearerTokenConverter(new ServerBearerTokenAuthenticationConverter());
                     })
-                    .addFilterBefore(new Oauth2TokenAuthenticationFilter(Arrays.asList(this.securityProperties.getIgnoreUri()),
+                    .addFilterBefore(new Oauth2TokenAuthenticationFilter(this.IgnoreUri(),
                                     properties.getJwtCheckUri()),
                             SecurityWebFiltersOrder.HTTP_BASIC);
         return httpSecurity.build();
@@ -81,6 +88,11 @@ public class ResourceServerSecurityConfigurer {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
         return new ReactiveJwtAuthenticationConverterAdapter(jwtAuthenticationConverter);
+    }
+
+    private List<String> IgnoreUri(){
+        Map map = this.redisTemplate.opsForValue().get(Namespace.DYNAMIC);
+        return List.class.cast(map.get(KeyConstants.ALLOW));
     }
 
 }

@@ -3,8 +3,8 @@ package com.zf1976.ant.auth.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.power.common.util.StringUtil;
 import com.zf1976.ant.common.core.util.SpringContextHolder;
-import com.zf1976.ant.common.security.SecurityContextHolder;
-import com.zf1976.ant.common.core.property.SecurityProperties;
+import com.zf1976.ant.auth.SecurityContextHolder;
+import com.zf1976.ant.common.security.SecurityProperties;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +61,7 @@ public class Oauth2TokenAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        // 查询token
+        // 校验token
         try {
             OAuth2AccessToken oAuth2AccessToken = this.tokenStore.readAccessToken(accessToken);
             if (oAuth2AccessToken == null) {

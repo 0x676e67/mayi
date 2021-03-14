@@ -33,4 +33,7 @@ project(':ant-upms:ant-upms-biz').projectDir = file('ant-upms/ant-upms-biz')
 project(':ant-upms:ant-upms-api').projectDir = file('ant-upms/ant-upms-api')
 project(':ant-upms:ant-upms-dao').projectDir = file('ant-upms/ant-upms-dao')
 project(':ant-visual:ant-visual-monitor').projectDir = file('ant-visual/ant-visual-monitor')
+include 'ant-common:ant-common-feign'
+findProject(':ant-common:ant-common-feign')?.name = 'ant-common-feign'
+project(':ant-common:ant-common-feign').projectDir = file('ant-common/ant-common-feign')
 

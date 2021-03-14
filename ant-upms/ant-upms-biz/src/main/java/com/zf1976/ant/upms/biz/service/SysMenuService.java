@@ -3,7 +3,7 @@ package com.zf1976.ant.upms.biz.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.common.component.load.annotation.CaffeineEvict;
 import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
-import com.zf1976.ant.common.component.load.annotation.Space;
+import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.upms.biz.pojo.po.SysMenu;
 import com.zf1976.ant.upms.biz.convert.SysMenuConvert;
 import com.zf1976.ant.upms.biz.dao.SysMenuDao;
@@ -165,7 +165,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
      * @param requestPage request page
      * @return page
      */
-    @CaffeinePut(namespace = Space.MENU, key = "#requestPage")
+    @CaffeinePut(namespace = Namespace.MENU, key = "#requestPage")
     public IPage<MenuVO> selectMenuPage(RequestPage<MenuQueryParam> requestPage) {
         final IPage<SysMenu> sourcePage = super.queryChain()
                                                .setQueryParam(requestPage)
@@ -234,7 +234,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
      * @param id id
      * @return 满足前提条件的菜单树
      */
-    @CaffeinePut(namespace = Space.MENU, key = "#id")
+    @CaffeinePut(namespace = Namespace.MENU, key = "#id")
     public IPage<MenuVO> selectMenuVertex(Long id) {
         super.lambdaQuery()
              .eq(SysMenu::getId, id)
@@ -262,7 +262,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
      * @param dto dtp
      * @return /
      */
-    @CaffeineEvict(namespace = Space.MENU, dependsOn = Space.ROLE)
+    @CaffeineEvict(namespace = Namespace.MENU, dependsOn = Namespace.ROLE)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> saveMenu(MenuDTO dto) {
         // 是否存在匹配菜单类型
@@ -304,7 +304,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
      * @param dto dto
      * @return /
      */
-    @CaffeineEvict(namespace = Space.MENU, dependsOn = Space.ROLE)
+    @CaffeineEvict(namespace = Namespace.MENU, dependsOn = Namespace.ROLE)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateMenu(MenuDTO dto) {
         // 是否存在匹配菜单类型
@@ -388,7 +388,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
      * @param ids id collection
      * @return /
      */
-    @CaffeineEvict(namespace = Space.MENU, dependsOn = Space.ROLE)
+    @CaffeineEvict(namespace = Namespace.MENU, dependsOn = Namespace.ROLE)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deleteMenuList(Set<Long> ids){
         final Set<Long> treeIds = this.collectCurrentMenuTreeIds(ids, new CopyOnWriteArraySet<>());
