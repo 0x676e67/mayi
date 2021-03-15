@@ -69,9 +69,7 @@ public class ResultData<T> {
      */
     public static <E> ResultData<E> success(E data) {
         ResultData<E> vo = new ResultData<>();
-        if (!ObjectUtils.isEmpty(data)) {
-            vo.setData(data);
-        }
+        vo.setData(data);
         vo.setSuccess(true);
         vo.setStatus(200);
         vo.setPath(getUri());
@@ -114,7 +112,7 @@ public class ResultData<T> {
      * 返回失败消息
      * @return 响应对象
      */
-    public static ResultData fail() {
+    public static <E> ResultData fail() {
         return fail((String) null);
     }
 
@@ -123,7 +121,7 @@ public class ResultData<T> {
      * @param errMsg 失败消息
      * @return 响应对象
      */
-    public static ResultData fail(String errMsg) {
+    public static <E> ResultData fail(String errMsg) {
         return fail(500, errMsg);
     }
 
@@ -133,11 +131,12 @@ public class ResultData<T> {
      * @param errCode 错误码
      * @return 响应对象
      */
-    public static ResultData fail(int errCode, String errMsg) {
-        ResultData vo = new ResultData();
+    public static <E> ResultData fail(int errCode, String errMsg) {
+        ResultData<E> vo = new ResultData<>();
         vo.setSuccess(false);
         vo.setErrCode(errCode);
         vo.setErrMsg(errMsg);
+        vo.setData(null);
         vo.setPath(getUri());
         vo.setTimestamp(DateTimeUtil.nowStrTime());
         return vo;
@@ -149,11 +148,12 @@ public class ResultData<T> {
      * @param httpStatus status
      * @return /
      */
-    public static ResultData fail(HttpStatus httpStatus) {
-        ResultData vo = new ResultData();
+    public static <E> ResultData fail(HttpStatus httpStatus) {
+        ResultData<E> vo = new ResultData<>();
         vo.setSuccess(false);
         vo.setErrCode(httpStatus.value());
         vo.setErrMsg(httpStatus.getReasonPhrase());
+        vo.setData(null);
         vo.setPath(getUri());
         vo.setTimestamp(DateTimeUtil.nowStrTime());
         return vo;

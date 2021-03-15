@@ -20,4 +20,8 @@ public interface GatewayRouteConstants {
      * 自定义路由
      */
     String CUSTOMER_ROUTE = "/service/v1/**";
+
+    String ADMIN_ROUTE_PREFIX = "/admin/v1";
+
+    String TEST_PREFIX = "/api";
 }

@@ -8,6 +8,9 @@ import com.zf1976.ant.auth.filter.manager.DynamicAccessDecisionManager;
 import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.auth.service.DynamicDataSourceService;
 import com.zf1976.ant.common.security.SecurityProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.SecurityMetadataSource;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
@@ -34,6 +37,7 @@ import java.util.stream.Stream;
  **/
 public class DynamicSecurityFilter extends AbstractSecurityInterceptor implements Filter {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final SecurityProperties securityConfig;
     private final DynamicDataSourceService dynamicDataSourceService;
 
@@ -47,6 +51,13 @@ public class DynamicSecurityFilter extends AbstractSecurityInterceptor implement
     public void checkState() {
         Assert.notNull(this.securityConfig, "security config cannot been null");
         Assert.notNull(this.dynamicDataSourceService, "dynamicDataSourceService cannot been null");
+        this.init();
+    }
+
+    private void init(){
+        this.dynamicDataSourceService.getAllowUri();
+        this.dynamicDataSourceService.loadDataSource();
+        logger.info("Dynamic data sources rely on initialization！");
     }
 
     @Override

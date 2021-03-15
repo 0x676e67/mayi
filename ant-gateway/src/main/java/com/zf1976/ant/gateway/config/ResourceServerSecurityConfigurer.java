@@ -5,31 +5,30 @@ import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.gateway.filter.Oauth2TokenAuthenticationFilter;
 import com.zf1976.ant.gateway.filter.manager.GatewayReactiveAuthorizationManager;
 import com.zf1976.ant.gateway.properties.AuthProperties;
-import lombok.experimental.SuperBuilder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.authorization.ReactiveAuthorizationManager;
+import org.springframework.security.authentication.AbstractUserDetailsReactiveAuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
+import org.springframework.security.oauth2.server.resource.web.access.server.BearerTokenServerAccessDeniedHandler;
+import org.springframework.security.oauth2.server.resource.web.server.BearerTokenServerAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.server.ServerBearerTokenAuthenticationConverter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.authorization.AuthorizationContext;
 import reactor.core.publisher.Mono;
 
-import java.awt.*;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 
 /**
  * @author mac
@@ -40,14 +39,11 @@ import java.util.Set;
 @SuppressWarnings("all")
 public class ResourceServerSecurityConfigurer {
 
-    private final ReactiveAuthorizationManager<AuthorizationContext> reactiveAuthorizationManager;
     private final AuthProperties properties;
     private final RedisTemplate<String, Map> redisTemplate;
 
-    public ResourceServerSecurityConfigurer(GatewayReactiveAuthorizationManager reactiveAuthenticationManager,
-                                            AuthProperties properties,
+    public ResourceServerSecurityConfigurer(AuthProperties properties,
                                             RedisTemplate mapRedisTemplate) {
-        this.reactiveAuthorizationManager = reactiveAuthenticationManager;
         this.properties = properties;
         this.redisTemplate = mapRedisTemplate;
     }
@@ -66,8 +62,12 @@ public class ResourceServerSecurityConfigurer {
                     .authorizeExchange(authorizeExchangeSpec -> {
                         authorizeExchangeSpec.pathMatchers("/actuator/**","/oauth/**").permitAll()
                                              .anyExchange()
-                                             // 自定义授权处理
-                                             .access(this.reactiveAuthorizationManager);
+                                             // 自定义访问授权处理
+                                             .access(new GatewayReactiveAuthorizationManager(redisTemplate, this.IgnoreUri()))
+                                             .and()
+                                             .exceptionHandling()
+                                             .accessDeniedHandler(new BearerTokenServerAccessDeniedHandler())
+                                             .authenticationEntryPoint(new BearerTokenServerAuthenticationEntryPoint());
                     })
                     .oauth2ResourceServer(oAuth2ResourceServerSpec -> {
                         oAuth2ResourceServerSpec.jwt(jwtSpec -> {
@@ -75,8 +75,7 @@ public class ResourceServerSecurityConfigurer {
                                    .jwkSetUri(properties.getJwkSetUri());
                         }).bearerTokenConverter(new ServerBearerTokenAuthenticationConverter());
                     })
-                    .addFilterBefore(new Oauth2TokenAuthenticationFilter(this.IgnoreUri(),
-                                    properties.getJwtCheckUri()),
+                    .addFilterBefore(new Oauth2TokenAuthenticationFilter(properties.getJwtCheckUri()),
                             SecurityWebFiltersOrder.HTTP_BASIC);
         return httpSecurity.build();
     }
