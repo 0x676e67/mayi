@@ -42,8 +42,8 @@ public class RedisConfig extends CachingConfigurerSupport {
     }
 
     @Bean
-    public RedisTemplate<String, Map> mapRedisTemplate(RedisConnectionFactory factory) {
-        RedisTemplate<String, Map> template = new RedisTemplate<>();
+    public RedisTemplate<Object, Map<Object, Object>> mapRedisTemplate(RedisConnectionFactory factory) {
+        RedisTemplate<Object, Map<Object, Object>> template = new RedisTemplate<>();
         template.setConnectionFactory(factory);
         template.setKeySerializer(new StringRedisSerializer());
         template.setValueSerializer(new Jackson2JsonRedisSerializer(Object.class));

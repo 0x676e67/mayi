@@ -30,11 +30,11 @@ import java.util.stream.Collectors;
 @SuppressWarnings("rawtypes")
 public class GatewayReactiveAuthorizationManager implements ReactiveAuthorizationManager<AuthorizationContext> {
 
-    private final RedisTemplate<String, Map> redisTemplate;
+    private final RedisTemplate<Object, Map<Object, Object>> redisTemplate;
     private Collection<String> ignoreUri;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
-    public GatewayReactiveAuthorizationManager(RedisTemplate<String, Map> redisTemplate,
+    public GatewayReactiveAuthorizationManager(RedisTemplate<Object, Map<Object, Object>> redisTemplate,
                                                Collection<String> ignoreUri) {
         this.redisTemplate = redisTemplate;
         this.ignoreUri = ignoreUri;

@@ -2,8 +2,6 @@ package com.zf1976.ant.common.component.load.impl;
 
 import com.zf1976.ant.common.component.load.ICache;
 import org.springframework.data.redis.core.RedisTemplate;
-
-import java.lang.reflect.MalformedParameterizedTypeException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -13,12 +11,11 @@ import java.util.function.Supplier;
  * @author mac
  * @date 2021/3/14
  **/
-@SuppressWarnings("all")
 public class RedisCacheProvider<K, V> implements ICache<K, V> {
 
-    private final RedisTemplate<String, Map> redisTemplate;
+    private final RedisTemplate<Object, Map<Object, Object>> redisTemplate;
 
-    public RedisCacheProvider(RedisTemplate<String, Map> redisTemplate) {
+    public RedisCacheProvider(RedisTemplate<Object, Map<Object, Object>> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
@@ -89,10 +86,12 @@ public class RedisCacheProvider<K, V> implements ICache<K, V> {
         throw new UnsupportedClassVersionError();
     }
 
+    @SuppressWarnings("unchecked")
     private void saveCacheSpace(String namespace, Map<K, V> kvMap, Long expired) {
         this.redisTemplate.opsForValue()
                           .set(namespace,
-                                  kvMap, expired == null || expired <0 ? CACHE_PROPERTY_CONFIG.getExpireAlterWrite() : expired,
+                                  (Map<Object, Object>) kvMap,
+                                  expired == null || expired <0 ? CACHE_PROPERTY_CONFIG.getExpireAlterWrite() : expired,
                                   TimeUnit.MINUTES);
     }
 
@@ -100,10 +99,9 @@ public class RedisCacheProvider<K, V> implements ICache<K, V> {
         this.saveCacheSpace(namespace, kvMap, CACHE_PROPERTY_CONFIG.getExpireAlterWrite());
     }
 
+    @SuppressWarnings("unchecked")
     private Map<K, V> getCacheSpace(String namespace) {
-        Map map = this.redisTemplate.opsForValue()
-                                    .get(namespace);
-        return map;
+        return (Map<K, V>) this.redisTemplate.opsForValue().get(namespace);
     }
 
     private V getValue(Map<K, V> kvMap,K k,Supplier<V> supplier) {

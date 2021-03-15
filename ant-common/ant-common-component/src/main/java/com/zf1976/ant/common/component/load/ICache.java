@@ -12,7 +12,6 @@ import java.util.function.Supplier;
  */
 public interface ICache<K, V> {
 
-
     /**
      * 缓存配置
      */

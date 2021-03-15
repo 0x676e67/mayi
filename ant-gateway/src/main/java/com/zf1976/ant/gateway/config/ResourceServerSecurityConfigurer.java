@@ -40,7 +40,7 @@ import java.util.Map;
 public class ResourceServerSecurityConfigurer {
 
     private final AuthProperties properties;
-    private final RedisTemplate<String, Map> redisTemplate;
+    private final RedisTemplate<Object, Map<Object, Object>> redisTemplate;
 
     public ResourceServerSecurityConfigurer(AuthProperties properties,
                                             RedisTemplate mapRedisTemplate) {
@@ -90,7 +90,7 @@ public class ResourceServerSecurityConfigurer {
     }
 
     private List<String> IgnoreUri(){
-        Map map = this.redisTemplate.opsForValue().get(Namespace.DYNAMIC);
+        Map<Object, Object> map = this.redisTemplate.opsForValue().get(Namespace.DYNAMIC);
         return List.class.cast(map.get(KeyConstants.ALLOW));
     }
 
