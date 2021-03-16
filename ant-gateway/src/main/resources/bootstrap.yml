@@ -15,14 +15,14 @@ spring:
           lower-case-service-id: true # 设置路由的路径为小写的服务ID
       routes:
         - id: ant-auth
-          uri: http://localhost:9000
+          uri: lb://ant-auth
           predicates:
              - Path=/api/oauth/**
           filters:
             - PrefixPath=1
 
         - id: ant-upms-bzi
-          uri: http://localhost:8080
+          uri: lb://ant-upms-bzi
           predicates:
             - Path=/admin/v1/**
           filters:
