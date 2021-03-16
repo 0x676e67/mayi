@@ -30,12 +30,11 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j(topic = "[cache]")
 @Aspect
 @Component
-@SuppressWarnings("rawtypes")
 public class LoadCacheAspect {
 
     private final SpringElExpressionHandler handler;
-    private Map<CacheRelation,ICache<Object, Object>> cacheProviderMap;
-    public LoadCacheAspect(RedisTemplate<String, Map> mapRedisTemplate) {
+    private Map<CacheRelation, ICache<Object, Object>> cacheProviderMap;
+    public LoadCacheAspect(RedisTemplate<Object, Map<Object, Object>> mapRedisTemplate) {
         cacheProviderMap = new ConcurrentHashMap<>();
         cacheProviderMap.put(CacheRelation.CAFFEINE, new CaffeineCacheProvider<>());
         cacheProviderMap.put(CacheRelation.REDIS, new RedisCacheProvider<>(mapRedisTemplate));
@@ -80,8 +79,8 @@ public class LoadCacheAspect {
     public Object removeCache(ProceedingJoinPoint joinPoint, CaffeineEvict annotation) throws Throwable {
         Method method = this.handler.filterMethod(joinPoint);
         Object[] joinPointArgs = joinPoint.getArgs();
-        String namespace = annotation.namespace();
         String[] dependOnNamespace = annotation.dependsOn();
+        String namespace = annotation.namespace();
         ICache<Object, Object> cacheProvider = this.getCacheProvider(annotation.relation());
         if (StringUtil.isEmpty(annotation.key())) {
             Arrays.stream(dependOnNamespace)
