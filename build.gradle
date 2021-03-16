@@ -1,15 +1,26 @@
+buildscript {
+    apply from: this.rootProject.file('gradle.properties')
+}
+
+plugins {
+    id 'org.springframework.boot' version "${springbootVersion}"
+    id 'io.spring.dependency-management' version "${springDependencyManagerVersion}"
+    id 'java'
+}
+
 configurations.all() {
     Configuration configuration ->({
         // 遇到版本冲突时直接构建失败
         configuration.resolutionStrategy.failOnVersionConflict()
     })
 }
+
 allprojects {
     apply plugin: 'java'
     apply plugin: 'maven'
-    apply from: this.rootProject.file('config.gradle')
     apply from: this.rootProject.file('gradle.properties')
-
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
     group = 'com.zf1976'
     version = '0.0.1-SNAPSHOT'
 
@@ -32,7 +43,6 @@ subprojects {
          }
          mavenCentral()
      }
-
      dependencies {
          implementation 'com.github.shalousun:common-util:1.9.2'
          implementation 'com.google.guava:guava:30.0-jre'

@@ -8,5 +8,5 @@ ext{
 dependencies {
     implementation project(':ant-common:ant-common-core')
     implementation "com.github.oshi:oshi-core:${oshiCoreVersion}"
-    implementation "org.springframework.boot:spring-boot-starter-websocket:${springbootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-websocket"
 }

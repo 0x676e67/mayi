@@ -4,8 +4,8 @@ ext{
 }
 dependencies {
     implementation("redis.clients:jedis:${jedisVersion}")
-    implementation("org.springframework.boot:spring-boot-starter-cache:${springbootVersion}")
-    implementation("org.springframework.boot:spring-boot-starter-data-redis:${springbootVersion}")
+    implementation("org.springframework.boot:spring-boot-starter-cache")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
 }
 
 test {

@@ -7,7 +7,7 @@ ext{
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-web:${springbootVersion}")
+    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.baomidou:dynamic-datasource-spring-boot-starter:${dynamicDataSourceVersion}")
     implementation("com.baomidou:mybatis-plus-boot-starter:${mybatisPlusVersion}")
     implementation("com.alibaba:druid-spring-boot-starter:${druidVersion}")

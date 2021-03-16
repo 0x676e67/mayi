@@ -21,9 +21,9 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-api:${jwtVersion}")
     implementation("io.jsonwebtoken:jjwt-impl:${jwtVersion}")
     implementation("io.jsonwebtoken:jjwt-jackson:${jwtVersion}")
-    implementation("org.springframework.boot:spring-boot-starter-web:${springbootVersion}")
-    implementation("org.springframework.boot:spring-boot-starter-security:${springbootVersion}")
-    implementation("org.springframework.boot:spring-boot-starter-data-redis:${springbootVersion}")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("com.baomidou:mybatis-plus-boot-starter:${mybatisPlusVersion}")
 }
 

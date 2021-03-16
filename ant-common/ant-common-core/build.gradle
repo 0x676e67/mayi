@@ -1,10 +1,10 @@
 
 dependencies {
     implementation("javax.servlet:javax.servlet-api:3.1.0")
-    implementation("org.springframework.boot:spring-boot-starter-json:${springbootVersion}")
-    implementation("org.springframework.boot:spring-boot-starter-cache:${springbootVersion}")
-    implementation("org.springframework.boot:spring-boot-starter-data-redis:${springbootVersion}")
-    implementation("org.springframework.boot:spring-boot-configuration-processor:${springbootVersion}")
+    implementation("org.springframework.boot:spring-boot-starter-json")
+    implementation("org.springframework.boot:spring-boot-starter-cache")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation("org.springframework.boot:spring-boot-configuration-processor")
     implementation("org.apache.httpcomponents:httpasyncclient:4.1.4")
     implementation("eu.bitwalker:UserAgentUtils:1.21")
 }

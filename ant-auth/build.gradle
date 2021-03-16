@@ -1,9 +1,3 @@
-plugins {
-    id 'org.springframework.boot' version "${springPluginVersion}"
-    id 'io.spring.dependency-management' version "${springDependencyManagerVersion}"
-    id 'java'
-}
-
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
