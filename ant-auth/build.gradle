@@ -1,13 +1,16 @@
+plugins {
+    id 'org.springframework.boot' version "${springbootVersion}"
+    id 'io.spring.dependency-management' version "${springDependencyManagerVersion}"
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
 }
 ext {
-    set('springCloudVersion', "Hoxton.SR9")
     jwtVersion = "0.11.1"
 }
-
 
 dependencies {
     implementation project(':ant-common:ant-common-core')

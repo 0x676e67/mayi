@@ -5,6 +5,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.stereotype.Repository;
+import sun.misc.Unsafe;
+
+import java.lang.reflect.Field;
 
 /**
  * @author mac
@@ -16,7 +19,20 @@ import org.springframework.stereotype.Repository;
 public class AuthApplication {
 
     public static void main(String[] args) {
+        disableWarning();
         SpringApplication.run(AuthApplication.class, args);
     }
 
+    public static void disableWarning() {
+        try {
+            Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+            theUnsafe.setAccessible(true);
+            Unsafe unsafe = (Unsafe) theUnsafe.get(null);
+            Class<?> cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
+            Field logger = cls.getDeclaredField("logger");
+            unsafe.putObjectVolatile(cls, unsafe.staticFieldOffset(logger), null);
+        } catch (NoSuchFieldException | IllegalAccessException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 }

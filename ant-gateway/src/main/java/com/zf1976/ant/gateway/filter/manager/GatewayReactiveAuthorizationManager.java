@@ -5,7 +5,6 @@ import com.power.common.util.StringUtil;
 import com.zf1976.ant.common.core.constants.KeyConstants;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.gateway.GatewayRouteConstants;
-import com.zf1976.ant.gateway.filter.Oauth2TokenAuthenticationFilter;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.server.reactive.ServerHttpRequest;

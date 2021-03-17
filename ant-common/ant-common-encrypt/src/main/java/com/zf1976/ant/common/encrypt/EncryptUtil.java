@@ -2,7 +2,6 @@ package com.zf1976.ant.common.encrypt;
 
 import com.power.common.util.AESUtil;
 import com.power.common.util.StringUtil;
-import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
 import com.zf1976.ant.common.encrypt.config.AesProperties;
 import com.zf1976.ant.common.encrypt.config.RsaProperties;
 

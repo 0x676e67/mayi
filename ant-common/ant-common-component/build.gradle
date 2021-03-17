@@ -6,10 +6,10 @@
 dependencies {
     implementation project(':ant-common:ant-common-core')
     implementation project(':ant-common:ant-common-encrypt')
-    implementation("org.springframework.boot:spring-boot-starter-data-redis")
-    implementation("org.springframework.boot:spring-boot-starter-mail")
-    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
-    implementation("org.springframework.boot:spring-boot-starter-aop")
-    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis:${springbootVersion}")
+    implementation("org.springframework.boot:spring-boot-starter-mail:${springbootVersion}")
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf:${springbootVersion}")
+    implementation("org.springframework.boot:spring-boot-starter-aop:${springbootVersion}")
+    implementation("org.springframework.boot:spring-boot-starter-security:${springbootVersion}")
     implementation("com.baomidou:mybatis-plus-boot-starter:${mybatisPlusVersion}")
 }

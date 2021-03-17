@@ -1,3 +1,8 @@
+plugins {
+    id 'org.springframework.boot' version "${springbootVersion}"
+    id 'io.spring.dependency-management' version "${springDependencyManagerVersion}"
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
@@ -17,7 +22,6 @@ dependencies {
     implementation "org.springframework.security:spring-security-config"
     implementation "org.springframework.boot:spring-boot-starter-test"
     implementation "org.springframework.boot:spring-boot-starter-data-redis"
-    implementation "org.springframework.cloud:spring-cloud-starter-openfeign"
     implementation "com.alibaba.cloud:spring-cloud-alibaba-dependencies:${nacosVersion}"
     implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery:${nacosVersion}"
     implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config:${nacosVersion}"

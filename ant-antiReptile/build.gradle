@@ -1,3 +1,7 @@
+plugins {
+    id 'org.springframework.boot' version "${springbootVersion}"
+    id 'io.spring.dependency-management' version "${springDependencyManagerVersion}"
+}
 
 group 'com.zf1976'
 version '0.0.1-SNAPSHOT'

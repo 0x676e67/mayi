@@ -1,10 +1,6 @@
 package com.zf1976.ant.gateway.filter;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.power.common.model.CommonResult;
-import com.zf1976.ant.common.core.foundation.ResultData;
-import com.zf1976.ant.gateway.GatewayRouteConstants;
 import com.zf1976.ant.gateway.util.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,9 +16,6 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrors;
-import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ServerWebExchange;

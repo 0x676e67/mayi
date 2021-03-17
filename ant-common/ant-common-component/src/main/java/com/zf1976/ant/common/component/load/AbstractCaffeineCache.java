@@ -2,8 +2,6 @@ package com.zf1976.ant.common.component.load;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.zf1976.ant.common.core.property.CacheProperties;
-import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

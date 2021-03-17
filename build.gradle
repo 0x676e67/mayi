@@ -1,32 +1,26 @@
-buildscript {
-    apply from: this.rootProject.file('gradle.properties')
-}
-
-plugins {
-    id 'org.springframework.boot' version "${springbootVersion}"
-    id 'io.spring.dependency-management' version "${springDependencyManagerVersion}"
-    id 'java'
-}
 
 configurations.all() {
     Configuration configuration ->({
         // 遇到版本冲突时直接构建失败
         configuration.resolutionStrategy.failOnVersionConflict()
     })
+        resolutionStrategy{
+            // 修改 gradle不自动处理版本冲突
+            failOnVersionConflict()
+        }
+
 }
 
 allprojects {
     apply plugin: 'java'
     apply plugin: 'maven'
     apply from: this.rootProject.file('gradle.properties')
-    apply plugin: 'org.springframework.boot'
-    apply plugin: 'io.spring.dependency-management'
     group = 'com.zf1976'
     version = '0.0.1-SNAPSHOT'
 
     //指定编译版本
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+    sourceCompatibility = 11
+    targetCompatibility = 11
 
     configurations {
         compileOnly {
