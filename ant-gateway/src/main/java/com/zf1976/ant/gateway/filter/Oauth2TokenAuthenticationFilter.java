@@ -2,11 +2,15 @@ package com.zf1976.ant.gateway.filter;
 
 import com.power.common.model.CommonResult;
 import com.zf1976.ant.gateway.util.JsonUtil;
+import io.netty.channel.ChannelOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.lang.NonNull;
@@ -22,9 +26,10 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
 
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,10 +46,15 @@ public class Oauth2TokenAuthenticationFilter implements WebFilter {
             Pattern.CASE_INSENSITIVE);
     private final RestTemplate restTemplate = new RestTemplate();
     private String jwtCheckUrl;
+    private HttpClient httpClient;
 
 
     public Oauth2TokenAuthenticationFilter(String checkTokenUrl) {
         this.jwtCheckUrl = checkTokenUrl + "?token={value}";
+    }
+
+    public void setHttpClient(HttpClient httpClient) {
+        this.httpClient = httpClient;
     }
 
     /**
@@ -60,22 +70,31 @@ public class Oauth2TokenAuthenticationFilter implements WebFilter {
         final ServerHttpRequest request = serverWebExchange.getRequest();
         final ServerHttpResponse response = serverWebExchange.getResponse();
         try {
+
             String token = this.token(request);
             // 无token放行
             if (!StringUtils.isEmpty(token) && !this.checkToken(token)) {
                 BearerTokenError bearerTokenError = this.bearerTokenError();
                 throw new OAuth2AuthenticationException(bearerTokenError);
+            } else {
+                this.getHttpClient();
             }
             return webFilterChain.filter(serverWebExchange);
         } catch (AuthenticationException e) {
             SecurityContextHolder.clearContext();
             return this.exceptionHandler(response, e);
         }
+
     }
 
     public Oauth2TokenAuthenticationFilter setJwtCheckUrl(String jwtCheckUrl) {
         this.jwtCheckUrl = jwtCheckUrl + "?token={value}";
         return this;
+    }
+
+    protected HttpClient getHttpClient() {
+        return this.httpClient.tcpConfiguration((tcpClient) -> tcpClient
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2000));
     }
 
     @SuppressWarnings({"rawtypes"})

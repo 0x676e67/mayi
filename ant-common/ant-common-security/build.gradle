@@ -1,7 +1,3 @@
-plugins {
-    id 'java'
-}
-
 group 'com.zf1976'
 version '0.0.1-SNAPSHOT'
 

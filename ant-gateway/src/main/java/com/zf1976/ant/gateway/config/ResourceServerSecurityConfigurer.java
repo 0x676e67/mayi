@@ -23,6 +23,7 @@ import org.springframework.security.oauth2.server.resource.web.server.BearerToke
 import org.springframework.security.oauth2.server.resource.web.server.ServerBearerTokenAuthenticationConverter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
 
 import java.util.List;
 import java.util.Map;
@@ -38,43 +39,52 @@ public class ResourceServerSecurityConfigurer {
 
     private final AuthProperties properties;
     private final RedisTemplate<Object, Map<Object, Object>> redisTemplate;
+    private final HttpClient gatewayHttpClient;
 
     public ResourceServerSecurityConfigurer(AuthProperties properties,
-                                            RedisTemplate mapRedisTemplate) {
+                                            RedisTemplate mapRedisTemplate,
+                                            HttpClient gatewayHttpClient) {
         this.properties = properties;
         this.redisTemplate = mapRedisTemplate;
+        this.gatewayHttpClient = gatewayHttpClient;
     }
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity httpSecurity) {
-        httpSecurity.httpBasic().disable()
-                    .csrf()
-                    // 关闭csrf
-                    .disable()
-                    // 允许跨域
-                    .cors()
-                    .and()
-                    // 关闭表单登录
-                    .formLogin().disable()
-                    .authorizeExchange(authorizeExchangeSpec -> {
-                        authorizeExchangeSpec.pathMatchers("/actuator/**","/oauth/**").permitAll()
-                                             .anyExchange()
-                                             // 自定义访问授权处理
-                                             .access(new GatewayReactiveAuthorizationManager(redisTemplate, this.IgnoreUri()))
-                                             .and()
-                                             .exceptionHandling()
-                                             .accessDeniedHandler(new BearerTokenServerAccessDeniedHandler())
-                                             .authenticationEntryPoint(new BearerTokenServerAuthenticationEntryPoint());
-                    })
-                    .oauth2ResourceServer(oAuth2ResourceServerSpec -> {
-                        oAuth2ResourceServerSpec.jwt(jwtSpec -> {
-                            jwtSpec.jwtAuthenticationConverter(this.jwtConverter())
-                                   .jwkSetUri(properties.getJwkSetUri());
-                        }).bearerTokenConverter(new ServerBearerTokenAuthenticationConverter());
-                    })
-                    .addFilterBefore(new Oauth2TokenAuthenticationFilter(properties.getJwtCheckUri()),
-                            SecurityWebFiltersOrder.HTTP_BASIC);
-        return httpSecurity.build();
+        Oauth2TokenAuthenticationFilter tokenAuthenticationFilter = new Oauth2TokenAuthenticationFilter(properties.getJwtCheckUri());
+        tokenAuthenticationFilter.setHttpClient(this.gatewayHttpClient);
+        return httpSecurity.httpBasic()
+                           .disable()
+                           .csrf()
+                           // 关闭csrf
+                           .disable()
+                           // 允许跨域
+                           .cors()
+                           .and()
+                           // 关闭表单登录
+                           .formLogin()
+                           .disable()
+                           .authorizeExchange(authorizeExchangeSpec -> {
+                               authorizeExchangeSpec.pathMatchers("/actuator/**", "/oauth/**")
+                                                    .permitAll()
+                                                    .anyExchange()
+                                                    // 自定义访问授权处理
+                                                    .access(new GatewayReactiveAuthorizationManager(redisTemplate, this.IgnoreUri()))
+                                                    .and()
+                                                    .exceptionHandling()
+                                                    .accessDeniedHandler(new BearerTokenServerAccessDeniedHandler())
+                                                    .authenticationEntryPoint(new BearerTokenServerAuthenticationEntryPoint());
+                           })
+                           .oauth2ResourceServer(oAuth2ResourceServerSpec -> {
+                               oAuth2ResourceServerSpec.jwt(jwtSpec -> {
+                                   jwtSpec.jwtAuthenticationConverter(this.jwtConverter())
+                                          .jwkSetUri(properties.getJwkSetUri());
+                               }).bearerTokenConverter(new ServerBearerTokenAuthenticationConverter());
+
+                           })
+                           .addFilterBefore(tokenAuthenticationFilter,
+                                   SecurityWebFiltersOrder.HTTP_BASIC)
+                           .build();
     }
 
     @Bean
