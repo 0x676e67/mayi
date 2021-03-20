@@ -19,8 +19,8 @@ allprojects {
     version = '0.0.1-SNAPSHOT'
 
     //指定编译版本
-    sourceCompatibility = 11
-    targetCompatibility = 11
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 
     configurations {
         compileOnly {

@@ -1,0 +1,10 @@
+server:
+  port: 443
+spring:
+  cloud:
+    nacos:
+      config:
+        server-addr: 139.224.81.120:8848
+        file-extension: yaml
+      discovery:
+        server-addr: 139.224.81.120:8848

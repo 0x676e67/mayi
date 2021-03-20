@@ -3,8 +3,10 @@ package com.zf1976.ant.gateway.filter;
 import com.power.common.model.CommonResult;
 import com.zf1976.ant.gateway.util.JsonUtil;
 import io.netty.channel.ChannelOption;
+import io.netty.handler.codec.http.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cloud.gateway.filter.NettyRoutingFilter;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpHeaders;
@@ -25,11 +27,14 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.netty.NettyOutbound;
 import reactor.netty.http.client.HttpClient;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,20 +50,15 @@ public class Oauth2TokenAuthenticationFilter implements WebFilter {
             "^Bearer (?<token>[a-zA-Z0-9-._~+/]+)=*$",
             Pattern.CASE_INSENSITIVE);
     private final RestTemplate restTemplate = new RestTemplate();
-    private String jwtCheckUrl;
-    private HttpClient httpClient;
+    private final String jwtCheckUrl;
 
 
     public Oauth2TokenAuthenticationFilter(String checkTokenUrl) {
         this.jwtCheckUrl = checkTokenUrl + "?token={value}";
     }
 
-    public void setHttpClient(HttpClient httpClient) {
-        this.httpClient = httpClient;
-    }
-
     /**
-     * 资源服务器必须携带token访问
+     * 资源服务器携带token访问过滤
      *
      * @param serverWebExchange exchange
      * @param webFilterChain filter chain
@@ -70,14 +70,11 @@ public class Oauth2TokenAuthenticationFilter implements WebFilter {
         final ServerHttpRequest request = serverWebExchange.getRequest();
         final ServerHttpResponse response = serverWebExchange.getResponse();
         try {
-
             String token = this.token(request);
             // 无token放行
             if (!StringUtils.isEmpty(token) && !this.checkToken(token)) {
                 BearerTokenError bearerTokenError = this.bearerTokenError();
                 throw new OAuth2AuthenticationException(bearerTokenError);
-            } else {
-                this.getHttpClient();
             }
             return webFilterChain.filter(serverWebExchange);
         } catch (AuthenticationException e) {
@@ -87,15 +84,6 @@ public class Oauth2TokenAuthenticationFilter implements WebFilter {
 
     }
 
-    public Oauth2TokenAuthenticationFilter setJwtCheckUrl(String jwtCheckUrl) {
-        this.jwtCheckUrl = jwtCheckUrl + "?token={value}";
-        return this;
-    }
-
-    protected HttpClient getHttpClient() {
-        return this.httpClient.tcpConfiguration((tcpClient) -> tcpClient
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2000));
-    }
 
     @SuppressWarnings({"rawtypes"})
     private boolean checkToken(String token) {

@@ -1,6 +1,5 @@
 package com.zf1976.ant.gateway.filter.manager;
 
-import com.google.common.collect.Sets;
 import com.power.common.util.StringUtil;
 import com.zf1976.ant.common.core.constants.KeyConstants;
 import com.zf1976.ant.common.core.constants.Namespace;
@@ -23,20 +22,18 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * 授权管理器
  * @author mac
  * @date 2021/2/11
  **/
-@SuppressWarnings("rawtypes")
+@SuppressWarnings({"rawtypes","unchecked"})
 public class GatewayReactiveAuthorizationManager implements ReactiveAuthorizationManager<AuthorizationContext> {
 
     private final RedisTemplate<Object, Map<Object, Object>> redisTemplate;
-    private Collection<String> ignoreUri;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
-    public GatewayReactiveAuthorizationManager(RedisTemplate<Object, Map<Object, Object>> redisTemplate,
-                                               Collection<String> ignoreUri) {
+    public GatewayReactiveAuthorizationManager(RedisTemplate<Object, Map<Object, Object>> redisTemplate) {
         this.redisTemplate = redisTemplate;
-        this.ignoreUri = ignoreUri;
     }
 
     @Override
@@ -49,12 +46,12 @@ public class GatewayReactiveAuthorizationManager implements ReactiveAuthorizatio
         }
         // 白名单放行
         String requestUri = this.getRequestUri(request);
-        for (String ignored : ignoreUri) {
+        for (String ignored : this.ignoreUri()) {
             if (pathMatcher.match(ignored, requestUri)) {
                 return Mono.just(new AuthorizationDecision(true));
             }
         }
-        // 认证中心路由放行
+        // 确保未配置情况下 认证中心放行
         if (pathMatcher.match(GatewayRouteConstants.AUTH_ROUTE, requestUri)) {
             return Mono.just(new AuthorizationDecision(true));
         }
@@ -70,7 +67,7 @@ public class GatewayReactiveAuthorizationManager implements ReactiveAuthorizatio
         return mono.filter(Authentication::isAuthenticated)
                    .flatMapIterable(Authentication::getAuthorities)
                    .map(GrantedAuthority::getAuthority)
-                   .any(permissionSet::contains)
+                   .all(permissionSet::contains)
                    .map(AuthorizationDecision::new)
                    .defaultIfEmpty(new AuthorizationDecision(false));
     }
@@ -88,13 +85,20 @@ public class GatewayReactiveAuthorizationManager implements ReactiveAuthorizatio
         return AuthorityUtils.commaSeparatedStringToAuthorityList(permission);
     }
 
-    @SuppressWarnings({"rawtypes","unchecked"})
     private Map<String, String> loadResourcePermission() {
         Map map = this.redisTemplate.opsForValue().get(Namespace.DYNAMIC);
         if (map != null) {
             return (Map) map.get(KeyConstants.RESOURCES);
         }
         return Collections.emptyMap();
+    }
+
+    private List<String> ignoreUri(){
+        Map<Object, Object> map = this.redisTemplate.opsForValue().get(Namespace.DYNAMIC);
+        if (map != null) {
+            return (List) map.get(KeyConstants.ALLOW);
+        }
+        return Collections.emptyList();
     }
 
     private String formatPath(ServerHttpRequest serverHttpRequest) {
@@ -107,12 +111,4 @@ public class GatewayReactiveAuthorizationManager implements ReactiveAuthorizatio
                                 .getPath();
     }
 
-    public GatewayReactiveAuthorizationManager setIgnoreUri(Collection<String> ignoreUri) {
-        this.ignoreUri = ignoreUri;
-        return this;
-    }
-
-    public void addIgnoreUri(String ...ignoreUri) {
-        this.ignoreUri.addAll(Sets.newHashSet(ignoreUri));
-    }
 }

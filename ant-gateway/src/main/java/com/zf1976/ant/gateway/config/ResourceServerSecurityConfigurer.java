@@ -34,25 +34,19 @@ import java.util.Map;
  **/
 @Configuration
 @EnableWebFluxSecurity
-@SuppressWarnings("all")
 public class ResourceServerSecurityConfigurer {
 
     private final AuthProperties properties;
     private final RedisTemplate<Object, Map<Object, Object>> redisTemplate;
-    private final HttpClient gatewayHttpClient;
 
     public ResourceServerSecurityConfigurer(AuthProperties properties,
-                                            RedisTemplate mapRedisTemplate,
-                                            HttpClient gatewayHttpClient) {
+                                            RedisTemplate<Object, Map<Object, Object>> mapRedisTemplate) {
         this.properties = properties;
         this.redisTemplate = mapRedisTemplate;
-        this.gatewayHttpClient = gatewayHttpClient;
     }
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity httpSecurity) {
-        Oauth2TokenAuthenticationFilter tokenAuthenticationFilter = new Oauth2TokenAuthenticationFilter(properties.getJwtCheckUri());
-        tokenAuthenticationFilter.setHttpClient(this.gatewayHttpClient);
         return httpSecurity.httpBasic()
                            .disable()
                            .csrf()
@@ -69,7 +63,7 @@ public class ResourceServerSecurityConfigurer {
                                                     .permitAll()
                                                     .anyExchange()
                                                     // 自定义访问授权处理
-                                                    .access(new GatewayReactiveAuthorizationManager(redisTemplate, this.IgnoreUri()))
+                                                    .access(new GatewayReactiveAuthorizationManager(redisTemplate))
                                                     .and()
                                                     .exceptionHandling()
                                                     .accessDeniedHandler(new BearerTokenServerAccessDeniedHandler())
@@ -82,7 +76,7 @@ public class ResourceServerSecurityConfigurer {
                                }).bearerTokenConverter(new ServerBearerTokenAuthenticationConverter());
 
                            })
-                           .addFilterBefore(tokenAuthenticationFilter,
+                           .addFilterBefore(new Oauth2TokenAuthenticationFilter(properties.getJwtCheckUri()),
                                    SecurityWebFiltersOrder.HTTP_BASIC)
                            .build();
     }
@@ -94,11 +88,6 @@ public class ResourceServerSecurityConfigurer {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
         return new ReactiveJwtAuthenticationConverterAdapter(jwtAuthenticationConverter);
-    }
-
-    private List<String> IgnoreUri(){
-        Map<Object, Object> map = this.redisTemplate.opsForValue().get(Namespace.DYNAMIC);
-        return List.class.cast(map.get(KeyConstants.ALLOW));
     }
 
 }

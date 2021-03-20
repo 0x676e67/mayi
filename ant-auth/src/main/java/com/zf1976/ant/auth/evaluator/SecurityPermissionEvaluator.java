@@ -54,6 +54,7 @@ public class SecurityPermissionEvaluator implements PermissionEvaluator {
     }
 
     private boolean hasPrivilege(Authentication auth, String targetType, String permission) {
+        // need permission
         for (GrantedAuthority grantedAuth : auth.getAuthorities()) {
             if (grantedAuth.getAuthority().startsWith(targetType)) {
                 if (grantedAuth.getAuthority().contains(permission)) {

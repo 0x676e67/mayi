@@ -1,0 +1,12 @@
+server:
+  port: 80
+#nacos配置
+spring:
+  cloud:
+    nacos:
+      config:
+        file-extension: yaml
+      server-addr: 139.224.81.120:8848
+      discovery:
+        register-enabled: true
+        enabled: true

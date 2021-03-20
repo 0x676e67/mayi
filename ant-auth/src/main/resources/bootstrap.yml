@@ -1,17 +1,9 @@
-server:
-  port: 9000
-#spring配置
+#配置
 spring:
+  profiles:
+    active: conf,dev
   application:
     name: ant-auth
-  cloud:
-    nacos:
-      config:
-        file-extension: yaml
-      server-addr: 139.224.81.120:8848
-      discovery:
-        register-enabled: true
-        enabled: true
 
   datasource:
     username: root
@@ -23,10 +15,6 @@ spring:
       maximum-pool-size: 20
       max-lifetime: 1800000
       minimum-idle: 5
-
-  #加载配置文件
-  profiles:
-    active: log
 
   #json序列化配置
   jackson:

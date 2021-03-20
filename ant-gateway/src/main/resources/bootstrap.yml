@@ -1,7 +1,6 @@
-server:
-  port: 8888
-
 spring:
+  profiles:
+    active: prod,dev
   application:
     name: ant-gateway
   cloud:
@@ -17,9 +16,7 @@ spring:
         - id: ant-auth
           uri: lb://ant-auth
           predicates:
-             - Path=/api/oauth/**
-          filters:
-            - PrefixPath=1
+            - Path=/oauth/**
 
         - id: ant-upms-bzi
           uri: lb://ant-upms-bzi
@@ -27,12 +24,6 @@ spring:
             - Path=/admin/v1/**
           filters:
             - PrefixPath=2
-
-    nacos:
-      config:
-        file-extension: yaml
-      server-addr: 139.224.81.120:8848
-
   security:
     oauth2:
       resourceserver:
