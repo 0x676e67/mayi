@@ -55,7 +55,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public org.springframework.security.core.userdetails.UserDetails loadUserByUsername(String username) {
-        AntUserDetails securityUserDetails;
+        AntUserDetails antUserDetails;
         // 初步验证用户是否存在
         SysUser user = ChainWrappers.lambdaQueryChain(this.sysUserDao)
                                     .eq(SysUser::getUsername, username)
@@ -77,12 +77,12 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
         if (!userInfoVo.getEnabled()) {
             throw new UserNotFountException(AuthenticationState.ACCOUNT_DISABLED);
         } else {
-            securityUserDetails = new AntUserDetails(
+            antUserDetails = new AntUserDetails(
                     userInfoVo,
                     this.grantedAuthorities(userInfoVo),
                     this.getDataPermission(userInfoVo));
         }
-        return securityUserDetails;
+        return antUserDetails;
     }
 
     /**
@@ -108,7 +108,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
     private Set<Long> getDataPermission(UserInfoVo userInfo) {
 
         // 超级管理员
-        if (ObjectUtils.nullSafeEquals(userInfo.getUsername(), this.securityProperties.getAdmin())) {
+        if (ObjectUtils.nullSafeEquals(userInfo.getUsername(), this.securityProperties.getOwner())) {
             return this.sysDepartmentDao.selectList(null)
                                         .stream()
                                         .map(SysDepartment::getId)
@@ -122,7 +122,6 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
                                           .collect(Collectors.toCollection(LinkedHashSet::new));
         // 数据权限范围
         final Set<Long> dataPermission = new HashSet<>();
-
         for (RoleVo roleInfo : roles) {
             switch (Objects.requireNonNull(roleInfo.getDataScope())) {
                 case LEVEL:
@@ -178,9 +177,9 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
      */
     private List<GrantedAuthority> grantedAuthorities(UserInfoVo userInfo) {
         Set<String> authorities = new HashSet<>();
-        String markerAdmin = securityProperties.getAdmin();
+        String markerAdmin = securityProperties.getOwner();
         if (userInfo.getUsername().equals(markerAdmin)) {
-            authorities.add(securityProperties.getAdmin());
+            authorities.add(securityProperties.getOwner());
             return authorities.stream()
                               .map(SimpleGrantedAuthority::new)
                               .collect(Collectors.toList());

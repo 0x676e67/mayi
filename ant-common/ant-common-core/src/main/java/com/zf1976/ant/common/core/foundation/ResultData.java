@@ -41,6 +41,11 @@ public class ResultData<T> {
     private String errMsg;
 
     /**
+     * 正常消息
+     */
+    private String message;
+
+    /**
      * 错误详情
      */
     private String errDetail;
@@ -59,6 +64,24 @@ public class ResultData<T> {
      * 路径
      */
     private String path;
+
+
+    /**
+     * 响应带数据的成功消息
+     *
+     * @param message 消息
+     * @param <E>  E
+     * @return 响应对象
+     */
+    public static <E> ResultData<E> success(String message) {
+        ResultData<E> vo = new ResultData<>();
+        vo.setMessage(message);
+        vo.setSuccess(true);
+        vo.setStatus(200);
+        vo.setPath(getUri());
+        vo.setTimestamp(DateTimeUtil.nowStrTime());
+        return vo;
+    }
 
     /**
      * 响应带数据的成功消息

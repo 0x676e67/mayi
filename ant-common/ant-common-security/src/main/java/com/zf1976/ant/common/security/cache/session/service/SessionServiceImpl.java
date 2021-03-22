@@ -1,16 +1,18 @@
 package com.zf1976.ant.common.security.cache.session.service;
 
 import com.zf1976.ant.common.security.AntUserDetails;
+import com.zf1976.ant.common.security.SecurityProperties;
 import com.zf1976.ant.common.security.cache.session.Session;
 import com.zf1976.ant.common.security.cache.session.repository.SessionRepository;
 import com.zf1976.ant.common.security.pojo.vo.DepartmentVo;
 import com.zf1976.ant.common.core.util.RequestUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author mac
@@ -21,16 +23,18 @@ import java.util.Optional;
 public class SessionServiceImpl implements SessionService {
 
     private final SessionRepository repository;
+    private final SecurityProperties securityProperties;
 
-    public SessionServiceImpl(SessionRepository repository) {
+    public SessionServiceImpl(SessionRepository repository,
+                              SecurityProperties securityProperties) {
         this.repository = repository;
+        this.securityProperties = securityProperties;
     }
 
     @Override
-    public void save(String token,
-                     AntUserDetails userDetails,
-                     HttpServletRequest request) {
+    public void save(String token, AntUserDetails userDetails) {
         try {
+            HttpServletRequest request = RequestUtils.getRequest();
             Long id = userDetails.getId();
             DepartmentVo department = userDetails.getUserInfo()
                                                  .getDepartment();
@@ -40,6 +44,9 @@ public class SessionServiceImpl implements SessionService {
                    .setLoginTime(new Date())
                    .setUsername(userDetails.getUsername())
                    .setNickName(userDetails.getUserInfo().getNickName())
+                   .setOwner(ObjectUtils.nullSafeEquals(userDetails.getUsername(), securityProperties.getOwner()))
+                   .setDataPermission(new ArrayList<>(userDetails.getDataScopes()))
+                   .setPermission(new ArrayList<>(userDetails.getPermission()))
                    .setToken(token)
                    .setDepartment(deptName)
                    .setIp(RequestUtils.getIpAddress(request))
@@ -54,10 +61,10 @@ public class SessionServiceImpl implements SessionService {
     }
 
     @Override
-    public void update(String token, AntUserDetails userDetails, HttpServletRequest request) {
+    public void update(String token, AntUserDetails userDetails) {
         try{
             this.remove(userDetails.getId());
-            this.save(token, userDetails, request);
+            this.save(token, userDetails);
         }catch (Exception e) {
             log.error(e.getMessage(), e.getCause());
         }

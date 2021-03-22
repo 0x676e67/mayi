@@ -24,6 +24,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
     private static final String ANONYMOUS_AUTH = "anonymousUser";
     private static final AntPathMatcher PATH_MATCHER= new AntPathMatcher();
     private static final Map<Class<?>, Object> CONTENTS_MAP = new HashMap<>(16);
+    private static final ThreadLocal<Authentication> AUTHENTICATION_THREAD_LOCAL = new ThreadLocal<>();
     private static UserDetailsService userDetailsService;
     private static DynamicDataSourceService dynamicDataSourceService;
     private static SecurityProperties securityProperties;
@@ -35,6 +36,14 @@ public class SecurityContextHolder extends org.springframework.security.core.con
 
     public static <T> T getShareObject(Class<T> clazz){
         return clazz.cast(CONTENTS_MAP.get(clazz));
+    }
+
+    public static void setAuthenticationThreadLocal(Authentication authentication) {
+        AUTHENTICATION_THREAD_LOCAL.set(authentication);
+    }
+
+    public static Authentication getAuthenticationThreadLocal(){
+        return AUTHENTICATION_THREAD_LOCAL.get();
     }
 
     public static Authentication getAuthentication() {
@@ -95,7 +104,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
         return getAuthentication().getAuthorities()
                                   .stream()
                                   .map(GrantedAuthority::getAuthority)
-                                  .anyMatch(s -> s.equals(securityProperties.getAdmin()));
+                                  .anyMatch(s -> s.equals(securityProperties.getOwner()));
     }
 
     /**
@@ -105,7 +114,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
      * @return /
      */
     public static boolean validateSuperAdmin(String principal) {
-        return ObjectUtils.nullSafeEquals(principal, securityProperties.getAdmin());
+        return ObjectUtils.nullSafeEquals(principal, securityProperties.getOwner());
     }
 
     /**

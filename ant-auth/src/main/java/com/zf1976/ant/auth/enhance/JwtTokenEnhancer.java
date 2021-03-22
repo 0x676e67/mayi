@@ -36,27 +36,12 @@ public class JwtTokenEnhancer implements TokenEnhancer {
         additionalInformation.put(AuthConstants.JWT_CLIENT_ID_KEY, oAuth2Request.getClientId());
         // 设置自定义information
         ((DefaultOAuth2AccessToken) oAuth2AccessToken).setAdditionalInformation(additionalInformation);
-        // 保存会话状态
-        this.saveSessionState(oAuth2AccessToken, oAuth2Authentication);
+        SecurityContextHolder.setAuthenticationThreadLocal(oAuth2Authentication);
         return oAuth2AccessToken;
     }
 
-    public void saveSessionState(OAuth2AccessToken oAuth2AccessToken, OAuth2Authentication oAuth2Authentication) {
-        // 获取token
-        String tokenValue = oAuth2AccessToken.getValue();
-        // 获取用户认证登录细节
-        AntUserDetails userDetails = (AntUserDetails) oAuth2Authentication.getPrincipal();
-        // 获取token过期时间
-        Integer expiration = oAuth2AccessToken.getExpiresIn();
-        // 设置token过期时间
-        RequestUtils.getRequest()
-                    .setAttribute(AuthConstants.EXPIRED, expiration);
-        // 保存会话
-        SessionContextHolder.storeSession(tokenValue, userDetails);
-    }
-
     public Long getId(OAuth2Authentication oAuth2Authentication) {
-        AntUserDetails loginUserDetails = (AntUserDetails) oAuth2Authentication.getPrincipal();
-        return loginUserDetails.getId();
+        AntUserDetails antUserDetails = (AntUserDetails) oAuth2Authentication.getPrincipal();
+        return antUserDetails.getId();
     }
 }

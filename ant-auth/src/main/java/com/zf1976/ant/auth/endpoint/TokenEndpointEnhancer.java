@@ -1,9 +1,13 @@
 package com.zf1976.ant.auth.endpoint;
 
 import com.wf.captcha.base.Captcha;
+import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.common.core.property.CaptchaProperties;
 import com.zf1976.ant.common.core.foundation.ResultData;
+import com.zf1976.ant.common.core.util.RequestUtils;
+import com.zf1976.ant.common.security.AntUserDetails;
 import com.zf1976.ant.common.security.SecurityContextHolder;
+import com.zf1976.ant.common.security.SessionContextHolder;
 import com.zf1976.ant.common.security.cache.support.CaptchaGenerator;
 import com.zf1976.ant.common.security.cache.validate.service.CaptchaService;
 import com.zf1976.ant.common.security.pojo.vo.CaptchaVo;
@@ -17,6 +21,7 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.BadClientCredentialsException;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.provider.ClientRegistrationException;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.endpoint.TokenEndpoint;
 import org.springframework.security.oauth2.provider.error.DefaultWebResponseExceptionTranslator;
 import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
@@ -66,6 +71,8 @@ public class TokenEndpointEnhancer {
             ResponseEntity<OAuth2AccessToken> responseEntity = this.tokenEndpoint.postAccessToken(principal, parameters);
             OAuth2AccessToken oAuth2AccessToken = responseEntity.getBody();
             if (responseEntity.getStatusCode().is2xxSuccessful() && oAuth2AccessToken != null) {
+                // 保存登录会话
+                this.saveSessionState(oAuth2AccessToken);
                 return ResultData.success(oAuth2AccessToken);
             }
             throw new InsufficientAuthenticationException("Client authentication failed.");
@@ -98,6 +105,20 @@ public class TokenEndpointEnhancer {
     @GetMapping("/info")
     public ResultData<UserDetails> getUserInfo(){
         return ResultData.success(SecurityContextHolder.getDetails());
+    }
+
+    public void saveSessionState(OAuth2AccessToken oAuth2AccessToken) {
+        // 获取token
+        String tokenValue = oAuth2AccessToken.getValue();
+        // 获取用户认证登录细节
+        AntUserDetails userDetails = (AntUserDetails) SecurityContextHolder.getAuthenticationThreadLocal().getPrincipal();
+        // 获取token过期时间
+        Integer expiration = oAuth2AccessToken.getExpiresIn();
+        // 设置token过期时间
+        RequestUtils.getRequest()
+                    .setAttribute(AuthConstants.EXPIRED, expiration);
+        // 保存会话
+        SessionContextHolder.storeSession(tokenValue, userDetails);
     }
 
     @ExceptionHandler({HttpRequestMethodNotSupportedException.class})

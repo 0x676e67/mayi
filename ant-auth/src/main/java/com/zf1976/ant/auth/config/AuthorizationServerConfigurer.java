@@ -122,9 +122,9 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
     }
 
     private TokenEnhancerChain tokenEnhancerChain() {
-        final TokenEnhancerChain enhancerChain = new TokenEnhancerChain();
-        final List<TokenEnhancer> asList = Arrays.asList(new JwtTokenEnhancer(), jwtAccessTokenConverter());
-        enhancerChain.setTokenEnhancers(asList);
+        var enhancerChain = new TokenEnhancerChain();
+        List<TokenEnhancer> enhancerList = Arrays.asList(new JwtTokenEnhancer(), jwtAccessTokenConverter());
+        enhancerChain.setTokenEnhancers(enhancerList);
         return enhancerChain;
     }
 

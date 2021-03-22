@@ -39,7 +39,7 @@ verify-code:
 #safe jwt session 等配置信息
 security:
   #管理员名字 自己配置就好了/前端也需要修改。。
-  admin: admin
+  owner: admin
   #token 头
   token-header: ANT-ADMIN
   # 签发方

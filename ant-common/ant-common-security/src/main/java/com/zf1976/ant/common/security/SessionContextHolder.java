@@ -34,11 +34,11 @@ public class SessionContextHolder {
      * @param httpServletRequest 请求
      */
     public static void storeSession(String token, org.springframework.security.core.userdetails.UserDetails userDetails) {
-        SERVICE.save(token, (AntUserDetails) userDetails, RequestUtils.getRequest());
+        SERVICE.save(token, (AntUserDetails) userDetails);
     }
 
     /**
-     * 查询会话
+     * 读取会话
      *
      * @param id token
      * @return session
@@ -95,8 +95,8 @@ public class SessionContextHolder {
      * @param userDetails        userDetails
      * @param httpServletRequest request
      */
-    public static void refreshSession(String token, AntUserDetails userDetails, HttpServletRequest httpServletRequest) {
-        SERVICE.update(token, userDetails, httpServletRequest);
+    public static void refreshSession(String token, AntUserDetails userDetails) {
+        SERVICE.update(token, userDetails);
     }
 
     /**

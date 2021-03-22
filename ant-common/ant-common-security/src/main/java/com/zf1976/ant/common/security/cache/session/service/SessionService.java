@@ -18,7 +18,7 @@ public interface SessionService {
      * @param token       令牌
      * @param request     详情
      */
-    void save(String token, AntUserDetails userDetails, HttpServletRequest request);
+    void save(String token, AntUserDetails userDetails);
 
     /**
      * 更新会话
@@ -27,7 +27,7 @@ public interface SessionService {
      * @param userDetails 详情
      * @param request     详情
      */
-    void update(String token, AntUserDetails userDetails, HttpServletRequest request);
+    void update(String token, AntUserDetails userDetails);
 
     /**
      * 更新会话

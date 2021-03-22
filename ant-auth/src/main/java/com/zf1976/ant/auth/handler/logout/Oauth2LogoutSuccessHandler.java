@@ -25,7 +25,7 @@ public class Oauth2LogoutSuccessHandler implements LogoutSuccessHandler {
     @Override
     public void onLogoutSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException, ServletException {
         httpServletResponse.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
-        objectMapper.writeValue(httpServletResponse.getOutputStream(), ResultData.success());
+        objectMapper.writeValue(httpServletResponse.getOutputStream(), ResultData.success("Have to log out！"));
         log.info("{}", "已登出");
     }
 }
