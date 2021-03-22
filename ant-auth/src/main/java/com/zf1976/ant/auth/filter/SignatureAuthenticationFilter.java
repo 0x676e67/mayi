@@ -2,7 +2,7 @@ package com.zf1976.ant.auth.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zf1976.ant.common.core.foundation.ResultData;
-import com.zf1976.ant.auth.SecurityContextHolder;
+import com.zf1976.ant.common.security.SecurityContextHolder;
 import com.zf1976.ant.common.security.enums.SignatureState;
 import com.zf1976.ant.common.security.exception.SignatureException;
 import com.zf1976.ant.auth.filter.support.SignatureAuthenticationStrategy;

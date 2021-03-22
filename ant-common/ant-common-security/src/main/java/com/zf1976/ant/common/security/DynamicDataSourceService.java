@@ -1,4 +1,4 @@
-package com.zf1976.ant.auth.service;
+package com.zf1976.ant.common.security;
 
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -9,7 +9,6 @@ import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
 import com.zf1976.ant.common.component.load.enums.CacheRelation;
 import com.zf1976.ant.common.core.constants.KeyConstants;
 import com.zf1976.ant.common.core.constants.Namespace;
-import com.zf1976.ant.common.security.SecurityProperties;
 import com.zf1976.ant.common.security.annotation.Authorize;
 import com.zf1976.ant.upms.biz.dao.SysPermissionDao;
 import com.zf1976.ant.upms.biz.dao.SysResourceDao;
@@ -200,7 +199,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
 
     /**
      * redis 反序化回来变成set
-     * @return
+     * @return getAllowUri
      */
     @CaffeinePut(namespace = Namespace.DYNAMIC, key = KeyConstants.ALLOW, relation = CacheRelation.REDIS)
     public List<String> getAllowUri() {

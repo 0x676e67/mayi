@@ -1,11 +1,5 @@
-package com.zf1976.ant.auth;
+package com.zf1976.ant.common.security;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.zf1976.ant.auth.service.DynamicDataSourceService;
-import com.zf1976.ant.common.security.JwtTokenProvider;
-import com.zf1976.ant.common.security.SecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,14 +8,14 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
+ * 只适合单机适用
+ *
  * @author mac
  */
 @Component
@@ -115,18 +109,6 @@ public class SecurityContextHolder extends org.springframework.security.core.con
     }
 
     /**
-     * 获取放行uri
-     *
-     * @return /
-     */
-    public static Collection<String> getAllowedUri() {
-        // 放行uri
-        List<String> allowUri = dynamicDataSourceService.getAllowUri();
-        CollectionUtils.mergeArrayIntoCollection(securityProperties.getIgnoreUri(), allowUri);
-        return allowUri;
-    }
-
-    /**
      * 验证uri
      *
      * @param request request
@@ -134,7 +116,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
      */
     public static boolean validateUri(HttpServletRequest request) {
         String uri = request.getRequestURI();
-        Collection<String> allowedUri = getAllowedUri();
+        Collection<String> allowedUri = dynamicDataSourceService.getAllowUri();
         return allowedUri.stream()
                          .anyMatch(var -> PATH_MATCHER.match(var, uri));
     }
@@ -157,6 +139,11 @@ public class SecurityContextHolder extends org.springframework.security.core.con
     @Autowired
     public void setUserDetailsService(UserDetailsService userDetailsService) {
         SecurityContextHolder.userDetailsService = userDetailsService;
+    }
+
+    @Autowired
+    public void setDynamicDataSourceService(DynamicDataSourceService dynamicDataSourceService) {
+        SecurityContextHolder.dynamicDataSourceService = dynamicDataSourceService;
     }
 
 }

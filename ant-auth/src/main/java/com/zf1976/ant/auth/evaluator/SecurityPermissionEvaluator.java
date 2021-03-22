@@ -1,7 +1,7 @@
 package com.zf1976.ant.auth.evaluator;
 
 import com.zf1976.ant.common.security.JwtTokenProvider;
-import com.zf1976.ant.auth.SecurityContextHolder;
+import com.zf1976.ant.common.security.SecurityContextHolder;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

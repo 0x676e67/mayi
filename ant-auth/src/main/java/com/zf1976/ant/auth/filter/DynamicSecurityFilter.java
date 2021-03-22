@@ -6,11 +6,10 @@ import com.google.common.collect.Sets;
 import com.zf1976.ant.auth.filter.datasource.DynamicSecurityMetadataSource;
 import com.zf1976.ant.auth.filter.manager.DynamicAccessDecisionManager;
 import com.zf1976.ant.common.core.util.SpringContextHolder;
-import com.zf1976.ant.auth.service.DynamicDataSourceService;
+import com.zf1976.ant.common.security.DynamicDataSourceService;
 import com.zf1976.ant.common.security.SecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.Marker;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.SecurityMetadataSource;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
@@ -24,10 +23,7 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * 动态权限安全过滤

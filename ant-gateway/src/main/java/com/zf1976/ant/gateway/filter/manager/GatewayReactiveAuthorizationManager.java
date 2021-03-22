@@ -78,7 +78,7 @@ public class GatewayReactiveAuthorizationManager implements ReactiveAuthorizatio
         return mono.filter(Authentication::isAuthenticated)
                    .flatMapIterable(Authentication::getAuthorities)
                    .map(GrantedAuthority::getAuthority)
-                   .any(permissionSet::contains)
+                   .all(permissionSet::contains)
                    .map(AuthorizationDecision::new)
                    .defaultIfEmpty(new AuthorizationDecision(false));
     }

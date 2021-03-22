@@ -1,7 +1,7 @@
 package com.zf1976.ant.common.log.query;
 
-import com.zf1976.ant.common.core.foundation.query.AbstractQueryParam;
 import com.zf1976.ant.common.log.pojo.enums.LogType;
+import com.zf1976.ant.upms.biz.pojo.query.AbstractQueryParam;
 import lombok.Data;
 
 import java.util.Date;

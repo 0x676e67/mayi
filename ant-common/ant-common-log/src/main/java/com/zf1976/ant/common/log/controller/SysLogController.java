@@ -2,10 +2,10 @@ package com.zf1976.ant.common.log.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.common.core.foundation.ResultData;
-import com.zf1976.ant.common.core.foundation.query.RequestPage;
 import com.zf1976.ant.common.log.pojo.vo.base.AbstractLogVO;
 import com.zf1976.ant.common.log.query.LogQueryParam;
 import com.zf1976.ant.common.log.service.SysLogService;
+import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;

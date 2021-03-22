@@ -109,11 +109,10 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
 
         // 超级管理员
         if (ObjectUtils.nullSafeEquals(userInfo.getUsername(), this.securityProperties.getAdmin())) {
-            Set<Long> allDataPermission = this.sysDepartmentDao.selectList(null)
-                                                               .stream()
-                                                               .map(SysDepartment::getId)
-                                                               .collect(Collectors.toSet());
-            return Collections.unmodifiableSet(allDataPermission);
+            return this.sysDepartmentDao.selectList(null)
+                                        .stream()
+                                        .map(SysDepartment::getId)
+                                        .collect(Collectors.toUnmodifiableSet());
         }
 
         // 用户级别角色排序
@@ -121,13 +120,13 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
                                           .stream()
                                           .sorted(Comparator.comparingInt(RoleVo::getLevel))
                                           .collect(Collectors.toCollection(LinkedHashSet::new));
-        // 数据权限
+        // 数据权限范围
         final Set<Long> dataPermission = new HashSet<>();
 
         for (RoleVo roleInfo : roles) {
             switch (Objects.requireNonNull(roleInfo.getDataScope())) {
                 case LEVEL:
-                    // 本级数据数据权限 用户部门
+                    // 本级数据权限 用户部门
                     dataPermission.add(userInfo.getDepartment().getId());
                     break;
 
@@ -144,11 +143,10 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
 
                 default:
                     // 所有数据权限
-                    Set<Long> allDataPermission = this.sysDepartmentDao.selectList(null)
-                                                                       .stream()
-                                                                       .map(SysDepartment::getId)
-                                                                       .collect(Collectors.toSet());
-                    return Collections.unmodifiableSet(allDataPermission);
+                    return this.sysDepartmentDao.selectList(null)
+                                                .stream()
+                                                .map(SysDepartment::getId)
+                                                .collect(Collectors.toUnmodifiableSet());
             }
         }
         return Collections.unmodifiableSet(dataPermission);

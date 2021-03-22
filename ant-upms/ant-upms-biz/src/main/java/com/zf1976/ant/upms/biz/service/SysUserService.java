@@ -11,13 +11,11 @@ import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.component.mail.ValidateFactory;
 import com.zf1976.ant.common.component.mail.ValidateService;
+import com.zf1976.ant.common.security.SessionContextHolder;
 import com.zf1976.ant.upms.biz.config.FileProperties;
 import com.zf1976.ant.common.encrypt.RsaUtil;
 import com.zf1976.ant.common.encrypt.config.RsaProperties;
 import com.zf1976.ant.common.security.cache.session.Session;
-import com.zf1976.ant.common.security.safe.SecurityUserDetails;
-import com.zf1976.ant.common.security.safe.SecurityContextHolder;
-import com.zf1976.ant.common.security.safe.filter.manager.SessionContextHolder;
 import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
 import com.zf1976.ant.common.core.foundation.exception.BadBusinessException;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
@@ -40,7 +38,9 @@ import com.zf1976.ant.upms.biz.pojo.query.UserQueryParam;
 import com.zf1976.ant.upms.biz.pojo.vo.user.UserVO;
 import com.zf1976.ant.upms.biz.service.base.AbstractService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,12 +71,11 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     private final SysRoleDao sysRoleDao;
     private final SysUserConvert convert;
 
-    public SysUserService(PasswordEncoder passwordEncoder,
-                          SysDepartmentDao sysDepartmentDao,
+    public SysUserService(SysDepartmentDao sysDepartmentDao,
                           SysPositionDao sysJobDao,
                           SysRoleDao sysRoleDao) {
         this.jdkIdGenerator = new AlternativeJdkIdGenerator();
-        this.passwordEncoder = passwordEncoder;
+        this.passwordEncoder = new BCryptPasswordEncoder();
         this.sysDepartmentDao = sysDepartmentDao;
         this.sysPositionDao = sysJobDao;
         this.sysRoleDao = sysRoleDao;
@@ -92,24 +91,24 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     @CaffeinePut(namespace = Namespace.USER, key = "#requestPage", dynamicsKey = true)
     public IPage<UserVO> selectUserPage(RequestPage<UserQueryParam> requestPage) {
         Assert.notNull(requestPage, "request page can not been null");
-        IPage<SysUser> sourcePage;
+        IPage<SysUser> sourcePage = null;
         // 非super admin 过滤数据权限
-        if (!SecurityContextHolder.isSuperAdmin()) {
-            SecurityUserDetails userDetails = (SecurityUserDetails) SecurityContextHolder.getDetails();
-            Assert.notNull(userDetails, "user details can not been null");
-            // 用户可观察数据范围
-            List<Long> userIds = super.baseMapper.selectByDepartmentIds(userDetails.getDataScopes());
-            sourcePage = super.queryChain()
-                             .setQueryParam(requestPage, () -> {
-                                 // 自定义条件
-                                 return ChainWrappers.queryChain(super.baseMapper)
-                                                     .in(getColumn(SysUser::getId), userIds);
-                             }).selectPage();
-        } else {
-            sourcePage = super.queryChain()
-                              .setQueryParam(requestPage)
-                              .selectPage();
-        }
+//        if (!SecurityContextHolder.isSuperAdmin()) {
+//            SecurityUserDetails userDetails = (SecurityUserDetails) SecurityContextHolder.getDetails();
+//            Assert.notNull(userDetails, "user details can not been null");
+//            // 用户可观察数据范围
+//            List<Long> userIds = super.baseMapper.selectByDepartmentIds(userDetails.getDataScopes());
+//            sourcePage = super.queryChain()
+//                             .setQueryParam(requestPage, () -> {
+//                                 // 自定义条件
+//                                 return ChainWrappers.queryChain(super.baseMapper)
+//                                                     .in(getColumn(SysUser::getId), userIds);
+//                             }).selectPage();
+//        } else {
+//            sourcePage = super.queryChain()
+//                              .setQueryParam(requestPage)
+//                              .selectPage();
+//        }
         // 根据部门分页
         Optional.ofNullable(requestPage.getQuery())
                 .ifPresent(userQueryParam -> {
@@ -351,7 +350,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         sysUser.setGender(dto.getGender());
         sysUser.setNickName(dto.getNickName());
         super.updateEntityById(sysUser);
-        SessionContextHolder.refresh(id, session);
+        SessionContextHolder.refreshSession(id, session);
         return Optional.empty();
     }
 

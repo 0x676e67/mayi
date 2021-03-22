@@ -44,6 +44,7 @@ public class JsonUtil {
         MAPPER.enable(MapperFeature.USE_STD_BEAN_NAMING);
         // 所有日期格式都统一为固定格式
         MAPPER.setDateFormat(new SimpleDateFormat(ParameterConstants.DATETIME_FORMAT));
+        // 设置时区
         MAPPER.setTimeZone(TimeZone.getTimeZone(ParameterConstants.TIME_ZONE_GMT8));
     }
 
