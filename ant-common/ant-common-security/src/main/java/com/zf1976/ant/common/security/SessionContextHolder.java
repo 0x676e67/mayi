@@ -31,7 +31,6 @@ public class SessionContextHolder {
      *
      * @param token              token
      * @param userDetails        用户会话details
-     * @param httpServletRequest 请求
      */
     public static void storeSession(String token, org.springframework.security.core.userdetails.UserDetails userDetails) {
         SERVICE.save(token, (AntUserDetails) userDetails);
@@ -93,7 +92,6 @@ public class SessionContextHolder {
      *
      * @param token              token
      * @param userDetails        userDetails
-     * @param httpServletRequest request
      */
     public static void refreshSession(String token, AntUserDetails userDetails) {
         SERVICE.update(token, userDetails);
