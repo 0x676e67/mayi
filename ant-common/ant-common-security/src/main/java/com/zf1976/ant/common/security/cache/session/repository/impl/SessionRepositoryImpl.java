@@ -1,6 +1,6 @@
 package com.zf1976.ant.common.security.cache.session.repository.impl;
 
-import com.zf1976.ant.common.security.AuthConstants;
+import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.common.security.cache.session.Session;
 import com.zf1976.ant.common.security.cache.session.repository.SessionRepository;
 import com.zf1976.ant.common.security.SecurityProperties;

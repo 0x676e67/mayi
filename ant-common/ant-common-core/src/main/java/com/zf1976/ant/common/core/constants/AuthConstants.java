@@ -1,4 +1,4 @@
-package com.zf1976.ant.common.security;
+package com.zf1976.ant.common.core.constants;
 
 /**
  * @author ant
@@ -40,6 +40,16 @@ public interface AuthConstants {
      * JWT存储权限属性
      */
     String JWT_AUTHORITIES_KEY = "authorities";
+
+    /**
+     * 空值权限
+     */
+    String EMPTY_AUTHORITIES_VALUE = "";
+
+    /**
+     * 资源所有者
+     */
+    String OWNER = "admin";
 
     /**
      * 签发方

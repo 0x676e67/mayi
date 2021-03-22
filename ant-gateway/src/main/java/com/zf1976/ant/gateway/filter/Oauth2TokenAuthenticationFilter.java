@@ -1,18 +1,15 @@
 package com.zf1976.ant.gateway.filter;
 
+import com.nimbusds.jose.JWSObject;
 import com.power.common.model.CommonResult;
+import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.gateway.util.JsonUtil;
-import io.netty.channel.ChannelOption;
-import io.netty.handler.codec.http.HttpMethod;
+import net.minidev.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cloud.gateway.filter.NettyRoutingFilter;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.lang.NonNull;
@@ -22,21 +19,21 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrors;
+import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.netty.NettyOutbound;
-import reactor.netty.http.client.HttpClient;
 
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * 不支持参数形式access_token访问
@@ -76,6 +73,8 @@ public class Oauth2TokenAuthenticationFilter implements WebFilter {
                 BearerTokenError bearerTokenError = this.bearerTokenError();
                 throw new OAuth2AuthenticationException(bearerTokenError);
             }
+            serverWebExchange.getAttributes()
+                             .put(AuthConstants.OWNER, isOwner(token));
             return webFilterChain.filter(serverWebExchange);
         } catch (AuthenticationException e) {
             SecurityContextHolder.clearContext();
@@ -85,9 +84,30 @@ public class Oauth2TokenAuthenticationFilter implements WebFilter {
     }
 
 
-    @SuppressWarnings({"rawtypes"})
+    private Boolean isOwner(String token) {
+        try {
+            Assert.hasText(token, "token cannot be empty");
+            final JWSObject parseToken = JWSObject.parse(token);
+            // 提取jwt token 载荷
+            final Object o = parseToken.getPayload()
+                                       .toJSONObject()
+                                       .get(AuthConstants.JWT_AUTHORITIES_KEY);
+            if (o instanceof JSONArray) {
+                return  ((JSONArray) o).stream()
+                                       .map(Object::toString)
+                                       .anyMatch(permission -> ObjectUtils.nullSafeEquals(permission, AuthConstants.OWNER));
+            }
+        } catch (ParseException ignored) {
+            BearerTokenError bearerTokenError = this.bearerTokenError();
+            throw new OAuth2AuthenticationException(bearerTokenError);
+        }
+        return Boolean.FALSE;
+    }
+
+    @SuppressWarnings("rawtypes")
     private boolean checkToken(String token) {
         try {
+            Assert.hasText(token, "token cannot be empty");
             // 向服务端校验token 有效性
             ResponseEntity<Map> responseEntity = this.restTemplate.getForEntity(this.jwtCheckUrl, Map.class, token);
             return responseEntity.getStatusCode().is2xxSuccessful();

@@ -8,5 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  **/
 @SpringBootTest
 public class AuthApplicationTest {
+    public static void main(String[] args) {
 
+    }
 }

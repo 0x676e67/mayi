@@ -1,7 +1,7 @@
 package com.zf1976.ant.auth.enhance;
 
 import com.zf1976.ant.common.security.AntUserDetails;
-import com.zf1976.ant.common.security.AuthConstants;
+import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.common.security.SessionContextHolder;
 import com.zf1976.ant.common.core.util.RequestUtils;

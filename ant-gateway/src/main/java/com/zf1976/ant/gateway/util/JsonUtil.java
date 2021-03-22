@@ -133,6 +133,14 @@ public class JsonUtil {
 
     /**
      * 字符串转换为JsonNode对象
+     * @param jsonObject json Object
+     */
+    public static JsonNode parse(Object jsonObject){
+        return parse(jsonObject.toString());
+    }
+
+    /**
+     * 字符串转换为JsonNode对象
      * @param json json字符串
      */
     public static JsonNode parse(String json) {

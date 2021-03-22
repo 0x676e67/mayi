@@ -1,6 +1,7 @@
 package com.zf1976.ant.gateway.filter.manager;
 
 import com.power.common.util.StringUtil;
+import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.common.core.constants.KeyConstants;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.gateway.GatewayRouteConstants;
@@ -12,6 +13,7 @@ import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.ObjectUtils;
@@ -40,6 +42,13 @@ public class GatewayReactiveAuthorizationManager implements ReactiveAuthorizatio
     public Mono<AuthorizationDecision> check(Mono<Authentication> mono, AuthorizationContext authorizationContext) {
         ServerWebExchange exchange = authorizationContext.getExchange();
         ServerHttpRequest request = exchange.getRequest();
+        final Object o = authorizationContext.getExchange()
+                                             .getAttributes()
+                                             .get(AuthConstants.OWNER);
+        // 资源所有者放行所有
+        if (o instanceof Boolean) {
+            return Mono.just(new AuthorizationDecision((Boolean) o));
+        }
         // options请求放行
         if (request.getMethod() == HttpMethod.OPTIONS) {
             return Mono.just(new AuthorizationDecision(true));
@@ -59,6 +68,8 @@ public class GatewayReactiveAuthorizationManager implements ReactiveAuthorizatio
         if (!ObjectUtils.nullSafeEquals(GatewayRouteConstants.ADMIN_ROUTE, this.getRequestUri(request))) {
             return Mono.just(new AuthorizationDecision(true));
         }
+        final Authentication authentication = SecurityContextHolder.getContext()
+                                                                   .getAuthentication();
         // 提取系统资源权限
         Set<String> permissionSet = this.extractPermission(request)
                                   .stream()
@@ -67,7 +78,7 @@ public class GatewayReactiveAuthorizationManager implements ReactiveAuthorizatio
         return mono.filter(Authentication::isAuthenticated)
                    .flatMapIterable(Authentication::getAuthorities)
                    .map(GrantedAuthority::getAuthority)
-                   .all(permissionSet::contains)
+                   .any(permissionSet::contains)
                    .map(AuthorizationDecision::new)
                    .defaultIfEmpty(new AuthorizationDecision(false));
     }
