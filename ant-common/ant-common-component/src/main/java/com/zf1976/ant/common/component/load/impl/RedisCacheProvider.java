@@ -1,7 +1,9 @@
 package com.zf1976.ant.common.component.load.impl;
 
 import com.zf1976.ant.common.component.load.ICache;
+import com.zf1976.ant.common.security.property.CacheProperties;
 import org.springframework.data.redis.core.RedisTemplate;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -13,9 +15,12 @@ import java.util.function.Supplier;
  **/
 public class RedisCacheProvider<K, V> implements ICache<K, V> {
 
+    private final CacheProperties properties;
     private final RedisTemplate<Object, Map<Object, Object>> redisTemplate;
 
-    public RedisCacheProvider(RedisTemplate<Object, Map<Object, Object>> redisTemplate) {
+    public RedisCacheProvider(CacheProperties properties,
+                              RedisTemplate<Object, Map<Object, Object>> redisTemplate) {
+        this.properties = properties;
         this.redisTemplate = redisTemplate;
     }
 
@@ -63,7 +68,7 @@ public class RedisCacheProvider<K, V> implements ICache<K, V> {
 
     @Override
     public void set(String namespace, K key, V value) {
-        this.set(namespace,key, CACHE_PROPERTY_CONFIG.getExpireAlterWrite(), value);
+        this.set(namespace,key, properties.getExpireAlterWrite(), value);
     }
 
     @Override
@@ -91,12 +96,12 @@ public class RedisCacheProvider<K, V> implements ICache<K, V> {
         this.redisTemplate.opsForValue()
                           .set(namespace,
                                   (Map<Object, Object>) kvMap,
-                                  expired == null || expired <0 ? CACHE_PROPERTY_CONFIG.getExpireAlterWrite() : expired,
+                                  expired == null || expired <0 ? properties.getExpireAlterWrite() : expired,
                                   TimeUnit.MINUTES);
     }
 
     private void saveCacheSpace(String namespace, Map<K, V> kvMap) {
-        this.saveCacheSpace(namespace, kvMap, CACHE_PROPERTY_CONFIG.getExpireAlterWrite());
+        this.saveCacheSpace(namespace, kvMap, properties.getExpireAlterWrite());
     }
 
     @SuppressWarnings("unchecked")

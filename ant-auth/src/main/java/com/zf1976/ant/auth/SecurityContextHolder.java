@@ -1,12 +1,11 @@
 package com.zf1976.ant.auth;
 
+import com.zf1976.ant.auth.service.DynamicDataSourceService;
 import com.zf1976.ant.common.component.session.Session;
 import com.zf1976.ant.common.component.session.SessionContextHolder;
-import com.zf1976.ant.common.core.property.SecurityProperties;
-import com.zf1976.ant.auth.service.DynamicDataSourceService;
 import com.zf1976.ant.common.core.util.RequestUtils;
-import com.zf1976.ant.common.security.AntUserDetails;
 import com.zf1976.ant.common.security.pojo.vo.DepartmentVo;
+import com.zf1976.ant.common.security.property.SecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;

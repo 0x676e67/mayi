@@ -6,6 +6,8 @@
 dependencies {
     implementation project(':ant-common:ant-common-core')
     implementation project(':ant-common:ant-common-encrypt')
+    implementation project(':ant-common:ant-common-security')
+    implementation('com.github.whvcse:easy-captcha:1.6.2')
     implementation("org.springframework.boot:spring-boot-starter-data-redis:${springbootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-mail:${springbootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf:${springbootVersion}")

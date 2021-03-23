@@ -1,20 +1,12 @@
 package com.zf1976.ant.common.component.load;
 
 
-import com.zf1976.ant.common.core.util.ApplicationConfigUtils;
-import com.zf1976.ant.common.core.property.CacheProperties;
-
 import java.util.function.Supplier;
 
 /**
  * @author WINDOWS
  */
 public interface ICache<K, V> {
-
-    /**
-     * 缓存配置
-     */
-    CacheProperties CACHE_PROPERTY_CONFIG = ApplicationConfigUtils.getCacheProperties();
 
     /**
      * 获取缓存值，缓存空间不存在则根据expired 创建缓存空间

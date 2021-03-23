@@ -1,12 +1,14 @@
 package com.zf1976.ant.common.component.session;
 
-import com.zf1976.ant.common.core.property.SecurityProperties;
-import com.zf1976.ant.common.core.util.RequestUtils;
+import com.power.common.util.StringUtil;
 import com.zf1976.ant.common.component.session.service.SessionService;
+import com.zf1976.ant.common.core.util.RequestUtils;
+import com.zf1976.ant.common.security.property.SecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
@@ -216,7 +218,14 @@ public class SessionContextHolder {
     }
 
     private static String token(){
-        return RequestUtils.getRequest().getHeader(HttpHeaders.AUTHORIZATION);
+        var header = RequestUtils.getRequest().getHeader(HttpHeaders.AUTHORIZATION);
+        if (header == null) {
+            throw new UnsupportedOperationException(HttpStatus.UNAUTHORIZED.getReasonPhrase());
+        }
+        return formatToken(header);
     }
 
+    private static String formatToken(String token) {
+        return token.replace("Bearer ", StringUtil.ENMPTY);
+    }
 }

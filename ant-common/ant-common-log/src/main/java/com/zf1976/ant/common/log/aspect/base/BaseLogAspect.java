@@ -1,16 +1,14 @@
 package com.zf1976.ant.common.log.aspect.base;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.power.common.util.StringUtil;
+import com.zf1976.ant.common.component.session.SessionContextHolder;
 import com.zf1976.ant.common.core.util.RequestUtils;
-import com.zf1976.ant.common.log.annotation.Log;
 import com.zf1976.ant.common.log.pojo.SysLog;
 import com.zf1976.ant.common.log.pojo.enums.LogType;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -119,8 +117,6 @@ public abstract class BaseLogAspect {
     }
 
     private String getPrincipal() {
-        return ((String) SecurityContextHolder.getContext()
-                                              .getAuthentication()
-                                              .getPrincipal());
+        return SessionContextHolder.username();
     }
 }

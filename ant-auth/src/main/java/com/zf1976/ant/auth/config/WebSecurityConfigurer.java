@@ -1,13 +1,13 @@
 package com.zf1976.ant.auth.config;
 
-import com.zf1976.ant.auth.AuthProperties;
 import com.zf1976.ant.auth.filter.DynamicSecurityFilter;
 import com.zf1976.ant.auth.filter.Oauth2TokenAuthenticationFilter;
 import com.zf1976.ant.auth.filter.SignatureAuthenticationFilter;
 import com.zf1976.ant.auth.filter.provider.DaoAuthenticationEnhancerProvider;
 import com.zf1976.ant.auth.handler.logout.Oauth2LogoutHandler;
 import com.zf1976.ant.auth.handler.logout.Oauth2LogoutSuccessHandler;
-import com.zf1976.ant.common.core.property.SecurityProperties;
+import com.zf1976.ant.common.security.property.AuthProperties;
+import com.zf1976.ant.common.security.property.SecurityProperties;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;

@@ -1,31 +1,29 @@
 package com.zf1976.ant.upms.biz.service;
 
 
-
-
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.power.common.util.ValidateUtil;
 import com.zf1976.ant.common.component.load.annotation.CaffeineEvict;
 import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
-import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.component.mail.ValidateFactory;
 import com.zf1976.ant.common.component.mail.ValidateService;
-import com.zf1976.ant.common.component.session.SessionContextHolder;
 import com.zf1976.ant.common.component.session.Session;
-import com.zf1976.ant.upms.biz.config.FileProperties;
-import com.zf1976.ant.common.encrypt.RsaUtil;
-import com.zf1976.ant.common.encrypt.config.RsaProperties;
-import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
+import com.zf1976.ant.common.component.session.SessionContextHolder;
+import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.core.foundation.exception.BadBusinessException;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
+import com.zf1976.ant.common.encrypt.BCryptPasswordEncoder;
+import com.zf1976.ant.common.encrypt.RsaUtil;
+import com.zf1976.ant.common.encrypt.config.RsaProperties;
+import com.zf1976.ant.upms.biz.config.FileProperties;
 import com.zf1976.ant.upms.biz.convert.SysUserConvert;
 import com.zf1976.ant.upms.biz.dao.SysDepartmentDao;
 import com.zf1976.ant.upms.biz.dao.SysPositionDao;
 import com.zf1976.ant.upms.biz.dao.SysRoleDao;
 import com.zf1976.ant.upms.biz.dao.SysUserDao;
-import com.zf1976.ant.upms.biz.exception.enums.UserState;
 import com.zf1976.ant.upms.biz.exception.UserException;
+import com.zf1976.ant.upms.biz.exception.enums.UserState;
 import com.zf1976.ant.upms.biz.pojo.dto.user.UpdateEmailDTO;
 import com.zf1976.ant.upms.biz.pojo.dto.user.UpdateInfoDTO;
 import com.zf1976.ant.upms.biz.pojo.dto.user.UpdatePasswordDTO;
@@ -34,13 +32,11 @@ import com.zf1976.ant.upms.biz.pojo.po.SysDepartment;
 import com.zf1976.ant.upms.biz.pojo.po.SysPosition;
 import com.zf1976.ant.upms.biz.pojo.po.SysRole;
 import com.zf1976.ant.upms.biz.pojo.po.SysUser;
+import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
 import com.zf1976.ant.upms.biz.pojo.query.UserQueryParam;
 import com.zf1976.ant.upms.biz.pojo.vo.user.UserVO;
 import com.zf1976.ant.upms.biz.service.base.AbstractService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.*;
@@ -64,17 +60,16 @@ import java.util.stream.Collectors;
 public class SysUserService extends AbstractService<SysUserDao, SysUser> {
 
     private final AlternativeJdkIdGenerator jdkIdGenerator;
-    private final PasswordEncoder passwordEncoder;
     private final SysDepartmentDao sysDepartmentDao;
     private final SysPositionDao sysPositionDao;
     private final SysRoleDao sysRoleDao;
     private final SysUserConvert convert;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
     public SysUserService(SysDepartmentDao sysDepartmentDao,
                           SysPositionDao sysJobDao,
                           SysRoleDao sysRoleDao) {
         this.jdkIdGenerator = new AlternativeJdkIdGenerator();
-        this.passwordEncoder = new BCryptPasswordEncoder();
         this.sysDepartmentDao = sysDepartmentDao;
         this.sysPositionDao = sysJobDao;
         this.sysRoleDao = sysRoleDao;
@@ -258,12 +253,11 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
             throw new BadBusinessException(BusinessMsgState.PASSWORD_REPEAT);
         }
 
-        if (passwordEncoder.matches(oldPass, sysUser.getPassword()) && !ValidateUtil.isPassword(newPass)) {
-            sysUser.setPassword(passwordEncoder.encode(newPass));
+        if (bCryptPasswordEncoder.matches(oldPass, sysUser.getPassword()) && !ValidateUtil.isPassword(newPass)) {
+            sysUser.setPassword(bCryptPasswordEncoder.encode(newPass));
             super.updateEntityById(sysUser);
             // 强制用户重新登陆
-            org.springframework.security.core.context.SecurityContextHolder.clearContext();
-            SessionContextHolder.removeSession(sessionId);
+            SessionContextHolder.removeSession();
         }else {
             throw new BadBusinessException(BusinessMsgState.PASSWORD_LOW);
         }
@@ -295,7 +289,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         if (validateService.validate(dto.getEmail(), code)) {
             try {
                 String decodePassword = RsaUtil.decryptByPrivateKey(RsaProperties.PRIVATE_KEY, dto.getPassword());
-                if (passwordEncoder.matches(decodePassword, sysUser.getPassword())) {
+                if (bCryptPasswordEncoder.matches(decodePassword, sysUser.getPassword())) {
                     if (ObjectUtils.nullSafeEquals(sysUser.getEmail(), dto.getEmail())) {
                         throw new BadBusinessException(BusinessMsgState.EMAIL_EXISTING);
                     }

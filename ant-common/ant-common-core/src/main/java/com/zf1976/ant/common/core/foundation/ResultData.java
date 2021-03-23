@@ -6,7 +6,6 @@ import com.zf1976.ant.common.core.util.RequestUtils;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
-import org.springframework.util.ObjectUtils;
 
 /**
  * 请求响应对象
@@ -15,7 +14,7 @@ import org.springframework.util.ObjectUtils;
  * @since 2020/5/19
  */
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @SuppressWarnings("rawtypes")
 public class ResultData<T> {
 

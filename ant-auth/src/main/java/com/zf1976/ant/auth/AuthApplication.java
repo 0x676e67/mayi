@@ -3,6 +3,7 @@ package com.zf1976.ant.auth;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.stereotype.Repository;
 import sun.misc.Unsafe;
@@ -16,6 +17,7 @@ import java.lang.reflect.Field;
 @SpringBootApplication(scanBasePackages = "com.zf1976")
 @MapperScan(value = "com.zf1976", annotationClass = Repository.class)
 @EnableDiscoveryClient
+@EnableConfigurationProperties
 public class AuthApplication {
 
     public static void main(String[] args) {
@@ -23,6 +25,9 @@ public class AuthApplication {
         SpringApplication.run(AuthApplication.class, args);
     }
 
+    /**
+     * 关闭runtime warnings
+     */
     public static void disableWarning() {
         try {
             Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");

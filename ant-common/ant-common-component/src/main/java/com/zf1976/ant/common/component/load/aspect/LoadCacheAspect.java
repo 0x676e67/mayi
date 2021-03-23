@@ -2,14 +2,15 @@ package com.zf1976.ant.common.component.load.aspect;
 
 
 import com.power.common.util.StringUtil;
-import com.zf1976.ant.common.component.load.impl.CaffeineCacheProvider;
 import com.zf1976.ant.common.component.load.ICache;
-import com.zf1976.ant.common.component.load.impl.RedisCacheProvider;
 import com.zf1976.ant.common.component.load.annotation.CaffeineEvict;
 import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
 import com.zf1976.ant.common.component.load.aspect.handler.SpringElExpressionHandler;
 import com.zf1976.ant.common.component.load.enums.CacheRelation;
+import com.zf1976.ant.common.component.load.impl.CaffeineCacheProvider;
+import com.zf1976.ant.common.component.load.impl.RedisCacheProvider;
 import com.zf1976.ant.common.core.util.RequestUtils;
+import com.zf1976.ant.common.security.property.CacheProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -34,10 +35,11 @@ public class LoadCacheAspect {
 
     private final SpringElExpressionHandler handler;
     private Map<CacheRelation, ICache<Object, Object>> cacheProviderMap;
-    public LoadCacheAspect(RedisTemplate<Object, Map<Object, Object>> mapRedisTemplate) {
+    public LoadCacheAspect(RedisTemplate<Object, Map<Object, Object>> mapRedisTemplate,
+                           CacheProperties properties) {
         cacheProviderMap = new ConcurrentHashMap<>();
-        cacheProviderMap.put(CacheRelation.CAFFEINE, new CaffeineCacheProvider<>());
-        cacheProviderMap.put(CacheRelation.REDIS, new RedisCacheProvider<>(mapRedisTemplate));
+        cacheProviderMap.put(CacheRelation.CAFFEINE, new CaffeineCacheProvider<>(properties));
+        cacheProviderMap.put(CacheRelation.REDIS, new RedisCacheProvider<>(properties, mapRedisTemplate));
         handler = new SpringElExpressionHandler();
         this.checkStatus();
     }

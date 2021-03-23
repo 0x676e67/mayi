@@ -3,6 +3,7 @@ package com.zf1976.ant.common.component.load.impl;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.zf1976.ant.common.component.load.AbstractCaffeineCache;
+import com.zf1976.ant.common.security.property.CacheProperties;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
@@ -20,7 +21,9 @@ import java.util.function.Supplier;
  */
 public class CaffeineCacheProvider<K, V> extends AbstractCaffeineCache<K, V> {
 
-    public CaffeineCacheProvider() {
+    private final CacheProperties properties;
+    public CaffeineCacheProvider(CacheProperties properties) {
+        this.properties = properties;
         this.initialCache();
         this.checkStatus();
     }
@@ -32,7 +35,7 @@ public class CaffeineCacheProvider<K, V> extends AbstractCaffeineCache<K, V> {
 
     @Override
     protected void initialCache() {
-        super.kvCache = this.loadCache(CACHE_PROPERTY_CONFIG.getExpireAlterWrite());
+        super.kvCache = this.loadCache(properties.getExpireAlterWrite());
         super.cacheSpace = new ConcurrentHashMap<>(MAP_INITIAL_CAPACITY);
     }
 
@@ -40,9 +43,9 @@ public class CaffeineCacheProvider<K, V> extends AbstractCaffeineCache<K, V> {
     protected Cache<K, V> loadCache(Long expired) {
 
         CacheBuilder<K, V> kvCacheBuilder = CacheBuilder.newBuilder()
-                                                        .concurrencyLevel(CACHE_PROPERTY_CONFIG.getConcurrencyLevel())
-                                                        .initialCapacity(CACHE_PROPERTY_CONFIG.getInitialCapacity())
-                                                        .maximumSize(CACHE_PROPERTY_CONFIG.getMaximumSize())
+                                                        .concurrencyLevel(properties.getConcurrencyLevel())
+                                                        .initialCapacity(properties.getInitialCapacity())
+                                                        .maximumSize(properties.getMaximumSize())
                                                         .removalListener(removalNotification -> {
                                                             if (LOG.isInfoEnabled()) {
                                                                 LOG.info("key：{}---- value：{} is remove!", removalNotification.getKey(), removalNotification.getValue());
@@ -50,7 +53,7 @@ public class CaffeineCacheProvider<K, V> extends AbstractCaffeineCache<K, V> {
                                                         });
 
         if (expired == null || expired <= 0) {
-            return Objects.requireNonNull(kvCacheBuilder.expireAfterWrite(CACHE_PROPERTY_CONFIG.getExpireAlterWrite(), TimeUnit.MINUTES)
+            return Objects.requireNonNull(kvCacheBuilder.expireAfterWrite(properties.getExpireAlterWrite(), TimeUnit.MINUTES)
                                                         .build());
         }
         return Objects.requireNonNull(kvCacheBuilder.expireAfterWrite(Duration.ofMinutes(expired))
@@ -71,7 +74,7 @@ public class CaffeineCacheProvider<K, V> extends AbstractCaffeineCache<K, V> {
     public V get(String namespace, K key, Supplier<V> supplier) {
         Cache<K, V> kvCache = super.cacheSpace.get(namespace);
         if (kvCache == null) {
-            kvCache = this.loadCache(CACHE_PROPERTY_CONFIG.getExpireAlterWrite());
+            kvCache = this.loadCache(properties.getExpireAlterWrite());
             super.cacheSpace.put(namespace, kvCache);
         }
         return this.getValue(kvCache, key, supplier);
@@ -81,7 +84,7 @@ public class CaffeineCacheProvider<K, V> extends AbstractCaffeineCache<K, V> {
     public V get(String namespace, K key) {
         Cache<K, V> kvCache = super.cacheSpace.get(namespace);
         if (kvCache == null) {
-            kvCache = this.loadCache(CACHE_PROPERTY_CONFIG.getExpireAlterWrite());
+            kvCache = this.loadCache(properties.getExpireAlterWrite());
             super.cacheSpace.put(namespace, kvCache);
         }
         return this.getDefaultValue(kvCache, key);
@@ -99,7 +102,7 @@ public class CaffeineCacheProvider<K, V> extends AbstractCaffeineCache<K, V> {
 
     @Override
     public void set(String namespace, K key, V value) {
-        this.set(namespace, key, CACHE_PROPERTY_CONFIG.getExpireAlterWrite(), value);
+        this.set(namespace, key, properties.getExpireAlterWrite(), value);
     }
 
     @Override

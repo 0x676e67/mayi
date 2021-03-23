@@ -13,12 +13,10 @@ dependencies {
     implementation project(':ant-upms:ant-upms-api')
     implementation project(':ant-upms:ant-upms-dao')
     implementation project(':ant-common:ant-common-core')
-    implementation('com.github.whvcse:easy-captcha:1.6.2')
     implementation("io.jsonwebtoken:jjwt-api:${jwtVersion}")
     implementation("io.jsonwebtoken:jjwt-impl:${jwtVersion}")
     implementation("io.jsonwebtoken:jjwt-jackson:${jwtVersion}")
     implementation("org.springframework.boot:spring-boot-starter-web:${springbootVersion}")
-    implementation("org.springframework.boot:spring-boot-starter-security:${springbootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-data-redis:${springbootVersion}")
     implementation("com.baomidou:mybatis-plus-boot-starter:${mybatisPlusVersion}")
 }

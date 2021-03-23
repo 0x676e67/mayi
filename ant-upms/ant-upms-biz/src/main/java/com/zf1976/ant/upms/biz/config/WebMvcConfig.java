@@ -1,12 +1,16 @@
 package com.zf1976.ant.upms.biz.config;
 
+import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.power.common.util.FileUtil;
+import com.zf1976.ant.upms.biz.handle.MetaDataHandler;
+import com.zf1976.ant.upms.biz.interceptor.AuthenticationInterceptor;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -19,8 +23,32 @@ import java.io.File;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer, InitializingBean {
 
-    @Autowired
-    private FileProperties fileProperties;
+    public WebMvcConfig(FileProperties fileProperties) {
+        this.fileProperties = fileProperties;
+    }
+
+    private final FileProperties fileProperties;
+
+    /**
+     * Add Spring MVC lifecycle interceptors for pre- and post-processing of
+     * controller method invocations and resource handler requests.
+     * Interceptors can be registered to apply to all requests or be limited
+     * to a subset of URL patterns.
+     *
+     * @param registry registry
+     */
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new AuthenticationInterceptor())
+                .addPathPatterns("/**");
+    }
+
+    @Bean
+    public GlobalConfig globalConfig() {
+        GlobalConfig globalConfig = new GlobalConfig();
+        globalConfig.setMetaObjectHandler(new MetaDataHandler());
+        return globalConfig;
+    }
 
     /**
      * 前后端分离跨域设置

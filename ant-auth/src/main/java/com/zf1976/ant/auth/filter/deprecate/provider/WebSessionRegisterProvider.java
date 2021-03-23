@@ -1,10 +1,10 @@
 package com.zf1976.ant.auth.filter.deprecate.provider;
 
-import com.zf1976.ant.common.core.util.SpringContextHolder;
-import com.zf1976.ant.common.security.AntUserDetails;
-import com.zf1976.ant.common.security.JwtTokenProvider;
+import com.zf1976.ant.auth.AntUserDetails;
+import com.zf1976.ant.auth.JwtTokenProvider;
 import com.zf1976.ant.common.component.session.SessionContextHolder;
-import com.zf1976.ant.common.core.property.SecurityProperties;
+import com.zf1976.ant.common.core.util.SpringContextHolder;
+import com.zf1976.ant.common.security.property.SecurityProperties;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

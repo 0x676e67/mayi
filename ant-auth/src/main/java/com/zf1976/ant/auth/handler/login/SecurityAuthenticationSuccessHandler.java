@@ -2,10 +2,9 @@ package com.zf1976.ant.auth.handler.login;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.power.common.util.Base64Util;
+import com.zf1976.ant.auth.LoginResponse;
 import com.zf1976.ant.auth.SecurityContextHolder;
-import com.zf1976.ant.common.component.session.Session;
 import com.zf1976.ant.common.component.session.SessionContextHolder;
-import com.zf1976.ant.common.security.pojo.vo.LoginResponse;
 import com.zf1976.ant.common.core.foundation.ResultData;
 import com.zf1976.ant.common.encrypt.EncryptUtil;
 import org.slf4j.Logger;
@@ -53,8 +52,10 @@ public class SecurityAuthenticationSuccessHandler implements AuthenticationSucce
         String result = EncryptUtil.encryptForAesByCbc(rawContent);
         httpServletResponse.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
         jsonMapper.writeValue(httpServletResponse.getOutputStream(), Base64Util.encryptToString(result));
-        SecurityContextHolder.getContext()
-                             .setAuthentication(authentication);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        if (log.isDebugEnabled()) {
+            log.debug("login username:{}", session.getUsername());
+        }
     }
 
 }

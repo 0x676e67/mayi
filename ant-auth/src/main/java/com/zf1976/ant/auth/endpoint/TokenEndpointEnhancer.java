@@ -1,16 +1,14 @@
 package com.zf1976.ant.auth.endpoint;
 
 import com.wf.captcha.base.Captcha;
-import com.zf1976.ant.common.component.session.Session;
-import com.zf1976.ant.common.core.constants.AuthConstants;
-import com.zf1976.ant.common.core.property.CaptchaProperties;
-import com.zf1976.ant.common.core.foundation.ResultData;
-import com.zf1976.ant.common.core.util.RequestUtils;
-import com.zf1976.ant.common.security.AntUserDetails;
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.common.component.session.SessionContextHolder;
-import com.zf1976.ant.common.security.cache.support.CaptchaGenerator;
-import com.zf1976.ant.common.security.cache.validate.service.CaptchaService;
+import com.zf1976.ant.common.component.validate.service.CaptchaService;
+import com.zf1976.ant.common.component.validate.support.CaptchaGenerator;
+import com.zf1976.ant.common.core.constants.AuthConstants;
+import com.zf1976.ant.common.core.foundation.ResultData;
+import com.zf1976.ant.common.core.property.CaptchaProperties;
+import com.zf1976.ant.common.core.util.RequestUtils;
 import com.zf1976.ant.common.security.pojo.vo.CaptchaVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

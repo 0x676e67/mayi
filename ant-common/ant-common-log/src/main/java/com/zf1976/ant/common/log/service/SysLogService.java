@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zf1976.ant.common.component.session.SessionContextHolder;
 import com.zf1976.ant.common.core.foundation.exception.BadBusinessException;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
 import com.zf1976.ant.common.log.convert.SysLogConvert;
@@ -14,7 +15,6 @@ import com.zf1976.ant.common.log.pojo.enums.LogType;
 import com.zf1976.ant.common.log.pojo.vo.base.AbstractLogVO;
 import com.zf1976.ant.common.log.query.LogQueryParam;
 import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -42,12 +42,10 @@ public class SysLogService extends ServiceImpl<SysLogDao, SysLog> {
         Assert.notNull(param, BusinessMsgState.PARAM_ILLEGAL::getReasonPhrase);
         // 构建分页对象
         Page<SysLog> page = new Page<>(requestPage.getPage(), requestPage.getSize());
-        Object principal = SecurityContextHolder.getContext()
-                                                .getAuthentication()
-                                                .getPrincipal();
+        var username = SessionContextHolder.username();
         Page<SysLog> sourcePage = super.lambdaQuery()
                                        .eq(SysLog::getLogType, LogType.INFO)
-                                       .eq(SysLog::getUsername, principal)
+                                       .eq(SysLog::getUsername, username)
                                        .page(page);
         return this.mapPage(sourcePage,convert::toUserLogVo);
     }

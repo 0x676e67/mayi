@@ -1,10 +1,10 @@
 package com.zf1976.ant.common.component.session.repository.impl;
 
-import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.common.component.session.Session;
 import com.zf1976.ant.common.component.session.repository.SessionRepository;
-import com.zf1976.ant.common.core.property.SecurityProperties;
+import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.common.core.util.RequestUtils;
+import com.zf1976.ant.common.security.property.SecurityProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;

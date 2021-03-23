@@ -2,6 +2,7 @@ server:
   port: 8080    #server 端口
 
 spring:
+
   datasource:
     url: jdbc:mysql://localhost:3306/master?useSSL=false&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&autoReconnect=true&failOverReadOnly=false&maxReconnects=10&serverTimezone=GMT
     username: root
@@ -35,10 +36,10 @@ spring:
         wall:
           config:
             multi-statement-allow: true
-      aop-patterns: com.zf1976.app.*.endpoint.*
+      aop-patterns: com.zf1976.ant.*.endpoint.*
 
   profiles:                                                 #加载配置文件
-    active: conf,log,dev
+    active: conf,prod
 
   mail:                                                     #邮件默认配置
     default-encoding: UTF-8
@@ -55,7 +56,7 @@ spring:
 
   jackson:                                                  #json序列化配置
     time-zone: GMT+8
-    default-property-inclusion: non_null
+    default-property-inclusion: non_empty
     date-format: yyyy-MM-dd HH:mm:ss
 
   servlet:                                                  #servlet配置
@@ -68,7 +69,7 @@ spring:
 mybatis-plus:                                               #mybatis-plus 配置
   global-config:
     db-config:
-      update-strategy: ignored
+      update-strategy: not_empty
   configuration:
     map-underscore-to-camel-case: true
     #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

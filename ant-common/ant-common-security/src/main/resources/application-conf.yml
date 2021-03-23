@@ -108,5 +108,6 @@ api-encrypt:
 ip.region:
   base-url: https://opendata.baidu.com/api.php?&format=json&resource_id=6006&query=
 
-
-
+auth:
+  enable-signature: false
+  model: false

@@ -1,11 +1,11 @@
 package com.zf1976.ant.auth.filter.support.impl;
 
-import com.zf1976.ant.common.security.enums.SignatureState;
-import com.zf1976.ant.common.security.exception.SignatureException;
+import com.zf1976.ant.auth.exception.SignatureException;
 import com.zf1976.ant.auth.filter.support.AbstractSignatureAuthenticationStrategy;
 import com.zf1976.ant.auth.filter.support.SignaturePattern;
 import com.zf1976.ant.auth.filter.support.StandardSignature;
 import com.zf1976.ant.common.core.util.CaffeineCacheUtils;
+import com.zf1976.ant.common.security.enums.SignatureState;
 import org.springframework.util.NumberUtils;
 
 import javax.servlet.http.HttpServletRequest;

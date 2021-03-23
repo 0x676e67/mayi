@@ -3,10 +3,10 @@
  */
 
 dependencies {
-    implementation project(':ant-common:ant-common-core')
     implementation project(':ant-upms:ant-upms-api')
+    implementation project(':ant-common:ant-common-component')
+    implementation project(':ant-common:ant-common-core')
     implementation("com.baomidou:mybatis-plus-boot-starter:${mybatisPlusVersion}")
     implementation("org.springframework.boot:spring-boot-starter-aop:${springbootVersion}")
-    implementation("org.springframework.boot:spring-boot-starter-security:${springbootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-web:${springbootVersion}")
 }

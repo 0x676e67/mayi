@@ -2,9 +2,9 @@ package com.zf1976.ant.auth.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.power.common.util.StringUtil;
-import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.auth.SecurityContextHolder;
-import com.zf1976.ant.common.core.property.SecurityProperties;
+import com.zf1976.ant.common.core.util.SpringContextHolder;
+import com.zf1976.ant.common.security.property.SecurityProperties;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
