@@ -1,9 +1,9 @@
 package com.zf1976.ant.auth.handler.logout;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zf1976.ant.common.security.SecurityContextHolder;
+import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.common.security.AntUserDetails;
-import com.zf1976.ant.common.security.SessionContextHolder;
+import com.zf1976.ant.common.component.session.SessionContextHolder;
 import com.zf1976.ant.common.security.enums.AuthenticationState;
 import com.zf1976.ant.common.security.exception.ExpiredJwtException;
 import com.zf1976.ant.common.security.exception.IllegalAccessException;

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
 import com.zf1976.ant.common.component.load.annotation.CaffeineEvict;
 import com.zf1976.ant.common.core.constants.Namespace;
+import com.zf1976.ant.common.component.session.SessionContextHolder;
 import com.zf1976.ant.upms.biz.pojo.po.SysPosition;
 import com.zf1976.ant.upms.biz.pojo.po.SysUser;
 import com.zf1976.ant.upms.biz.convert.SysPositionConvert;
@@ -93,8 +94,8 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
                  throw new JobException(JobState.JOB_EXISTING, sysJob.getName());
              });
         SysPosition sysJob = convert.toEntity(dto);
-//        final String principal = SecurityContextHolder.getPrincipal();
-//        sysJob.setCreateBy(principal);
+        String username = SessionContextHolder.username();
+        sysJob.setCreateBy(username);
         sysJob.setCreateTime(new Date());
         super.savaEntity(sysJob);
         return Optional.empty();
@@ -123,8 +124,8 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
                  });
         }
         this.convert.copyProperties(dto, sysJob);
-//        final String principal = SecurityContextHolder.getPrincipal();
-//        sysJob.setUpdateBy(principal);
+        String username = SessionContextHolder.username();
+        sysJob.setCreateBy(username);
         sysJob.setUpdateTime(new Date());
         super.updateEntityById(sysJob);
         return Optional.empty();

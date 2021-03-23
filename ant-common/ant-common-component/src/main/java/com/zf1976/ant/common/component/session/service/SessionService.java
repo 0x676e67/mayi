@@ -1,7 +1,6 @@
-package com.zf1976.ant.common.security.cache.session.service;
+package com.zf1976.ant.common.component.session.service;
 
-import com.zf1976.ant.common.security.AntUserDetails;
-import com.zf1976.ant.common.security.cache.session.Session;
+import com.zf1976.ant.common.component.session.Session;
 
 /**
  * @author mac
@@ -12,18 +11,18 @@ public interface SessionService {
     /**
      * 保存会话信息
      *
-     * @param userDetails 详情
+     * @param session 详情
      * @param token       令牌
      */
-    void save(String token, AntUserDetails userDetails);
+    void save(String token, Session session);
 
     /**
      * 更新会话
      *
      * @param token       令牌
-     * @param userDetails 详情
+     * @param session session
      */
-    void update(String token, AntUserDetails userDetails);
+    void update(String token, Session session);
 
     /**
      * 更新会话
@@ -45,9 +44,9 @@ public interface SessionService {
     /**
      * 强制下线
      *
-     * @param userId 用户id
+     * @param id session id
      */
-    void remove(Long userId);
+    void remove(Long id);
 
     /**
      * 强制下线

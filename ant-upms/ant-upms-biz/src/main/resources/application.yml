@@ -40,7 +40,6 @@ spring:
   profiles:                                                 #加载配置文件
     active: conf,log,dev
 
-
   mail:                                                     #邮件默认配置
     default-encoding: UTF-8
     host: smtp.qq.com

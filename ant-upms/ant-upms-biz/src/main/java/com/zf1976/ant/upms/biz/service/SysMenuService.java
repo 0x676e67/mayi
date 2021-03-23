@@ -4,10 +4,12 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.common.component.load.annotation.CaffeineEvict;
 import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
 import com.zf1976.ant.common.core.constants.Namespace;
+import com.zf1976.ant.common.component.session.SessionContextHolder;
 import com.zf1976.ant.upms.biz.pojo.po.SysMenu;
 import com.zf1976.ant.upms.biz.convert.SysMenuConvert;
 import com.zf1976.ant.upms.biz.dao.SysMenuDao;
 import com.zf1976.ant.upms.biz.dao.SysRoleDao;
+import com.zf1976.ant.upms.biz.pojo.po.SysRole;
 import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
 import com.zf1976.ant.upms.biz.pojo.dto.menu.MenuDTO;
 import com.zf1976.ant.upms.biz.pojo.dto.menu.MenuTypeEnum;
@@ -58,20 +60,20 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
     public Collection<MenuBuildVO> getMenuRoute() {
         // 菜单
         List<SysMenu> menuList = null;
-//        if (SecurityContextHolder.isSuperAdmin()) {
-//            // 管理员获取所有菜单
-//            menuList = super.selectList();
-//        } else {
-//            // 用户id
-//            final long userId = SecurityContextHolder.getPrincipalId();
-//            // 获取用户所有角色id
-//            final Set<Long> roleIds = sysRoleDao.selectListByUserId(userId)
-//                                                .stream()
-//                                                .map(SysRole::getId)
-//                                                .collect(Collectors.toSet());
-//            // 获取用户所有菜单
-//            menuList = this.baseMapper.selectListByRoleIds(roleIds);
-//        }
+        if (SessionContextHolder.isOwner()) {
+            // 管理员获取所有菜单
+            menuList = super.selectList();
+        } else {
+            // 用户id
+            final long sessionId = SessionContextHolder.getSessionId();
+            // 获取用户所有角色id
+            final Set<Long> roleIds = sysRoleDao.selectListByUserId(sessionId)
+                                                .stream()
+                                                .map(SysRole::getId)
+                                                .collect(Collectors.toSet());
+            // 获取用户所有菜单
+            menuList = this.baseMapper.selectListByRoleIds(roleIds);
+        }
 
         LongAdder maxType = new LongAdder();
         // 获取非叶子
@@ -291,8 +293,8 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
 
         dto.setPid(dto.getPid() != null? dto.getPid() > 0? dto.getPid(): null : null);
         SysMenu sysMenu = this.convert.toEntity(dto);
-//        String principal = SecurityContextHolder.getPrincipal();
-//        sysMenu.setCreateBy(principal);
+        String username = SessionContextHolder.username();
+        sysMenu.setCreateBy(username);
         sysMenu.setCreateTime(new Date());
         super.savaEntity(sysMenu);
         return Optional.empty();
@@ -376,8 +378,8 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
     private void update(MenuDTO dto, SysMenu sysMenu) {
         dto.setPid(dto.getPid() != null? dto.getPid() > 0? dto.getPid(): null : null);
         this.convert.copyProperties(dto, sysMenu);
-//        final String principal = SecurityContextHolder.getPrincipal();
-//        sysMenu.setUpdateBy(principal);
+        String username = SessionContextHolder.username();
+        sysMenu.setUpdateBy(username);
         sysMenu.setUpdateTime(new Date());
         super.updateEntityById(sysMenu);
     }

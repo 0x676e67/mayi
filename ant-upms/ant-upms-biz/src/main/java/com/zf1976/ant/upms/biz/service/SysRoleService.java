@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
 import com.zf1976.ant.common.component.load.annotation.CaffeineEvict;
 import com.zf1976.ant.common.core.constants.Namespace;
-import com.zf1976.ant.common.security.safe.SecurityContextHolder;
+import com.zf1976.ant.common.component.session.SessionContextHolder;
 import com.zf1976.ant.upms.biz.pojo.po.SysMenu;
 import com.zf1976.ant.upms.biz.convert.SysRoleConvert;
 import com.zf1976.ant.upms.biz.dao.SysDepartmentDao;
@@ -89,10 +89,10 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      */
     @CaffeinePut(namespace = Namespace.ROLE, key = "level")
     public Integer getRoleLevel() {
-        if (SecurityContextHolder.isSuperAdmin()) {
+        if (SessionContextHolder.isOwner()) {
             return 0;
         }
-        return super.baseMapper.selectListByUsername(SecurityContextHolder.getPrincipal())
+        return super.baseMapper.selectListByUsername(SessionContextHolder.username())
                                .stream()
                                .map(SysRole::getLevel)
                                .min(Integer::compareTo)
@@ -180,8 +180,8 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
                  throw new RoleException(RoleState.ROLE_EXISTING, sysRole.getName());
              });
         SysRole sysRole = this.convert.toEntity(dto);
-        String principal = SecurityContextHolder.getPrincipal();
-        sysRole.setCreateBy(principal);
+        String currentUser = SessionContextHolder.username();
+        sysRole.setCreateBy(currentUser);
         sysRole.setCreateTime(new Date());
         super.savaEntity(sysRole);
         if (permissionEnum == DataPermissionEnum.ALL) {
@@ -262,8 +262,8 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      */
     private void update(RoleDTO dto, SysRole sysRole) {
         this.convert.copyProperties(dto, sysRole);
-        final String principal = SecurityContextHolder.getPrincipal();
-        sysRole.setUpdateBy(principal);
+        final String username = SessionContextHolder.username();
+        sysRole.setUpdateBy(username);
         sysRole.setCreateTime(new Date());
         super.updateEntityById(sysRole);
     }

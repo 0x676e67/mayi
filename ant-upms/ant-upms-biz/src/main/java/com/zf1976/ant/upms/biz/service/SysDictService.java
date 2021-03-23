@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapp
 import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
 import com.zf1976.ant.common.component.load.annotation.CaffeineEvict;
 import com.zf1976.ant.common.core.constants.Namespace;
+import com.zf1976.ant.common.component.session.SessionContextHolder;
 import com.zf1976.ant.upms.biz.pojo.po.SysDict;
 import com.zf1976.ant.upms.biz.pojo.po.SysDictDetail;
 import com.zf1976.ant.upms.biz.convert.SysDictConvert;
@@ -74,8 +75,8 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
                  throw new DictException(DictState.DICT_EXISTING, sysDict.getDictName());
              });
         SysDict sysDict = convert.toEntity(dto);
-//        final String principal = SecurityContextHolder.getPrincipal();
-//        sysDict.setCreateBy(principal);
+        String username = SessionContextHolder.username();
+        sysDict.setCreateBy(username);
         sysDict.setCreateTime(new Date());
         super.savaEntity(sysDict);
         return Optional.empty();
@@ -106,8 +107,8 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
         }
 
         this.convert.copyProperties(dto, sysDict);
-//        final String principal = SecurityContextHolder.getPrincipal();
-//        sysDict.setUpdateBy(principal);
+        String username = SessionContextHolder.username();
+        sysDict.setCreateBy(username);
         sysDict.setUpdateTime(new Date());
         super.updateEntityById(sysDict);
         return Optional.empty();

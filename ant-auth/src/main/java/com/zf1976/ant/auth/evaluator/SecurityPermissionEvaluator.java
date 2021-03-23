@@ -1,7 +1,7 @@
 package com.zf1976.ant.auth.evaluator;
 
 import com.zf1976.ant.common.security.JwtTokenProvider;
-import com.zf1976.ant.common.security.SecurityContextHolder;
+import com.zf1976.ant.auth.SecurityContextHolder;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,7 +18,7 @@ import java.util.Arrays;
 public class SecurityPermissionEvaluator implements PermissionEvaluator {
 
     public boolean hasPrivilege(Authentication authentication, String... permission) {
-        if (SecurityContextHolder.isSuperAdmin()) {
+        if (SecurityContextHolder.owner()) {
             return true;
         } else {
             return AuthorityUtils.authorityListToSet(authentication.getAuthorities())

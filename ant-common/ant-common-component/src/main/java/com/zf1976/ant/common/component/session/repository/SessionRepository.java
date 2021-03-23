@@ -1,6 +1,6 @@
-package com.zf1976.ant.common.security.cache.session.repository;
+package com.zf1976.ant.common.component.session.repository;
 
-import com.zf1976.ant.common.security.cache.session.Session;
+import com.zf1976.ant.common.component.session.Session;
 
 import java.util.Collection;
 import java.util.List;

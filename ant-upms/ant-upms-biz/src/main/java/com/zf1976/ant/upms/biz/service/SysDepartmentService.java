@@ -7,6 +7,7 @@ import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.core.foundation.exception.BadBusinessException;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
+import com.zf1976.ant.common.component.session.SessionContextHolder;
 import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
 import com.zf1976.ant.upms.biz.convert.DepartmentConvert;
 import com.zf1976.ant.upms.biz.dao.SysDepartmentDao;
@@ -172,8 +173,8 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
                  throw new DepartmentException(DepartmentState.DEPARTMENT_EXISTING, dto.getName());
              });
         SysDepartment sysDept = this.convert.toEntity(dto);
-//        String principal = SecurityContextHolder.getPrincipal();
-//        sysDept.setCreateBy(principal);
+        String username = SessionContextHolder.username();
+        sysDept.setCreateBy(username);
         sysDept.setCreateTime(new Date());
         super.savaEntity(sysDept);
         return Optional.empty();
@@ -246,8 +247,8 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
 
     private void update(DepartmentDTO dto, SysDepartment currentDept) {
         this.convert.copyProperties(dto, currentDept);
-//        final String principal = SecurityContextHolder.getPrincipal();
-//        currentDept.setUpdateBy(principal);
+        String username = SessionContextHolder.username();
+        currentDept.setCreateBy(username);
         currentDept.setUpdateTime(new Date());
         super.updateEntityById(currentDept);
     }

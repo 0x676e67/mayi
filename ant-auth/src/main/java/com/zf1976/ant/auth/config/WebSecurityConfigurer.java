@@ -7,7 +7,7 @@ import com.zf1976.ant.auth.filter.SignatureAuthenticationFilter;
 import com.zf1976.ant.auth.filter.provider.DaoAuthenticationEnhancerProvider;
 import com.zf1976.ant.auth.handler.logout.Oauth2LogoutHandler;
 import com.zf1976.ant.auth.handler.logout.Oauth2LogoutSuccessHandler;
-import com.zf1976.ant.common.security.SecurityProperties;
+import com.zf1976.ant.common.core.property.SecurityProperties;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;

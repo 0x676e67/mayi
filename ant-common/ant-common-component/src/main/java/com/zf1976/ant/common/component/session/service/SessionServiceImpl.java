@@ -1,11 +1,9 @@
-package com.zf1976.ant.common.security.cache.session.service;
+package com.zf1976.ant.common.component.session.service;
 
+import com.zf1976.ant.common.core.property.SecurityProperties;
 import com.zf1976.ant.common.core.util.RequestUtils;
-import com.zf1976.ant.common.security.AntUserDetails;
-import com.zf1976.ant.common.security.SecurityProperties;
-import com.zf1976.ant.common.security.cache.session.Session;
-import com.zf1976.ant.common.security.cache.session.repository.SessionRepository;
-import com.zf1976.ant.common.security.pojo.vo.DepartmentVo;
+import com.zf1976.ant.common.component.session.Session;
+import com.zf1976.ant.common.component.session.repository.SessionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -33,39 +31,21 @@ public class SessionServiceImpl implements SessionService {
     }
 
     @Override
-    public void save(String token, AntUserDetails userDetails) {
+    public void save(String token, Session session) {
         try {
-            HttpServletRequest request = RequestUtils.getRequest();
-            Long id = userDetails.getId();
-            DepartmentVo department = userDetails.getUserInfo()
-                                                 .getDepartment();
-            String deptName = department == null ? null : department.getName();
-            Session session = new Session();
-            session.setId(id)
-                   .setLoginTime(new Date())
-                   .setUsername(userDetails.getUsername())
-                   .setNickName(userDetails.getUserInfo().getNickName())
-                   .setOwner(ObjectUtils.nullSafeEquals(userDetails.getUsername(), securityProperties.getOwner()))
-                   .setDataPermission(new ArrayList<>(userDetails.getDataScopes()))
-                   .setPermission(new ArrayList<>(userDetails.getPermission()))
-                   .setToken(token)
-                   .setDepartment(deptName)
-                   .setIp(RequestUtils.getIpAddress(request))
-                   .setIpRegion(RequestUtils.getIpRegion(request))
-                   .setBrowser(RequestUtils.getBrowser(request))
-                   .setOperatingSystemType(RequestUtils.getOpsSystemType(request));
-            repository.savaIdByToken(token, id);
-            repository.saveSessionById(id, session);
+            var sessionId = session.getId();
+            repository.savaIdByToken(token, sessionId);
+            repository.saveSessionById(sessionId, session);
         } catch (Exception e) {
             log.error(e.getMessage(), e.getCause());
         }
     }
 
     @Override
-    public void update(String token, AntUserDetails userDetails) {
+    public void update(String token, Session session) {
         try{
-            this.remove(userDetails.getId());
-            this.save(token, userDetails);
+            this.remove(session.getId());
+            this.save(token, session);
         }catch (Exception e) {
             log.error(e.getMessage(), e.getCause());
         }

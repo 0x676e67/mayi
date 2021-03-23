@@ -1,15 +1,17 @@
-package com.zf1976.ant.common.security;
+package com.zf1976.ant.common.component.session;
 
+import com.zf1976.ant.common.core.property.SecurityProperties;
 import com.zf1976.ant.common.core.util.RequestUtils;
-import com.zf1976.ant.common.security.cache.session.Session;
-import com.zf1976.ant.common.security.cache.session.service.SessionService;
+import com.zf1976.ant.common.component.session.service.SessionService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * 身份验证会话管理器
@@ -20,26 +22,53 @@ import java.util.Optional;
 @Component
 public class SessionContextHolder {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SessionContextHolder.class);
+    private static final ThreadLocal<Session> SESSION_THREAD_LOCAL = new ThreadLocal<>();
     private static SessionService service;
+    private static SecurityProperties securityProperties;
 
+    @Autowired
     public SessionContextHolder(SessionService sessionService) {
         SessionContextHolder.service = sessionService;
     }
 
+    @Autowired
+    public static void setSecurityProperties(SecurityProperties securityProperties) {
+        SessionContextHolder.securityProperties = securityProperties;
+    }
+
     /**
-     * 存储会话
+     * 存储当前请求会话
      *
      * @param token              token
      * @param userDetails        用户会话details
      */
-    public static void storeSession(String token, UserDetails userDetails) {
-        service.save(token, (AntUserDetails) userDetails);
+    public static void storeSession(String token, Session session) {
+        service.save(token, session);
     }
 
     /**
-     * 读取会话
+     * 读取当前请求session
      *
-     * @param id token
+     * @date 2021-03-23 12:19:55
+     * @return {@link Session}
+     */
+    public static Session readSession(){
+        var session = SESSION_THREAD_LOCAL.get();
+        if (session == null) {
+            var readSession = readSession(token());
+            if (readSession != null) {
+                SESSION_THREAD_LOCAL.set(readSession);
+            }
+            return readSession;
+        }
+        return session;
+    }
+
+    /**
+     * 根据id读取会话
+     *
+     * @param id session id
      * @return session
      */
     public static Session readSession(Long id) {
@@ -47,13 +76,23 @@ public class SessionContextHolder {
     }
 
     /**
-     * 获取会话
+     * 根据token读取会话
      *
      * @param token token
      * @return session
      */
     public static Session readSession(String token) {
         return service.get(token);
+    }
+
+    /**
+     * 更新会话
+     *
+     * @param token              token
+     * @param session        userDetails
+     */
+    public static void refreshSession(String token, Session session) {
+        service.update(token, session);
     }
 
     /**
@@ -88,13 +127,13 @@ public class SessionContextHolder {
     }
 
     /**
-     * 权限修改时更新会话
+     * 更新会话
      *
-     * @param token              token
-     * @param userDetails        userDetails
+     * @date 2021-03-23 12:41:44
+     * @param session userDetails
      */
-    public static void refreshSession(String token, AntUserDetails userDetails) {
-        service.update(token, userDetails);
+    public static void refreshSession(Session session) {
+        service.update(token(), session);
     }
 
     /**
@@ -103,7 +142,9 @@ public class SessionContextHolder {
      * @param token token
      */
     public static void removeSession(String token) {
-        Optional.ofNullable(token).ifPresent(service::remove);
+        if (token != null) {
+            service.remove(token);
+        }
     }
 
     /**
@@ -113,6 +154,13 @@ public class SessionContextHolder {
      */
     public static void removeSession(Long id) {
         service.remove(id);
+    }
+
+    /**
+     * 强制当前用户下限
+     */
+    public static void removeSession(){
+        removeSession(token());
     }
 
 
@@ -126,6 +174,11 @@ public class SessionContextHolder {
         return service.getExpired(id);
     }
 
+    public static Long getExpiredTime() {
+        var session = readSession();
+        return service.getExpired(session.getId());
+    }
+
     /**
      * 获取当前会话id
      *
@@ -133,6 +186,23 @@ public class SessionContextHolder {
      */
     public static Long getSessionId(){
         return service.getSessionId(token());
+    }
+
+    /**
+     * 获取当前会话用户名
+     *
+     * @return username
+     */
+    public static String username() {
+        return readSession().getUsername();
+    }
+
+    public static boolean isOwner(){
+        return readSession().getOwner();
+    }
+
+    public static boolean isOwner(String username){
+        return ObjectUtils.nullSafeEquals(securityProperties.getOwner(), username);
     }
 
     /**
@@ -146,8 +216,7 @@ public class SessionContextHolder {
     }
 
     private static String token(){
-        return RequestUtils.getRequest()
-                           .getHeader(HttpHeaders.AUTHORIZATION);
+        return RequestUtils.getRequest().getHeader(HttpHeaders.AUTHORIZATION);
     }
 
 }

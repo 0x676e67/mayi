@@ -11,11 +11,11 @@ import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.component.mail.ValidateFactory;
 import com.zf1976.ant.common.component.mail.ValidateService;
-import com.zf1976.ant.common.security.SessionContextHolder;
+import com.zf1976.ant.common.component.session.SessionContextHolder;
+import com.zf1976.ant.common.component.session.Session;
 import com.zf1976.ant.upms.biz.config.FileProperties;
 import com.zf1976.ant.common.encrypt.RsaUtil;
 import com.zf1976.ant.common.encrypt.config.RsaProperties;
-import com.zf1976.ant.common.security.cache.session.Session;
 import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
 import com.zf1976.ant.common.core.foundation.exception.BadBusinessException;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
@@ -38,7 +38,6 @@ import com.zf1976.ant.upms.biz.pojo.query.UserQueryParam;
 import com.zf1976.ant.upms.biz.pojo.vo.user.UserVO;
 import com.zf1976.ant.upms.biz.service.base.AbstractService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -93,23 +92,24 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         Assert.notNull(requestPage, "request page can not been null");
         IPage<SysUser> sourcePage = null;
         // 非super admin 过滤数据权限
-//        if (!SecurityContextHolder.isSuperAdmin()) {
-//            SecurityUserDetails userDetails = (SecurityUserDetails) SecurityContextHolder.getDetails();
-//            Assert.notNull(userDetails, "user details can not been null");
-//            // 用户可观察数据范围
-//            List<Long> userIds = super.baseMapper.selectByDepartmentIds(userDetails.getDataScopes());
-//            sourcePage = super.queryChain()
-//                             .setQueryParam(requestPage, () -> {
-//                                 // 自定义条件
-//                                 return ChainWrappers.queryChain(super.baseMapper)
-//                                                     .in(getColumn(SysUser::getId), userIds);
-//                             }).selectPage();
-//        } else {
-//            sourcePage = super.queryChain()
-//                              .setQueryParam(requestPage)
-//                              .selectPage();
-//        }
+        if (!SessionContextHolder.isOwner()) {
+            var session = SessionContextHolder.readSession();
+            Assert.notNull(session, "current session details can not been null");
+            // 用户可观察数据范围
+            List<Long> userIds = super.baseMapper.selectByDepartmentIds(session.getDataPermission());
+            sourcePage = super.queryChain()
+                             .setQueryParam(requestPage, () -> {
+                                 // 自定义条件
+                                 return ChainWrappers.queryChain(super.baseMapper)
+                                                     .in(getColumn(SysUser::getId), userIds);
+                             }).selectPage();
+        } else {
+            sourcePage = super.queryChain()
+                              .setQueryParam(requestPage)
+                              .selectPage();
+        }
         // 根据部门分页
+        IPage<SysUser> finalSourcePage = sourcePage;
         Optional.ofNullable(requestPage.getQuery())
                 .ifPresent(userQueryParam -> {
                     if (userQueryParam.getDepartmentId() != null) {
@@ -122,11 +122,11 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
                                              .forEach(id -> {
                                                  this.getDepartmentTreeIds(id, () -> ids);
                                              });
-                        List<SysUser> collect = sourcePage.getRecords()
-                                                          .stream()
-                                                          .filter(sysUser -> ids.contains(sysUser.getDepartmentId()))
-                                                          .collect(Collectors.toList());
-                        sourcePage.setRecords(collect);
+                        List<SysUser> collect = finalSourcePage.getRecords()
+                                                               .stream()
+                                                               .filter(sysUser -> ids.contains(sysUser.getDepartmentId()))
+                                                               .collect(Collectors.toList());
+                        finalSourcePage.setRecords(collect);
                     }
                 });
         return super.mapPageToTarget(sourcePage, sysUser -> {
@@ -209,9 +209,9 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      */
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateAvatar(MultipartFile multipartFile) {
-        final Long id = SecurityContextHolder.getPrincipalId();
+        final Long sessionId = SessionContextHolder.getSessionId();
         final SysUser sysUser = super.lambdaQuery()
-                                 .eq(SysUser::getId, id)
+                                 .eq(SysUser::getId, sessionId)
                                  .one();
         try {
             final String oldFileName = sysUser.getAvatarName();
@@ -237,9 +237,9 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      */
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updatePassword(UpdatePasswordDTO dto) {
-        final Long id = SecurityContextHolder.getPrincipalId();
+        final Long sessionId = SessionContextHolder.getSessionId();
         final SysUser sysUser = super.lambdaQuery()
-                                     .eq(SysUser::getId, id)
+                                     .eq(SysUser::getId, sessionId)
                                      .oneOpt().orElseThrow(() -> new BadBusinessException(BusinessMsgState.CODE_NOT_FOUNT));
         String oldPass;
         String newPass;
@@ -263,7 +263,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
             super.updateEntityById(sysUser);
             // 强制用户重新登陆
             org.springframework.security.core.context.SecurityContextHolder.clearContext();
-            SessionContextHolder.removeSession(id);
+            SessionContextHolder.removeSession(sessionId);
         }else {
             throw new BadBusinessException(BusinessMsgState.PASSWORD_LOW);
         }
@@ -286,16 +286,16 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         }
 
         ValidateService validateService = ValidateFactory.getInstance();
-        UserDetails userDetails = SecurityContextHolder.getDetails();
+        var sysUser = super.lambdaQuery()
+                            .select(SysUser::getPassword)
+                            .eq(SysUser::getId, SessionContextHolder.getSessionId())
+                            .oneOpt()
+                            .orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
         BadBusinessException businessException = null;
         if (validateService.validate(dto.getEmail(), code)) {
             try {
                 String decodePassword = RsaUtil.decryptByPrivateKey(RsaProperties.PRIVATE_KEY, dto.getPassword());
-                if (passwordEncoder.matches(decodePassword, userDetails.getPassword())) {
-                    Long principalId = SecurityContextHolder.getPrincipalId();
-                    SysUser sysUser = super.lambdaQuery()
-                                           .eq(SysUser::getId, principalId)
-                                           .oneOpt().orElseThrow(() -> new BadBusinessException(BusinessMsgState.DATA_NOT_FOUNT));
+                if (passwordEncoder.matches(decodePassword, sysUser.getPassword())) {
                     if (ObjectUtils.nullSafeEquals(sysUser.getEmail(), dto.getEmail())) {
                         throw new BadBusinessException(BusinessMsgState.EMAIL_EXISTING);
                     }
@@ -314,7 +314,6 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         if (!ObjectUtils.isEmpty(businessException)) {
             throw  businessException;
         }
-
         return Optional.empty();
     }
 
@@ -330,8 +329,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         SysUser sysUser = super.lambdaQuery()
                                .eq(SysUser::getId, dto.getId())
                                .oneOpt().orElseThrow(() -> new BadBusinessException(BusinessMsgState.DATA_NOT_FOUNT));
-        Long id = SecurityContextHolder.getPrincipalId();
-        Session session = SessionContextHolder.get(id);
+        Session session = SessionContextHolder.readSession();
         Assert.notNull(session, "session cannot been null");
         if (!ObjectUtils.isEmpty(dto.getPhone()) && !ObjectUtils.nullSafeEquals(dto.getPhone(), sysUser.getPhone())) {
             SysUser var = super.lambdaQuery()
@@ -350,7 +348,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         sysUser.setGender(dto.getGender());
         sysUser.setNickName(dto.getNickName());
         super.updateEntityById(sysUser);
-        SessionContextHolder.refreshSession(id, session);
+        SessionContextHolder.refreshSession(session.getId(), session);
         return Optional.empty();
     }
 
@@ -385,8 +383,8 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
                 });
              });
         SysUser sysUser = this.convert.toEntity(dto);
-        String principal = SecurityContextHolder.getPrincipal();
-        sysUser.setCreateBy(principal);
+        String username = SessionContextHolder.username();
+        sysUser.setCreateBy(username);
         sysUser.setCreateTime(new Date());
         super.savaEntity(sysUser);
         super.baseMapper.savePositionRelationById(sysUser.getId(), dto.getPositionIds());
@@ -408,14 +406,14 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         SysUser sysUser = super.lambdaQuery()
                                 .eq(SysUser::getId, dto.getId())
                                 .oneOpt().orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
-        long principalId = SecurityContextHolder.getPrincipalId();
+        long sessionId = SessionContextHolder.getSessionId();
         if (!dto.getEnabled()) {
             // 禁止禁用管理员
-            if (SecurityContextHolder.validateSuperAdmin(sysUser.getUsername())) {
+            if (SessionContextHolder.isOwner(sysUser.getUsername())) {
                 throw new UserException(UserState.USER_OPT_ERROR);
             }
             // 禁止禁用当前操作用户
-            if (ObjectUtils.nullSafeEquals(principalId, sysUser.getId())) {
+            if (ObjectUtils.nullSafeEquals(sessionId, sysUser.getId())) {
                 throw new UserException(UserState.USER_OPT_ERROR);
             }
             SessionContextHolder.removeSession(sysUser.getId());
@@ -487,9 +485,9 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     @CaffeineEvict(namespace =  Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deleteUser(Set<Long> ids) {
-        if (SecurityContextHolder.isSuperAdmin()) {
+        if (SessionContextHolder.isOwner()) {
             SysUser sysUser = super.lambdaQuery()
-                                   .eq(SysUser::getUsername, SecurityContextHolder.getPrincipal())
+                                   .eq(SysUser::getUsername, SessionContextHolder.username())
                                    .oneOpt().orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
             if (ids.contains(sysUser.getId())) {
                 throw new UserException(UserState.USER_OPT_ERROR);
@@ -498,11 +496,10 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         super.deleteByIds(ids);
         super.baseMapper.deleteRoleRelationByIds(ids);
         this.sysPositionDao.deleteUserRelationById(ids);
-        long principalId = SecurityContextHolder.getPrincipalId();
+        long sessionId = SessionContextHolder.getSessionId();
         // 相当于注销
-        if (ids.contains(principalId)) {
-            SecurityContextHolder.clearContext();
-            SessionContextHolder.removeSession(principalId);
+        if (ids.contains(sessionId)) {
+            SessionContextHolder.removeSession(sessionId);
         }
         return Optional.empty();
     }

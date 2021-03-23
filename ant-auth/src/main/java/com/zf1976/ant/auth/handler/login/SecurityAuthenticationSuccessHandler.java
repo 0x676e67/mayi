@@ -2,7 +2,9 @@ package com.zf1976.ant.auth.handler.login;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.power.common.util.Base64Util;
-import com.zf1976.ant.common.security.SessionContextHolder;
+import com.zf1976.ant.auth.SecurityContextHolder;
+import com.zf1976.ant.common.component.session.Session;
+import com.zf1976.ant.common.component.session.SessionContextHolder;
 import com.zf1976.ant.common.security.pojo.vo.LoginResponse;
 import com.zf1976.ant.common.core.foundation.ResultData;
 import com.zf1976.ant.common.encrypt.EncryptUtil;
@@ -10,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.util.Assert;
@@ -44,7 +45,8 @@ public class SecurityAuthenticationSuccessHandler implements AuthenticationSucce
         final LoginResponse loginResponse = new LoginResponse();
         loginResponse.setToken(token)
                      .setUser(userDetails);
-        SessionContextHolder.storeSession(token, userDetails);
+        var session = SecurityContextHolder.generatedSession(token);
+        SessionContextHolder.storeSession(token, session);
         // 原始content
         String rawContent = jsonMapper.writeValueAsString(ResultData.success(loginResponse));
         // 加密后内容

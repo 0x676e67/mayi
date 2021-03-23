@@ -1,6 +1,6 @@
 package com.zf1976.ant.upms.biz.convert;
 
-import com.zf1976.ant.common.security.cache.session.Session;
+import com.zf1976.ant.common.component.session.Session;
 import com.zf1976.ant.upms.biz.pojo.vo.SessionVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;

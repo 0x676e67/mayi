@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
 import com.zf1976.ant.common.component.load.annotation.CaffeineEvict;
 import com.zf1976.ant.common.core.constants.Namespace;
+import com.zf1976.ant.common.component.session.SessionContextHolder;
 import com.zf1976.ant.upms.biz.dao.SysDictDao;
 import com.zf1976.ant.upms.biz.dao.SysDictDetailDao;
 import com.zf1976.ant.upms.biz.pojo.po.SysDict;
@@ -101,8 +102,8 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
                                            .oneOpt()
                                            .orElseThrow(() -> new DictException(DictState.DICT_NOT_FOUND));
         this.convert.copyProperties(dto, sysDictDetail);
-//        String principal = SecurityContextHolder.getPrincipal();
-//        sysDictDetail.setUpdateBy(principal);
+        String username = SessionContextHolder.username();
+        sysDictDetail.setCreateBy(username);
         sysDictDetail.setUpdateTime(new Date());
         super.updateEntityById(sysDictDetail);
         return Optional.empty();

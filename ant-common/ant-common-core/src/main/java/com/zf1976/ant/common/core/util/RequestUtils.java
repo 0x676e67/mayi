@@ -115,7 +115,7 @@ public final class RequestUtils extends RequestContextHolder {
         try (CloseableHttpAsyncClient httpClient = HttpAsyncClients.createDefault()) {
             httpClient.start();
             HttpGet request = new HttpGet(IP_REGION_BASE_URL + ip);
-            Future<HttpResponse> future = httpClient.execute(request, new FutureCallback<HttpResponse>() {
+            Future<HttpResponse> future = httpClient.execute(request, new FutureCallback<>() {
                 @Override
                 public void completed(HttpResponse httpResponse) {
                     if (LOG.isDebugEnabled()) {

@@ -1,4 +1,4 @@
-package com.zf1976.ant.common.security.cache.session;
+package com.zf1976.ant.common.component.session;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -6,7 +6,6 @@ import lombok.experimental.Accessors;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author mac
