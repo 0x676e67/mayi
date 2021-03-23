@@ -1,13 +1,14 @@
 package com.zf1976.ant.common.security;
 
-import com.zf1976.ant.common.security.cache.session.Session;
-import com.zf1976.ant.common.security.cache.session.repository.SessionRepository;
-import com.zf1976.ant.common.security.cache.session.service.SessionService;
 import com.zf1976.ant.common.core.util.RequestUtils;
-import com.zf1976.ant.common.core.util.SpringContextHolder;
-import com.zf1976.ant.common.security.AntUserDetails;
+import com.zf1976.ant.common.security.cache.session.Session;
+import com.zf1976.ant.common.security.cache.session.service.SessionService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -16,24 +17,23 @@ import java.util.Optional;
  * @author mac
  * Create by Ant on 2020/10/4 14:11
  */
+@Component
 public class SessionContextHolder {
 
-    private static final SessionService SERVICE;
-    private static final SessionRepository REPOSITORY;
+    private static SessionService service;
 
-    static {
-        SERVICE = SpringContextHolder.getBean(SessionService.class);
-        REPOSITORY = SpringContextHolder.getBean(SessionRepository.class);
+    public SessionContextHolder(SessionService sessionService) {
+        SessionContextHolder.service = sessionService;
     }
 
     /**
-     * 保存会话
+     * 存储会话
      *
      * @param token              token
      * @param userDetails        用户会话details
      */
-    public static void storeSession(String token, org.springframework.security.core.userdetails.UserDetails userDetails) {
-        SERVICE.save(token, (AntUserDetails) userDetails);
+    public static void storeSession(String token, UserDetails userDetails) {
+        service.save(token, (AntUserDetails) userDetails);
     }
 
     /**
@@ -43,7 +43,7 @@ public class SessionContextHolder {
      * @return session
      */
     public static Session readSession(Long id) {
-        return SERVICE.get(id);
+        return service.get(id);
     }
 
     /**
@@ -53,7 +53,7 @@ public class SessionContextHolder {
      * @return session
      */
     public static Session readSession(String token) {
-        return SERVICE.get(token);
+        return service.get(token);
     }
 
     /**
@@ -68,7 +68,7 @@ public class SessionContextHolder {
                .setIpRegion(RequestUtils.getIpRegion(request))
                .setBrowser(RequestUtils.getBrowser(request))
                .setOperatingSystemType(RequestUtils.getOpsSystemType(request));
-        SERVICE.update(id, session);
+        service.update(id, session);
     }
 
     /**
@@ -84,7 +84,7 @@ public class SessionContextHolder {
                .setIpRegion(RequestUtils.getIpRegion(request))
                .setBrowser(RequestUtils.getBrowser(request))
                .setOperatingSystemType(RequestUtils.getOpsSystemType(request));
-        SERVICE.update(id, session, expired);
+        service.update(id, session, expired);
     }
 
     /**
@@ -94,7 +94,7 @@ public class SessionContextHolder {
      * @param userDetails        userDetails
      */
     public static void refreshSession(String token, AntUserDetails userDetails) {
-        SERVICE.update(token, userDetails);
+        service.update(token, userDetails);
     }
 
     /**
@@ -103,8 +103,7 @@ public class SessionContextHolder {
      * @param token token
      */
     public static void removeSession(String token) {
-        Optional.ofNullable(token)
-                .ifPresent(SERVICE::remove);
+        Optional.ofNullable(token).ifPresent(service::remove);
     }
 
     /**
@@ -113,8 +112,9 @@ public class SessionContextHolder {
      * @param id id
      */
     public static void removeSession(Long id) {
-        SERVICE.remove(id);
+        service.remove(id);
     }
+
 
     /**
      * 查询session过期时间
@@ -122,8 +122,32 @@ public class SessionContextHolder {
      * @param id token
      * @return timestamp
      */
-    public static Long getExpired(Long id) {
-        return REPOSITORY.selectSessionExpiredById(id);
+    public static Long getExpiredTime(Long id) {
+        return service.getExpired(id);
+    }
+
+    /**
+     * 获取当前会话id
+     *
+     * @return session
+     */
+    public static Long getSessionId(){
+        return service.getSessionId(token());
+    }
+
+    /**
+     * 获取当前会话数据权限
+     *
+     * @return data permission
+     */
+    public static List<Long> getDataPermission(){
+        return service.get(token())
+                      .getDataPermission();
+    }
+
+    private static String token(){
+        return RequestUtils.getRequest()
+                           .getHeader(HttpHeaders.AUTHORIZATION);
     }
 
 }

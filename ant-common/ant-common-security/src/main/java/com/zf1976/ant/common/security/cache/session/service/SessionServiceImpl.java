@@ -1,18 +1,19 @@
 package com.zf1976.ant.common.security.cache.session.service;
 
+import com.zf1976.ant.common.core.util.RequestUtils;
 import com.zf1976.ant.common.security.AntUserDetails;
 import com.zf1976.ant.common.security.SecurityProperties;
 import com.zf1976.ant.common.security.cache.session.Session;
 import com.zf1976.ant.common.security.cache.session.repository.SessionRepository;
 import com.zf1976.ant.common.security.pojo.vo.DepartmentVo;
-import com.zf1976.ant.common.core.util.RequestUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Optional;
 
 /**
  * @author mac
@@ -142,4 +143,30 @@ public class SessionServiceImpl implements SessionService {
         }
     }
 
+
+    /**
+     * 查询session过期时间
+     *
+     * @param id token
+     * @return timestamp
+     */
+    @Override
+    public  Long getExpired(Long id) {
+        return repository.selectSessionExpiredById(id);
+    }
+
+    /**
+     * 根据token获取session id
+     *
+     * @param token token
+     * @return id
+     */
+    @Override
+    public Long getSessionId(String token) {
+        return repository.selectIdByToken(token);
+    }
+
+    public SessionRepository getRepository(){
+        return this.repository;
+    }
 }

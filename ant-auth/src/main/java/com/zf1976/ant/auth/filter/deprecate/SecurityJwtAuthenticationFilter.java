@@ -106,7 +106,7 @@ public class SecurityJwtAuthenticationFilter extends OncePerRequestFilter {
         Session session = SessionContextHolder.readSession(token);
         long remainingTime;
         if (session != null) {
-            if (CONFIG.getEnableRestore() & (remainingTime = SessionContextHolder.getExpired(id)) > 0) {
+            if (CONFIG.getEnableRestore() & (remainingTime = SessionContextHolder.getExpiredTime(id)) > 0) {
                 String refreshToken;
                 if (remainingTime < CONFIG.getTokenDetect()) {
                     refreshToken = JwtTokenProvider.refreshToken(token, CONFIG.getTokenRestore());

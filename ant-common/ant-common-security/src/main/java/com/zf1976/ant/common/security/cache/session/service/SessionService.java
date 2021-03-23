@@ -3,8 +3,6 @@ package com.zf1976.ant.common.security.cache.session.service;
 import com.zf1976.ant.common.security.AntUserDetails;
 import com.zf1976.ant.common.security.cache.session.Session;
 
-import javax.servlet.http.HttpServletRequest;
-
 /**
  * @author mac
  * Create by Ant on 2020/9/29 19:14
@@ -73,5 +71,22 @@ public interface SessionService {
      * @return session
      */
     Session get(String token);
+
+
+    /**
+     * 查询session过期时间
+     *
+     * @param id token
+     * @return timestamp
+     */
+    Long getExpired(Long id);
+
+    /**
+     * 根据token获取session id
+     *
+     * @param token token
+     * @return id
+     */
+    Long getSessionId(String token);
 
 }
