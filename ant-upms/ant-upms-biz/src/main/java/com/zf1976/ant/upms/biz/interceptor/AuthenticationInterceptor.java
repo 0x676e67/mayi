@@ -1,19 +1,27 @@
 package com.zf1976.ant.upms.biz.interceptor;
 
 import com.zf1976.ant.common.component.session.SessionContextHolder;
+import com.zf1976.ant.common.core.foundation.DataResult;
+import com.zf1976.ant.common.core.util.JSONUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * @author ant
  * Create by Ant on 2021/3/23 4:03 PM
  */
 public class AuthenticationInterceptor implements HandlerInterceptor {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * Intercept the execution of a handler. Called after HandlerMapping determined
@@ -35,14 +43,30 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
      * that this interceptor has already dealt with the response itself.
      */
     @Override
-    public boolean preHandle(@NonNull HttpServletRequest request,
-                             @NonNull HttpServletResponse response,
-                             @NonNull Object handler) {
+    public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) {
         var token = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (token == null) {
+            this.unauthenticatedHandler(response);
             return false;
         }
-        return SessionContextHolder.readSession() != null;
+        try {
+            return SessionContextHolder.readSession() != null;
+        }catch (Exception e) {
+            if (logger.isDebugEnabled()) {
+                logger.debug(e.getMessage(), e.getCause());
+            }
+            this.unauthenticatedHandler(response);
+            return false;
+        }
+    }
+
+    private void unauthenticatedHandler(HttpServletResponse response) {
+        var fail = DataResult.fail(HttpStatus.UNAUTHORIZED);
+        try {
+            JSONUtil.getJsonMapper().writeValue(response.getOutputStream(), fail);
+        } catch (IOException ignored) {
+
+        }
     }
 
 }

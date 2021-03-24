@@ -21,6 +21,7 @@ public class ReactiveIpUtil {
     /**
      * 获取客户端IP地址
      */
+    @SuppressWarnings("all")
     public static String getRemoteIp(ServerHttpRequest request) {
         Map<String, String> headers = request.getHeaders().toSingleValueMap();
         String ip = headers.get("X-Forwarded-For");
@@ -67,6 +68,6 @@ public class ReactiveIpUtil {
         } catch (UnknownHostException e) {
             LOG.error("InetAddress.getLocalHost()-error", e);
         }
-        return "";
+        return UNKNOWN_STR;
     }
 }

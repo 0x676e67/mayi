@@ -1,7 +1,7 @@
 package com.zf1976.ant.auth.handler.access;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zf1976.ant.common.core.foundation.ResultData;
+import com.zf1976.ant.common.core.foundation.DataResult;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
@@ -30,7 +30,7 @@ public class Oauth2AuthenticationEntryPoint implements AuthenticationEntryPoint 
     public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e)
             throws IOException {
         httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
-        ResultData fail = ResultData.fail(HttpStatus.UNAUTHORIZED.value(), e.getMessage());
+        DataResult fail = DataResult.fail(HttpStatus.UNAUTHORIZED.value(), e.getMessage());
         fail.setPath(httpServletRequest.getRequestURI());
         httpServletResponse.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
         ObjectMapper objectMapper = new ObjectMapper();

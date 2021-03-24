@@ -1,13 +1,16 @@
-package com.zf1976.ant.gateway.util;
+package com.zf1976.ant.common.core.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
-import com.zf1976.ant.gateway.constants.ParameterConstants;
+import com.zf1976.ant.common.core.constants.ParameterConstants;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -15,38 +18,39 @@ import java.util.Map;
 import java.util.TimeZone;
 
 /**
- * 基于Jackson Json 工具类
  * @author ant
- * Create by Ant on 2021/3/7 11:12 AM
+ * Create by Ant on 2021/3/24 2:51 PM
  */
-public class JsonUtil {
+@SuppressWarnings("all")
+public class JSONUtil {
 
-    private final static ObjectMapper MAPPER = new ObjectMapper();
+    private final static ObjectMapper JSON_MAPPER = new ObjectMapper();
 
     static {
         // 忽略在json字符串中存在，但是在java对象中不存在对应属性的情况
-        MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        JSON_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         // 忽略空Bean转json的错误
-        MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS,false);
+        JSON_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS,false);
         // 允许不带引号的字段名称
-        MAPPER.configure(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES.mappedFeature(), true);
+        JSON_MAPPER.configure(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES.mappedFeature(), true);
         // 允许单引号
-        MAPPER.configure(JsonReadFeature.ALLOW_SINGLE_QUOTES.mappedFeature(), true);
+        JSON_MAPPER.configure(JsonReadFeature.ALLOW_SINGLE_QUOTES.mappedFeature(), true);
         // allow int startWith 0
-        MAPPER.configure(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS.mappedFeature(), true);
+        JSON_MAPPER.configure(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS.mappedFeature(), true);
         // 允许字符串存在转义字符：\r \n \t
-        MAPPER.configure(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS.mappedFeature(), true);
+        JSON_MAPPER.configure(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS.mappedFeature(), true);
         // 排除空值字段
-        MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        JSON_MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         // 使用驼峰式
-        MAPPER.setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE);
+        JSON_MAPPER.setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE);
         // 使用bean名称
-        MAPPER.enable(MapperFeature.USE_STD_BEAN_NAMING);
+        JSON_MAPPER.enable(MapperFeature.USE_STD_BEAN_NAMING);
         // 所有日期格式都统一为固定格式
-        MAPPER.setDateFormat(new SimpleDateFormat(ParameterConstants.DATETIME_FORMAT));
+        JSON_MAPPER.setDateFormat(new SimpleDateFormat(ParameterConstants.DATETIME_FORMAT));
         // 设置时区
-        MAPPER.setTimeZone(TimeZone.getTimeZone(ParameterConstants.TIME_ZONE_GMT8));
+        JSON_MAPPER.setTimeZone(TimeZone.getTimeZone(ParameterConstants.TIME_ZONE_GMT8));
     }
+
 
     /**
      * 对象转换为json字符串
@@ -73,9 +77,9 @@ public class JsonUtil {
                 return (String)o;
             }
             if (format) {
-                return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(o);
+                return JSON_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(o);
             }
-            return MAPPER.writeValueAsString(o);
+            return JSON_MAPPER.writeValueAsString(o);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -87,11 +91,11 @@ public class JsonUtil {
      * @param cls 目标对象
      */
     public static <T> T toObject(String json, Class<T> cls) {
-        if(StringUtils.isEmpty(json) || cls == null){
+        if(org.springframework.util.StringUtils.isEmpty(json) || cls == null){
             return null;
         }
         try {
-            return MAPPER.readValue(json, cls);
+            return JSON_MAPPER.readValue(json, cls);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -105,12 +109,12 @@ public class JsonUtil {
      * @param parameterClasses 泛型对象
      */
     public static <T> T toObject(String json, Class<?> parametrized, Class<?>... parameterClasses) {
-        if(StringUtils.isEmpty(json) || parametrized == null){
+        if(org.springframework.util.StringUtils.isEmpty(json) || parametrized == null){
             return null;
         }
         try {
-            JavaType javaType = MAPPER.getTypeFactory().constructParametricType(parametrized, parameterClasses);
-            return MAPPER.readValue(json, javaType);
+            JavaType javaType = JSON_MAPPER.getTypeFactory().constructParametricType(parametrized, parameterClasses);
+            return JSON_MAPPER.readValue(json, javaType);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -122,11 +126,11 @@ public class JsonUtil {
      * @param typeReference 目标对象类型
      */
     public static <T> T toObject(String json, TypeReference<T> typeReference) {
-        if(StringUtils.isEmpty(json) || typeReference == null){
+        if(org.springframework.util.StringUtils.isEmpty(json) || typeReference == null){
             return null;
         }
         try {
-            return MAPPER.readValue(json, typeReference);
+            return JSON_MAPPER.readValue(json, typeReference);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -145,11 +149,11 @@ public class JsonUtil {
      * @param json json字符串
      */
     public static JsonNode parse(String json) {
-        if (StringUtils.isEmpty(json)) {
+        if (org.springframework.util.StringUtils.isEmpty(json)) {
             return null;
         }
         try {
-            return MAPPER.readTree(json);
+            return JSON_MAPPER.readTree(json);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -166,7 +170,7 @@ public class JsonUtil {
         if (o instanceof String) {
             return toObject((String)o, Map.class);
         }
-        return MAPPER.convertValue(o, Map.class);
+        return JSON_MAPPER.convertValue(o, Map.class);
     }
 
     /**
@@ -174,11 +178,11 @@ public class JsonUtil {
      * @param json json字符串
      */
     public static List<?> toList(String json) {
-        if (StringUtils.isEmpty(json)) {
+        if (org.springframework.util.StringUtils.isEmpty(json)) {
             return null;
         }
         try {
-            return MAPPER.readValue(json, List.class);
+            return JSON_MAPPER.readValue(json, List.class);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -194,10 +198,23 @@ public class JsonUtil {
             return null;
         }
         try {
-            JavaType javaType = MAPPER.getTypeFactory().constructParametricType(List.class, cls);
-            return MAPPER.readValue(json, javaType);
+            JavaType javaType = JSON_MAPPER.getTypeFactory().constructParametricType(List.class, cls);
+            return JSON_MAPPER.readValue(json, javaType);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static ObjectMapper getJsonMapper(){
+        return JSON_MAPPER;
+    }
+
+    public static void writeValue(HttpServletResponse response, Object o){
+        response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+        try {
+            JSON_MAPPER.writeValue(response.getOutputStream(), o);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

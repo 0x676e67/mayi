@@ -1,11 +1,10 @@
 package com.zf1976.ant.upms.biz.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-
-import com.zf1976.ant.common.core.foundation.ResultData;
-import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
+import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.upms.biz.pojo.dto.menu.MenuDTO;
 import com.zf1976.ant.upms.biz.pojo.query.MenuQueryParam;
+import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationInsertGroup;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationUpdateGroup;
 import com.zf1976.ant.upms.biz.pojo.vo.menu.MenuBuildVO;
@@ -33,37 +32,37 @@ public class SysMenuController {
     }
 
     @GetMapping("/build")
-    public ResultData<Collection<MenuBuildVO>> buildMenuRoute() {
-        return ResultData.success(service.getMenuRoute());
+    public DataResult<Collection<MenuBuildVO>> buildMenuRoute() {
+        return DataResult.success(service.getMenuRoute());
     }
 
     @PostMapping("/page")
 //    @Authorize("menu:list")
-    public ResultData<IPage<MenuVO>> selectMenuPage(@RequestBody RequestPage<MenuQueryParam> requestPage) {
-        return ResultData.success(service.selectMenuPage(requestPage));
+    public DataResult<IPage<MenuVO>> selectMenuPage(@RequestBody RequestPage<MenuQueryParam> requestPage) {
+        return DataResult.success(service.selectMenuPage(requestPage));
     }
 
     @PostMapping("/vertex/{id}")
 //    @Authorize("menu:list")
-    public ResultData<IPage<MenuVO>> menuVertex(@PathVariable @NotNull Long id) {
-        return ResultData.success(service.selectMenuVertex(id));
+    public DataResult<IPage<MenuVO>> menuVertex(@PathVariable @NotNull Long id) {
+        return DataResult.success(service.selectMenuVertex(id));
     }
 
     @PostMapping("/save")
 //    @Authorize("menu:add")
-    public ResultData<Optional<Void>> saveMenu(@RequestBody @Validated(ValidationInsertGroup.class) MenuDTO dto) {
-        return ResultData.success(service.saveMenu(dto));
+    public DataResult<Optional<Void>> saveMenu(@RequestBody @Validated(ValidationInsertGroup.class) MenuDTO dto) {
+        return DataResult.success(service.saveMenu(dto));
     }
 
     @PutMapping("/update")
 //    @Authorize("menu:edit")
-    public ResultData<Optional<Void>> updateMenu(@RequestBody @Validated(ValidationUpdateGroup.class) MenuDTO dto) {
-        return ResultData.success(service.updateMenu(dto));
+    public DataResult<Optional<Void>> updateMenu(@RequestBody @Validated(ValidationUpdateGroup.class) MenuDTO dto) {
+        return DataResult.success(service.updateMenu(dto));
     }
 
     @DeleteMapping("/delete")
 //    @Authorize("menu:del")
-    public ResultData<Optional<Void>> deleteMenu(@RequestBody Set<Long> ids) {
-        return ResultData.success(service.deleteMenuList(ids));
+    public DataResult<Optional<Void>> deleteMenu(@RequestBody Set<Long> ids) {
+        return DataResult.success(service.deleteMenuList(ids));
     }
 }

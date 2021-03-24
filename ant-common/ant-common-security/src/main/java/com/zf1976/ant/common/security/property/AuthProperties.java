@@ -1,6 +1,5 @@
 package com.zf1976.ant.common.security.property;
 
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -8,7 +7,6 @@ import org.springframework.stereotype.Component;
  * @author mac
  * @date 2021/3/5
  **/
-@Data
 @Component
 @ConfigurationProperties(prefix = "auth")
 public class AuthProperties {
@@ -23,4 +21,29 @@ public class AuthProperties {
      */
     private Boolean model = Boolean.FALSE;
 
+    public Boolean getEnableSignature() {
+        return enableSignature;
+    }
+
+    public AuthProperties setEnableSignature(Boolean enableSignature) {
+        this.enableSignature = enableSignature;
+        return this;
+    }
+
+    public Boolean getModel() {
+        return model;
+    }
+
+    public AuthProperties setModel(Boolean model) {
+        this.model = model;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "AuthProperties{" +
+                "enableSignature=" + enableSignature +
+                ", model=" + model +
+                '}';
+    }
 }

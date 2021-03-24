@@ -5,11 +5,11 @@ import com.power.common.util.ValidateUtil;
 import com.zf1976.ant.common.component.mail.MailSenderProvider;
 import com.zf1976.ant.common.component.mail.ValidateService;
 import com.zf1976.ant.common.component.mail.pojo.ToolEmailConfig;
-import com.zf1976.ant.common.core.util.RedisUtils;
-import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.core.foundation.exception.BadBusinessException;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
-import com.zf1976.ant.common.core.property.ValidateProperties;
+import com.zf1976.ant.common.core.util.RedisUtils;
+import com.zf1976.ant.common.core.util.SpringContextHolder;
+import com.zf1976.ant.common.security.property.EmailProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -33,14 +33,14 @@ public class ValidateServiceImpl implements ValidateService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ValidateServiceImpl.class);
 
-    private final static ValidateProperties PROPERTIES;
+    private final static EmailProperties PROPERTIES;
 
     private final static TemplateEngine TEMPLATE_ENGINE;
 
     private ValidateServiceImpl(){}
 
     static {
-        PROPERTIES = SpringContextHolder.getBean(ValidateProperties.class);
+        PROPERTIES = SpringContextHolder.getBean(EmailProperties.class);
         TEMPLATE_ENGINE = SpringContextHolder.getBean(TemplateEngine.class);
     }
 

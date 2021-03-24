@@ -1,4 +1,4 @@
-package com.zf1976.ant.common.core.property.enums;
+package com.zf1976.ant.common.security.property.enums;
 
 /**
  * @author mac

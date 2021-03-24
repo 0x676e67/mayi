@@ -1,10 +1,10 @@
 package com.zf1976.ant.upms.biz.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.zf1976.ant.common.core.foundation.ResultData;
-import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
+import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.upms.biz.pojo.dto.dict.DictDetailDTO;
 import com.zf1976.ant.upms.biz.pojo.query.DictDetailQueryParam;
+import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationInsertGroup;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationUpdateGroup;
 import com.zf1976.ant.upms.biz.pojo.vo.dict.DictDetailVO;
@@ -29,26 +29,26 @@ public class SysDictDetailController {
     }
 
     @PostMapping("/page")
-    public ResultData<IPage<DictDetailVO>> selectDictDetailPage(@RequestBody RequestPage<DictDetailQueryParam> requestPage) {
-        return ResultData.success(service.selectDictDetailPage(requestPage));
+    public DataResult<IPage<DictDetailVO>> selectDictDetailPage(@RequestBody RequestPage<DictDetailQueryParam> requestPage) {
+        return DataResult.success(service.selectDictDetailPage(requestPage));
     }
 
     @PostMapping("/save")
 //    @Authorize("dict:add")
-    public ResultData<Optional<Void>> saveDictDetail(@RequestBody @Validated(ValidationInsertGroup.class) DictDetailDTO dto) {
-        return ResultData.success(service.saveDictDetail(dto));
+    public DataResult<Optional<Void>> saveDictDetail(@RequestBody @Validated(ValidationInsertGroup.class) DictDetailDTO dto) {
+        return DataResult.success(service.saveDictDetail(dto));
     }
 
     @PutMapping("/update")
 //    @Authorize("dict:edit")
-    public ResultData<Optional<Void>> updateDictDetail(@RequestBody @Validated(ValidationUpdateGroup.class) DictDetailDTO dto) {
-        return ResultData.success(service.updateDictDetail(dto));
+    public DataResult<Optional<Void>> updateDictDetail(@RequestBody @Validated(ValidationUpdateGroup.class) DictDetailDTO dto) {
+        return DataResult.success(service.updateDictDetail(dto));
     }
 
     @DeleteMapping("/delete/{id}")
 //    @Authorize("dict:del")
-    public ResultData<Optional<Void>> deleteDictDetailList(@PathVariable Long id) {
-        return ResultData.success(service.deleteDictDetail(id));
+    public DataResult<Optional<Void>> deleteDictDetailList(@PathVariable Long id) {
+        return DataResult.success(service.deleteDictDetail(id));
     }
 
 

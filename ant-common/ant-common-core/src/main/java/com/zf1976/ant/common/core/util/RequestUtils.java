@@ -288,4 +288,8 @@ public final class RequestUtils extends RequestContextHolder {
         return getRequest().getHeader(HttpHeaders.AUTHORIZATION);
     }
 
+    public static String getRequestUri() {
+        return getRequest().getRequestURI();
+    }
+
 }

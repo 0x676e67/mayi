@@ -3,6 +3,8 @@ package com.zf1976.ant.common.security.property;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+
 /**
  * 安全信息配置
  *
@@ -207,5 +209,26 @@ public class SecurityProperties {
     public SecurityProperties setIgnoreUri(String[] ignoreUri) {
         this.ignoreUri = ignoreUri;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "SecurityProperties{" +
+                "owner='" + owner + '\'' +
+                ", tokenHeader='" + tokenHeader + '\'' +
+                ", tokenIssuer='" + tokenIssuer + '\'' +
+                ", tokenSingle=" + tokenSingle +
+                ", tokenAuthoritiesKey='" + tokenAuthoritiesKey + '\'' +
+                ", prefixToken='" + prefixToken + '\'' +
+                ", tokenBase64Secret='" + tokenBase64Secret + '\'' +
+                ", tokenExpiredTime=" + tokenExpiredTime +
+                ", tokenDetect=" + tokenDetect +
+                ", tokenRestore=" + tokenRestore +
+                ", prefixSessionId='" + prefixSessionId + '\'' +
+                ", prefixSessionToken='" + prefixSessionToken + '\'' +
+                ", enableRestore=" + enableRestore +
+                ", rsaSecret='" + rsaSecret + '\'' +
+                ", ignoreUri=" + Arrays.toString(ignoreUri) +
+                '}';
     }
 }

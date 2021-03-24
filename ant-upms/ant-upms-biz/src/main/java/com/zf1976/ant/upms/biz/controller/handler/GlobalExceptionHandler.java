@@ -1,6 +1,6 @@
 package com.zf1976.ant.upms.biz.controller.handler;
 
-import com.zf1976.ant.common.core.foundation.ResultData;
+import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.core.foundation.exception.BadBusinessException;
 import com.zf1976.ant.upms.biz.exception.base.SysBaseException;
 import lombok.extern.slf4j.Slf4j;
@@ -27,33 +27,33 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    ResultData exceptionHandler(Exception e) {
+    DataResult exceptionHandler(Exception e) {
         log.error(Arrays.toString(e.getStackTrace()), e);
-        return ResultData.fail("internal server error");
+        return DataResult.fail("internal server error");
     }
 
     @ExceptionHandler(BadBusinessException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    ResultData badBusinessExceptionHandler(BadBusinessException e) {
+    DataResult badBusinessExceptionHandler(BadBusinessException e) {
         log.error(e.getMessage(), e.getCause());
-        return ResultData.fail(e.getValue(), e.getReasonPhrase());
+        return DataResult.fail(e.getValue(), e.getReasonPhrase());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    ResultData validateExceptionHandler(MethodArgumentNotValidException e) {
+    DataResult validateExceptionHandler(MethodArgumentNotValidException e) {
         String messages = e.getBindingResult()
                            .getAllErrors()
                            .stream()
                            .map(DefaultMessageSourceResolvable::getDefaultMessage)
                            .collect(Collectors.joining(","));
         log.error(messages, e.getCause());
-        return ResultData.fail(messages);
+        return DataResult.fail(messages);
     }
 
     @ExceptionHandler(SysBaseException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    ResultData departmentExceptionHandler(SysBaseException e) {
+    DataResult departmentExceptionHandler(SysBaseException e) {
         String message;
         if (e.getLabel() != null) {
             message = MessageFormatter.format(e.getReasonPhrase(), e.getLabel())
@@ -62,6 +62,6 @@ public class GlobalExceptionHandler {
             message = e.getReasonPhrase();
         }
         log.error(message, e.getCause());
-        return ResultData.fail(e.getValue(), message);
+        return DataResult.fail(e.getValue(), message);
     }
 }

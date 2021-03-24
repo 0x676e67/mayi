@@ -1,10 +1,10 @@
 package com.zf1976.ant.upms.biz.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.zf1976.ant.common.core.foundation.ResultData;
-import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
+import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.log.annotation.Log;
 import com.zf1976.ant.upms.biz.pojo.dto.role.RoleDTO;
+import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
 import com.zf1976.ant.upms.biz.pojo.query.RoleQueryParam;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationInsertGroup;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationUpdateGroup;
@@ -32,54 +32,54 @@ public class SysRoleController {
     }
 
     @GetMapping("/all")
-    public ResultData<IPage<RoleVO>> selectAll() {
-        return ResultData.success(this.service.selectAll());
+    public DataResult<IPage<RoleVO>> selectAll() {
+        return DataResult.success(this.service.selectAll());
     }
 
     @PostMapping("/page")
 //    @Authorize("role:list")
-    public ResultData<IPage<RoleVO>> selectRolePage(@RequestBody RequestPage<RoleQueryParam> requestPage) {
-        return ResultData.success(service.selectRolePage(requestPage));
+    public DataResult<IPage<RoleVO>> selectRolePage(@RequestBody RequestPage<RoleQueryParam> requestPage) {
+        return DataResult.success(service.selectRolePage(requestPage));
     }
 
     @Log(description = "根据id查询角色")
     @PostMapping("/{id}")
 //    @Authorize("role:list")
-    public ResultData<RoleVO> selectRole(@PathVariable("id") Long id) {
-        return ResultData.success(service.selectRole(id));
+    public DataResult<RoleVO> selectRole(@PathVariable("id") Long id) {
+        return DataResult.success(service.selectRole(id));
     }
 
     @GetMapping("/level")
 //    @Authorize("role:list")
-    public ResultData<Integer> getRoleLevel() {
-        return ResultData.success(service.getRoleLevel());
+    public DataResult<Integer> getRoleLevel() {
+        return DataResult.success(service.getRoleLevel());
     }
 
     @Log(description = "修改角色状态")
     @PatchMapping("/status")
 //    @Authorize("role:edit")
-    public ResultData<Optional<Void>> setRoleStatus(@RequestParam @NotNull Long id, @RequestParam @NotNull Boolean enabled) {
-        return ResultData.success(service.setRoleStatus(id, enabled));
+    public DataResult<Optional<Void>> setRoleStatus(@RequestParam @NotNull Long id, @RequestParam @NotNull Boolean enabled) {
+        return DataResult.success(service.setRoleStatus(id, enabled));
     }
 
     @Log(description = "新增角色")
     @PostMapping("/save")
 //    @Authorize("role:add")
-    public ResultData<Optional<Void>> saveRole(@RequestBody @Validated(ValidationInsertGroup.class) RoleDTO dto) {
-        return ResultData.success(service.savaRole(dto));
+    public DataResult<Optional<Void>> saveRole(@RequestBody @Validated(ValidationInsertGroup.class) RoleDTO dto) {
+        return DataResult.success(service.savaRole(dto));
     }
 
     @Log(description = "更新角色")
     @PutMapping("/update")
 //    @Authorize("role:edit")
-    public ResultData<Optional<Void>> updateRole(@RequestBody @Validated(ValidationUpdateGroup.class) RoleDTO dto) {
-        return ResultData.success(service.updateRole(dto));
+    public DataResult<Optional<Void>> updateRole(@RequestBody @Validated(ValidationUpdateGroup.class) RoleDTO dto) {
+        return DataResult.success(service.updateRole(dto));
     }
 
     @Log(description = "删除角色")
     @DeleteMapping("/delete")
 //    @Authorize("role:del")
-    public ResultData<Optional<Void>> deleteRole(@RequestBody Set<Long> ids) {
-        return ResultData.success(service.deleteRole(ids));
+    public DataResult<Optional<Void>> deleteRole(@RequestBody Set<Long> ids) {
+        return DataResult.success(service.deleteRole(ids));
     }
 }

@@ -3,13 +3,16 @@ package com.zf1976.ant.gateway.filter;
 import com.nimbusds.jose.JWSObject;
 import com.power.common.model.CommonResult;
 import com.zf1976.ant.common.core.constants.AuthConstants;
-import com.zf1976.ant.gateway.util.JsonUtil;
+import com.zf1976.ant.common.core.util.JSONUtil;
 import net.minidev.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.lang.NonNull;
@@ -33,7 +36,6 @@ import java.text.ParseException;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * 不支持参数形式access_token访问
@@ -162,7 +164,7 @@ public class Oauth2TokenAuthenticationFilter implements WebFilter {
         response.getHeaders().set("Cache-Control", "no-cache");
         CommonResult fail = CommonResult.fail(String.valueOf(HttpStatus.UNAUTHORIZED.value()),
                 HttpStatus.UNAUTHORIZED.getReasonPhrase());
-        String body = JsonUtil.toJsonString(fail);
+        String body = JSONUtil.toJsonString(fail);
         DataBuffer buffer = response.bufferFactory()
                                     .wrap(body.getBytes(StandardCharsets.UTF_8));
         return response.writeWith(Mono.just(buffer))

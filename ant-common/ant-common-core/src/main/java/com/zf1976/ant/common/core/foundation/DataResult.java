@@ -16,7 +16,7 @@ import org.springframework.lang.Nullable;
 @Data
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @SuppressWarnings("rawtypes")
-public class ResultData<T> {
+public class DataResult<T> {
 
     /**
      * 响应是否成功
@@ -72,8 +72,8 @@ public class ResultData<T> {
      * @param <E>  E
      * @return 响应对象
      */
-    public static <E> ResultData<E> success(String message) {
-        ResultData<E> vo = new ResultData<>();
+    public static <E> DataResult<E> success(String message) {
+        DataResult<E> vo = new DataResult<>();
         vo.setMessage(message);
         vo.setSuccess(true);
         vo.setStatus(200);
@@ -89,8 +89,8 @@ public class ResultData<T> {
      * @param <E>  E
      * @return 响应对象
      */
-    public static <E> ResultData<E> success(E data) {
-        ResultData<E> vo = new ResultData<>();
+    public static <E> DataResult<E> success(E data) {
+        DataResult<E> vo = new DataResult<>();
         vo.setData(data);
         vo.setSuccess(true);
         vo.setStatus(200);
@@ -106,8 +106,8 @@ public class ResultData<T> {
      * @param sign param
      * @return 响应对象
      */
-    public static <E> ResultData<E> success(@Nullable Void sign) {
-        ResultData<E> vo = new ResultData<>();
+    public static <E> DataResult<E> success(@Nullable Void sign) {
+        DataResult<E> vo = new DataResult<>();
         vo.setSuccess(true);
         vo.setStatus(200);
         vo.setPath(getUri());
@@ -121,8 +121,8 @@ public class ResultData<T> {
      * @param <E> E
      * @return 响应对象
      */
-    public static <E> ResultData<E> success() {
-        ResultData<E> vo = new ResultData<>();
+    public static <E> DataResult<E> success() {
+        DataResult<E> vo = new DataResult<>();
         vo.setSuccess(true);
         vo.setStatus(200);
         vo.setPath(getUri());
@@ -134,7 +134,7 @@ public class ResultData<T> {
      * 返回失败消息
      * @return 响应对象
      */
-    public static <E> ResultData fail() {
+    public static <E> DataResult fail() {
         return fail((String) null);
     }
 
@@ -143,7 +143,7 @@ public class ResultData<T> {
      * @param errMsg 失败消息
      * @return 响应对象
      */
-    public static <E> ResultData fail(String errMsg) {
+    public static <E> DataResult fail(String errMsg) {
         return fail(500, errMsg);
     }
 
@@ -153,8 +153,8 @@ public class ResultData<T> {
      * @param errCode 错误码
      * @return 响应对象
      */
-    public static <E> ResultData fail(int errCode, String errMsg) {
-        ResultData<E> vo = new ResultData<>();
+    public static <E> DataResult fail(int errCode, String errMsg) {
+        DataResult<E> vo = new DataResult<>();
         vo.setSuccess(false);
         vo.setErrCode(errCode);
         vo.setErrMsg(errMsg);
@@ -170,8 +170,8 @@ public class ResultData<T> {
      * @param httpStatus status
      * @return /
      */
-    public static <E> ResultData fail(HttpStatus httpStatus) {
-        ResultData<E> vo = new ResultData<>();
+    public static <E> DataResult fail(HttpStatus httpStatus) {
+        DataResult<E> vo = new DataResult<>();
         vo.setSuccess(false);
         vo.setErrCode(httpStatus.value());
         vo.setErrMsg(httpStatus.getReasonPhrase());
@@ -187,7 +187,7 @@ public class ResultData<T> {
      * @return uri
      */
     public static String getUri() {
-        return RequestUtils.getRequest()
-                           .getRequestURI();
+        return RequestUtils.getRequestUri();
     }
+
 }

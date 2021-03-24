@@ -1,5 +1,6 @@
 package com.zf1976.ant.gateway.util;
 
+import com.zf1976.ant.common.core.util.JSONUtil;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -48,7 +49,7 @@ public class WebFluxResponseUtil {
         response.setStatusCode(HttpStatus.valueOf(httpStatus));
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
         DataBufferFactory dataBufferFactory = response.bufferFactory();
-        DataBuffer buffer = dataBufferFactory.wrap(JsonUtil.toJsonString(result).getBytes(StandardCharsets.UTF_8));
+        DataBuffer buffer = dataBufferFactory.wrap(JSONUtil.toJsonString(result).getBytes(StandardCharsets.UTF_8));
         return response.writeWith(Mono.just(buffer))
                        .doOnError((error) -> {
                            // 释放资源

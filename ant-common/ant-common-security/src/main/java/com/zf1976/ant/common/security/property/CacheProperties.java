@@ -1,13 +1,11 @@
 package com.zf1976.ant.common.security.property;
 
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
  * @author WINDOWS
  */
-@Data
 @Component
 @ConfigurationProperties(prefix = "cache")
 public class CacheProperties {
@@ -32,4 +30,49 @@ public class CacheProperties {
      */
     private Long expireAlterWrite;
 
+    public Integer getConcurrencyLevel() {
+        return concurrencyLevel;
+    }
+
+    public CacheProperties setConcurrencyLevel(Integer concurrencyLevel) {
+        this.concurrencyLevel = concurrencyLevel;
+        return this;
+    }
+
+    public Integer getInitialCapacity() {
+        return initialCapacity;
+    }
+
+    public CacheProperties setInitialCapacity(Integer initialCapacity) {
+        this.initialCapacity = initialCapacity;
+        return this;
+    }
+
+    public Integer getMaximumSize() {
+        return maximumSize;
+    }
+
+    public CacheProperties setMaximumSize(Integer maximumSize) {
+        this.maximumSize = maximumSize;
+        return this;
+    }
+
+    public Long getExpireAlterWrite() {
+        return expireAlterWrite;
+    }
+
+    public CacheProperties setExpireAlterWrite(Long expireAlterWrite) {
+        this.expireAlterWrite = expireAlterWrite;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "CacheProperties{" +
+                "concurrencyLevel=" + concurrencyLevel +
+                ", initialCapacity=" + initialCapacity +
+                ", maximumSize=" + maximumSize +
+                ", expireAlterWrite=" + expireAlterWrite +
+                '}';
+    }
 }

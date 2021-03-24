@@ -5,7 +5,7 @@ import com.power.common.util.Base64Util;
 import com.zf1976.ant.auth.LoginResponse;
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.common.component.session.SessionContextHolder;
-import com.zf1976.ant.common.core.foundation.ResultData;
+import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.encrypt.EncryptUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +47,7 @@ public class SecurityAuthenticationSuccessHandler implements AuthenticationSucce
         var session = SecurityContextHolder.generatedSession(token);
         SessionContextHolder.storeSession(token, session);
         // 原始content
-        String rawContent = jsonMapper.writeValueAsString(ResultData.success(loginResponse));
+        String rawContent = jsonMapper.writeValueAsString(DataResult.success(loginResponse));
         // 加密后内容
         String result = EncryptUtil.encryptForAesByCbc(rawContent);
         httpServletResponse.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");

@@ -7,7 +7,7 @@ import com.zf1976.ant.auth.exception.ExpiredJwtException;
 import com.zf1976.ant.auth.exception.IllegalAccessException;
 import com.zf1976.ant.auth.exception.IllegalJwtException;
 import com.zf1976.ant.common.component.session.SessionContextHolder;
-import com.zf1976.ant.common.core.foundation.ResultData;
+import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.security.enums.AuthenticationState;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
@@ -99,21 +99,21 @@ public class Oauth2LogoutHandler implements LogoutHandler {
      * @throws IOException 向上抛异常
      */
     private void unSuccessLogoutHandler(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException {
-        ResultData fail;
+        DataResult fail;
         if (e instanceof ExpiredJwtException) {
             ExpiredJwtException exception = (ExpiredJwtException) e;
-            fail = ResultData.fail(exception.getValue(), exception.getReasonPhrase());
+            fail = DataResult.fail(exception.getValue(), exception.getReasonPhrase());
         }else if (e instanceof IllegalAccessException) {
             IllegalAccessException exception = (IllegalAccessException) e;
-            fail = ResultData.fail(exception.getValue(), exception.getReasonPhrase());
+            fail = DataResult.fail(exception.getValue(), exception.getReasonPhrase());
         } else if (e instanceof IllegalJwtException) {
             IllegalJwtException exception = (IllegalJwtException) e;
-            fail = ResultData.fail(exception.getValue(), exception.getReasonPhrase());
+            fail = DataResult.fail(exception.getValue(), exception.getReasonPhrase());
         } else if (e instanceof AuthenticationServiceException) {
             AuthenticationServiceException exception = (AuthenticationServiceException) e;
-            fail = ResultData.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+            fail = DataResult.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
         } else {
-            fail = ResultData.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
+            fail = DataResult.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
         }
         httpServletResponse.setStatus(HttpStatus.OK.value());
         httpServletResponse.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");

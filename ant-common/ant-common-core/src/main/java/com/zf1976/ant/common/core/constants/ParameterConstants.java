@@ -1,4 +1,4 @@
-package com.zf1976.ant.gateway.constants;
+package com.zf1976.ant.common.core.constants;
 
 /**
  * @author ant

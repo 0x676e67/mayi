@@ -1,7 +1,7 @@
 package com.zf1976.ant.upms.biz.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.zf1976.ant.common.core.foundation.ResultData;
+import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
 import com.zf1976.ant.upms.biz.pojo.query.SessionQueryParam;
 import com.zf1976.ant.upms.biz.pojo.vo.SessionVO;
@@ -26,12 +26,12 @@ public class OnlineController {
     }
 
     @PostMapping("/page")
-    public ResultData<IPage<SessionVO>> selectSessionList(@RequestBody RequestPage<SessionQueryParam> requestPage) {
-        return ResultData.success(this.service.selectSessionPage(requestPage));
+    public DataResult<IPage<SessionVO>> selectSessionList(@RequestBody RequestPage<SessionQueryParam> requestPage) {
+        return DataResult.success(this.service.selectSessionPage(requestPage));
     }
 
     @DeleteMapping("/delete")
-    public ResultData<Optional<Void>> deleteSession(@RequestBody Set<Long> ids) {
-        return ResultData.success(this.service.forceOffline(ids));
+    public DataResult<Optional<Void>> deleteSession(@RequestBody Set<Long> ids) {
+        return DataResult.success(this.service.forceOffline(ids));
     }
 }

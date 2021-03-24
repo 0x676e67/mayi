@@ -8,7 +8,7 @@ import com.zf1976.ant.auth.filter.support.SignaturePattern;
 import com.zf1976.ant.auth.filter.support.StandardSignature;
 import com.zf1976.ant.auth.filter.support.impl.OpenSignatureAuthenticationStrategy;
 import com.zf1976.ant.auth.filter.support.impl.SecretSignatureAuthenticationStrategy;
-import com.zf1976.ant.common.core.foundation.ResultData;
+import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.security.enums.SignatureState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +88,7 @@ public class SignatureAuthenticationFilter extends OncePerRequestFilter {
     private void handlerException(HttpServletResponse response, SignatureException signatureException) {
         response.setStatus(signatureException.getValue());
         try {
-            this.objectMapper.writeValue(response.getOutputStream(), ResultData.fail(signatureException.getReasonPhrase()));
+            this.objectMapper.writeValue(response.getOutputStream(), DataResult.fail(signatureException.getReasonPhrase()));
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e.getCause());
         }

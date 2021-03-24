@@ -6,10 +6,10 @@ import com.zf1976.ant.common.component.session.SessionContextHolder;
 import com.zf1976.ant.common.component.validate.service.CaptchaService;
 import com.zf1976.ant.common.component.validate.support.CaptchaGenerator;
 import com.zf1976.ant.common.core.constants.AuthConstants;
-import com.zf1976.ant.common.core.foundation.ResultData;
-import com.zf1976.ant.common.core.property.CaptchaProperties;
+import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.core.util.RequestUtils;
 import com.zf1976.ant.common.security.pojo.vo.CaptchaVo;
+import com.zf1976.ant.common.security.property.CaptchaProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -57,12 +57,12 @@ public class TokenEndpointEnhancer {
     }
 
     @GetMapping("/token")
-    public ResultData<OAuth2AccessToken> getAccessToken(Principal principal, @RequestParam Map<String, String> parameters) throws HttpRequestMethodNotSupportedException {
+    public DataResult<OAuth2AccessToken> getAccessToken(Principal principal, @RequestParam Map<String, String> parameters) throws HttpRequestMethodNotSupportedException {
         throw new HttpRequestMethodNotSupportedException("GET");
     }
 
     @PostMapping("/token")
-    public ResultData<OAuth2AccessToken> postAccessToken(Principal principal, @RequestParam Map<String, String> parameters) throws HttpRequestMethodNotSupportedException {
+    public DataResult<OAuth2AccessToken> postAccessToken(Principal principal, @RequestParam Map<String, String> parameters) throws HttpRequestMethodNotSupportedException {
         if (!(principal instanceof Authentication)) {
             throw new InsufficientAuthenticationException("There is no client authentication. Try adding an appropriate authentication filter.");
         } else {
@@ -71,7 +71,7 @@ public class TokenEndpointEnhancer {
             if (responseEntity.getStatusCode().is2xxSuccessful() && oAuth2AccessToken != null) {
                 // 保存登录会话
                 this.saveSessionState(oAuth2AccessToken);
-                return ResultData.success(oAuth2AccessToken);
+                return DataResult.success(oAuth2AccessToken);
             }
             throw new InsufficientAuthenticationException("Client authentication failed.");
         }
@@ -101,8 +101,8 @@ public class TokenEndpointEnhancer {
     }
 
     @GetMapping("/info")
-    public ResultData<UserDetails> getUserInfo(){
-        return ResultData.success(SecurityContextHolder.getDetails());
+    public DataResult<UserDetails> getUserInfo(){
+        return DataResult.success(SecurityContextHolder.getDetails());
     }
 
     public void saveSessionState(OAuth2AccessToken oAuth2AccessToken) {
