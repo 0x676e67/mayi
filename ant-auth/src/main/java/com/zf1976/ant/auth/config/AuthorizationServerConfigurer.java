@@ -1,5 +1,6 @@
 package com.zf1976.ant.auth.config;
 
+import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.auth.enhance.JdbcClientDetailsServiceEnhancer;
 import com.zf1976.ant.auth.enhance.JwtTokenEnhancer;
 import com.zf1976.ant.auth.enhance.RedisTokenStoreEnhancer;
@@ -7,7 +8,6 @@ import com.zf1976.ant.auth.filter.provider.DaoAuthenticationEnhancerProvider;
 import com.zf1976.ant.auth.handler.access.Oauth2AccessDeniedHandler;
 import com.zf1976.ant.auth.handler.access.Oauth2AuthenticationEntryPoint;
 import com.zf1976.ant.auth.interceptor.EndpointReturnInterceptor;
-import com.zf1976.ant.auth.SecurityContextHolder;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -21,7 +21,18 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.ClientDetailsService;
+import org.springframework.security.oauth2.provider.CompositeTokenGranter;
+import org.springframework.security.oauth2.provider.OAuth2RequestFactory;
+import org.springframework.security.oauth2.provider.TokenGranter;
+import org.springframework.security.oauth2.provider.client.ClientCredentialsTokenGranter;
 import org.springframework.security.oauth2.provider.client.ClientDetailsUserDetailsService;
+import org.springframework.security.oauth2.provider.code.AuthorizationCodeServices;
+import org.springframework.security.oauth2.provider.code.AuthorizationCodeTokenGranter;
+import org.springframework.security.oauth2.provider.implicit.ImplicitTokenGranter;
+import org.springframework.security.oauth2.provider.password.ResourceOwnerPasswordTokenGranter;
+import org.springframework.security.oauth2.provider.refresh.RefreshTokenGranter;
+import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
@@ -29,6 +40,7 @@ import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenCo
 import org.springframework.util.Assert;
 
 import java.security.KeyPair;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -112,7 +124,30 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
                  .userDetailsService(userDetailsService)
                  .reuseRefreshTokens(false)
                  .addInterceptor(new EndpointReturnInterceptor());
-        endpoints.tokenGranter(null);
+        // 自定义授权
+        endpoints.tokenGranter(this.generateTokenGranter(endpoints));
+    }
+
+    private TokenGranter generateTokenGranter(AuthorizationServerEndpointsConfigurer endpointsConfigurer) {
+        var tokenGranters = getTokenGranters(endpointsConfigurer);
+        return new CompositeTokenGranter(tokenGranters);
+    }
+
+    private List<TokenGranter> getTokenGranters(AuthorizationServerEndpointsConfigurer endpoints) {
+        ClientDetailsService clientDetails = endpoints.getClientDetailsService();
+        AuthorizationServerTokenServices tokenServices = endpoints.getTokenServices();
+        AuthorizationCodeServices authorizationCodeServices = endpoints.getAuthorizationCodeServices();
+        OAuth2RequestFactory requestFactory = endpoints.getOAuth2RequestFactory();
+        List<TokenGranter> tokenGranters = new ArrayList<>();
+        tokenGranters.add(new AuthorizationCodeTokenGranter(tokenServices, authorizationCodeServices, clientDetails, requestFactory));
+        tokenGranters.add(new RefreshTokenGranter(tokenServices, clientDetails, requestFactory));
+        ImplicitTokenGranter implicit = new ImplicitTokenGranter(tokenServices, clientDetails, requestFactory);
+        tokenGranters.add(implicit);
+        tokenGranters.add(new ClientCredentialsTokenGranter(tokenServices, clientDetails, requestFactory));
+        if (this.authenticationManager != null) {
+            tokenGranters.add(new ResourceOwnerPasswordTokenGranter(this.authenticationManager, tokenServices, clientDetails, requestFactory));
+        }
+        return tokenGranters;
     }
 
     private JwtAccessTokenConverter jwtAccessTokenConverter(){
