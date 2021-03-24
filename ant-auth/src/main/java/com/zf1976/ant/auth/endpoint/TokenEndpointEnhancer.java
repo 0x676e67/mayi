@@ -108,15 +108,16 @@ public class TokenEndpointEnhancer {
     public void saveSessionState(OAuth2AccessToken oAuth2AccessToken) {
         // 获取token
         String tokenValue = oAuth2AccessToken.getValue();
-        // 获取token过期时间
-        Integer expiration = oAuth2AccessToken.getExpiresIn();
-        // 设置token过期时间
-        RequestUtils.getRequest()
-                    .setAttribute(AuthConstants.EXPIRED, expiration);
-        // 构建session
-        var session = SecurityContextHolder.generatedSession(tokenValue);
-        // 保存会话
-        SessionContextHolder.storeSession(tokenValue, session);
+        if (SessionContextHolder.readSession(tokenValue) == null) {
+            // 获取token过期时间
+            Integer expiration = oAuth2AccessToken.getExpiresIn();
+            // 设置token过期时间
+            RequestUtils.getRequest().setAttribute(AuthConstants.EXPIRED, expiration);
+            // 构建session
+            var session = SecurityContextHolder.generatedSession(tokenValue);
+            // 保存会话
+            SessionContextHolder.storeSession(tokenValue, session);
+        }
     }
 
     @ExceptionHandler({HttpRequestMethodNotSupportedException.class})

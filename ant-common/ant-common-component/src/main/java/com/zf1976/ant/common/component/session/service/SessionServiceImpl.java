@@ -2,10 +2,14 @@ package com.zf1976.ant.common.component.session.service;
 
 import com.zf1976.ant.common.component.session.Session;
 import com.zf1976.ant.common.component.session.repository.SessionRepository;
+import com.zf1976.ant.common.core.constants.AuthConstants;
+import com.zf1976.ant.common.core.util.RequestUtils;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -17,12 +21,9 @@ import java.util.Optional;
 public class SessionServiceImpl implements SessionService {
 
     private final SessionRepository repository;
-    private final SecurityProperties securityProperties;
 
-    public SessionServiceImpl(SessionRepository repository,
-                              SecurityProperties securityProperties) {
+    public SessionServiceImpl(SessionRepository repository) {
         this.repository = repository;
-        this.securityProperties = securityProperties;
     }
 
     @Override

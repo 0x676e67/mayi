@@ -43,7 +43,7 @@ public class SessionContextHolder {
      * 存储当前请求会话
      *
      * @param token              token
-     * @param userDetails        用户会话details
+     * @param session        用户会话details
      */
     public static void storeSession(String token, Session session) {
         service.save(token, session);

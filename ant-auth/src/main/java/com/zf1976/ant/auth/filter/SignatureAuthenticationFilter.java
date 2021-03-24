@@ -2,12 +2,13 @@ package com.zf1976.ant.auth.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zf1976.ant.auth.SecurityContextHolder;
-import com.zf1976.ant.auth.exception.SignatureException;
-import com.zf1976.ant.auth.filter.support.SignatureAuthenticationStrategy;
-import com.zf1976.ant.auth.filter.support.SignaturePattern;
-import com.zf1976.ant.auth.filter.support.StandardSignature;
-import com.zf1976.ant.auth.filter.support.impl.OpenSignatureAuthenticationStrategy;
-import com.zf1976.ant.auth.filter.support.impl.SecretSignatureAuthenticationStrategy;
+import com.zf1976.ant.common.security.support.exception.SignatureException;
+import com.zf1976.ant.common.security.support.SignatureAuthenticationStrategy;
+import com.zf1976.ant.common.security.support.SignaturePattern;
+import com.zf1976.ant.common.security.support.StandardSignature;
+import com.zf1976.ant.common.security.support.datasource.ClientDataSourceProvider;
+import com.zf1976.ant.common.security.support.impl.OpenSignatureAuthenticationStrategy;
+import com.zf1976.ant.common.security.support.impl.SecretSignatureAuthenticationStrategy;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.security.enums.SignatureState;
 import org.slf4j.Logger;
@@ -35,15 +36,15 @@ public class SignatureAuthenticationFilter extends OncePerRequestFilter {
     public static final Logger LOGGER = LoggerFactory.getLogger(SignatureAuthenticationFilter.class);
     private final Map<SignaturePattern, SignatureAuthenticationStrategy> strategies = new ConcurrentHashMap<>(2);
     private final ObjectMapper objectMapper = new ObjectMapper();
-    public SignatureAuthenticationFilter() {
+    public SignatureAuthenticationFilter(ClientDataSourceProvider provider) {
         super();
-        this.init();
+        this.init(provider);
     }
 
-    private void init() {
+    private void init(ClientDataSourceProvider provider) {
         Assert.notNull(this.strategies,"signature strategy cannot been null");
-        this.strategies.put(SignaturePattern.OPEN, new OpenSignatureAuthenticationStrategy());
-        this.strategies.put(SignaturePattern.SECRET, new SecretSignatureAuthenticationStrategy());
+        this.strategies.put(SignaturePattern.OPEN, new OpenSignatureAuthenticationStrategy(provider));
+        this.strategies.put(SignaturePattern.SECRET, new SecretSignatureAuthenticationStrategy(provider));
     }
 
     private void addStrategy(SignatureAuthenticationStrategy strategy, SignaturePattern signatureModel) {

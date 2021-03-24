@@ -1,5 +1,7 @@
 package com.zf1976.ant.auth.enhance;
 
+import com.zf1976.ant.common.security.support.datasource.ClientDataSourceProvider;
+import com.zf1976.ant.common.security.support.datasource.domain.Client;
 import com.zf1976.ant.common.component.load.annotation.CaffeineEvict;
 import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
 import com.zf1976.ant.common.core.constants.Namespace;
@@ -21,7 +23,7 @@ import java.util.List;
  * @date 2021/3/5
  **/
 @Service
-public class JdbcClientDetailsServiceEnhancer extends JdbcClientDetailsService {
+public class JdbcClientDetailsServiceEnhancer extends JdbcClientDetailsService implements ClientDataSourceProvider {
 
     public JdbcClientDetailsServiceEnhancer(DataSource dataSource) {
         super(dataSource);
@@ -117,4 +119,14 @@ public class JdbcClientDetailsServiceEnhancer extends JdbcClientDetailsService {
         super.setRowMapper(rowMapper);
     }
 
+    @Override
+    public Client selectClientByClientId(String clientId) {
+        var clientDetails = this.loadClientByClientId(clientId);
+        var client = new Client();
+        if (clientDetails != null) {
+            client.setClientId(clientDetails.getClientId())
+                  .setClientSecret(clientDetails.getClientSecret());
+        }
+        return client;
+    }
 }

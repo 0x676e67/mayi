@@ -1,15 +1,16 @@
-package com.zf1976.ant.auth.filter.support.impl;
+package com.zf1976.ant.common.security.support.impl;
 
 import com.google.common.base.Splitter;
 import com.power.common.util.Base64Util;
 import com.power.common.util.StringUtil;
-import com.zf1976.ant.auth.exception.SignatureException;
-import com.zf1976.ant.auth.filter.support.AbstractSignatureAuthenticationStrategy;
-import com.zf1976.ant.auth.filter.support.SignaturePattern;
-import com.zf1976.ant.auth.filter.support.StandardSignature;
+import com.zf1976.ant.common.security.support.AbstractSignatureAuthenticationStrategy;
+import com.zf1976.ant.common.security.support.SignaturePattern;
+import com.zf1976.ant.common.security.support.StandardSignature;
+import com.zf1976.ant.common.security.support.datasource.ClientDataSourceProvider;
 import com.zf1976.ant.common.core.util.CaffeineCacheUtils;
 import com.zf1976.ant.common.encrypt.EncryptUtil;
 import com.zf1976.ant.common.security.enums.SignatureState;
+import com.zf1976.ant.common.security.support.exception.SignatureException;
 import org.springframework.util.NumberUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,8 +26,8 @@ import java.util.Map;
  **/
 public class SecretSignatureAuthenticationStrategy extends AbstractSignatureAuthenticationStrategy {
 
-    public SecretSignatureAuthenticationStrategy() {
-        super();
+    public SecretSignatureAuthenticationStrategy(ClientDataSourceProvider provider) {
+        super(provider);
     }
 
     @Override

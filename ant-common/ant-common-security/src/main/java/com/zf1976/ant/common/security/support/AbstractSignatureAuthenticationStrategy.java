@@ -1,12 +1,11 @@
-package com.zf1976.ant.auth.filter.support;
+package com.zf1976.ant.common.security.support;
 
 import com.power.common.util.StringUtil;
-import com.zf1976.ant.auth.SecurityContextHolder;
-import com.zf1976.ant.auth.enhance.JdbcClientDetailsServiceEnhancer;
-import com.zf1976.ant.auth.exception.SignatureException;
+import com.zf1976.ant.common.security.support.datasource.ClientDataSourceProvider;
 import com.zf1976.ant.common.core.util.CaffeineCacheUtils;
 import com.zf1976.ant.common.encrypt.EncryptUtil;
 import com.zf1976.ant.common.security.enums.SignatureState;
+import com.zf1976.ant.common.security.support.exception.SignatureException;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
@@ -21,10 +20,10 @@ public abstract class AbstractSignatureAuthenticationStrategy implements Signatu
 
     protected Map<String, SignatureState> stateMap = new HashMap<>(4);
     protected Long preventReplyAttackTime = 60000L;
-    private final JdbcClientDetailsServiceEnhancer clientService;
+    private final ClientDataSourceProvider clientDataSourceProvider;
 
-    protected AbstractSignatureAuthenticationStrategy() {
-        this.clientService = SecurityContextHolder.getShareObject(JdbcClientDetailsServiceEnhancer.class);
+    protected AbstractSignatureAuthenticationStrategy(ClientDataSourceProvider clientDataSourceProvider) {
+        this.clientDataSourceProvider = clientDataSourceProvider;
         stateMap.put(StandardSignature.APPLY_ID, SignatureState.MISSING_APP_ID);
         stateMap.put(StandardSignature.TIMESTAMP, SignatureState.MISSING_TIMESTAMP);
         stateMap.put(StandardSignature.NONCE_STR, SignatureState.MISSING_NONCE_STR);
@@ -159,8 +158,8 @@ public abstract class AbstractSignatureAuthenticationStrategy implements Signatu
     }
 
     private String findApplySecret(String applyId) {
-        return this.clientService.loadClientByClientId(applyId)
-                                 .getClientSecret();
+        return this.clientDataSourceProvider.selectClientByClientId(applyId)
+                                            .getClientSecret();
     }
 
 }

@@ -1,4 +1,4 @@
-package com.zf1976.ant.auth.exception;
+package com.zf1976.ant.common.security.support.exception;
 
 import com.zf1976.ant.common.security.enums.SignatureState;
 

@@ -1,5 +1,7 @@
 package com.zf1976.ant.auth.config;
 
+import com.zf1976.ant.auth.SecurityContextHolder;
+import com.zf1976.ant.auth.enhance.JdbcClientDetailsServiceEnhancer;
 import com.zf1976.ant.auth.filter.DynamicSecurityFilter;
 import com.zf1976.ant.auth.filter.Oauth2TokenAuthenticationFilter;
 import com.zf1976.ant.auth.filter.SignatureAuthenticationFilter;
@@ -140,9 +142,9 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
             .and()
             .addFilterAt(new DynamicSecurityFilter(), FilterSecurityInterceptor.class)
             .addFilterBefore(new Oauth2TokenAuthenticationFilter(), LogoutFilter.class);
-
+        var jdbcClientDetailsServiceEnhancer = SecurityContextHolder.getShareObject(JdbcClientDetailsServiceEnhancer.class);
         if (this.authProperties.getEnableSignature()) {
-            http.addFilterBefore(new SignatureAuthenticationFilter(), SecurityContextPersistenceFilter.class);
+            http.addFilterBefore(new SignatureAuthenticationFilter(jdbcClientDetailsServiceEnhancer), SecurityContextPersistenceFilter.class);
         }
     }
 

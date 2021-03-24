@@ -112,7 +112,7 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
                  .userDetailsService(userDetailsService)
                  .reuseRefreshTokens(false)
                  .addInterceptor(new EndpointReturnInterceptor());
-
+        endpoints.tokenGranter(null);
     }
 
     private JwtAccessTokenConverter jwtAccessTokenConverter(){
