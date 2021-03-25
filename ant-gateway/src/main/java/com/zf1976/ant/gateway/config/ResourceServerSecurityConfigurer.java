@@ -1,8 +1,6 @@
 package com.zf1976.ant.gateway.config;
 
-import com.zf1976.ant.common.core.constants.KeyConstants;
-import com.zf1976.ant.common.core.constants.Namespace;
-import com.zf1976.ant.gateway.filter.Oauth2TokenAuthenticationFilter;
+import com.zf1976.ant.gateway.filter.OAuth2TokenAuthenticationFilter;
 import com.zf1976.ant.gateway.filter.manager.GatewayReactiveAuthorizationManager;
 import com.zf1976.ant.gateway.properties.AuthProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -10,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
@@ -23,9 +22,7 @@ import org.springframework.security.oauth2.server.resource.web.server.BearerToke
 import org.springframework.security.oauth2.server.resource.web.server.ServerBearerTokenAuthenticationConverter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import reactor.core.publisher.Mono;
-import reactor.netty.http.client.HttpClient;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -49,18 +46,18 @@ public class ResourceServerSecurityConfigurer {
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity httpSecurity) {
         return httpSecurity.httpBasic()
                            .disable()
-                           .csrf()
                            // 关闭csrf
+                           .csrf()
                            .disable()
                            // 允许跨域
                            .cors()
-                           .and()
+                           .disable()
                            // 关闭表单登录
                            .formLogin()
                            .disable()
                            .authorizeExchange(authorizeExchangeSpec -> {
-                               authorizeExchangeSpec.pathMatchers("/actuator/**", "/oauth/**")
-                                                    .permitAll()
+                               authorizeExchangeSpec.pathMatchers("/actuator/**", "/oauth/**","/avatar/**").permitAll()
+                                                    .pathMatchers(HttpMethod.OPTIONS).permitAll()
                                                     .anyExchange()
                                                     // 自定义访问授权处理
                                                     .access(new GatewayReactiveAuthorizationManager(redisTemplate))
@@ -76,7 +73,7 @@ public class ResourceServerSecurityConfigurer {
                                }).bearerTokenConverter(new ServerBearerTokenAuthenticationConverter());
 
                            })
-                           .addFilterBefore(new Oauth2TokenAuthenticationFilter(properties.getJwtCheckUri()),
+                           .addFilterBefore(new OAuth2TokenAuthenticationFilter(properties.getJwtCheckUri()),
                                    SecurityWebFiltersOrder.HTTP_BASIC)
                            .build();
     }

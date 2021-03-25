@@ -9,13 +9,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.lang.NonNull;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -34,6 +32,7 @@ import reactor.core.publisher.Mono;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,7 +42,8 @@ import java.util.regex.Pattern;
  * @author ant
  * Create by Ant on 2021/3/6 8:52 AM
  */
-public class Oauth2TokenAuthenticationFilter implements WebFilter {
+@SuppressWarnings("all")
+public class OAuth2TokenAuthenticationFilter implements WebFilter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Pattern authorizationPattern = Pattern.compile(
             "^Bearer (?<token>[a-zA-Z0-9-._~+/]+)=*$",
@@ -52,7 +52,7 @@ public class Oauth2TokenAuthenticationFilter implements WebFilter {
     private final String jwtCheckUrl;
 
 
-    public Oauth2TokenAuthenticationFilter(String checkTokenUrl) {
+    public OAuth2TokenAuthenticationFilter(String checkTokenUrl) {
         this.jwtCheckUrl = checkTokenUrl + "?token={value}";
     }
 
@@ -68,6 +68,10 @@ public class Oauth2TokenAuthenticationFilter implements WebFilter {
     public Mono<Void> filter(@NonNull ServerWebExchange serverWebExchange, @NonNull WebFilterChain webFilterChain) {
         final ServerHttpRequest request = serverWebExchange.getRequest();
         final ServerHttpResponse response = serverWebExchange.getResponse();
+        // options请求放行
+        if (Objects.requireNonNull(request.getMethod()).matches(HttpMethod.OPTIONS.name())) {
+            return webFilterChain.filter(serverWebExchange);
+        }
         try {
             String token = this.token(request);
             // 无token放行

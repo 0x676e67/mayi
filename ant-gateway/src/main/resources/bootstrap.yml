@@ -21,8 +21,8 @@ spring:
         - id: ant-upms-bzi
           uri: lb://ant-upms-bzi
           predicates:
-            - Path=/api/**
-#          filters:
+            - Path=/api/**, /avatar/**, /static/**, /druid/**
+  #          filters:
 #            - PrefixPath=2
   security:
     oauth2:

@@ -52,14 +52,13 @@ public class GatewayReactiveAuthorizationManager implements ReactiveAuthorizatio
         final Object o = authorizationContext.getExchange()
                                              .getAttributes()
                                              .get(AuthConstants.OWNER);
-
+        // options请求放行
+        if (Objects.requireNonNull(request.getMethod()).matches(HttpMethod.OPTIONS.name())) {
+            return Mono.just(new AuthorizationDecision(true));
+        }
         // 资源所有者放行所有
         if (o instanceof Boolean) {
             return Mono.just(new AuthorizationDecision((Boolean) o));
-        }
-        // options请求放行
-        if (request.getMethod() == HttpMethod.OPTIONS) {
-            return Mono.just(new AuthorizationDecision(true));
         }
         // 白名单放行
         String requestUri = this.getRequestUri(request);

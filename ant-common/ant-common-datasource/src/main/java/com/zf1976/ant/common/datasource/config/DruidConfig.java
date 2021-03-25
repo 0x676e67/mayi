@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.servlet.*;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
@@ -68,4 +69,5 @@ public class DruidConfig {
         registrationBean.addUrlPatterns(commonJsPattern);
         return registrationBean;
     }
+
 }

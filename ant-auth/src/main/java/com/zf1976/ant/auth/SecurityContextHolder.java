@@ -41,17 +41,12 @@ public class SecurityContextHolder extends org.springframework.security.core.con
     private static SecurityProperties securityProperties;
 
     /**
-     * 获取当前用户
+     * 获取当前用户/session获取是不可靠的
      *
      * @return userDetails
      */
     public static UserDetails getUserDetails(){
         var session = SessionContextHolder.readSession();
-        var authentication = getContext().getAuthentication();
-        if (authentication != null) {
-            Assert.isInstanceOf(OAuth2Authentication.class, authentication);
-            return (UserDetails) authentication.getPrincipal();
-        }
         return userDetailsService.loadUserByUsername(session.getUsername());
     }
 

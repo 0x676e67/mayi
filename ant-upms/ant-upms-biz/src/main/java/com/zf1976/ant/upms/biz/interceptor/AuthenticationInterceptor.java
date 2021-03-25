@@ -6,6 +6,7 @@ import com.zf1976.ant.common.core.util.JSONUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
@@ -45,6 +46,10 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
      */
     @Override
     public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) {
+        if (request.getMethod().equals(HttpMethod.OPTIONS.name())) {
+            return  true;
+        }
+        response.setHeader("X-Frame-Options", "ALLOW-FROM");
         var token = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (token == null) {
             this.unauthenticatedHandler(response);

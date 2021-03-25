@@ -5,8 +5,10 @@ import com.power.common.util.FileUtil;
 import com.zf1976.ant.upms.biz.handle.MetaDataHandler;
 import com.zf1976.ant.upms.biz.interceptor.AuthenticationInterceptor;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.format.FormatterRegistry;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -14,7 +16,10 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import javax.servlet.*;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.IOException;
 
 /**
  * @author mac
@@ -30,6 +35,25 @@ public class WebMvcConfig implements WebMvcConfigurer, InitializingBean {
     private final FileProperties fileProperties;
 
     /**
+     * 允许iframe
+     * @return Filter
+     */
+    private Filter filter(){
+        return (servletRequest, servletResponse, filterChain) -> {
+            ((HttpServletResponse) servletResponse).addHeader("X-Frame-Options","ALLOW-FROM");
+            filterChain.doFilter(servletRequest, servletResponse);
+        };
+    }
+
+    @Bean
+    @SuppressWarnings("rawtypes")
+    public FilterRegistrationBean testFilterRegistration() {
+        FilterRegistrationBean registration = new FilterRegistrationBean<>(filter());
+        registration.setOrder(1);
+        return registration;
+    }
+
+    /**
      * Add Spring MVC lifecycle interceptors for pre- and post-processing of
      * controller method invocations and resource handler requests.
      * Interceptors can be registered to apply to all requests or be limited
@@ -40,6 +64,7 @@ public class WebMvcConfig implements WebMvcConfigurer, InitializingBean {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new AuthenticationInterceptor())
+                .excludePathPatterns("/avatar/**")
                 .addPathPatterns("/**");
     }
 
@@ -48,20 +73,6 @@ public class WebMvcConfig implements WebMvcConfigurer, InitializingBean {
         GlobalConfig globalConfig = new GlobalConfig();
         globalConfig.setMetaObjectHandler(new MetaDataHandler());
         return globalConfig;
-    }
-
-    /**
-     * 前后端分离跨域设置
-     *
-     * @param registry 跨域注册
-     */
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**" )
-                .allowedHeaders("*")
-                .allowedMethods("*")
-                .allowedOrigins("*")
-                .maxAge(1800);
     }
 
     /**
