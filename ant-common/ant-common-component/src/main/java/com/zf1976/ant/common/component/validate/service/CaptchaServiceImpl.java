@@ -72,13 +72,12 @@ public class CaptchaServiceImpl implements CaptchaService, SmartLifecycle {
         Optional<CaptchaRepositoryStrategy> optional = Optional.ofNullable(STRATEGY_ATOMIC_REFERENCE.get());
         if (optional.isPresent()) {
             CaptchaRepositoryStrategy strategy = optional.get();
-            final String awaitCode = strategy.get(key);
-            if (!StringUtil.isEmpty(awaitCode)) {
-                boolean validate = awaitCode.equalsIgnoreCase(code);
-                if (validate) {
-                    this.clearCaptcha(key);
-                }
-                return validate;
+            // 获取存储验证码
+            final String verifyCode = strategy.get(key);
+            if (!StringUtil.isEmpty(verifyCode)) {
+                // 清空验证码 保证验证码唯一行
+                this.clearCaptcha(key);
+                return verifyCode.equalsIgnoreCase(code);
             }
         }
         return false;

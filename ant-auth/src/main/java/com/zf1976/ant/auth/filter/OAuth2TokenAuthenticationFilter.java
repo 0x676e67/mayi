@@ -32,7 +32,8 @@ import java.util.Arrays;
  * @author ant
  * Create by Ant on 2021/2/18 11:55 PM
  */
-public class Oauth2TokenAuthenticationFilter extends OncePerRequestFilter {
+@SuppressWarnings("all")
+public class OAuth2TokenAuthenticationFilter extends OncePerRequestFilter {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final AntPathMatcher pathMatcher = new AntPathMatcher();

@@ -5,9 +5,11 @@ import com.zf1976.ant.auth.enhance.JdbcClientDetailsServiceEnhancer;
 import com.zf1976.ant.auth.enhance.JwtTokenEnhancer;
 import com.zf1976.ant.auth.enhance.RedisTokenStoreEnhancer;
 import com.zf1976.ant.auth.filter.provider.DaoAuthenticationEnhancerProvider;
+import com.zf1976.ant.auth.grant.ResourceOwnerPasswordTokenEnhancerGranter;
 import com.zf1976.ant.auth.handler.access.Oauth2AccessDeniedHandler;
 import com.zf1976.ant.auth.handler.access.Oauth2AuthenticationEntryPoint;
 import com.zf1976.ant.auth.interceptor.EndpointReturnInterceptor;
+import com.zf1976.ant.common.component.validate.service.CaptchaService;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -56,9 +58,10 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JdbcClientDetailsServiceEnhancer jdbcClientDetailsServiceEnhancer;
+    private final CaptchaService captchaService;
+    private AuthorizationServerSecurityConfigurer authorizationServerSecurityConfigurer;
     private final RedisTemplate<Object,Object> template;
     private final KeyPair keyPair;
-    private AuthorizationServerSecurityConfigurer authorizationServerSecurityConfigurer;
     private boolean isRunning = false;
 
     public AuthorizationServerConfigurer(UserDetailsService userDetailsService,
@@ -66,13 +69,15 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
                                          AuthenticationManager authenticationManager,
                                          RedisTemplate<Object, Object> template,
                                          KeyPair keyPair,
-                                         JdbcClientDetailsServiceEnhancer jdbcClientDetailsServiceEnhancer) {
+                                         JdbcClientDetailsServiceEnhancer jdbcClientDetailsServiceEnhancer,
+                                         CaptchaService captchaService) {
         this.userDetailsService =  userDetailsService;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.template = template;
         this.keyPair = keyPair;
         this.jdbcClientDetailsServiceEnhancer = jdbcClientDetailsServiceEnhancer;
+        this.captchaService = captchaService;
         SecurityContextHolder.setShareObject(JdbcClientDetailsServiceEnhancer.class, this.jdbcClientDetailsServiceEnhancer);
     }
 
@@ -133,6 +138,13 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
         return new CompositeTokenGranter(tokenGranters);
     }
 
+    /**
+     * 获取 granter
+     *
+     * @date 2021-03-25 12:10:57
+     * @param endpoints 端点
+     * @return {@link List<TokenGranter>}
+     */
     private List<TokenGranter> getTokenGranters(AuthorizationServerEndpointsConfigurer endpoints) {
         ClientDetailsService clientDetails = endpoints.getClientDetailsService();
         AuthorizationServerTokenServices tokenServices = endpoints.getTokenServices();
@@ -146,6 +158,7 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
         tokenGranters.add(new ClientCredentialsTokenGranter(tokenServices, clientDetails, requestFactory));
         if (this.authenticationManager != null) {
             tokenGranters.add(new ResourceOwnerPasswordTokenGranter(this.authenticationManager, tokenServices, clientDetails, requestFactory));
+            tokenGranters.add(new ResourceOwnerPasswordTokenEnhancerGranter(this.authenticationManager, tokenServices, clientDetails, requestFactory, captchaService));
         }
         return tokenGranters;
     }
