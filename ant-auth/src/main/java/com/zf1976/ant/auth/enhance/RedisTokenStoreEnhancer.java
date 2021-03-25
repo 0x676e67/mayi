@@ -18,7 +18,7 @@ public class RedisTokenStoreEnhancer {
     }
 
     public TokenStore enhance() {
-        tokenStore.setPrefix(AuthConstants.PROJECT_OAUTH_TOKEN);
+        tokenStore.setPrefix(AuthConstants.PROJECT_OAUTH);
         return tokenStore;
     }
 

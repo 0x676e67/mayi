@@ -9,12 +9,12 @@ public interface AuthConstants {
     /**
      * oauth 缓存前缀
      */
-    String PROJECT_OAUTH_ACCESS = "ant_oauth_access:";
+    String PROJECT_OAUTH_ACCESS = "ant_oauth2:";
 
     /**
      * oauth 缓存令牌前缀
      */
-    String PROJECT_OAUTH_TOKEN = "ant_oauth_token:";
+    String PROJECT_OAUTH = "ant_oauth2:";
 
     /**
      * 验证码前缀

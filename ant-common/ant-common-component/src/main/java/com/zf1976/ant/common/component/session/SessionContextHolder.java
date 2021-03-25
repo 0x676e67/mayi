@@ -25,7 +25,6 @@ import java.util.List;
 public class SessionContextHolder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionContextHolder.class);
-    private static final ThreadLocal<Session> SESSION_THREAD_LOCAL = new ThreadLocal<>();
     private static SessionService service;
     private static SecurityProperties securityProperties;
 
@@ -56,15 +55,7 @@ public class SessionContextHolder {
      * @return {@link Session}
      */
     public static Session readSession(){
-        var session = SESSION_THREAD_LOCAL.get();
-        if (session == null) {
-            var readSession = readSession(token());
-            if (readSession != null) {
-                SESSION_THREAD_LOCAL.set(readSession);
-            }
-            return readSession;
-        }
-        return session;
+        return readSession(token());
     }
 
     /**
