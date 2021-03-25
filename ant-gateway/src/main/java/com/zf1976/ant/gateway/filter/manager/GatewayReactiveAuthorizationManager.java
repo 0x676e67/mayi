@@ -1,10 +1,12 @@
 package com.zf1976.ant.gateway.filter.manager;
 
+import com.nimbusds.jose.JWSObject;
 import com.power.common.util.StringUtil;
 import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.common.core.constants.KeyConstants;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.gateway.GatewayRouteConstants;
+import net.minidev.json.JSONArray;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -14,12 +16,17 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.server.resource.BearerTokenError;
+import org.springframework.security.oauth2.server.resource.BearerTokenErrors;
 import org.springframework.security.web.server.authorization.AuthorizationContext;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -45,6 +52,7 @@ public class GatewayReactiveAuthorizationManager implements ReactiveAuthorizatio
         final Object o = authorizationContext.getExchange()
                                              .getAttributes()
                                              .get(AuthConstants.OWNER);
+
         // 资源所有者放行所有
         if (o instanceof Boolean) {
             return Mono.just(new AuthorizationDecision((Boolean) o));

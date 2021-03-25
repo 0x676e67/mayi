@@ -71,18 +71,20 @@ public class Oauth2TokenAuthenticationFilter implements WebFilter {
         try {
             String token = this.token(request);
             // 无token放行
-            if (!StringUtils.isEmpty(token) && !this.checkToken(token)) {
+            if (StringUtils.isEmpty(token)) {
+                return webFilterChain.filter(serverWebExchange);
+            }
+            if (!this.checkToken(token)) {
                 BearerTokenError bearerTokenError = this.bearerTokenError();
                 throw new OAuth2AuthenticationException(bearerTokenError);
             }
             serverWebExchange.getAttributes()
                              .put(AuthConstants.OWNER, isOwner(token));
-            return webFilterChain.filter(serverWebExchange);
         } catch (AuthenticationException e) {
             SecurityContextHolder.clearContext();
             return this.exceptionHandler(response, e);
         }
-
+        return webFilterChain.filter(serverWebExchange);
     }
 
 

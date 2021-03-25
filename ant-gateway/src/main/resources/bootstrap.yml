@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: prod,prod
+    active: prod,dev
   application:
     name: ant-gateway
   cloud:
