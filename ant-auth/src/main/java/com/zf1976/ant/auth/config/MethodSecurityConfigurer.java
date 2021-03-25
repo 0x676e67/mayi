@@ -1,6 +1,6 @@
 package com.zf1976.ant.auth.config;
 
-import com.zf1976.ant.auth.evaluator.SecurityPermissionEvaluator;
+import com.zf1976.ant.auth.config.evaluator.SecurityPermissionEvaluator;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;

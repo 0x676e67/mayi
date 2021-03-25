@@ -15,7 +15,7 @@ public class SecretProperties {
     /**
      * 默认开启接口加密/解密
      */
-    public static boolean OPEN_ENCRYPT = true;
+    public static boolean OPEN_ENCRYPT = false;
 
     /**
      * 默认关闭

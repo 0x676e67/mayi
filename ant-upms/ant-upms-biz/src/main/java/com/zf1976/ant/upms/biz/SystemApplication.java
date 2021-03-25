@@ -3,6 +3,7 @@ package com.zf1976.ant.upms.biz;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Repository;
  **/
 @SpringBootApplication(scanBasePackages = "com.zf1976")
 @MapperScan(value = "com.zf1976", annotationClass = Repository.class)
+@EnableDiscoveryClient
 public class SystemApplication {
 
     public static void main(String[] args) {

@@ -89,9 +89,13 @@ public class TokenEndpointEnhancer {
                                                     captchaConfig.getExpiration(),
                                                     TimeUnit.MILLISECONDS);
         if (isSave) {
-            logger.info("Generator Captcha is：" + captcha.text());
+            if (logger.isDebugEnabled()) {
+                logger.info("Generator Captcha is：" + captcha.text());
+            }
         } else {
-            logger.info("Captcha not saved!");
+            if (logger.isDebugEnabled()) {
+                logger.info("Captcha not saved!");
+            }
         }
         final CaptchaVo captchaVo = CaptchaVo.builder()
                                              .img(captcha.toBase64())
@@ -102,7 +106,7 @@ public class TokenEndpointEnhancer {
 
     @GetMapping("/info")
     public DataResult<UserDetails> getUserInfo(){
-        return DataResult.success(SecurityContextHolder.getDetails());
+        return DataResult.success(SecurityContextHolder.getUserDetails());
     }
 
     public void saveSessionState(OAuth2AccessToken oAuth2AccessToken) {

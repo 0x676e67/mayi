@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
@@ -44,8 +45,13 @@ public class SecurityContextHolder extends org.springframework.security.core.con
      *
      * @return userDetails
      */
-    public static UserDetails getDetails(){
+    public static UserDetails getUserDetails(){
         var session = SessionContextHolder.readSession();
+        var authentication = getContext().getAuthentication();
+        if (authentication != null) {
+            Assert.isInstanceOf(OAuth2Authentication.class, authentication);
+            return (UserDetails) authentication.getPrincipal();
+        }
         return userDetailsService.loadUserByUsername(session.getUsername());
     }
 

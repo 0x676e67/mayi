@@ -102,7 +102,7 @@ aes:
 
 api-encrypt:
   open: true
-  show-log: false
+  show-log: true
 
 #第三方服务接口
 ip.region:

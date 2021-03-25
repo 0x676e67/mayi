@@ -13,17 +13,26 @@ dependencies {
     implementation project(':ant-common:ant-common-component')
     implementation project(':ant-common:ant-common-mybatis')
     implementation project(':ant-common:ant-common-datasource')
-    implementation project(':ant-visual:ant-visual-monitor')
+//    implementation project(':ant-visual:ant-visual-monitor')
     implementation project(':ant-common:ant-common-cache')
     implementation('cn.hutool:hutool-poi:5.4.5')
     implementation('org.apache.poi:poi-ooxml:4.1.2')
     implementation("com.baomidou:mybatis-plus-boot-starter:${mybatisPlusVersion}")
+    implementation "com.alibaba.cloud:spring-cloud-alibaba-dependencies:${nacosVersion}"
+    implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery:${nacosVersion}"
+    implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config:${nacosVersion}"
     implementation('org.springframework.boot:spring-boot-starter-web')
     implementation('org.springframework.boot:spring-boot-starter-test')
     implementation('org.springframework.boot:spring-boot-starter-validation')
     implementation('org.springframework.boot:spring-boot-starter-cache')
     implementation('org.springframework.boot:spring-boot-starter-data-redis')
     implementation("org.springframework.boot:spring-boot-configuration-processor")
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
 }
 test {
     useJUnitPlatform()

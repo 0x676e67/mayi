@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -63,6 +64,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     private void unauthenticatedHandler(HttpServletResponse response) {
         var fail = DataResult.fail(HttpStatus.UNAUTHORIZED);
         try {
+            response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_ATOM_XML_VALUE);
             JSONUtil.getJsonMapper().writeValue(response.getOutputStream(), fail);
         } catch (IOException ignored) {
 

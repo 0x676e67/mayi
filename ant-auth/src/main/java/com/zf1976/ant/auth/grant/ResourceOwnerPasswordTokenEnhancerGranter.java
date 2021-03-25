@@ -9,7 +9,6 @@ import org.springframework.security.oauth2.provider.token.AbstractTokenGranter;
 import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
 
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * 密码模式增强，新增验证码
@@ -43,14 +42,15 @@ public class ResourceOwnerPasswordTokenEnhancerGranter extends AbstractTokenGran
     }
 
     @Override
+    @SuppressWarnings("all")
     protected OAuth2Authentication getOAuth2Authentication(ClientDetails client, TokenRequest tokenRequest) {
         var parameters = new LinkedHashMap<>(tokenRequest.getRequestParameters());
         var username = parameters.get("username");
         var password = parameters.get("password");
-        var verifyCode = parameters.get("verify_code");
+        var verifyCode = parameters.get("code");
         var uuid = parameters.get("uuid");
         parameters.remove("password");
-        parameters.remove("verify_code");
+        parameters.remove("code");
         Authentication userAuth = new UsernamePasswordAuthenticationToken(username, password);
         ((AbstractAuthenticationToken)userAuth).setDetails(parameters);
 

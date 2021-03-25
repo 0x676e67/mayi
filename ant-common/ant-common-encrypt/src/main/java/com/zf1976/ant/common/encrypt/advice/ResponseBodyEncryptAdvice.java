@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 /**
+ * response 返回加密
+ *
  * @author mac
  * @date 2021/1/3
  **/
@@ -43,7 +45,7 @@ public class ResponseBodyEncryptAdvice implements ResponseBodyAdvice<Object> {
     @Override
     public boolean supports(@NonNull MethodParameter returnType,
                             @NonNull Class<? extends HttpMessageConverter<?>> aClass) {
-//        // 全局开启加密 解密
+        // 全局开启加密 解密
 //        if (SecretProperties.OPEN_ENCRYPT) {
 //            // 注解优于配置
 //            return returnType.getMethodAnnotation(Allow.class) == null;
@@ -78,10 +80,8 @@ public class ResponseBodyEncryptAdvice implements ResponseBodyAdvice<Object> {
             String result = jsonMapper.writeValueAsString(body);
             String encryptResult = EncryptUtil.encryptForAesByCbc(result);
             if (SecretProperties.SHOW_LOG) {
-                log.info("Pre-encrypted data：{}{}After encryption：{}",
-                        result,
-                        System.lineSeparator(),
-                        encryptResult);
+                log.info("Pre-encrypted data：{}", result);
+                log.info("After encryption data：{}", encryptResult);
             }
             return Base64Util.encryptToString(encryptResult);
         }catch (Exception e) {

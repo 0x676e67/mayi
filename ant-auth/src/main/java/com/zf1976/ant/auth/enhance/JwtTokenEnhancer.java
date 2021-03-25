@@ -32,6 +32,8 @@ public class JwtTokenEnhancer implements TokenEnhancer {
         additionalInformation.put(AuthConstants.JWT_USER_ID_KEY, this.getId(oAuth2Authentication));
         // 客户端id
         additionalInformation.put(AuthConstants.JWT_CLIENT_ID_KEY, oAuth2Request.getClientId());
+        // 用户细节
+        additionalInformation.put(AuthConstants.USER_DETAILS, oAuth2Authentication.getPrincipal());
         // 设置自定义information
         ((DefaultOAuth2AccessToken) oAuth2AccessToken).setAdditionalInformation(additionalInformation);
         SecurityContextHolder.setAuthenticationThreadLocal(oAuth2Authentication);
