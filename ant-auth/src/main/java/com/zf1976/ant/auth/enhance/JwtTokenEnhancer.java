@@ -1,6 +1,6 @@
 package com.zf1976.ant.auth.enhance;
 
-import com.zf1976.ant.auth.AntUserDetails;
+import com.zf1976.ant.auth.UserDetails;
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.common.core.constants.AuthConstants;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
@@ -41,7 +41,7 @@ public class JwtTokenEnhancer implements TokenEnhancer {
     }
 
     public Long getId(OAuth2Authentication oAuth2Authentication) {
-        AntUserDetails antUserDetails = (AntUserDetails) oAuth2Authentication.getPrincipal();
+        UserDetails antUserDetails = (UserDetails) oAuth2Authentication.getPrincipal();
         return antUserDetails.getId();
     }
 }

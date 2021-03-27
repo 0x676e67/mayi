@@ -1,11 +1,13 @@
 package com.zf1976.ant.common.component.session;
 
+import com.zf1976.ant.common.security.pojo.vo.UserInfoVo;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author mac
@@ -62,8 +64,28 @@ public class Session implements Serializable {
      * token
      */
     private String token;
+
     /**
      * 登录时间
      */
     private Date loginTime;
+
+    @Data
+    @Accessors(chain = true)
+    public static class Details {
+
+        /**
+         * 用户信息
+         */
+        private UserInfoVo userInfo;
+        /**
+         * 数据权限
+         */
+        private List<Long> dataScopes;
+        /**
+         * 权限
+         */
+        private List<Long> permission;
+
+    }
 }

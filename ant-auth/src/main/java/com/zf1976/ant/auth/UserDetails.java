@@ -12,13 +12,13 @@ import java.util.stream.Collectors;
  * @author mac
  * Create by Ant on 2020/9/2 下午7:00
  */
-public class AntUserDetails implements org.springframework.security.core.userdetails.UserDetails {
+public class UserDetails implements org.springframework.security.core.userdetails.UserDetails {
 
     private final UserInfoVo userInfo;
     private final Set<Long> dataScopes;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public AntUserDetails(UserInfoVo userInfo, Collection<? extends GrantedAuthority> authorities, Set<Long> dataScopes) {
+    public UserDetails(UserInfoVo userInfo, Collection<? extends GrantedAuthority> authorities, Set<Long> dataScopes) {
         this.userInfo = userInfo;
         this.dataScopes = dataScopes;
         this.authorities = authorities;

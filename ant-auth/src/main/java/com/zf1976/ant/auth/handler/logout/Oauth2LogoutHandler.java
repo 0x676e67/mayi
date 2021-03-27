@@ -1,7 +1,7 @@
 package com.zf1976.ant.auth.handler.logout;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zf1976.ant.auth.AntUserDetails;
+import com.zf1976.ant.auth.UserDetails;
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.auth.exception.ExpiredJwtException;
 import com.zf1976.ant.auth.exception.IllegalAccessException;
@@ -61,7 +61,7 @@ public class Oauth2LogoutHandler implements LogoutHandler {
             this.support(httpServletRequest);
             Assert.isInstanceOf(OAuth2Authentication.class, authentication);
             OAuth2Authentication oAuth2Authentication = (OAuth2Authentication) authentication;
-            final AntUserDetails antUserDetails = (AntUserDetails) oAuth2Authentication.getUserAuthentication().getPrincipal();
+            final UserDetails antUserDetails = (UserDetails) oAuth2Authentication.getUserAuthentication().getPrincipal();
             if (!oAuth2Authentication.isAuthenticated()) {
                 throw new ExpiredJwtException(AuthenticationState.ILLEGAL_ACCESS);
             }

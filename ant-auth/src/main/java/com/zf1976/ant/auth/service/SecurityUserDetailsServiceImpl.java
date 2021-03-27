@@ -1,7 +1,7 @@
 package com.zf1976.ant.auth.service;
 
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
-import com.zf1976.ant.auth.AntUserDetails;
+import com.zf1976.ant.auth.UserDetails;
 import com.zf1976.ant.auth.convert.UserConversion;
 import com.zf1976.ant.auth.exception.UserNotFountException;
 import com.zf1976.ant.common.security.enums.AuthenticationState;
@@ -55,7 +55,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public org.springframework.security.core.userdetails.UserDetails loadUserByUsername(String username) {
-        AntUserDetails antUserDetails;
+        UserDetails antUserDetails;
         // 初步验证用户是否存在
         SysUser user = ChainWrappers.lambdaQueryChain(this.sysUserDao)
                                     .eq(SysUser::getUsername, username)
@@ -77,7 +77,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
         if (!userInfoVo.getEnabled()) {
             throw new UserNotFountException(AuthenticationState.ACCOUNT_DISABLED);
         } else {
-            antUserDetails = new AntUserDetails(
+            antUserDetails = new UserDetails(
                     userInfoVo,
                     this.grantedAuthorities(userInfoVo),
                     this.getDataPermission(userInfoVo));

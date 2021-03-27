@@ -8,9 +8,7 @@ import com.zf1976.ant.common.security.pojo.vo.DepartmentVo;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
@@ -45,7 +43,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
      *
      * @return userDetails
      */
-    public static UserDetails getUserDetails(){
+    public static org.springframework.security.core.userdetails.UserDetails getUserDetails(){
         var session = SessionContextHolder.readSession();
         return userDetailsService.loadUserByUsername(session.getUsername());
     }
@@ -93,7 +91,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
 
     public static Session generatedSession(String token) {
         // 获取用户认证登录细节
-        AntUserDetails userDetails = (AntUserDetails) SecurityContextHolder.getAuthenticationThreadLocal().getPrincipal();
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getAuthenticationThreadLocal().getPrincipal();
         Long id = userDetails.getId();
         var request = RequestUtils.getRequest();
         DepartmentVo department = userDetails.getUserInfo()
