@@ -2,6 +2,7 @@ package com.zf1976.ant.auth.config;
 
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.auth.enhance.JdbcClientDetailsServiceEnhancer;
+import com.zf1976.ant.auth.enhance.MD5PasswordEncoder;
 import com.zf1976.ant.auth.filter.DynamicSecurityFilter;
 import com.zf1976.ant.auth.filter.OAuth2TokenAuthenticationFilter;
 import com.zf1976.ant.auth.filter.SignatureAuthenticationFilter;
@@ -54,7 +55,7 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
         this.securityProperties = securityProperties;
         this.userDetailsService = userDetailsService;
         this.authProperties = authProperties;
-        this.passwordEncoder = new BCryptPasswordEncoder();
+        this.passwordEncoder = new MD5PasswordEncoder();
     }
 
     @Bean

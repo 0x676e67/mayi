@@ -9,7 +9,7 @@ import javax.annotation.processing.Generated;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2021-03-28T19:16:40+0800",
+    date = "2021-03-28T20:43:23+0800",
     comments = "version: 1.3.1.Final, compiler: javac, environment: Java 11.0.8 (AdoptOpenJDK)"
 )
 public class SysDictConvertImpl implements SysDictConvert {

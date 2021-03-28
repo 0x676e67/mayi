@@ -30,13 +30,7 @@ public class OpenSignatureAuthenticationStrategy extends AbstractSignatureAuthen
         // 获取原签名
         String rawSignature = super.getAndValidateSignature(request);
         // 获取时间戳
-        Long timestamp;
-        try {
-            String timestampStr = request.getParameter(StandardSignature.TIMESTAMP);
-            timestamp = NumberUtils.parseNumber(timestampStr, Long.class);
-        } catch (Exception e) {
-            throw new SignatureException(SignatureState.MISSING_TIMESTAMP, e.getMessage());
-        }
+        Long timestamp = super.getTimestamp(request);
         // 获取随机字符串
         String nonceStr = request.getParameter(StandardSignature.NONCE_STR);
         // 防重放校验

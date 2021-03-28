@@ -68,8 +68,7 @@ public class Oauth2LogoutHandler implements LogoutHandler {
             if (antUserDetails == null) {
                 throw new ExpiredJwtException(AuthenticationState.EXPIRED_JWT);
             }
-            final Long id = antUserDetails.getId();
-            Assert.notNull(id, "id cannot been null");
+            Assert.notNull(antUserDetails.getId(), "id cannot been null");
             final Object principal = this.tokenExtractor.extract(httpServletRequest)
                                                         .getPrincipal();
             if (!(principal instanceof String)) {
@@ -82,8 +81,8 @@ public class Oauth2LogoutHandler implements LogoutHandler {
             this.tokenStore.removeAccessToken(oAuth2AccessToken);
             // 删除refresh token
             this.tokenStore.removeRefreshToken(oAuth2RefreshToken);
-            // 删除回话
-            SessionContextHolder.removeSession(id);
+            // 删除会话
+            SessionContextHolder.removeSession(oAuth2AccessToken.getValue());
         } catch (AuthenticationException e) {
             this.unSuccessLogoutHandler(httpServletRequest, httpServletResponse, e);
             throw e;

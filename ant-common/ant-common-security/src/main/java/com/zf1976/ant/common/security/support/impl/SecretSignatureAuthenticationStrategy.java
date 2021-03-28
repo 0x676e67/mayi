@@ -41,13 +41,7 @@ public class SecretSignatureAuthenticationStrategy extends AbstractSignatureAuth
         // 解析
         Map<String, String> contentMap = this.validateAndParse(base64Content);
         // 获取时间戳
-        Long timestamp;
-        try {
-            String timestampStr = contentMap.get(StandardSignature.TIMESTAMP);
-            timestamp = NumberUtils.parseNumber(timestampStr, Long.class);
-        } catch (Exception e) {
-            throw new SignatureException(SignatureState.MISSING_TIMESTAMP, e.getMessage());
-        }
+        Long timestamp = super.getTimestamp(contentMap);
         // 随机字符串
         String nonceStr = contentMap.get(StandardSignature.NONCE_STR);
         // 防重放校验

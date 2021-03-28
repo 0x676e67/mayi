@@ -7,6 +7,7 @@ import com.zf1976.ant.common.encrypt.EncryptUtil;
 import com.zf1976.ant.common.security.enums.SignatureState;
 import com.zf1976.ant.common.security.support.exception.SignatureException;
 import org.springframework.util.Assert;
+import org.springframework.util.NumberUtils;
 import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,6 +43,12 @@ public abstract class AbstractSignatureAuthenticationStrategy implements Signatu
         }
     }
 
+    /**
+     * 获取并校验签名
+     *
+     * @param request 请求
+     * @return 签名
+     */
     protected String getAndValidateSignature(HttpServletRequest request) {
         String sign = request.getParameter(StandardSignature.SIGNATURE);
         if (StringUtil.isEmpty(sign)) {
@@ -50,10 +57,56 @@ public abstract class AbstractSignatureAuthenticationStrategy implements Signatu
         return sign;
     }
 
+    /**
+     * 从请求参数获取时间戳
+     *
+     * @param request 请求
+     * @return timestamp
+     */
+    protected Long getTimestamp(HttpServletRequest request){
+        Long timestamp;
+        try {
+            String timestampStr = request.getParameter(StandardSignature.TIMESTAMP);
+            timestamp = NumberUtils.parseNumber(timestampStr, Long.class);
+        } catch (Exception e) {
+            throw new SignatureException(SignatureState.MISSING_TIMESTAMP, e.getMessage());
+        }
+        return timestamp;
+    }
+
+    /**
+     * 从解析content获取时间戳
+     *
+     * @param contentMap content
+     * @return timestamp
+     */
+    protected Long getTimestamp(Map<String, String> contentMap){
+        Long timestamp;
+        try {
+            String timestampStr = contentMap.get(StandardSignature.TIMESTAMP);
+            timestamp = NumberUtils.parseNumber(timestampStr, Long.class);
+        } catch (Exception e) {
+            throw new SignatureException(SignatureState.MISSING_TIMESTAMP, e.getMessage());
+        }
+        return timestamp;
+    }
+
+    /**
+     * 从请求头获取客户端id
+     *
+     * @param request 请求
+     * @return 客户端id
+     */
     protected String getApplyId(HttpServletRequest request) {
         return request.getParameter(StandardSignature.APPLY_ID);
     }
 
+    /**
+     * 从解析content获取校验签名
+     *
+     * @param kv map
+     * @return 签名
+     */
     protected String getAndValidateSignature(Map<String, String> kv) {
         String sign = kv.get(StandardSignature.SIGNATURE);
         if (StringUtil.isEmpty(sign)) {
@@ -62,6 +115,12 @@ public abstract class AbstractSignatureAuthenticationStrategy implements Signatu
         return sign;
     }
 
+    /**
+     * 从解析content获取客户端id
+     *
+     * @param kv map
+     * @return 客户端id
+     */
     protected String getApplyId(Map<String, String> kv) {
         return kv.get(StandardSignature.APPLY_ID);
     }

@@ -121,6 +121,7 @@ public class JdbcClientDetailsServiceEnhancer extends JdbcClientDetailsService i
 
     @Override
     public Client selectClientByClientId(String clientId) {
+        // 查询客户端
         var clientDetails = this.loadClientByClientId(clientId);
         var client = new Client();
         if (clientDetails != null) {
