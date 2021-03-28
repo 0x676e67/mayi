@@ -9,10 +9,6 @@ configurations {
     }
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation project(':ant-common:ant-common-core')
     implementation project(":ant-common:ant-common-cache")
