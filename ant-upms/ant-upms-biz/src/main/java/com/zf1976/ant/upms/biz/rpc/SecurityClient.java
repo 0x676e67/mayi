@@ -1,4 +1,4 @@
-package com.zf1976.ant.common.feign.security;
+package com.zf1976.ant.upms.biz.rpc;
 
 import com.zf1976.ant.common.core.foundation.DataResult;
 import org.springframework.cloud.openfeign.FeignClient;

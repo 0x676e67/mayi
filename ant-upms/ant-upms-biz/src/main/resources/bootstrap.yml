@@ -41,7 +41,6 @@ spring:
 
   profiles:                                                 #加载配置文件
     active: conf,prod
-
   cloud:
     nacos:
       config:
@@ -105,3 +104,10 @@ file:
     real:
       avatar-path: /avatar/
       file-path: /file/
+# feign config
+feign:
+  compression:
+    request:
+      enabled: true
+  client:
+    default-to-properties: true

@@ -7,7 +7,7 @@ import com.zf1976.ant.common.component.session.repository.SessionRepository;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
 import com.zf1976.ant.common.core.util.RedisUtils;
 import com.zf1976.ant.common.core.util.StringUtils;
-import com.zf1976.ant.common.feign.security.SecurityClient;
+import com.zf1976.ant.upms.biz.rpc.SecurityClient;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import com.zf1976.ant.upms.biz.convert.SessionConvert;
 import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
@@ -47,7 +47,6 @@ public class SysOnlineService {
     private final SessionConvert sessionConvert = SessionConvert.INSTANCE;
     private final RestTemplate restTemplate = new RestTemplate();
     private final SecurityClient securityClient;
-    private final String LOGOUT_URL = "/oauth/logout";
     private ClientHttpRequest clientHttpRequest;
 
     public SysOnlineService(RedisTemplate<Object, Object> template,
@@ -153,8 +152,8 @@ public class SysOnlineService {
         ids.forEach(id -> {
             // 不允许强制自己离线
             if (!ObjectUtils.nullSafeEquals(id, sessionId)){
-                String token = SessionContextHolder.readSession(id).getToken();
                 // 调用远程服务进行登出处理
+                String token = this.generatedToken(id);
                 var logout = this.securityClient.logout(token);
                 Assert.isTrue(logout.getSuccess(),"this session not online");
             }
@@ -162,4 +161,8 @@ public class SysOnlineService {
         return Optional.empty();
     }
 
+    private String generatedToken(Long sessionId) {
+        String value = SessionContextHolder.readSession(sessionId).getToken();
+        return "Bearer " + value;
+    }
 }
