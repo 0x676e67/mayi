@@ -9,6 +9,7 @@ import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -48,16 +49,14 @@ public class OAuth2TokenAuthenticationFilter extends OncePerRequestFilter {
         // 无请求头直接放行 或在放行名单 直接放行
         Authentication authentication = this.tokenExtractor.extract(request);
         String accessToken;
-        if (authentication instanceof PreAuthenticatedAuthenticationToken) {
+        if (authentication instanceof AbstractAuthenticationToken) {
             accessToken = (String) authentication.getPrincipal();
+            // 放行url
             if (StringUtil.isEmpty(accessToken) || validateAllowUri(request)) {
                 filterChain.doFilter(request, response);
                 return;
             }
         } else {
-            if (this.log.isDebugEnabled()) {
-                this.log.error("Jwt filter error at: {}", this.getFilterName());
-            }
             SecurityContextHolder.clearContext();
             filterChain.doFilter(request, response);
             return;

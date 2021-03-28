@@ -145,7 +145,7 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
             .addFilterBefore(new OAuth2TokenAuthenticationFilter(), LogoutFilter.class);
         var jdbcClientDetailsServiceEnhancer = SecurityContextHolder.getShareObject(JdbcClientDetailsServiceEnhancer.class);
         if (this.authProperties.getEnableSignature()) {
-            http.addFilterBefore(new SignatureAuthenticationFilter(jdbcClientDetailsServiceEnhancer), SecurityContextPersistenceFilter.class);
+            http.addFilterBefore(new SignatureAuthenticationFilter(jdbcClientDetailsServiceEnhancer, "/oauth/logout"), SecurityContextPersistenceFilter.class);
         }
     }
 

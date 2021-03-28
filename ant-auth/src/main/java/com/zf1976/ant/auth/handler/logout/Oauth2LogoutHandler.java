@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -69,8 +70,7 @@ public class Oauth2LogoutHandler implements LogoutHandler {
                 throw new ExpiredJwtException(AuthenticationState.EXPIRED_JWT);
             }
             Assert.notNull(antUserDetails.getId(), "id cannot been null");
-            final Object principal = this.tokenExtractor.extract(httpServletRequest)
-                                                        .getPrincipal();
+            final Object principal = this.tokenExtractor.extract(httpServletRequest).getPrincipal();
             if (!(principal instanceof String)) {
                 throw new ExpiredJwtException(AuthenticationState.EXPIRED_JWT);
             }

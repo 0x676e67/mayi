@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
+import org.springframework.web.context.request.RequestScope;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -22,7 +23,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -36,8 +39,11 @@ public class SignatureAuthenticationFilter extends OncePerRequestFilter {
     public static final Logger LOGGER = LoggerFactory.getLogger(SignatureAuthenticationFilter.class);
     private final Map<SignaturePattern, SignatureAuthenticationStrategy> strategies = new ConcurrentHashMap<>(2);
     private final ObjectMapper objectMapper = new ObjectMapper();
-    public SignatureAuthenticationFilter(ClientDataSourceProvider provider) {
+    private final Set<String> ignoredSet = new HashSet<>();
+    public SignatureAuthenticationFilter(ClientDataSourceProvider provider, String ignoredUri) {
         super();
+        Assert.notNull(ignoredUri, "ignored uri cannot benn null");
+        ignoredSet.add(ignoredUri);
         this.init(provider);
     }
 
@@ -63,30 +69,32 @@ public class SignatureAuthenticationFilter extends OncePerRequestFilter {
      */
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
-        // 在放行名单 直接放行
-        if (SecurityContextHolder.validateUri(request)) {
+        // 忽略uri
+        if (ignoredSet.contains(request.getRequestURI())) {
             filterChain.doFilter(request, response);
             return;
         }
-        String signaturePattern;
-        signaturePattern = request.getHeader(StandardSignature.SIGN_PATTERN);
-        if (signaturePattern == null) {
-            this.handlerException(response, new SignatureException(SignatureState.NULL_PARAMS_DATA));
-            SecurityContextHolder.clearContext();
-            return;
-        }
         try {
-            final SignaturePattern pattern = SignaturePattern.valueOf(signaturePattern);
-            this.executeStrategy(pattern, request);
+            this.executeStrategy(request);
         } catch (Exception e) {
             this.handlerException(response, new SignatureException(SignatureState.ERROR, e.getMessage()));
-            SecurityContextHolder.clearContext();
             return;
         }
         filterChain.doFilter(request, response);
     }
 
+    private SignaturePattern extractSignaturePattern(HttpServletRequest request) {
+        String signaturePattern;
+        signaturePattern = request.getHeader(StandardSignature.SIGN_PATTERN);
+        if (signaturePattern == null) {
+            SecurityContextHolder.clearContext();
+            throw new SignatureException(SignatureState.NULL_PARAMS_DATA);
+        }
+        return SignaturePattern.valueOf(signaturePattern);
+    }
+
     private void handlerException(HttpServletResponse response, SignatureException signatureException) {
+        SecurityContextHolder.clearContext();
         response.setStatus(signatureException.getValue());
         try {
             this.objectMapper.writeValue(response.getOutputStream(), DataResult.fail(signatureException.getReasonPhrase()));
@@ -98,15 +106,14 @@ public class SignatureAuthenticationFilter extends OncePerRequestFilter {
     /**
      * 执行策略
      *
-     * @param signatureModel 签名模式
      * @param request request
      */
-    private void executeStrategy(SignaturePattern signatureModel, HttpServletRequest request) {
-        SignatureAuthenticationStrategy strategy = this.strategies.get(signatureModel);
-        Assert.notNull(strategy,"strategy cannot been null");
+    private void executeStrategy(HttpServletRequest request) {
+        final SignaturePattern pattern = this.extractSignaturePattern(request);
+        SignatureAuthenticationStrategy strategy = this.strategies.get(pattern);
         SignatureException signatureException;
         try {
-            if (strategy.supports(signatureModel)) {
+            if (strategy.supports(pattern)) {
                 strategy.onAuthenticate(request);
                 return;
             }
