@@ -2,12 +2,12 @@ package com.zf1976.ant.upms.biz.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zf1976.ant.common.component.session.Session;
 import com.zf1976.ant.common.component.session.SessionContextHolder;
 import com.zf1976.ant.common.component.session.repository.SessionRepository;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
 import com.zf1976.ant.common.core.util.RedisUtils;
 import com.zf1976.ant.common.core.util.StringUtils;
+import com.zf1976.ant.common.feign.security.SecurityClient;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import com.zf1976.ant.upms.biz.convert.SessionConvert;
 import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
@@ -15,12 +15,18 @@ import com.zf1976.ant.upms.biz.pojo.query.SessionQueryParam;
 import com.zf1976.ant.upms.biz.pojo.vo.SessionVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.client.ClientHttpRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -30,26 +36,34 @@ import java.util.stream.Collectors;
  * @author mac
  * @date 2021/1/20
  **/
-@Slf4j
+@Slf4j(topic = "[online]-session")
 @Service
 public class SysOnlineService {
 
-    private final SecurityProperties securityConfig;
+    private final SecurityProperties securityProperties;
     private final RedisTemplate<Object, Object> redisTemplate;
     private final SessionRepository sessionRepository;
     private final static String PATTERN_SUFFIX = "*";
     private final SessionConvert sessionConvert = SessionConvert.INSTANCE;
+    private final RestTemplate restTemplate = new RestTemplate();
+    private final SecurityClient securityClient;
+    private final String LOGOUT_URL = "/oauth/logout";
+    private ClientHttpRequest clientHttpRequest;
 
-    public SysOnlineService(RedisTemplate<Object, Object> template, SecurityProperties securityConfig, SessionRepository sessionRepository) {
+    public SysOnlineService(RedisTemplate<Object, Object> template,
+                            SecurityProperties securityConfig,
+                            SessionRepository sessionRepository,
+                            SecurityClient securityClient) {
         this.redisTemplate = template;
-        this.securityConfig = securityConfig;
+        this.securityProperties = securityConfig;
         this.sessionRepository = sessionRepository;
+        this.securityClient = securityClient;
         this.checkState();
     }
 
     private void checkState() {
         Assert.notNull(redisTemplate, "repository cannot be null");
-        Assert.notNull(securityConfig, "config cannot be null");
+        Assert.notNull(securityProperties, "config cannot be null");
     }
 
 
@@ -100,7 +114,37 @@ public class SysOnlineService {
     }
 
     private String getPatternSessionId() {
-        return securityConfig.getPrefixSessionId() + PATTERN_SUFFIX;
+        return securityProperties.getPrefixSessionId() + PATTERN_SUFFIX;
+    }
+
+    private ClientHttpRequest createLogoutRequest() {
+        if (this.clientHttpRequest == null) {
+            synchronized (this) {
+                if (this.clientHttpRequest == null) {
+                    var requestFactory = this.restTemplate.getRequestFactory();
+                    try {
+                        this.clientHttpRequest = requestFactory.createRequest(URI.create(securityProperties.getLogoutUrl()),HttpMethod.POST);
+                    } catch (IOException e) {
+                        log.error("create logout request client fail：{}", e.getMessage());
+                    }
+                }
+            }
+        }
+        return this.clientHttpRequest;
+    }
+
+    private boolean executeLogout(String token) {
+        var logoutRequest = createLogoutRequest();
+        logoutRequest.getHeaders()
+                     .add(HttpHeaders.AUTHORIZATION, token);
+        try {
+            var response = logoutRequest.execute();
+            return response.getStatusCode()
+                           .is2xxSuccessful();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public Optional<Void> forceOffline(Set<Long> ids) {
@@ -109,8 +153,10 @@ public class SysOnlineService {
         ids.forEach(id -> {
             // 不允许强制自己离线
             if (!ObjectUtils.nullSafeEquals(id, sessionId)){
-                String token = SessionContextHolder.readSession(id)
-                                                   .getToken();
+                String token = SessionContextHolder.readSession(id).getToken();
+                // 调用远程服务进行登出处理
+                var logout = this.securityClient.logout(token);
+                Assert.isTrue(logout.getSuccess(),"this session not online");
             }
         });
         return Optional.empty();

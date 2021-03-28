@@ -5,6 +5,7 @@ import com.zf1976.ant.common.core.foundation.DataResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
@@ -25,7 +26,8 @@ public class Oauth2LogoutSuccessHandler implements LogoutSuccessHandler {
     @Override
     public void onLogoutSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException, ServletException {
         httpServletResponse.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+        httpServletResponse.setStatus(HttpStatus.OK.value());
         objectMapper.writeValue(httpServletResponse.getOutputStream(), DataResult.success("Have to log out！"));
-        log.info("{}", "已登出");
+        log.info("Authentication principle {} is logout", authentication.getPrincipal());
     }
 }

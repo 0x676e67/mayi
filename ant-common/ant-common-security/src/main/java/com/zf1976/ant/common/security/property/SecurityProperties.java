@@ -72,9 +72,22 @@ public class SecurityProperties {
      */
     private String rsaSecret;
     /**
+     * logout url
+     */
+    private String logoutUrl;
+    /**
      * 白名单 uri
      */
     private String[] ignoreUri;
+
+    public String getLogoutUrl() {
+        return logoutUrl;
+    }
+
+    public SecurityProperties setLogoutUrl(String logoutUrl) {
+        this.logoutUrl = logoutUrl;
+        return this;
+    }
 
     public String getOwner() {
         return owner;
@@ -228,6 +241,7 @@ public class SecurityProperties {
                 ", prefixSessionToken='" + prefixSessionToken + '\'' +
                 ", enableRestore=" + enableRestore +
                 ", rsaSecret='" + rsaSecret + '\'' +
+                ", logoutUrl='" + logoutUrl + '\'' +
                 ", ignoreUri=" + Arrays.toString(ignoreUri) +
                 '}';
     }

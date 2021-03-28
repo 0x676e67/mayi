@@ -13,6 +13,7 @@ dependencies {
     implementation project(':ant-common:ant-common-component')
     implementation project(':ant-common:ant-common-mybatis')
     implementation project(':ant-common:ant-common-datasource')
+    implementation project(':ant-common:ant-common-feign')
     implementation project(':ant-visual:ant-visual-monitor')
     implementation project(':ant-common:ant-common-cache')
     implementation('cn.hutool:hutool-poi:5.4.5')

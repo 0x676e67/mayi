@@ -68,16 +68,16 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
                                          PasswordEncoder passwordEncoder,
                                          AuthenticationManager authenticationManager,
                                          RedisTemplate<Object, Object> template,
-                                         KeyPair keyPair,
                                          JdbcClientDetailsServiceEnhancer jdbcClientDetailsServiceEnhancer,
-                                         CaptchaService captchaService) {
+                                         CaptchaService captchaService,
+                                         KeyPair keyPair) {
         this.userDetailsService =  userDetailsService;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.template = template;
-        this.keyPair = keyPair;
         this.jdbcClientDetailsServiceEnhancer = jdbcClientDetailsServiceEnhancer;
         this.captchaService = captchaService;
+        this.keyPair = keyPair;
         SecurityContextHolder.setShareObject(JdbcClientDetailsServiceEnhancer.class, this.jdbcClientDetailsServiceEnhancer);
     }
 

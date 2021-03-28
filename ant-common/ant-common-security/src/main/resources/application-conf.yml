@@ -70,6 +70,8 @@ security:
   app-id: 1234567
   # 应用密钥
   app-key: abcdefg
+  # logout url
+  logout-url: http://localhost:8888/oauth/logout
   # 白名单URI
   ignore-uri:
     # swagger 文档
