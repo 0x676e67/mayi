@@ -2,6 +2,7 @@ package com.zf1976.ant.upms.biz.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zf1976.ant.common.component.session.Session;
 import com.zf1976.ant.common.component.session.SessionContextHolder;
 import com.zf1976.ant.common.component.session.repository.SessionRepository;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
@@ -37,13 +38,12 @@ public class SysOnlineService {
     private final RedisTemplate<Object, Object> redisTemplate;
     private final SessionRepository sessionRepository;
     private final static String PATTERN_SUFFIX = "*";
-    private final SessionConvert sessionConvert;
+    private final SessionConvert sessionConvert = SessionConvert.INSTANCE;
 
     public SysOnlineService(RedisTemplate<Object, Object> template, SecurityProperties securityConfig, SessionRepository sessionRepository) {
         this.redisTemplate = template;
         this.securityConfig = securityConfig;
         this.sessionRepository = sessionRepository;
-        this.sessionConvert = SessionConvert.INSTANCE;
         this.checkState();
     }
 
@@ -104,9 +104,13 @@ public class SysOnlineService {
     }
 
     public Optional<Void> forceOffline(Set<Long> ids) {
+        // 操作方
+        Long sessionId = SessionContextHolder.getSessionId();
         ids.forEach(id -> {
-            if (!ObjectUtils.nullSafeEquals(id, SessionContextHolder.getSessionId())){
-                SessionContextHolder.removeSession(id);
+            // 不允许强制自己离线
+            if (!ObjectUtils.nullSafeEquals(id, sessionId)){
+                String token = SessionContextHolder.readSession(id)
+                                                   .getToken();
             }
         });
         return Optional.empty();
