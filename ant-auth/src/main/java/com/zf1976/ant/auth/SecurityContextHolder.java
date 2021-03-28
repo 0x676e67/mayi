@@ -16,6 +16,7 @@ import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 只适合单机适用
@@ -43,9 +44,9 @@ public class SecurityContextHolder extends org.springframework.security.core.con
      *
      * @return userDetails
      */
-    public static org.springframework.security.core.userdetails.UserDetails getUserDetails(){
+    public static Session.Details getUserDetails(){
         var session = SessionContextHolder.readSession();
-        return userDetailsService.loadUserByUsername(session.getUsername());
+        return session.getDetails();
     }
 
     /**
@@ -94,10 +95,13 @@ public class SecurityContextHolder extends org.springframework.security.core.con
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getAuthenticationThreadLocal().getPrincipal();
         Long id = userDetails.getId();
         var request = RequestUtils.getRequest();
-        DepartmentVo department = userDetails.getUserInfo()
-                                             .getDepartment();
+        DepartmentVo department = userDetails.getUserInfo().getDepartment();
         String deptName = department == null ? null : department.getName();
         Session session = new Session();
+        Session.Details details = new Session.Details();
+        details.setPermission(new ArrayList<>(userDetails.getPermission()))
+               .setDataScopes(new ArrayList<>(userDetails.getDataScopes()))
+               .setUserInfo(userDetails.getUserInfo());
         session.setId(id)
                .setLoginTime(new Date())
                .setUsername(userDetails.getUsername())
@@ -106,6 +110,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
                .setDataPermission(new ArrayList<>(userDetails.getDataScopes()))
                .setPermission(new ArrayList<>(userDetails.getPermission()))
                .setToken(token)
+               .setDetails(details)
                .setDepartment(deptName)
                .setIp(RequestUtils.getIpAddress(request))
                .setIpRegion(RequestUtils.getIpRegion(request))

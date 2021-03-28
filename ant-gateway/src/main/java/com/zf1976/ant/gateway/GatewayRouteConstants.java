@@ -9,7 +9,7 @@ public interface GatewayRouteConstants {
     /**
      * 管理中心路由
      */
-    String ADMIN_ROUTE = "/admin/v1/**";
+    String ADMIN_ROUTE = "/api/**";
 
     /**
      * 认证中心路由

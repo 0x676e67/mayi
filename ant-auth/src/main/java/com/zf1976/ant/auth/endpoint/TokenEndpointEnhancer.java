@@ -2,6 +2,7 @@ package com.zf1976.ant.auth.endpoint;
 
 import com.wf.captcha.base.Captcha;
 import com.zf1976.ant.auth.SecurityContextHolder;
+import com.zf1976.ant.common.component.session.Session;
 import com.zf1976.ant.common.component.session.SessionContextHolder;
 import com.zf1976.ant.common.component.validate.service.CaptchaService;
 import com.zf1976.ant.common.component.validate.support.CaptchaGenerator;
@@ -105,7 +106,7 @@ public class TokenEndpointEnhancer {
     }
 
     @GetMapping("/info")
-    public DataResult<UserDetails> getUserInfo(){
+    public DataResult<Session.Details> getUserInfo(){
         return DataResult.success(SecurityContextHolder.getUserDetails());
     }
 

@@ -69,6 +69,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     private void unauthenticatedHandler(HttpServletResponse response) {
         var fail = DataResult.fail(HttpStatus.UNAUTHORIZED);
         try {
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_ATOM_XML_VALUE);
             JSONUtil.getJsonMapper().writeValue(response.getOutputStream(), fail);
         } catch (IOException ignored) {

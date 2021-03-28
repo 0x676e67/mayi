@@ -64,7 +64,10 @@ public class Session implements Serializable {
      * token
      */
     private String token;
-
+    /**
+     * 会话细节
+     */
+    private Details details;
     /**
      * 登录时间
      */
@@ -85,7 +88,7 @@ public class Session implements Serializable {
         /**
          * 权限
          */
-        private List<Long> permission;
+        private List<String> permission;
 
     }
 }

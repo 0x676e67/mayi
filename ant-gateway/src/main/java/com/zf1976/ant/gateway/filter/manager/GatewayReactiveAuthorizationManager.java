@@ -57,7 +57,7 @@ public class GatewayReactiveAuthorizationManager implements ReactiveAuthorizatio
             return Mono.just(new AuthorizationDecision(true));
         }
         // 资源所有者放行所有
-        if (o instanceof Boolean) {
+        if (o instanceof Boolean && (Boolean) o) {
             return Mono.just(new AuthorizationDecision((Boolean) o));
         }
         // 白名单放行
@@ -75,8 +75,6 @@ public class GatewayReactiveAuthorizationManager implements ReactiveAuthorizatio
         if (!ObjectUtils.nullSafeEquals(GatewayRouteConstants.ADMIN_ROUTE, this.getRequestUri(request))) {
             return Mono.just(new AuthorizationDecision(true));
         }
-        final Authentication authentication = SecurityContextHolder.getContext()
-                                                                   .getAuthentication();
         // 提取系统资源权限
         Set<String> permissionSet = this.extractPermission(request)
                                   .stream()
