@@ -14,6 +14,7 @@ import org.springframework.security.core.Authentication;
  * @author ant
  * Create by Ant on 2020/9/12 12:33 下午
  */
+@Deprecated
 public class CaptchaAuthenticationProvider implements AuthenticationProvider {
 
     private final CaptchaService verifyCodeService = SpringContextHolder.getBean(CaptchaService.class);

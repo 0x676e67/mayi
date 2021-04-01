@@ -23,6 +23,7 @@ import org.springframework.util.StringUtils;
  * @author ant
  * Create by Ant on 2020/9/12 10:00 上午
  */
+@Deprecated
 public class SecurityAuthenticationProvider implements AuthenticationProvider {
 
     public static final Logger LOG = LoggerFactory.getLogger(SecurityAuthenticationProvider.class);

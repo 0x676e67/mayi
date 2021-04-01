@@ -33,6 +33,7 @@ import java.util.Arrays;
  * @author ant
  * Create by Ant on 2020/9/14 3:43 下午
  */
+@Deprecated
 public class SecurityJwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityJwtAuthenticationFilter.class);

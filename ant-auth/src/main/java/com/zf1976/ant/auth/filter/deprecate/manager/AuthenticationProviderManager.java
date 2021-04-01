@@ -19,6 +19,7 @@ import java.util.List;
  * @author ant
  * Create by Ant on 2020/9/12 9:58 上午
  */
+@Deprecated
 public class AuthenticationProviderManager implements AuthenticationManager {
 
     private final List<AuthenticationProvider> providers;

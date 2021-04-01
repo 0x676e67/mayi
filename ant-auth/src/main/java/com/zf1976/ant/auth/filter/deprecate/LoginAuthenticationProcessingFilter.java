@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
  * @author ant
  * Create by Ant on 2020/9/10 6:12 下午
  */
+@Deprecated
 public class LoginAuthenticationProcessingFilter extends AbstractAuthenticationProcessingFilter {
 
     public static final Logger LOG = LoggerFactory.getLogger(LoginAuthenticationProcessingFilter.class);

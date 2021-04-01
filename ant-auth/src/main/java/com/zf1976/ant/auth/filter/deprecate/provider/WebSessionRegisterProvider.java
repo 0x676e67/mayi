@@ -14,6 +14,7 @@ import org.springframework.security.core.AuthenticationException;
  * @author mac
  * Create by Ant on 2020/10/3 15:09
  */
+@Deprecated
 public class WebSessionRegisterProvider implements AuthenticationProvider {
 
     private static final SecurityProperties CONFIG = SpringContextHolder.getBean(SecurityProperties.class);
