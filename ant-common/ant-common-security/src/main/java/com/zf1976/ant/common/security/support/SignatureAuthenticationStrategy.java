@@ -17,7 +17,7 @@ public interface SignatureAuthenticationStrategy {
      * @param httpServletRequest request
      * @throws IOException exception
      */
-    void onAuthenticate(HttpServletRequest httpServletRequest) throws IOException;
+    void onAuthenticate(HttpServletRequest httpServletRequest);
 
     /**
      * supports?

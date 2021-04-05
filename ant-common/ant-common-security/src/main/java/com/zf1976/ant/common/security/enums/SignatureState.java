@@ -21,52 +21,52 @@ public enum SignatureState {
     /**
      * 重放错误
      */
-    ERROR_REPLY_ATTACK(403,"禁止重复请求"),
+    ERROR_REPLY_ATTACK(401,"禁止重复请求"),
 
     /**
      * 参数解析失败 {@code code=403}
      */
-    PARAMETER_ANALYSIS_FAILURE(403, "参数解析失败"),
+    PARAMETER_ANALYSIS_FAILURE(401, "参数解析失败"),
 
     /**
      * 接口授权认证失败，签名不匹配 {@code code=403}
      */
-    SIGNATURE_MISMATCH(403, "接口授权认证失败，签名不匹配"),
+    SIGNATURE_MISMATCH(401, "接口授权认证失败，签名不匹配"),
 
     /**
      * 参数不足 {@code code=403}
      */
-    NULL_PARAMS_DATA(403, "参数不足"),
+    NULL_PARAMS_DATA(401, "参数不足"),
 
     /**
      * 错误参数
      */
-    ERROR_PARAMS_DATA(403,"错误参数"),
+    ERROR_PARAMS_DATA(401,"错误参数"),
 
     /**
      * 参数值为空 {@code code=403}
      */
-    NULL_PARAMS_VALUE(403, "参数值为空"),
+    NULL_PARAMS_VALUE(401, "参数值为空"),
 
     /**
      * 缺少timestamp参数 {@code code=403}
      */
-    MISSING_TIMESTAMP(403, "缺少timestamp参数"),
+    MISSING_TIMESTAMP(401, "缺少timestamp参数"),
 
     /**
      * 缺少nonceStr参数 {@code code=403}
      */
-    MISSING_NONCE_STR(403, "缺少nonceStr参数"),
+    MISSING_NONCE_STR(401, "缺少nonceStr参数"),
 
     /**
      * 缺少appId参数 {@code code=403}
      */
-    MISSING_APP_ID(403, "缺少appId参数"),
+    MISSING_APP_ID(401, "缺少appId参数"),
 
     /**
      * 缺少sign参数 {@code code=403}
      */
-    MISSING_SIGN(403, "缺少sign参数"),
+    MISSING_SIGN(401, "缺少sign参数"),
 
     /**
      * 服务器执行错误 {@code code=500}

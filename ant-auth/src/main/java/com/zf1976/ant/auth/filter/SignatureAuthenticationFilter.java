@@ -2,6 +2,7 @@ package com.zf1976.ant.auth.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zf1976.ant.auth.SecurityContextHolder;
+import com.zf1976.ant.common.core.util.JSONUtil;
 import com.zf1976.ant.common.security.support.exception.SignatureException;
 import com.zf1976.ant.common.security.support.SignatureAuthenticationStrategy;
 import com.zf1976.ant.common.security.support.SignaturePattern;
@@ -76,8 +77,8 @@ public class SignatureAuthenticationFilter extends OncePerRequestFilter {
         }
         try {
             this.executeStrategy(request);
-        } catch (Exception e) {
-            this.handlerException(response, new SignatureException(SignatureState.ERROR, e.getMessage()));
+        } catch (SignatureException e) {
+            this.handlerException(response, e);
             return;
         }
         filterChain.doFilter(request, response);
@@ -96,11 +97,7 @@ public class SignatureAuthenticationFilter extends OncePerRequestFilter {
     private void handlerException(HttpServletResponse response, SignatureException signatureException) {
         SecurityContextHolder.clearContext();
         response.setStatus(signatureException.getValue());
-        try {
-            this.objectMapper.writeValue(response.getOutputStream(), DataResult.fail(signatureException.getReasonPhrase()));
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e.getCause());
-        }
+        JSONUtil.writeValue(response, DataResult.fail(signatureException.getValue(), signatureException.getReasonPhrase()));
     }
 
     /**
@@ -111,21 +108,9 @@ public class SignatureAuthenticationFilter extends OncePerRequestFilter {
     private void executeStrategy(HttpServletRequest request) {
         final SignaturePattern pattern = this.extractSignaturePattern(request);
         SignatureAuthenticationStrategy strategy = this.strategies.get(pattern);
-        SignatureException signatureException;
-        try {
-            if (strategy.supports(pattern)) {
-                strategy.onAuthenticate(request);
-                return;
-            }
-            throw new SignatureException(SignatureState.ERROR);
-        } catch (SignatureException e) {
-            LOGGER.error(e.getReasonPhrase(), e.getCause());
-            signatureException = e;
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e.getCause());
-            signatureException = new SignatureException(SignatureState.ERROR);
+        if (strategy.supports(pattern)) {
+            strategy.onAuthenticate(request);
         }
-        throw signatureException;
     }
 
 }
