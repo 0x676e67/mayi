@@ -148,11 +148,6 @@ public abstract class AbstractSignatureAuthenticationStrategy implements Signatu
      */
     protected void validateParameters(HttpServletRequest request) {
         Assert.notNull(request, "request cannot been null");
-        request.getParameterMap()
-               .forEach((s, strings) -> {
-                   System.out.println(s);
-                   System.out.println(Arrays.toString(strings));
-               });
         for (Map.Entry<String, SignatureState> stateEntry : stateMap.entrySet()) {
             String parameter = request.getParameter(stateEntry.getKey());
             if (StringUtil.isEmpty(parameter)) {
