@@ -213,9 +213,14 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
             final StringBuilder oldName = new StringBuilder(Objects.requireNonNull(multipartFile.getOriginalFilename()));
             final StringBuilder freshName = oldName.insert(oldName.lastIndexOf("."), "-" + jdkIdGenerator.generateId());
             final Path path = Paths.get(FileProperties.getAvatarRealPath(), String.valueOf(freshName));
-            multipartFile.transferTo(path);
             Files.deleteIfExists(Paths.get(FileProperties.getAvatarRealPath(), oldFileName));
+            multipartFile.transferTo(path);
             sysUser.setAvatarName(String.valueOf(freshName));
+            var session = SessionContextHolder.readSession();
+            session.getDetails()
+                   .getUserInfo()
+                   .setAvatarName(String.valueOf(freshName));
+            SessionContextHolder.refreshSession(session);
             super.updateEntityById(sysUser);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);

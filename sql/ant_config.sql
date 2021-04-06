@@ -1,21 +1,18 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : mysql
+ Source Server         : master
  Source Server Type    : MySQL
- Source Server Version : 50732
+ Source Server Version : 50731
  Source Host           : localhost:3306
  Source Schema         : ant_config
 
  Target Server Type    : MySQL
- Target Server Version : 50732
+ Target Server Version : 50731
  File Encoding         : 65001
 
- Date: 29/03/2021 00:49:23
+ Date: 06/04/2021 11:17:33
 */
-DROP DATABASE ant_config;
-CREATE DATABASE ant_config CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE ant_config;
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
@@ -43,7 +40,7 @@ CREATE TABLE `config_info` (
   `c_schema` text COLLATE utf8_bin,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_configinfo_datagrouptenant` (`data_id`,`group_id`,`tenant_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='config_info';
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='config_info';
 
 -- ----------------------------
 -- Records of config_info
