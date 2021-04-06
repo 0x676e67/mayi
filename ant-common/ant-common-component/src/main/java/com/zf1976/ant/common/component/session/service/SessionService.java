@@ -25,6 +25,15 @@ public interface SessionService {
     void update(String token, Session session);
 
     /**
+     * 更新回话
+     *
+     * @param token token
+     * @param session session
+     * @param expired expired
+     */
+    void update(String token, Session session, Long expired);
+
+    /**
      * 更新会话
      *
      * @param id id
@@ -85,6 +94,6 @@ public interface SessionService {
      * @param token token
      * @return id
      */
-    Long getSessionId(String token);
+    Long getId(String token);
 
 }

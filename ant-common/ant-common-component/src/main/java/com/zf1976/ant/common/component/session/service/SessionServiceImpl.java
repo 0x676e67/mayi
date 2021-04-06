@@ -2,14 +2,9 @@ package com.zf1976.ant.common.component.session.service;
 
 import com.zf1976.ant.common.component.session.Session;
 import com.zf1976.ant.common.component.session.repository.SessionRepository;
-import com.zf1976.ant.common.core.constants.AuthConstants;
-import com.zf1976.ant.common.core.util.RequestUtils;
-import com.zf1976.ant.common.security.property.SecurityProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -39,26 +34,28 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     public void update(String token, Session session) {
-        try{
-            this.remove(session.getId());
-            this.save(token, session);
-        }catch (Exception e) {
+        var expired = getExpired(session.getId());
+        this.update(token, session, expired);
+    }
+
+    @Override
+    public void update(String token, Session session, Long expired) {
+        try {
+            var id = session.getId();
+            if (repository.hasSession(id)) {
+                if (expired > 0) {
+                    repository.updateSessionByToken(token, session, expired);
+                }
+            }
+        } catch (Exception e) {
             log.error(e.getMessage(), e.getCause());
         }
     }
 
     @Override
     public void update(Long id, Session session) {
-        try {
-            if (repository.hasSession(id)) {
-                Long expired = repository.selectSessionExpiredById(id);
-                if (expired > 0) {
-                    repository.updateSessionById(id, session, expired);
-                }
-            }
-        } catch (Exception e) {
-            log.error(e.getMessage(), e.getCause());
-        }
+        Long expired = repository.selectSessionExpiredById(id);
+        this.update(id, session, expired);
     }
 
     @Override
@@ -119,29 +116,21 @@ public class SessionServiceImpl implements SessionService {
         }
     }
 
-
-    /**
-     * 查询session过期时间
-     *
-     * @param id token
-     * @return timestamp
-     */
     @Override
     public  Long getExpired(Long id) {
         return repository.selectSessionExpiredById(id);
     }
 
-    /**
-     * 根据token获取session id
-     *
-     * @param token token
-     * @return id
-     */
     @Override
-    public Long getSessionId(String token) {
+    public Long getId(String token) {
         return repository.selectIdByToken(token);
     }
 
+    /**
+     * get repository
+     *
+     * @return {link Repository}
+     */
     public SessionRepository getRepository(){
         return this.repository;
     }

@@ -3,6 +3,7 @@ package com.zf1976.ant.common.security.pojo.vo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zf1976.ant.upms.biz.pojo.enums.GenderEnum;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -13,6 +14,7 @@ import java.util.Set;
  * Create by Ant on 2020/9/8 12:32 下午
  */
 @Data
+@Accessors(chain = true)
 public class UserInfoVo implements Serializable {
 
     /**

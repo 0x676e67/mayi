@@ -31,13 +31,22 @@ public interface SessionRepository {
     void savaIdByToken(String token, Long id);
 
     /**
-     * 更新
+     * 更新会话
      *
      * @param id id
      * @param session session
-     * @param expired timestamp
+     * @param expired expired timestamp
      */
     void updateSessionById(Long id, Session session, long expired);
+
+    /**
+     * 更新会话
+     *
+     * @param token token
+     * @param session session
+     * @param expired expired timestamp
+     */
+    void updateSessionByToken(String token, Session session, long expired);
 
     /**
      * 查询token

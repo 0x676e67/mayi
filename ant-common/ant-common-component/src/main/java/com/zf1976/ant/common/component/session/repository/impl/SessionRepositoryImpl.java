@@ -74,6 +74,27 @@ public class SessionRepositoryImpl implements SessionRepository {
                              TimeUnit.SECONDS);
     }
 
+    /**
+     * 更新会话
+     *
+     * @param token   token
+     * @param session session
+     * @param expired expired timestamp
+     */
+    @Override
+    public void updateSessionByToken(String token, Session session, long expired) {
+        redisTemplate.opsForValue()
+                     .set(this.formatSessionId(session.getId()),
+                             session,
+                             expired,
+                             TimeUnit.SECONDS);
+        redisTemplate.opsForValue()
+                     .set(this.formatSessionToken(token),
+                             session.getId(),
+                             expired,
+                             TimeUnit.SECONDS);
+    }
+
     @Override
     public Long selectIdByToken(String token) {
         Object o = redisTemplate.opsForValue().get(this.formatSessionToken(token));

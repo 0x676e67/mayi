@@ -7,7 +7,6 @@ import lombok.experimental.Accessors;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author mac
@@ -25,25 +24,9 @@ public class Session implements Serializable {
      */
     private String username;
     /**
-     * 昵称
-     */
-    private String nickName;
-    /**
-     * 岗位
-     */
-    private String department;
-    /**
      * 资源所有者
      */
     private Boolean owner = Boolean.FALSE;
-    /**
-     * 数据权限
-     */
-    private List<Long> dataPermission;
-    /**
-     * 权限
-     */
-    private List<String> permission;
     /**
      * 浏览器
      */

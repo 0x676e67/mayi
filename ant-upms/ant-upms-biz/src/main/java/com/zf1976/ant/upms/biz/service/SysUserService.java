@@ -178,6 +178,11 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
                                .eq(SysUser::getId, id)
                                .oneOpt().orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
         sysUser.setEnabled(enabled);
+        var session = SessionContextHolder.readSession(id);
+        session.getDetails()
+               .getUserInfo()
+               .setEnabled(enabled);
+        SessionContextHolder.refreshSession(id, session);
         super.updateEntityById(sysUser);
         return Optional.empty();
     }
@@ -299,6 +304,11 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
                         throw new BadBusinessException(BusinessMsgState.EMAIL_EXISTING);
                     }
                     sysUser.setEmail(dto.getEmail());
+                    var session = SessionContextHolder.readSession();
+                    session.getDetails()
+                           .getUserInfo()
+                           .setEmail(dto.getEmail());
+                    SessionContextHolder.refreshSession(session);
                     super.updateEntityById(sysUser);
                 }
             } catch (BadBusinessException e) {
@@ -325,24 +335,31 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     @CaffeineEvict(namespace = Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateInfo(UpdateInfoDTO dto) {
+        Session session = SessionContextHolder.readSession();
+        Assert.notNull(session, "session cannot been null");
+        // 查询当前用户是否存在
         SysUser sysUser = super.lambdaQuery()
                                .eq(SysUser::getId, dto.getId())
                                .oneOpt().orElseThrow(() -> new BadBusinessException(BusinessMsgState.DATA_NOT_FOUNT));
-        Session session = SessionContextHolder.readSession();
-        Assert.notNull(session, "session cannot been null");
-        if (!ObjectUtils.isEmpty(dto.getPhone()) && !ObjectUtils.nullSafeEquals(dto.getPhone(), sysUser.getPhone())) {
-            SysUser var = super.lambdaQuery()
-                               .eq(SysUser::getPhone, dto.getPhone())
-                               .one();
-            if (!ObjectUtils.isEmpty(var)) {
-                throw new BadBusinessException(BusinessMsgState.PHONE_EXISTING);
-            }else if (ValidateUtil.isPhone(dto.getPhone())){
-                throw new BadBusinessException(BusinessMsgState.NOT_PHONE);
-            }
+        // 不允许非手机号
+        if (ValidateUtil.isPhone(dto.getPhone())){
+            throw new BadBusinessException(BusinessMsgState.NOT_PHONE);
+        }
+
+        // 校验手机号是否变化
+        if (dto.getPhone() != null && !ObjectUtils.nullSafeEquals(dto.getPhone(), sysUser.getPhone())) {
+            // 手机号已存在
+            super.lambdaQuery()
+                 .eq(SysUser::getPhone, dto.getPhone())
+                 .oneOpt().ifPresent(var -> {
+                     throw new BadBusinessException(BusinessMsgState.PHONE_EXISTING);
+                 });
             sysUser.setPhone(dto.getPhone());
         }
-        if (!ObjectUtils.isEmpty(session) && !ObjectUtils.isEmpty(dto.getNickName())) {
-            session.setNickName(dto.getNickName());
+        if (dto.getNickName() != null) {
+            session.getDetails()
+                   .getUserInfo()
+                   .setNickName(dto.getNickName());
         }
         sysUser.setGender(dto.getGender());
         sysUser.setNickName(dto.getNickName());
