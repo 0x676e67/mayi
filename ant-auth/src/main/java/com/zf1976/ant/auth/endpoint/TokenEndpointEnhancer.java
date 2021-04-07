@@ -50,10 +50,7 @@ public class TokenEndpointEnhancer {
     private final CaptchaProperties captchaConfig;
     private final TokenEndpoint tokenEndpoint;
 
-    public TokenEndpointEnhancer(CaptchaService captchaService,
-                                 CaptchaProperties captchaConfig,
-                                 TokenEndpoint tokenEndpoint
-    ) {
+    public TokenEndpointEnhancer(CaptchaService captchaService, CaptchaProperties captchaConfig, TokenEndpoint tokenEndpoint) {
         this.captchaService = captchaService;
         this.captchaConfig = captchaConfig;
         this.tokenEndpoint = tokenEndpoint;

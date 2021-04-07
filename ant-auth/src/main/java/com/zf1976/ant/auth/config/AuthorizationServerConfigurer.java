@@ -31,6 +31,7 @@ import org.springframework.security.oauth2.provider.client.ClientCredentialsToke
 import org.springframework.security.oauth2.provider.client.ClientDetailsUserDetailsService;
 import org.springframework.security.oauth2.provider.code.AuthorizationCodeServices;
 import org.springframework.security.oauth2.provider.code.AuthorizationCodeTokenGranter;
+import org.springframework.security.oauth2.provider.error.DefaultWebResponseExceptionTranslator;
 import org.springframework.security.oauth2.provider.implicit.ImplicitTokenGranter;
 import org.springframework.security.oauth2.provider.password.ResourceOwnerPasswordTokenGranter;
 import org.springframework.security.oauth2.provider.refresh.RefreshTokenGranter;
@@ -128,6 +129,7 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
                  .accessTokenConverter(jwtAccessTokenConverter())
                  .userDetailsService(userDetailsService)
                  .reuseRefreshTokens(false)
+                 .exceptionTranslator(new DefaultWebResponseExceptionTranslator())
                  .addInterceptor(new EndpointReturnInterceptor());
         // 自定义授权
         endpoints.tokenGranter(this.generateTokenGranter(endpoints));

@@ -43,5 +43,5 @@ public @interface CachePut {
      * 缓存实现
      * @return relation
      */
-    CacheRelation relation() default CacheRelation.CAFFEINE;
+    CacheRelation relation() default CacheRelation.REDIS;
 }

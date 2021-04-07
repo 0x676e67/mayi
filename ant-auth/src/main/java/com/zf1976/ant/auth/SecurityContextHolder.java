@@ -91,7 +91,6 @@ public class SecurityContextHolder extends org.springframework.security.core.con
                .setBrowser(RequestUtils.getBrowser(request))
                .setOperatingSystemType(RequestUtils.getOpsSystemType(request))
                .setToken(token);
-        session.setAttribute(AttributeStandards.AUTH_DATA_SCOPE, userDetails.getDataScopes());
         return session;
     }
 
