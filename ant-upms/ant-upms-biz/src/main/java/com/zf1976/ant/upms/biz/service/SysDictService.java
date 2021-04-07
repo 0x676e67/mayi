@@ -3,10 +3,10 @@ package com.zf1976.ant.upms.biz.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
-import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
-import com.zf1976.ant.common.component.load.annotation.CaffeineEvict;
+import com.zf1976.ant.common.component.load.annotation.CachePut;
+import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.core.constants.Namespace;
-import com.zf1976.ant.common.component.session.SessionContextHolder;
+import com.zf1976.ant.common.security.support.session.SessionContextHolder;
 import com.zf1976.ant.upms.biz.pojo.po.SysDict;
 import com.zf1976.ant.upms.biz.pojo.po.SysDictDetail;
 import com.zf1976.ant.upms.biz.convert.SysDictConvert;
@@ -50,7 +50,7 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
      * @param requestPage page param
      * @return dict list
      */
-    @CaffeinePut(namespace = Namespace.DICT, key = "#requestPage")
+    @CachePut(namespace = Namespace.DICT, key = "#requestPage")
     public IPage<DictVO> selectDictPage(RequestPage<DictQueryParam> requestPage) {
         IPage<SysDict> sourcePage = super.queryChain()
                                          .setQueryParam(requestPage)
@@ -64,7 +64,7 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
      * @param dto dto
      * @return /
      */
-    @CaffeineEvict(namespace = Namespace.DICT)
+    @CacheEvict(namespace = Namespace.DICT)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> saveDict(DictDTO dto) {
         // 确认字典名是否存在
@@ -88,7 +88,7 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
      * @param dto dto
      * @return /
      */
-    @CaffeineEvict(namespace = Namespace.DICT)
+    @CacheEvict(namespace = Namespace.DICT)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateDict(DictDTO dto) {
 
@@ -119,7 +119,7 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
      * @param ids id collection
      * @return /
      */
-    @CaffeineEvict(namespace = Namespace.DICT)
+    @CacheEvict(namespace = Namespace.DICT)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deleteDictList(Set<Long> ids) {
         super.deleteByIds(ids);

@@ -4,18 +4,19 @@ package com.zf1976.ant.upms.biz.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.power.common.util.ValidateUtil;
-import com.zf1976.ant.common.component.load.annotation.CaffeineEvict;
-import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
+import com.zf1976.ant.common.component.load.annotation.CacheEvict;
+import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.component.mail.ValidateFactory;
 import com.zf1976.ant.common.component.mail.ValidateService;
-import com.zf1976.ant.common.component.session.Session;
-import com.zf1976.ant.common.component.session.SessionContextHolder;
+import com.zf1976.ant.common.security.support.session.Session;
+import com.zf1976.ant.common.security.support.session.SessionContextHolder;
 import com.zf1976.ant.common.core.constants.Namespace;
-import com.zf1976.ant.common.core.foundation.exception.BadBusinessException;
+import com.zf1976.ant.common.core.foundation.exception.BusinessException;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
-import com.zf1976.ant.common.encrypt.BCryptPasswordEncoder;
+import com.zf1976.ant.common.encrypt.MD5Encoder;
 import com.zf1976.ant.common.encrypt.RsaUtil;
-import com.zf1976.ant.common.encrypt.config.RsaProperties;
+import com.zf1976.ant.common.encrypt.property.RsaProperties;
+import com.zf1976.ant.common.security.support.signature.standard.AttributeStandards;
 import com.zf1976.ant.upms.biz.config.FileProperties;
 import com.zf1976.ant.upms.biz.convert.SysUserConvert;
 import com.zf1976.ant.upms.biz.dao.SysDepartmentDao;
@@ -42,6 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -60,11 +62,12 @@ import java.util.stream.Collectors;
 public class SysUserService extends AbstractService<SysUserDao, SysUser> {
 
     private final AlternativeJdkIdGenerator jdkIdGenerator;
+    private final byte[] DEFAULT_PASSWORD_BYTE = "123456".getBytes(StandardCharsets.UTF_8);
     private final SysDepartmentDao sysDepartmentDao;
     private final SysPositionDao sysPositionDao;
     private final SysRoleDao sysRoleDao;
     private final SysUserConvert convert;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+    private final MD5Encoder encoder = new MD5Encoder();
 
     public SysUserService(SysDepartmentDao sysDepartmentDao,
                           SysPositionDao sysJobDao,
@@ -82,7 +85,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param requestPage request page
      * @return /
      */
-    @CaffeinePut(namespace = Namespace.USER, key = "#requestPage", dynamicsKey = true)
+    @CachePut(namespace = Namespace.USER, key = "#requestPage", dynamicsKey = true)
     public IPage<UserVO> selectUserPage(RequestPage<UserQueryParam> requestPage) {
         Assert.notNull(requestPage, "request page can not been null");
         IPage<SysUser> sourcePage = null;
@@ -91,7 +94,9 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
             var session = SessionContextHolder.readSession();
             Assert.notNull(session, "current session details can not been null");
             // 用户可观察数据范围
-            List<Long> userIds = super.baseMapper.selectByDepartmentIds(session.getDataPermission());
+            @SuppressWarnings("unchecked")
+            List<Long> dataPermission = (List<Long>) session.getAttribute(AttributeStandards.AUTH_DATA_SCOPE);
+            List<Long> userIds = super.baseMapper.selectByDepartmentIds(new HashSet<>(dataPermission));
             sourcePage = super.queryChain()
                              .setQueryParam(requestPage, () -> {
                                  // 自定义条件
@@ -115,7 +120,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
                                              .stream()
                                              .map(SysDepartment::getId)
                                              .forEach(id -> {
-                                                 this.getDepartmentTreeIds(id, () -> ids);
+                                                 this.selectDepartmentTreeIds(id, () -> ids);
                                              });
                         List<SysUser> collect = finalSourcePage.getRecords()
                                                                .stream()
@@ -140,7 +145,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param departmentId id
      * @param supplier supplier
      */
-    public void getDepartmentTreeIds(Long departmentId, Supplier<Collection<Long>> supplier){
+    public void selectDepartmentTreeIds(Long departmentId, Supplier<Collection<Long>> supplier){
         Assert.notNull(departmentId, "department id can not been null");
         supplier.get().add(departmentId);
         this.sysDepartmentDao.selectChildrenById(departmentId)
@@ -148,7 +153,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
                              .map(SysDepartment::getId)
                              .forEach(id -> {
                                  // 继续下一级子节点
-                                 this.getDepartmentTreeIds(id, supplier);
+                                 this.selectDepartmentTreeIds(id, supplier);
                              });
     }
 
@@ -173,16 +178,13 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param enabled enabled
      * @return /
      */
+    @CacheEvict(namespace =  Namespace.USER)
+    @Transactional(rollbackFor = Exception.class)
     public Optional<Void> setUserStatus(Long id, Boolean enabled) {
         SysUser sysUser = super.lambdaQuery()
                                .eq(SysUser::getId, id)
                                .oneOpt().orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
         sysUser.setEnabled(enabled);
-        var session = SessionContextHolder.readSession(id);
-        session.getDetails()
-               .getUserInfo()
-               .setEnabled(enabled);
-        SessionContextHolder.refreshSession(id, session);
         super.updateEntityById(sysUser);
         return Optional.empty();
     }
@@ -207,6 +209,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param multipartFile 上传头像
      * @return /
      */
+    @CacheEvict(namespace =  Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateAvatar(MultipartFile multipartFile) {
         final Long sessionId = SessionContextHolder.getSessionId();
@@ -221,15 +224,10 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
             Files.deleteIfExists(Paths.get(FileProperties.getAvatarRealPath(), oldFileName));
             multipartFile.transferTo(path);
             sysUser.setAvatarName(String.valueOf(freshName));
-            var session = SessionContextHolder.readSession();
-            session.getDetails()
-                   .getUserInfo()
-                   .setAvatarName(String.valueOf(freshName));
-            SessionContextHolder.refreshSession(session);
             super.updateEntityById(sysUser);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            throw new BadBusinessException(BusinessMsgState.UPLOAD_ERROR);
+            throw new BusinessException(BusinessMsgState.UPLOAD_ERROR);
         }
         return Optional.empty();
     }
@@ -240,36 +238,37 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param dto dto
      * @return /
      */
+    @CacheEvict(namespace =  Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updatePassword(UpdatePasswordDTO dto) {
         final Long sessionId = SessionContextHolder.getSessionId();
         final SysUser sysUser = super.lambdaQuery()
                                      .eq(SysUser::getId, sessionId)
-                                     .oneOpt().orElseThrow(() -> new BadBusinessException(BusinessMsgState.CODE_NOT_FOUNT));
-        String oldPass;
-        String newPass;
+                                     .oneOpt().orElseThrow(() -> new BusinessException(BusinessMsgState.CODE_NOT_FOUNT));
+        String rawPassword;
+        String freshPassword;
         try {
-            oldPass = RsaUtil.decryptByPrivateKey(RsaProperties.PRIVATE_KEY, dto.getOldPass());
-            newPass = RsaUtil.decryptByPrivateKey(RsaProperties.PRIVATE_KEY, dto.getNewPass());
+            rawPassword = RsaUtil.decryptByPrivateKey(RsaProperties.PRIVATE_KEY, dto.getOldPass());
+            freshPassword = RsaUtil.decryptByPrivateKey(RsaProperties.PRIVATE_KEY, dto.getNewPass());
         } catch (Exception e) {
-            throw new BadBusinessException(BusinessMsgState.OPT_ERROR);
+            throw new BusinessException(BusinessMsgState.OPT_ERROR);
         }
 
-        if (StringUtils.isEmpty(oldPass) || StringUtils.isEmpty(newPass)){
-            throw new BadBusinessException(BusinessMsgState.NULL_PASSWORD);
+        if (StringUtils.isEmpty(rawPassword) || StringUtils.isEmpty(freshPassword)){
+            throw new BusinessException(BusinessMsgState.NULL_PASSWORD);
         }
 
-        if (oldPass.equals(newPass)) {
-            throw new BadBusinessException(BusinessMsgState.PASSWORD_REPEAT);
+        if (rawPassword.equals(freshPassword)) {
+            throw new BusinessException(BusinessMsgState.PASSWORD_REPEAT);
         }
 
-        if (bCryptPasswordEncoder.matches(oldPass, sysUser.getPassword()) && !ValidateUtil.isPassword(newPass)) {
-            sysUser.setPassword(bCryptPasswordEncoder.encode(newPass));
+        if (encoder.matches(rawPassword, sysUser.getPassword()) && !ValidateUtil.isPassword(freshPassword)) {
+            sysUser.setPassword(encoder.encode(freshPassword));
             super.updateEntityById(sysUser);
             // 强制用户重新登陆
             SessionContextHolder.removeSession();
         }else {
-            throw new BadBusinessException(BusinessMsgState.PASSWORD_LOW);
+            throw new BusinessException(BusinessMsgState.PASSWORD_LOW);
         }
         return Optional.empty();
     }
@@ -281,12 +280,12 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param dto dto
      * @return /
      */
-    @CaffeineEvict(namespace =  Namespace.USER)
+    @CacheEvict(namespace =  Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateEmail(String code, UpdateEmailDTO dto) {
 
         if (StringUtils.isEmpty(code) || ObjectUtils.isEmpty(dto)) {
-            throw new BadBusinessException(BusinessMsgState.PARAM_ILLEGAL);
+            throw new BusinessException(BusinessMsgState.PARAM_ILLEGAL);
         }
 
         ValidateService validateService = ValidateFactory.getInstance();
@@ -295,26 +294,21 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
                             .eq(SysUser::getId, SessionContextHolder.getSessionId())
                             .oneOpt()
                             .orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
-        BadBusinessException businessException = null;
+        BusinessException businessException = null;
         if (validateService.validate(dto.getEmail(), code)) {
             try {
-                String decodePassword = RsaUtil.decryptByPrivateKey(RsaProperties.PRIVATE_KEY, dto.getPassword());
-                if (bCryptPasswordEncoder.matches(decodePassword, sysUser.getPassword())) {
+                String rawPassword = RsaUtil.decryptByPrivateKey(RsaProperties.PRIVATE_KEY, dto.getPassword());
+                if (encoder.matches(rawPassword, sysUser.getPassword())) {
                     if (ObjectUtils.nullSafeEquals(sysUser.getEmail(), dto.getEmail())) {
-                        throw new BadBusinessException(BusinessMsgState.EMAIL_EXISTING);
+                        throw new BusinessException(BusinessMsgState.EMAIL_EXISTING);
                     }
                     sysUser.setEmail(dto.getEmail());
-                    var session = SessionContextHolder.readSession();
-                    session.getDetails()
-                           .getUserInfo()
-                           .setEmail(dto.getEmail());
-                    SessionContextHolder.refreshSession(session);
                     super.updateEntityById(sysUser);
                 }
-            } catch (BadBusinessException e) {
+            } catch (BusinessException e) {
                 businessException = e;
             } catch (Exception e) {
-                throw new BadBusinessException(BusinessMsgState.OPT_ERROR);
+                throw new BusinessException(BusinessMsgState.OPT_ERROR);
             }finally {
                 validateService.clear(dto.getEmail());
             }
@@ -332,7 +326,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param dto dto
      * @return /
      */
-    @CaffeineEvict(namespace = Namespace.USER)
+    @CacheEvict(namespace =  Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateInfo(UpdateInfoDTO dto) {
         Session session = SessionContextHolder.readSession();
@@ -340,10 +334,11 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         // 查询当前用户是否存在
         SysUser sysUser = super.lambdaQuery()
                                .eq(SysUser::getId, dto.getId())
-                               .oneOpt().orElseThrow(() -> new BadBusinessException(BusinessMsgState.DATA_NOT_FOUNT));
+                               .oneOpt()
+                               .orElseThrow(() -> new BusinessException(BusinessMsgState.DATA_NOT_FOUNT));
         // 不允许非手机号
-        if (ValidateUtil.isPhone(dto.getPhone())){
-            throw new BadBusinessException(BusinessMsgState.NOT_PHONE);
+        if (!ValidateUtil.isPhone(dto.getPhone())){
+            throw new BusinessException(BusinessMsgState.NOT_PHONE);
         }
 
         // 校验手机号是否变化
@@ -351,20 +346,15 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
             // 手机号已存在
             super.lambdaQuery()
                  .eq(SysUser::getPhone, dto.getPhone())
-                 .oneOpt().ifPresent(var -> {
-                     throw new BadBusinessException(BusinessMsgState.PHONE_EXISTING);
+                 .oneOpt()
+                 .ifPresent(var -> {
+                     throw new BusinessException(BusinessMsgState.PHONE_EXISTING);
                  });
             sysUser.setPhone(dto.getPhone());
-        }
-        if (dto.getNickName() != null) {
-            session.getDetails()
-                   .getUserInfo()
-                   .setNickName(dto.getNickName());
         }
         sysUser.setGender(dto.getGender());
         sysUser.setNickName(dto.getNickName());
         super.updateEntityById(sysUser);
-        SessionContextHolder.refreshSession(session.getId(), session);
         return Optional.empty();
     }
 
@@ -374,9 +364,10 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param dto dto
      * @return /
      */
-    @CaffeineEvict(namespace =  Namespace.USER)
+    @CacheEvict(namespace =  Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> saveUser(UserDTO dto) {
+        this.validateUsername(dto.getUsername());
         this.validatePhone(dto.getPhone());
         super.lambdaQuery()
              .select(SysUser::getUsername,SysUser::getEmail, SysUser::getPhone)
@@ -394,12 +385,13 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
              .forEach(sysUser -> {
                 super.validateFields(sysUser, dto, collection -> {
                     if (!CollectionUtils.isEmpty(collection)) {
-                        throw new UserException(UserState.USER_EXISTING, collection.toString());
+                        throw new UserException(UserState.USER_INFO_EXISTING, collection.toString());
                     }
                 });
              });
         SysUser sysUser = this.convert.toEntity(dto);
         String username = SessionContextHolder.username();
+        sysUser.setPassword(DigestUtils.md5DigestAsHex(DEFAULT_PASSWORD_BYTE));
         sysUser.setCreateBy(username);
         sysUser.setCreateTime(new Date());
         super.savaEntity(sysUser);
@@ -414,7 +406,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param dto dto
      * @return /
      */
-    @CaffeineEvict(namespace =  Namespace.USER)
+    @CacheEvict(namespace =  Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateUser(UserDTO dto) {
         this.validatePhone(dto.getPhone());
@@ -432,7 +424,6 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
             if (ObjectUtils.nullSafeEquals(sessionId, sysUser.getId())) {
                 throw new UserException(UserState.USER_OPT_ERROR);
             }
-            SessionContextHolder.removeSession(sysUser.getId());
         }
         // 验证用户名，邮箱，手机是否已存在
         super.lambdaQuery()
@@ -465,18 +456,18 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param dto dto
      */
     private void updateDependents(UserDTO dto) {
-        Set<Long> singletonId = Collections.singleton(dto.getId());
+        Set<Long> relationId = Collections.singleton(dto.getId());
         Optional.ofNullable(dto.getPositionIds())
                 .ifPresent(jobIds -> {
                     if (!CollectionUtils.isEmpty(jobIds)) {
-                        super.baseMapper.deletePositionRelationByIds(singletonId);
+                        super.baseMapper.deletePositionRelationByIds(relationId);
                         super.baseMapper.savePositionRelationById(dto.getId(), dto.getPositionIds());
                     }
                 });
         Optional.ofNullable(dto.getRoleIds())
                 .ifPresent(roleIds -> {
                     if (!CollectionUtils.isEmpty(roleIds)) {
-                        super.baseMapper.deleteRoleRelationByIds(singletonId);
+                        super.baseMapper.deleteRoleRelationByIds(relationId);
                         super.baseMapper.savaRoleRelationById(dto.getId(), dto.getRoleIds());
                     }
                 });
@@ -489,7 +480,13 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      */
     private void validatePhone(String phone) {
         if (ValidateUtil.isNotPhone(phone)) {
-            throw new BadBusinessException(BusinessMsgState.NOT_PHONE);
+            throw new BusinessException(BusinessMsgState.NOT_PHONE);
+        }
+    }
+
+    private void validateUsername(String username) {
+        if (!ValidateUtil.isUserName(username)) {
+            throw new BusinessException(BusinessMsgState.USERNAME_LOW);
         }
     }
     /**
@@ -498,7 +495,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param ids ids
      * @return /
      */
-    @CaffeineEvict(namespace =  Namespace.USER)
+    @CacheEvict(namespace =  Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deleteUser(Set<Long> ids) {
         if (SessionContextHolder.isOwner()) {

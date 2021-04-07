@@ -7,6 +7,8 @@ import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
 
+import java.io.Serializable;
+
 /**
  * 请求响应对象
  *
@@ -16,7 +18,7 @@ import org.springframework.lang.Nullable;
 @Data
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @SuppressWarnings("rawtypes")
-public class DataResult<T> {
+public class DataResult<T> implements Serializable {
 
     /**
      * 响应是否成功

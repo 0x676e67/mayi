@@ -1,17 +1,21 @@
 package com.zf1976.ant.auth.service;
 
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
-import com.zf1976.ant.auth.UserDetails;
+import com.zf1976.ant.auth.LoginUserDetails;
 import com.zf1976.ant.auth.convert.UserConversion;
 import com.zf1976.ant.auth.exception.UserNotFountException;
+import com.zf1976.ant.common.component.load.annotation.CachePut;
+import com.zf1976.ant.common.component.load.enums.CacheRelation;
+import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.security.enums.AuthenticationState;
 import com.zf1976.ant.common.security.pojo.vo.RoleVo;
-import com.zf1976.ant.common.security.pojo.vo.UserInfoVo;
+import com.zf1976.ant.common.security.pojo.UserInfo;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import com.zf1976.ant.upms.biz.dao.*;
 import com.zf1976.ant.upms.biz.pojo.po.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -38,7 +42,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
     private final SysPositionDao positionDao;
     private final UserConversion convert;
 
-    public SecurityUserDetailsServiceImpl(SecurityProperties securityConfig,
+    public SecurityUserDetailsServiceImpl(SecurityProperties properties,
                                           SysDepartmentDao sysDepartmentDao,
                                           SysUserDao sysUserDao,
                                           SysRoleDao sysRoleDao,
@@ -48,14 +52,14 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
         this.sysDepartmentDao = sysDepartmentDao;
         this.sysRoleDao = sysRoleDao;
         this.sysMenuDao = sysMenuDao;
-        this.securityProperties = securityConfig;
+        this.securityProperties = properties;
         this.positionDao = positionDao;
         this.convert = UserConversion.INSTANCE;
     }
 
+    @CachePut(namespace = Namespace.USER, key = "#username")
     @Override
-    public org.springframework.security.core.userdetails.UserDetails loadUserByUsername(String username) {
-        UserDetails antUserDetails;
+    public UserDetails loadUserByUsername(String username) {
         // 初步验证用户是否存在
         SysUser user = ChainWrappers.lambdaQueryChain(this.sysUserDao)
                                     .eq(SysUser::getUsername, username)
@@ -65,24 +69,29 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
         SysDepartment department = ChainWrappers.lambdaQueryChain(this.sysDepartmentDao)
                                                 .eq(SysDepartment::getId, user.getDepartmentId())
                                                 .one();
+        user.setDepartment(department);
+
         // 查询用户角色
         List<SysRole> roleList = this.sysRoleDao.selectListByUserId(user.getId());
+        user.setRoleList(roleList);
+
         // 查询用户职位
         List<SysPosition> positionList = this.positionDao.selectListByUserId(user.getId());
-        user.setDepartment(department);
-        user.setRoleList(roleList);
         user.setPositionList(positionList);
-        final UserInfoVo userInfoVo = Optional.ofNullable(convert.convert(user))
-                                              .orElseThrow(() -> new UserNotFountException(AuthenticationState.USER_NOT_FOUNT));
-        if (!userInfoVo.getEnabled()) {
+
+        final UserInfo userInfo = this.convert.convert(user);
+        if (userInfo == null) {
+            throw new UserNotFountException(AuthenticationState.USER_NOT_FOUNT);
+        }
+        if (!userInfo.getEnabled()) {
             throw new UserNotFountException(AuthenticationState.ACCOUNT_DISABLED);
         } else {
-            antUserDetails = new UserDetails(
-                    userInfoVo,
-                    this.grantedAuthorities(userInfoVo),
-                    this.getDataPermission(userInfoVo));
+            // 权限值
+            final List<GrantedAuthority> grantedAuthorities = this.grantedAuthorities(userInfo);
+            // 数据权限
+            final Set<Long> grantedDataPermission = this.grantedDataPermission(userInfo);
+            return new LoginUserDetails(userInfo, grantedAuthorities, grantedDataPermission);
         }
-        return antUserDetails;
     }
 
     /**
@@ -105,14 +114,14 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
      * @param userInfo 用户信息
      * @return 数据权限
      */
-    private Set<Long> getDataPermission(UserInfoVo userInfo) {
+    private Set<Long> grantedDataPermission(UserInfo userInfo) {
 
         // 超级管理员
         if (ObjectUtils.nullSafeEquals(userInfo.getUsername(), this.securityProperties.getOwner())) {
             return this.sysDepartmentDao.selectList(null)
                                         .stream()
                                         .map(SysDepartment::getId)
-                                        .collect(Collectors.toUnmodifiableSet());
+                                        .collect(Collectors.toSet());
         }
 
         // 用户级别角色排序
@@ -145,10 +154,10 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
                     return this.sysDepartmentDao.selectList(null)
                                                 .stream()
                                                 .map(SysDepartment::getId)
-                                                .collect(Collectors.toUnmodifiableSet());
+                                                .collect(Collectors.toSet());
             }
         }
-        return Collections.unmodifiableSet(dataPermission);
+        return dataPermission;
     }
 
     /**
@@ -175,7 +184,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
      * @param userInfo info
      * @return 返回用户权限信息
      */
-    private List<GrantedAuthority> grantedAuthorities(UserInfoVo userInfo) {
+    private List<GrantedAuthority> grantedAuthorities(UserInfo userInfo) {
         Set<String> authorities = new HashSet<>();
         String markerAdmin = securityProperties.getOwner();
         if (userInfo.getUsername().equals(markerAdmin)) {

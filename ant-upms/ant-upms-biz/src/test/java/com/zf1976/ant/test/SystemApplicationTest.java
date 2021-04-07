@@ -1,6 +1,6 @@
 package com.zf1976.ant.test;
 
-import com.zf1976.ant.common.component.session.SessionContextHolder;
+import com.zf1976.ant.common.security.support.session.SessionContextHolder;
 import com.zf1976.ant.upms.biz.SystemApplication;
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;

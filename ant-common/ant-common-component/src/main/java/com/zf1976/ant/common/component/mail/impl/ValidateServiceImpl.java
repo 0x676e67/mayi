@@ -5,11 +5,11 @@ import com.power.common.util.ValidateUtil;
 import com.zf1976.ant.common.component.mail.MailSenderProvider;
 import com.zf1976.ant.common.component.mail.ValidateService;
 import com.zf1976.ant.common.component.mail.pojo.ToolEmailConfig;
-import com.zf1976.ant.common.core.foundation.exception.BadBusinessException;
+import com.zf1976.ant.common.core.foundation.exception.BusinessException;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
 import com.zf1976.ant.common.core.util.RedisUtils;
 import com.zf1976.ant.common.core.util.SpringContextHolder;
-import com.zf1976.ant.common.security.property.EmailProperties;
+import com.zf1976.ant.common.component.property.EmailProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -51,7 +51,7 @@ public class ValidateServiceImpl implements ValidateService {
     @Override
     public Void sendMailValidate(String email) {
         if (StringUtils.isEmpty(email) || !ValidateUtil.isEmail(email)) {
-            throw new BadBusinessException(BusinessMsgState.EMAIL_LOW);
+            throw new BusinessException(BusinessMsgState.EMAIL_LOW);
         }
         final String validateCode = RandomUtil.randomString(PROPERTIES.getLength()).toUpperCase();
         final Map<ToolEmailConfig, JavaMailSender> mailSenderMap = MailSenderProvider.getMailSenderMap();
@@ -79,7 +79,7 @@ public class ValidateServiceImpl implements ValidateService {
             return true;
         });
         if (!isSend) {
-            throw new BadBusinessException(BusinessMsgState.OPT_ERROR);
+            throw new BusinessException(BusinessMsgState.OPT_ERROR);
         }
         // 保存验证码
         RedisUtils.set(PROPERTIES.getKeyPrefix(), email, validateCode, PROPERTIES.getExpired(), TimeUnit.MILLISECONDS);
@@ -91,7 +91,7 @@ public class ValidateServiceImpl implements ValidateService {
     @Override
     public Boolean validate(String email, String code) {
         if (StringUtils.isEmpty(email) ||StringUtils.isEmpty(code)) {
-            throw new BadBusinessException(BusinessMsgState.CODE_NOT_FOUNT);
+            throw new BusinessException(BusinessMsgState.CODE_NOT_FOUNT);
         }
         final String rawCode = RedisUtils.get(PROPERTIES.getKeyPrefix(), email);
         if (!StringUtils.isEmpty(rawCode)) {

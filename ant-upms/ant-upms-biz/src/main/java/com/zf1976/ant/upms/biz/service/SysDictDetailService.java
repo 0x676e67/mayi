@@ -3,10 +3,10 @@ package com.zf1976.ant.upms.biz.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
-import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
-import com.zf1976.ant.common.component.load.annotation.CaffeineEvict;
+import com.zf1976.ant.common.component.load.annotation.CachePut;
+import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.core.constants.Namespace;
-import com.zf1976.ant.common.component.session.SessionContextHolder;
+import com.zf1976.ant.common.security.support.session.SessionContextHolder;
 import com.zf1976.ant.upms.biz.dao.SysDictDao;
 import com.zf1976.ant.upms.biz.dao.SysDictDetailDao;
 import com.zf1976.ant.upms.biz.pojo.po.SysDict;
@@ -51,7 +51,7 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
      * @param requestPage page param
      * @return dict details page
      */
-    @CaffeinePut(namespace = Namespace.DICT_DETAIL, key = "#requestPage")
+    @CachePut(namespace = Namespace.DICT_DETAIL, key = "#requestPage")
     public IPage<DictDetailVO> selectDictDetailPage(RequestPage<DictDetailQueryParam> requestPage) {
         DictDetailQueryParam param = requestPage.getQuery();
         Assert.notNull(param, BusinessMsgState.PARAM_ILLEGAL::getReasonPhrase);
@@ -76,7 +76,7 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
      * @param dto dto
      * @return /
      */
-    @CaffeineEvict(namespace = Namespace.DICT_DETAIL)
+    @CacheEvict(namespace = Namespace.DICT_DETAIL)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> saveDictDetail(DictDetailDTO dto) {
         SysDictDetail sysDictDetail = convert.toEntity(dto);
@@ -93,7 +93,7 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
      * @param dto dto
      * @return /
      */
-    @CaffeineEvict(namespace = Namespace.DICT_DETAIL)
+    @CacheEvict(namespace = Namespace.DICT_DETAIL)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateDictDetail(DictDetailDTO dto) {
         SysDictDetail sysDictDetail = super.lambdaQuery()
@@ -115,7 +115,7 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
      * @param id id
      * @return /
      */
-    @CaffeineEvict(namespace = Namespace.DICT_DETAIL)
+    @CacheEvict(namespace = Namespace.DICT_DETAIL)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deleteDictDetail(Long id) {
         if (!super.removeById(id)) {

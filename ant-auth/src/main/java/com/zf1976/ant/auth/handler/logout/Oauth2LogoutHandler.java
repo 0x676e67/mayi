@@ -1,12 +1,12 @@
 package com.zf1976.ant.auth.handler.logout;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zf1976.ant.auth.UserDetails;
+import com.zf1976.ant.auth.LoginUserDetails;
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.auth.exception.ExpiredJwtException;
 import com.zf1976.ant.auth.exception.IllegalAccessException;
 import com.zf1976.ant.auth.exception.IllegalJwtException;
-import com.zf1976.ant.common.component.session.SessionContextHolder;
+import com.zf1976.ant.common.security.support.session.SessionContextHolder;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.security.enums.AuthenticationState;
 import lombok.SneakyThrows;
@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -62,7 +61,7 @@ public class Oauth2LogoutHandler implements LogoutHandler {
             this.support(httpServletRequest);
             Assert.isInstanceOf(OAuth2Authentication.class, authentication);
             OAuth2Authentication oAuth2Authentication = (OAuth2Authentication) authentication;
-            final UserDetails antUserDetails = (UserDetails) oAuth2Authentication.getUserAuthentication().getPrincipal();
+            final LoginUserDetails antUserDetails = (LoginUserDetails) oAuth2Authentication.getUserAuthentication().getPrincipal();
             if (!oAuth2Authentication.isAuthenticated()) {
                 throw new ExpiredJwtException(AuthenticationState.ILLEGAL_ACCESS);
             }

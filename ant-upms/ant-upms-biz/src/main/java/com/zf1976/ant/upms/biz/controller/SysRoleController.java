@@ -52,7 +52,7 @@ public class SysRoleController {
     @GetMapping("/level")
 //    @Authorize("role:list")
     public DataResult<Integer> getRoleLevel() {
-        return DataResult.success(service.getRoleLevel());
+        return DataResult.success(service.selectRoleLevel());
     }
 
     @Log(description = "修改角色状态")

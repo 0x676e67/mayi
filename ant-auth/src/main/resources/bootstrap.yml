@@ -38,5 +38,12 @@ mybatis-plus:
   check-config-location: true
   type-enums-package: com.zf1976.ant.upms.biz.pojo.enums
 
+# api接口加密
+api-encrypt:
+  open: true
+  show-log: true
 
-
+# 开启接口签名
+auth:
+  enable-signature: true
+  model: false

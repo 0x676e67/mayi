@@ -5,8 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zf1976.ant.common.component.session.SessionContextHolder;
-import com.zf1976.ant.common.core.foundation.exception.BadBusinessException;
+import com.zf1976.ant.common.core.foundation.exception.BusinessException;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
 import com.zf1976.ant.common.log.convert.SysLogConvert;
 import com.zf1976.ant.common.log.dao.SysLogDao;
@@ -14,6 +13,7 @@ import com.zf1976.ant.common.log.pojo.SysLog;
 import com.zf1976.ant.common.log.pojo.enums.LogType;
 import com.zf1976.ant.common.log.pojo.vo.base.AbstractLogVO;
 import com.zf1976.ant.common.log.query.LogQueryParam;
+import com.zf1976.ant.common.security.support.session.SessionContextHolder;
 import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -54,7 +54,7 @@ public class SysLogService extends ServiceImpl<SysLogDao, SysLog> {
         LogQueryParam param = requestPage.getQuery();
         Assert.notNull(param, BusinessMsgState.PARAM_ILLEGAL::getReasonPhrase);
         if (param.getLogType() == null) {
-            throw new BadBusinessException(BusinessMsgState.PARAM_ILLEGAL);
+            throw new BusinessException(BusinessMsgState.PARAM_ILLEGAL);
         }
         // 构建分页对象
         Page<SysLog> page = new Page<>(requestPage.getPage(), requestPage.getSize());
@@ -69,7 +69,7 @@ public class SysLogService extends ServiceImpl<SysLogDao, SysLog> {
                         createTime.get(0),
                         createTime.get(1));
             } else {
-                throw new BadBusinessException(BusinessMsgState.PARAM_ILLEGAL);
+                throw new BusinessException(BusinessMsgState.PARAM_ILLEGAL);
             }
         }
         // 分页查询
@@ -140,7 +140,7 @@ public class SysLogService extends ServiceImpl<SysLogDao, SysLog> {
      */
     public Optional<Void> deleteLog(Set<Long> ids) {
         if (!super.removeByIds(ids)) {
-            throw new BadBusinessException(BusinessMsgState.OPT_ERROR);
+            throw new BusinessException(BusinessMsgState.OPT_ERROR);
         }
         return Optional.empty();
     }
@@ -154,7 +154,7 @@ public class SysLogService extends ServiceImpl<SysLogDao, SysLog> {
         LambdaQueryWrapper<SysLog> wrapper = new LambdaQueryWrapper<SysLog>()
                 .eq(SysLog::getLogType, LogType.ERROR);
         if (!super.remove(wrapper)) {
-            throw new BadBusinessException(BusinessMsgState.OPT_ERROR);
+            throw new BusinessException(BusinessMsgState.OPT_ERROR);
         }
         return Optional.empty();
     }
@@ -168,7 +168,7 @@ public class SysLogService extends ServiceImpl<SysLogDao, SysLog> {
         LambdaQueryWrapper<SysLog> wrapper = new LambdaQueryWrapper<SysLog>()
                 .ne(SysLog::getLogType, LogType.ERROR);
         if (!super.remove(wrapper)) {
-            throw new BadBusinessException(BusinessMsgState.OPT_ERROR);
+            throw new BusinessException(BusinessMsgState.OPT_ERROR);
         }
         return Optional.empty();
     }

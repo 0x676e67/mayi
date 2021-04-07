@@ -8,8 +8,8 @@ import com.zf1976.ant.auth.handler.login.SecurityAuthenticationFailureHandler;
 import com.zf1976.ant.auth.handler.login.SecurityAuthenticationSuccessHandler;
 import com.zf1976.ant.common.encrypt.EncryptUtil;
 import com.zf1976.ant.common.security.enums.AuthenticationState;
-import com.zf1976.ant.common.security.pojo.LoginDTO;
-import com.zf1976.ant.common.security.pojo.dto.AuthenticationDto;
+import com.zf1976.ant.common.security.pojo.dto.LoginDTO;
+import com.zf1976.ant.common.security.pojo.dto.AuthenticationDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -55,7 +55,7 @@ public class LoginAuthenticationProcessingFilter extends AbstractAuthenticationP
             throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
         }
         UsernamePasswordAuthenticationToken authenticationToken = null;
-        final AuthenticationDto dto = this.parseAuthentication(request);
+        final AuthenticationDTO dto = this.parseAuthentication(request);
         if (checkObjectFieldIsNonNull(dto)) {
             LoginDTO details = new LoginDTO();
             String username = dto.getUsername().trim();
@@ -71,13 +71,13 @@ public class LoginAuthenticationProcessingFilter extends AbstractAuthenticationP
                    .authenticate(authenticationToken);
     }
 
-    private AuthenticationDto parseAuthentication(HttpServletRequest request) throws IOException {
+    private AuthenticationDTO parseAuthentication(HttpServletRequest request) throws IOException {
         InputStreamReader inputStreamReader = new InputStreamReader(request.getInputStream());
         String base64Content = new BufferedReader(inputStreamReader).lines()
                                                                     .collect(Collectors.joining(System.lineSeparator()));
         byte[] decryptBase64 = Base64Util.decryptBASE64(base64Content);
         String result = EncryptUtil.decryptForAesByCbc(decryptBase64);
-        return this.jsonMapper.readValue(result, AuthenticationDto.class);
+        return this.jsonMapper.readValue(result, AuthenticationDTO.class);
     }
 
     /**

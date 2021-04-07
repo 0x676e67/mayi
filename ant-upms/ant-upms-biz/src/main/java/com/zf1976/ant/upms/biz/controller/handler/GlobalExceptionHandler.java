@@ -1,7 +1,7 @@
 package com.zf1976.ant.upms.biz.controller.handler;
 
 import com.zf1976.ant.common.core.foundation.DataResult;
-import com.zf1976.ant.common.core.foundation.exception.BadBusinessException;
+import com.zf1976.ant.common.core.foundation.exception.BusinessException;
 import com.zf1976.ant.upms.biz.exception.base.SysBaseException;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.helpers.MessageFormatter;
@@ -32,9 +32,9 @@ public class GlobalExceptionHandler {
         return DataResult.fail("internal server error");
     }
 
-    @ExceptionHandler(BadBusinessException.class)
+    @ExceptionHandler(BusinessException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    DataResult badBusinessExceptionHandler(BadBusinessException e) {
+    DataResult badBusinessExceptionHandler(BusinessException e) {
         log.error(e.getMessage(), e.getCause());
         return DataResult.fail(e.getValue(), e.getReasonPhrase());
     }

@@ -111,3 +111,11 @@ feign:
       enabled: true
   client:
     default-to-properties: true
+
+# email验证服务配置
+email:
+  key-prefix: email-key-
+  length: 6
+  expired: 300000
+  name: Ant
+  subject: 验证码

@@ -2,7 +2,7 @@ package com.zf1976.ant.common.component.validate.repository;
 
 import com.zf1976.ant.common.component.validate.repository.impl.CaptchaRedisRepositoryStrategy;
 import com.zf1976.ant.common.core.util.SpringContextHolder;
-import com.zf1976.ant.common.security.property.CaptchaProperties;
+import com.zf1976.ant.common.component.property.CaptchaProperties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

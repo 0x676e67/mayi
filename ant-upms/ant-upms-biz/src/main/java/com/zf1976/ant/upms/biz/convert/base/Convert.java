@@ -57,5 +57,4 @@ public interface Convert<E,V,D> {
      * @return new vo
      */
     void clone(V source, @MappingTarget V target);
-
 }

@@ -3,7 +3,7 @@ package com.zf1976.ant.common.log.aspect.base;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.power.common.util.StringUtil;
-import com.zf1976.ant.common.component.session.SessionContextHolder;
+import com.zf1976.ant.common.security.support.session.SessionContextHolder;
 import com.zf1976.ant.common.core.util.RequestUtils;
 import com.zf1976.ant.common.log.pojo.SysLog;
 import com.zf1976.ant.common.log.pojo.enums.LogType;

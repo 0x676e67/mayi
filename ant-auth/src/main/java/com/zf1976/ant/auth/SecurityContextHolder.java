@@ -1,11 +1,12 @@
 package com.zf1976.ant.auth;
 
 import com.zf1976.ant.auth.service.DynamicDataSourceService;
-import com.zf1976.ant.common.component.session.Session;
-import com.zf1976.ant.common.component.session.SessionContextHolder;
+import com.zf1976.ant.common.security.support.session.Session;
+import com.zf1976.ant.common.security.support.session.SessionContextHolder;
 import com.zf1976.ant.common.core.util.RequestUtils;
-import com.zf1976.ant.common.security.pojo.vo.DepartmentVo;
+import com.zf1976.ant.common.security.pojo.UserDetails;
 import com.zf1976.ant.common.security.property.SecurityProperties;
+import com.zf1976.ant.common.security.support.signature.standard.AttributeStandards;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,7 +17,6 @@ import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 只适合单机适用
@@ -39,34 +39,14 @@ public class SecurityContextHolder extends org.springframework.security.core.con
     private static DynamicDataSourceService dynamicDataSourceService;
     private static SecurityProperties securityProperties;
 
-    /**
-     * 获取当前用户/session获取是不可靠的
-     *
-     * @return userDetails
-     */
-    public static Session.Details getUserDetails(){
-        var session = SessionContextHolder.readSession();
-        return session.getDetails();
+    public static UserDetails userDetails(){
+        final String username = SessionContextHolder.username();
+        LoginUserDetails userDetails = (LoginUserDetails) userDetailsService.loadUserByUsername(username);
+        return UserDetails.UserDetailsBuilder.anUserDetails()
+                                             .withUserInfo(userDetails.getUserInfo())
+                                             .withPermission(new ArrayList<>(userDetails.getPermission()))
+                                             .build();
     }
-
-    /**
-     * 是否为super admin
-     * @return ture / false
-     */
-    public static boolean owner() {
-        return SessionContextHolder.isOwner();
-    }
-
-    /**
-     * 校验用户名是否为super admin
-     *
-     * @param username username
-     * @return boolean
-     */
-    public static boolean isOwner(String username) {
-        return SessionContextHolder.isOwner(username);
-    }
-
 
     /**
      * 验证uri
@@ -90,32 +70,28 @@ public class SecurityContextHolder extends org.springframework.security.core.con
         return securityProperties.getTokenIssuer();
     }
 
+    /**
+     * 构建会话
+     *
+     * @param token token
+     * @return /
+     */
     public static Session generatedSession(String token) {
         // 获取用户认证登录细节
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getAuthenticationThreadLocal().getPrincipal();
+        LoginUserDetails userDetails = (LoginUserDetails) SecurityContextHolder.getAuthenticationThreadLocal().getPrincipal();
         Long id = userDetails.getId();
         var request = RequestUtils.getRequest();
-        DepartmentVo department = userDetails.getUserInfo().getDepartment();
-        String deptName = department == null ? null : department.getName();
         Session session = new Session();
-        Session.Details details = new Session.Details();
-        details.setPermission(new ArrayList<>(userDetails.getPermission()))
-               .setDataScopes(new ArrayList<>(userDetails.getDataScopes()))
-               .setUserInfo(userDetails.getUserInfo());
         session.setId(id)
                .setLoginTime(new Date())
                .setUsername(userDetails.getUsername())
-               .setNickName(userDetails.getUserInfo().getNickName())
                .setOwner(ObjectUtils.nullSafeEquals(userDetails.getUsername(), securityProperties.getOwner()))
-               .setDataPermission(new ArrayList<>(userDetails.getDataScopes()))
-               .setPermission(new ArrayList<>(userDetails.getPermission()))
-               .setToken(token)
-               .setDetails(details)
-               .setDepartment(deptName)
                .setIp(RequestUtils.getIpAddress(request))
                .setIpRegion(RequestUtils.getIpRegion(request))
                .setBrowser(RequestUtils.getBrowser(request))
-               .setOperatingSystemType(RequestUtils.getOpsSystemType(request));
+               .setOperatingSystemType(RequestUtils.getOpsSystemType(request))
+               .setToken(token);
+        session.setAttribute(AttributeStandards.AUTH_DATA_SCOPE, userDetails.getDataScopes());
         return session;
     }
 

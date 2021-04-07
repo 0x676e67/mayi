@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.power.common.util.Base64Util;
 import com.zf1976.ant.auth.LoginResponse;
 import com.zf1976.ant.auth.SecurityContextHolder;
-import com.zf1976.ant.common.component.session.SessionContextHolder;
+import com.zf1976.ant.common.security.support.session.SessionContextHolder;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.encrypt.EncryptUtil;
 import org.slf4j.Logger;

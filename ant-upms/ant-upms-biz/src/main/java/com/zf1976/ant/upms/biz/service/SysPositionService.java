@@ -3,10 +3,10 @@ package com.zf1976.ant.upms.biz.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
-import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
-import com.zf1976.ant.common.component.load.annotation.CaffeineEvict;
+import com.zf1976.ant.common.component.load.annotation.CachePut;
+import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.core.constants.Namespace;
-import com.zf1976.ant.common.component.session.SessionContextHolder;
+import com.zf1976.ant.common.security.support.session.SessionContextHolder;
 import com.zf1976.ant.upms.biz.pojo.po.SysPosition;
 import com.zf1976.ant.upms.biz.pojo.po.SysUser;
 import com.zf1976.ant.upms.biz.convert.SysPositionConvert;
@@ -40,7 +40,6 @@ import java.util.stream.Collectors;
 public class SysPositionService extends AbstractService<SysPositionDao, SysPosition> {
 
     private final SysUserDao sysUserDao;
-
     private final SysPositionConvert convert;
 
     public SysPositionService(SysUserDao sysUserDao) {
@@ -54,7 +53,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
      * @param requestPage page param
      * @return job list
      */
-    @CaffeinePut(namespace = Namespace.JOB, key = "#requestPage")
+    @CachePut(namespace = Namespace.JOB, key = "#requestPage")
     public IPage<PositionVO> selectPositionPage(RequestPage<PositionQueryParam> requestPage) {
         IPage<SysPosition> sourcePage = this.queryChain()
                                             .setQueryParam(requestPage)
@@ -84,7 +83,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
      * @param dto dto
      * @return /
      */
-    @CaffeineEvict(namespace = Namespace.JOB, dependsOn = "user")
+    @CacheEvict(namespace = Namespace.JOB, dependsOn = "user")
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> savePosition(PositionDTO dto) {
         super.lambdaQuery()
@@ -107,7 +106,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
      * @param dto dto
      * @return /
      */
-    @CaffeineEvict(namespace = Namespace.JOB, dependsOn = "user")
+    @CacheEvict(namespace = Namespace.JOB, dependsOn = "user")
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updatePosition(PositionDTO dto) {
         // 查询更新岗位是否存在
@@ -137,7 +136,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
      * @param ids id collection
      * @return /
      */
-    @CaffeineEvict(namespace = Namespace.JOB, dependsOn = "user")
+    @CacheEvict(namespace = Namespace.JOB, dependsOn = "user")
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deletePositionList(Set<Long> ids) {
         super.deleteByIds(ids);

@@ -1,16 +1,17 @@
 package com.zf1976.ant.auth.enhance;
 
+import com.zf1976.ant.common.encrypt.MD5Encoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.util.DigestUtils;
 import org.springframework.util.ObjectUtils;
 
 @SuppressWarnings("all")
 public class MD5PasswordEncoder implements PasswordEncoder {
 
+    private final MD5Encoder encoder = new MD5Encoder();
+
     @Override
     public String encode(CharSequence charSequence) {
-        return DigestUtils.md5DigestAsHex(charSequence.toString()
-                                                      .getBytes());
+        return encoder.encode(charSequence);
     }
 
     /**

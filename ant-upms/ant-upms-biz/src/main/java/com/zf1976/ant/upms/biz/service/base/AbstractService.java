@@ -11,7 +11,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.power.common.util.StringUtil;
-import com.zf1976.ant.common.core.foundation.exception.BadBusinessException;
+import com.zf1976.ant.common.core.foundation.exception.BusinessException;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
 import com.zf1976.ant.upms.biz.pojo.query.AbstractQueryParam;
 import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
@@ -38,14 +38,14 @@ import java.util.stream.Collectors;
  * @author mac
  * Create by Ant on 2020/8/31 上午11:37
  */
-@SuppressWarnings("unchecked")
+
 public abstract class AbstractService<D extends BaseMapper<E>, E> extends ServiceImpl<D, E> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractService.class);
-    private static final AlternativeJdkIdGenerator JDK_ID_GENERATOR = new AlternativeJdkIdGenerator();
-    public static final String SYS_TEM_DIR = System.getProperty("java.io.tmpdir") + File.separator;
-    private final ThreadLocal<QueryChainWrapper<E>> queryChainWrapperThreadLocal = new ThreadLocal<>();
-    private final ThreadLocal<RequestPage<? extends AbstractQueryParam>> requestPageThreadLocal = new ThreadLocal<>();
+    protected static final AlternativeJdkIdGenerator JDK_ID_GENERATOR = new AlternativeJdkIdGenerator();
+    protected static final String SYS_TEM_DIR = System.getProperty("java.io.tmpdir") + File.separator;
+    protected final ThreadLocal<QueryChainWrapper<E>> queryChainWrapperThreadLocal = new ThreadLocal<>() ;
+    protected final ThreadLocal<RequestPage<? extends AbstractQueryParam>> requestPageThreadLocal = new ThreadLocal<>();
     public AbstractService() {
         this.removeThreadLocalVariable();
     }
@@ -100,6 +100,12 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
                          .collect(Collectors.toList());
     }
 
+    /**
+     * 获取行字段
+     *
+     * @param column column mapper
+     * @return field
+     */
     protected String getColumn(SFunction<E, ?> column) {
         return LambdaMethodUtils.columnToString(column);
     }
@@ -196,7 +202,7 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
         Assert.notNull(requestPage, BusinessMsgState.PARAM_ILLEGAL.getReasonPhrase());
         Page<E> configPage = new Page<>();
         if (requestPage.isMinPage() || requestPage.isMaxSize()) {
-            throw new BadBusinessException(BusinessMsgState.PARAM_ILLEGAL);
+            throw new BusinessException(BusinessMsgState.PARAM_ILLEGAL);
         }
         if (!requestPage.orderIsEmpty()) {
             configPage.setOrders(requestPage.getOrders());
@@ -223,7 +229,7 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
                 map.put(field.getName(), field.get(obj));
             } catch (IllegalAccessException e) {
                 LOG.error(e.getMessage(), e);
-                throw new BadBusinessException(BusinessMsgState.DOWNLOAD_ERROR);
+                throw new BusinessException(BusinessMsgState.DOWNLOAD_ERROR);
             }
         }
     }
@@ -303,6 +309,7 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
                     queryChainWrapper.notLike(fieldName, fieldVal);
                     break;
                 case BETWEEN:
+                    @SuppressWarnings("unchecked")
                     List<Date> list = (List<Date>) fieldVal;
                     assert list.size() == 2;
                     queryChainWrapper.between(fieldName, list.get(0), list.get(1));
@@ -333,7 +340,7 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
             writer.flush(out);
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);
-            throw new BadBusinessException(BusinessMsgState.OPT_ERROR);
+            throw new BusinessException(BusinessMsgState.OPT_ERROR);
         }
     }
 
@@ -390,7 +397,7 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
      */
     protected void updateEntityById(E entity) {
         if (!super.updateById(entity)) {
-            throw new BadBusinessException(BusinessMsgState.VERSION_IS_UPDATE);
+            throw new BusinessException(BusinessMsgState.VERSION_IS_UPDATE);
         }
     }
 
@@ -401,7 +408,7 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
      */
     protected void savaEntity(E entity) {
         if (!super.save(entity)) {
-            throw new BadBusinessException(BusinessMsgState.OPT_ERROR);
+            throw new BusinessException(BusinessMsgState.OPT_ERROR);
         }
     }
 
@@ -412,7 +419,7 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
      */
     protected void deleteByIds(Collection<Long> ids) {
         if (!super.removeByIds(ids)) {
-            throw new BadBusinessException(BusinessMsgState.OPT_ERROR);
+            throw new BusinessException(BusinessMsgState.OPT_ERROR);
         }
     }
 

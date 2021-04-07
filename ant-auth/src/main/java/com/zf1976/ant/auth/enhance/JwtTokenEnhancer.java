@@ -1,6 +1,6 @@
 package com.zf1976.ant.auth.enhance;
 
-import com.zf1976.ant.auth.UserDetails;
+import com.zf1976.ant.auth.LoginUserDetails;
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.common.core.constants.AuthConstants;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
@@ -33,7 +33,7 @@ public class JwtTokenEnhancer implements TokenEnhancer {
         // 客户端id
         additionalInformation.put(AuthConstants.JWT_CLIENT_ID_KEY, oAuth2Request.getClientId());
         // 用户细节
-        additionalInformation.put(AuthConstants.USER_DETAILS, oAuth2Authentication.getPrincipal());
+        additionalInformation.put(AuthConstants.DETAILS, oAuth2Authentication.getPrincipal());
         // 设置自定义information
         ((DefaultOAuth2AccessToken) oAuth2AccessToken).setAdditionalInformation(additionalInformation);
         SecurityContextHolder.setAuthenticationThreadLocal(oAuth2Authentication);
@@ -41,7 +41,7 @@ public class JwtTokenEnhancer implements TokenEnhancer {
     }
 
     public Long getId(OAuth2Authentication oAuth2Authentication) {
-        UserDetails antUserDetails = (UserDetails) oAuth2Authentication.getPrincipal();
+        LoginUserDetails antUserDetails = (LoginUserDetails) oAuth2Authentication.getPrincipal();
         return antUserDetails.getId();
     }
 }

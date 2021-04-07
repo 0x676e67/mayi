@@ -24,7 +24,7 @@ public interface AuthConstants {
     /**w
      * 用户信息缓存
      */
-    String USER_DETAILS = "user_details";
+    String DETAILS = "details";
 
     /**
      * 用户id

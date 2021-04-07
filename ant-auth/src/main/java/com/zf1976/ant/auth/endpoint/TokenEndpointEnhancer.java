@@ -2,21 +2,23 @@ package com.zf1976.ant.auth.endpoint;
 
 import com.wf.captcha.base.Captcha;
 import com.zf1976.ant.auth.SecurityContextHolder;
-import com.zf1976.ant.common.component.session.Session;
-import com.zf1976.ant.common.component.session.SessionContextHolder;
+import com.zf1976.ant.common.component.load.annotation.CachePut;
+import com.zf1976.ant.common.component.load.enums.CacheRelation;
+import com.zf1976.ant.common.core.constants.Namespace;
+import com.zf1976.ant.common.security.support.session.SessionContextHolder;
 import com.zf1976.ant.common.component.validate.service.CaptchaService;
 import com.zf1976.ant.common.component.validate.support.CaptchaGenerator;
 import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.core.util.RequestUtils;
+import com.zf1976.ant.common.security.pojo.UserDetails;
 import com.zf1976.ant.common.security.pojo.vo.CaptchaVo;
-import com.zf1976.ant.common.security.property.CaptchaProperties;
+import com.zf1976.ant.common.component.property.CaptchaProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.BadClientCredentialsException;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
@@ -105,9 +107,10 @@ public class TokenEndpointEnhancer {
         return ResponseEntity.ok(captchaVo);
     }
 
-    @GetMapping("/info")
-    public DataResult<Session.Details> getUserInfo(){
-        return DataResult.success(SecurityContextHolder.getUserDetails());
+    @PostMapping("/info")
+    @CachePut(namespace = Namespace.USER, relation = CacheRelation.REDIS, dynamicsKey = true)
+    public DataResult<UserDetails> getUserInfo(){
+        return DataResult.success(SecurityContextHolder.userDetails());
     }
 
     public void saveSessionState(OAuth2AccessToken oAuth2AccessToken) {

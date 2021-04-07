@@ -3,7 +3,8 @@ package com.zf1976.ant.common.component.load.impl;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.zf1976.ant.common.component.load.AbstractCaffeineCache;
-import com.zf1976.ant.common.security.property.CacheProperties;
+import com.zf1976.ant.common.component.load.ICache;
+import com.zf1976.ant.common.component.property.CacheProperties;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
@@ -21,9 +22,8 @@ import java.util.function.Supplier;
  */
 public class CaffeineCacheProvider<K, V> extends AbstractCaffeineCache<K, V> {
 
-    private final CacheProperties properties;
     public CaffeineCacheProvider(CacheProperties properties) {
-        this.properties = properties;
+        super(properties);
         this.initialCache();
         this.checkStatus();
     }
@@ -62,58 +62,63 @@ public class CaffeineCacheProvider<K, V> extends AbstractCaffeineCache<K, V> {
 
     @Override
     public V get(String namespace, K key, Long expired, Supplier<V> supplier) {
-        Cache<K, V> kvCache = super.cacheSpace.get(namespace);
+        Cache<K, V> kvCache = this.getCache(namespace);
         if (kvCache == null) {
             kvCache = this.loadCache(expired);
-            super.cacheSpace.put(namespace, kvCache);
+            this.putNamespace(namespace, kvCache);
         }
         return this.getValue(kvCache, key, supplier);
     }
 
     @Override
     public V get(String namespace, K key, Supplier<V> supplier) {
-        Cache<K, V> kvCache = super.cacheSpace.get(namespace);
+        Cache<K, V> kvCache = this.getCache(namespace);
         if (kvCache == null) {
             kvCache = this.loadCache(properties.getExpireAlterWrite());
-            super.cacheSpace.put(namespace, kvCache);
+            this.putNamespace(namespace, kvCache);
         }
         return this.getValue(kvCache, key, supplier);
     }
 
     @Override
     public V get(String namespace, K key) {
-        Cache<K, V> kvCache = super.cacheSpace.get(namespace);
+        Cache<K, V> kvCache = this.getCache(namespace);
         if (kvCache == null) {
             kvCache = this.loadCache(properties.getExpireAlterWrite());
-            super.cacheSpace.put(namespace, kvCache);
+            this.putNamespace(namespace, kvCache);
         }
         return this.getDefaultValue(kvCache, key);
     }
 
     @Override
     public void set(String namespace, K key, Long expired, V value) {
-        Cache<K, V> kvCache = super.cacheSpace.get(namespace);
+        Cache<K, V> kvCache = this.getCache(namespace);
         if (kvCache == null) {
             kvCache = this.loadCache(expired);
-            super.cacheSpace.put(namespace, kvCache);
+            this.putNamespace(namespace, kvCache);
         }
         kvCache.put(key, value);
     }
 
     @Override
     public void set(String namespace, K key, V value) {
-        this.set(namespace, key, properties.getExpireAlterWrite(), value);
+        Cache<K, V> kvCache = this.getCache(namespace);
+        if (kvCache == null) {
+            kvCache = this.loadCache(properties.getExpireAlterWrite());
+            this.putNamespace(namespace, kvCache);
+        }
+        kvCache.put(key, value);
     }
 
     @Override
     public void invalidate(String namespace) {
-        this.cacheSpace.remove(namespace);
+        this.cacheSpace.remove(this.keyFormatter(namespace));
         this.removeNamespaceLog(namespace);
     }
 
     @Override
     public void invalidate(String namespace, K key) {
-        Cache<K, V> kvCache = this.cacheSpace.get(namespace);
+        Cache<K, V> kvCache = this.getCache(namespace);
         if (kvCache != null) {
             kvCache.invalidate(key);
             this.removeNamespaceKeyLog(namespace, key);
@@ -122,11 +127,18 @@ public class CaffeineCacheProvider<K, V> extends AbstractCaffeineCache<K, V> {
 
     @Override
     public void invalidateAll() {
-        Set<Map.Entry<String, Cache<K, V>>> entrySet = this.cacheSpace.entrySet();
-        Iterator<Map.Entry<String, Cache<K, V>>> entryIterator = entrySet.iterator();
+        Iterator<Map.Entry<String, Cache<K, V>>> entryIterator = this.cacheSpace.entrySet().iterator();
         while (entryIterator.hasNext()) {
             entryIterator.remove();
         }
+    }
+
+    private Cache<K, V> getCache(String namespace) {
+        return super.cacheSpace.get(this.keyFormatter(namespace));
+    }
+
+    private void putNamespace(String namespace, Cache<K, V> kvCache) {
+        super.cacheSpace.put(this.keyFormatter(namespace), kvCache);
     }
 
     private V getValue(Cache<K, V> cache, K key, Supplier<V> supplier) {

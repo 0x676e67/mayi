@@ -2,8 +2,8 @@ package com.zf1976.ant.common.encrypt;
 
 import com.power.common.util.AESUtil;
 import com.power.common.util.StringUtil;
-import com.zf1976.ant.common.encrypt.config.AesProperties;
-import com.zf1976.ant.common.encrypt.config.RsaProperties;
+import com.zf1976.ant.common.encrypt.property.AesProperties;
+import com.zf1976.ant.common.encrypt.property.RsaProperties;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;

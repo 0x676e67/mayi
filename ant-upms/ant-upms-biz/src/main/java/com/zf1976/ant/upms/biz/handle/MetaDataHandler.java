@@ -1,7 +1,7 @@
 package com.zf1976.ant.upms.biz.handle;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
-import com.zf1976.ant.common.component.session.SessionContextHolder;
+import com.zf1976.ant.common.security.support.session.SessionContextHolder;
 import org.apache.ibatis.reflection.MetaObject;
 
 import java.util.Date;

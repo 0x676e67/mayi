@@ -2,10 +2,10 @@ package com.zf1976.ant.upms.biz.service;
 
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
-import com.zf1976.ant.common.component.load.annotation.CaffeineEvict;
+import com.zf1976.ant.common.component.load.annotation.CachePut;
+import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.core.constants.Namespace;
-import com.zf1976.ant.common.component.session.SessionContextHolder;
+import com.zf1976.ant.common.security.support.session.SessionContextHolder;
 import com.zf1976.ant.upms.biz.pojo.po.SysMenu;
 import com.zf1976.ant.upms.biz.convert.SysRoleConvert;
 import com.zf1976.ant.upms.biz.dao.SysDepartmentDao;
@@ -56,7 +56,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      *
      * @return /
      */
-    @CaffeinePut(namespace = Namespace.ROLE, key = "list")
+    @CachePut(namespace = Namespace.ROLE, key = "list")
     public IPage<RoleVO> selectAll() {
         IPage<SysRole> page = super.lambdaQuery()
                                    .select(SysRole::getId, SysRole::getName)
@@ -70,14 +70,14 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      * @param requestPage request page
      * @return /
      */
-    @CaffeinePut(namespace = Namespace.ROLE, key = "#requestPage")
+    @CachePut(namespace = Namespace.ROLE, key = "#requestPage")
     public IPage<RoleVO> selectRolePage(RequestPage<RoleQueryParam> requestPage) {
         IPage<SysRole> sourcePage = this.queryChain()
                                         .setQueryParam(requestPage)
                                         .selectPage();
         return super.mapPageToTarget(sourcePage, sysRole -> {
-            sysRole.setDepartmentIds(this.getRoleDepartmentIds(sysRole.getId()));
-            sysRole.setMenuIds(this.getRoleMenuIds(sysRole.getId()));
+            sysRole.setDepartmentIds(this.selectRoleDepartmentIds(sysRole.getId()));
+            sysRole.setMenuIds(this.selectRoleMenuIds(sysRole.getId()));
             return this.convert.toVo(sysRole);
         });
     }
@@ -87,8 +87,8 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      *
      * @return math
      */
-    @CaffeinePut(namespace = Namespace.ROLE, key = "level")
-    public Integer getRoleLevel() {
+    @CachePut(namespace = Namespace.ROLE, key = "level")
+    public Integer selectRoleLevel() {
         if (SessionContextHolder.isOwner()) {
             return 0;
         }
@@ -106,7 +106,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      * @param enabled 状态
      * @return /
      */
-    @CaffeineEvict(namespace = Namespace.ROLE, dependsOn = Namespace.USER)
+    @CacheEvict(namespace = Namespace.ROLE, dependsOn = Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> setRoleStatus(Long id, Boolean enabled) {
         SysRole sysRole = super.lambdaQuery()
@@ -127,8 +127,8 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
         final SysRole sysRole = super.lambdaQuery()
                                      .eq(SysRole::getId, id)
                                      .oneOpt().orElseThrow(() -> new RoleException(RoleState.ROLE_NOT_FOUND));
-        sysRole.setDepartmentIds(this.getRoleDepartmentIds(id));
-        sysRole.setMenuIds(this.getRoleMenuIds(id));
+        sysRole.setDepartmentIds(this.selectRoleDepartmentIds(id));
+        sysRole.setMenuIds(this.selectRoleMenuIds(id));
         return this.convert.toVo(sysRole);
     }
 
@@ -138,7 +138,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      * @param id 角色id
      * @return department collection
      */
-    private Set<Long> getRoleDepartmentIds(Long id) {
+    private Set<Long> selectRoleDepartmentIds(Long id) {
         Assert.notNull(id, "role id cannot be null");
         return this.sysDepartmentDao.selectListByRoleId(id)
                                     .stream()
@@ -152,7 +152,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      * @param id 角色id
      * @return id collection
      */
-    private Set<Long> getRoleMenuIds(Long id) {
+    private Set<Long> selectRoleMenuIds(Long id) {
         Assert.notNull(id, "role id cannot be null");
         return this.sysMenuDao.selectListByRoleId(id)
                               .stream()
@@ -166,7 +166,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      * @param dto role dto
      * @return /
      */
-    @CaffeineEvict(namespace = Namespace.ROLE, dependsOn = Namespace.USER)
+    @CacheEvict(namespace = Namespace.ROLE, dependsOn = Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> savaRole(RoleDTO dto) {
         // 范围消息
@@ -202,7 +202,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      * @param dto dto
      * @return /
      */
-    @CaffeineEvict(namespace = Namespace.ROLE, dependsOn = Namespace.USER)
+    @CacheEvict(namespace = Namespace.ROLE, dependsOn = Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateRole(RoleDTO dto) {
         // 范围消息
@@ -274,7 +274,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      * @param ids id集合
      * @return /
      */
-    @CaffeineEvict(namespace = Namespace.ROLE, dependsOn = Namespace.USER)
+    @CacheEvict(namespace = Namespace.ROLE, dependsOn = Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deleteRole(Set<Long> ids) {
         ids.forEach(id -> {

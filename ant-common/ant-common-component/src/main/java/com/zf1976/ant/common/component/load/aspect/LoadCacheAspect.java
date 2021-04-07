@@ -3,14 +3,14 @@ package com.zf1976.ant.common.component.load.aspect;
 
 import com.power.common.util.StringUtil;
 import com.zf1976.ant.common.component.load.ICache;
-import com.zf1976.ant.common.component.load.annotation.CaffeineEvict;
-import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
+import com.zf1976.ant.common.component.load.annotation.CacheEvict;
+import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.component.load.aspect.handler.SpringElExpressionHandler;
 import com.zf1976.ant.common.component.load.enums.CacheRelation;
 import com.zf1976.ant.common.component.load.impl.CaffeineCacheProvider;
 import com.zf1976.ant.common.component.load.impl.RedisCacheProvider;
 import com.zf1976.ant.common.core.util.RequestUtils;
-import com.zf1976.ant.common.security.property.CacheProperties;
+import com.zf1976.ant.common.component.property.CacheProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -20,9 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -35,8 +33,7 @@ public class LoadCacheAspect {
 
     private final SpringElExpressionHandler handler;
     private Map<CacheRelation, ICache<Object, Object>> cacheProviderMap;
-    public LoadCacheAspect(RedisTemplate<Object, Map<Object, Object>> mapRedisTemplate,
-                           CacheProperties properties) {
+    public LoadCacheAspect(RedisTemplate<Object, Map<Object, Object>> mapRedisTemplate, CacheProperties properties) {
         cacheProviderMap = new ConcurrentHashMap<>();
         cacheProviderMap.put(CacheRelation.CAFFEINE, new CaffeineCacheProvider<>(properties));
         cacheProviderMap.put(CacheRelation.REDIS, new RedisCacheProvider<>(properties, mapRedisTemplate));
@@ -56,41 +53,58 @@ public class LoadCacheAspect {
         this.cacheProviderMap.put(relation, cacheProvider);
     }
 
-    @Around("@annotation(com.zf1976.ant.common.component.load.annotation.CaffeinePut) && @annotation(annotation))")
-    public Object saveCache(ProceedingJoinPoint joinPoint, CaffeinePut annotation) {
+    @Around("@annotation(com.zf1976.ant.common.component.load.annotation.CachePut) && @annotation(cachePut))")
+    public Object saveCache(ProceedingJoinPoint joinPoint, CachePut cachePut) {
         Method method = this.handler.filterMethod(joinPoint);
         Object[] joinPointArgs = joinPoint.getArgs();
-        String  key = this.handler.parse(method, joinPointArgs, annotation.key(), String.class, annotation.key());
-        if (annotation.dynamicsKey()) {
-            key = this.formatKey(this.getPrincipal(), key);
+        String key = this.handler.parse(method, joinPointArgs, cachePut.key(), String.class, cachePut.key());
+        if (cachePut.dynamicsKey()) {
+            key = this.formatDynamicsKey(this.getPrincipal(), key);
         }
-        ICache<Object, Object> cacheProvider = this.getCacheProvider(annotation.relation());
-        return cacheProvider.get(annotation.namespace(), key, annotation.expired(), () -> {
+        ICache<Object, Object> cacheProvider = this.getCacheProvider(cachePut.relation());
+        return cacheProvider.get(cachePut.namespace(), key, cachePut.expired(), () -> {
             try {
                 return joinPoint.proceed();
             } catch (Throwable throwable) {
                 if (log.isWarnEnabled()) {
                     log.warn(throwable.getMessage(), throwable);
                 }
-                return Optional.empty();
+                return null;
             }
         });
     }
 
-    @Around("@annotation(com.zf1976.ant.common.component.load.annotation.CaffeineEvict) && @annotation(annotation)")
-    public Object removeCache(ProceedingJoinPoint joinPoint, CaffeineEvict annotation) throws Throwable {
+    @Around("@annotation(com.zf1976.ant.common.component.load.annotation.CacheEvict) && @annotation(cacheEvict)")
+    public Object removeCache(ProceedingJoinPoint joinPoint, CacheEvict cacheEvict) throws Throwable {
         Method method = this.handler.filterMethod(joinPoint);
         Object[] joinPointArgs = joinPoint.getArgs();
-        String[] dependOnNamespace = annotation.dependsOn();
-        String namespace = annotation.namespace();
-        ICache<Object, Object> cacheProvider = this.getCacheProvider(annotation.relation());
-        if (StringUtil.isEmpty(annotation.key())) {
-            Arrays.stream(dependOnNamespace)
-                  .forEachOrdered(cacheProvider::invalidate);
-            cacheProvider.invalidate(namespace);
+        String[] dependOnNamespace = cacheEvict.dependsOn();
+        String namespace = cacheEvict.namespace();
+        // 默认策略清除所有缓存实现的命名空间
+        if (cacheEvict.relation() == CacheRelation.DEFAULT) {
+            this.cacheProviderMap.forEach((relation, cache) -> {
+                // 清除缓存空间
+                cache.invalidate(namespace);
+                // 清除依赖缓存空间
+                for (String depend : dependOnNamespace) {
+                    cache.invalidate(depend);
+                }
+            });
         } else {
-            String key = this.handler.parse(method, joinPointArgs, annotation.key(), String.class, null);
-            cacheProvider.invalidate(namespace, key);
+            // 根据缓存实现清除命名空间
+            ICache<Object, Object> cacheProvider = this.getCacheProvider(cacheEvict.relation());
+            // 不存在key，清除缓存空间
+            if (StringUtil.isEmpty(cacheEvict.key())) {
+                // 清除缓存空间
+                cacheProvider.invalidate(namespace);
+                // 清除依赖缓存空间
+                for (String depend : dependOnNamespace) {
+                    cacheProvider.invalidate(depend);
+                }
+            } else {
+                String key = this.handler.parse(method, joinPointArgs, cacheEvict.key(), String.class, null);
+                cacheProvider.invalidate(namespace, key);
+            }
         }
         return joinPoint.proceed();
     }
@@ -99,7 +113,7 @@ public class LoadCacheAspect {
         return this.cacheProviderMap.get(relation);
     }
 
-    private String formatKey(Object prefix, String key) {
+    private String formatDynamicsKey(Object prefix, String key) {
         return prefix + "-" + key;
     }
 

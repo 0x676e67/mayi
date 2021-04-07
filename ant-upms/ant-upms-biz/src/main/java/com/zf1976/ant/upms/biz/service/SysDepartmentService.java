@@ -2,12 +2,12 @@ package com.zf1976.ant.upms.biz.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
-import com.zf1976.ant.common.component.load.annotation.CaffeineEvict;
-import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
+import com.zf1976.ant.common.component.load.annotation.CacheEvict;
+import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.core.constants.Namespace;
-import com.zf1976.ant.common.core.foundation.exception.BadBusinessException;
+import com.zf1976.ant.common.core.foundation.exception.BusinessException;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
-import com.zf1976.ant.common.component.session.SessionContextHolder;
+import com.zf1976.ant.common.security.support.session.SessionContextHolder;
 import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
 import com.zf1976.ant.upms.biz.convert.DepartmentConvert;
 import com.zf1976.ant.upms.biz.dao.SysDepartmentDao;
@@ -48,7 +48,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      * @param requestPage page param
      * @return dept list page
      */
-    @CaffeinePut(namespace = Namespace.DEPARTMENT, key = "#requestPage")
+    @CachePut(namespace = Namespace.DEPARTMENT, key = "#requestPage")
     public IPage<DepartmentVO> selectDeptPage(RequestPage<DeptQueryParam> requestPage) {
         IPage<SysDepartment> sourcePage = super.queryChain()
                                                .setQueryParam(requestPage)
@@ -62,12 +62,12 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      * @param id dept id
      * @return 满足前提条件的部门树
      */
-    @CaffeinePut(namespace = Namespace.DEPARTMENT, key = "#id")
+    @CachePut(namespace = Namespace.DEPARTMENT, key = "#id")
     public IPage<DepartmentVO> selectDeptVertex(Long id) {
         // 记录是否存在
         super.lambdaQuery()
              .eq(SysDepartment::getId, id)
-             .oneOpt().orElseThrow(() -> new BadBusinessException(BusinessMsgState.DATA_NOT_FOUNT));
+             .oneOpt().orElseThrow(() -> new BusinessException(BusinessMsgState.DATA_NOT_FOUNT));
         // 获取查询页
         IPage<SysDepartment> sourcePage = super.queryChain()
                                                .setQueryParam(new RequestPage<>())
@@ -162,7 +162,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      * @param dto dto
      * @return /
      */
-    @CaffeineEvict(namespace = Namespace.DEPARTMENT, dependsOn = {Namespace.ROLE, Namespace.USER})
+    @CacheEvict(namespace = Namespace.DEPARTMENT, dependsOn = {Namespace.ROLE, Namespace.USER})
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> savaDept(DepartmentDTO dto) {
         // 确认部门是否存在
@@ -186,7 +186,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      * @param dto dto
      * @return /
      */
-    @CaffeineEvict(namespace = Namespace.DEPARTMENT, dependsOn = {Namespace.ROLE, Namespace.USER})
+    @CacheEvict(namespace = Namespace.DEPARTMENT, dependsOn = {Namespace.ROLE, Namespace.USER})
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateDept(DepartmentDTO dto) {
 
@@ -259,7 +259,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      * @param ids ids
      * @return /
      */
-    @CaffeineEvict(namespace = Namespace.DEPARTMENT,dependsOn = {Namespace.ROLE, Namespace.USER})
+    @CacheEvict(namespace = Namespace.DEPARTMENT,dependsOn = {Namespace.ROLE, Namespace.USER})
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deleteDeptList(Set<Long> ids) {
         final Set<Long> treeIds = this.collectCurrentDeptTreeIds(ids, HashSet::new);

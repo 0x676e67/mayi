@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.google.common.collect.Lists;
 import com.zf1976.ant.common.component.action.ActionsScanner;
-import com.zf1976.ant.common.component.load.annotation.CaffeinePut;
+import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.component.load.enums.CacheRelation;
 import com.zf1976.ant.common.core.constants.KeyConstants;
 import com.zf1976.ant.common.core.constants.Namespace;
@@ -16,16 +16,17 @@ import com.zf1976.ant.upms.biz.dao.SysResourceDao;
 import com.zf1976.ant.upms.biz.pojo.po.SysPermission;
 import com.zf1976.ant.upms.biz.pojo.po.SysResource;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.management.relation.Relation;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -49,8 +50,8 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
         this.actionsScanner = actionsScanner;
         this.sysResourceDao = sysResourceDao;
         this.securityProperties = securityProperties;
-        this.matcherMethodMap = new ConcurrentHashMap<>(16);
-        this.allowMethodSet = new CopyOnWriteArraySet<>();
+        this.matcherMethodMap = new HashMap<>(16);
+        this.allowMethodSet = new HashSet<>(16);
     }
 
     public void test() {
@@ -114,9 +115,9 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
         }
     }
 
-    @CaffeinePut(namespace = Namespace.DYNAMIC, key = KeyConstants.RESOURCES, relation = CacheRelation.REDIS)
+    @CachePut(namespace = Namespace.DYNAMIC, key = KeyConstants.RESOURCES, relation = CacheRelation.REDIS)
     public Map<String, Collection<ConfigAttribute>> loadDataSource() {
-        Map<String, Collection<ConfigAttribute>> matcherResourceMap = new ConcurrentHashMap<>(16);
+        Map<String, Collection<ConfigAttribute>> matcherResourceMap = new HashMap<>(16);
         //清空缓存
         if (!CollectionUtils.isEmpty(this.matcherMethodMap)) {
             this.matcherMethodMap.clear();
@@ -128,25 +129,20 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
                      .list()
                      .forEach(rootResource -> {
                          // 资源
-                         Map<Long, String> resourceMap = new ConcurrentHashMap<>(16);
-                         Map<Long, String> methodMap = new ConcurrentHashMap<>(16);
-                         this.collectChildrenResourcePath(rootResource.getId(),
-                                                          rootResource.getUrl(),
-                                                          rootResource.getMethod(),
-                                                          rootResource.getAllow(),
-                                                          () -> resourceMap,
-                                                          () -> methodMap,
-                                                          () -> this.allowMethodSet);
+                         Map<Long, String> resourceMap = new HashMap<>(16);
+                         Map<Long, String> methodMap = new HashMap<>(16);
+                         this.collectChildrenResourcePath(rootResource, resourceMap, methodMap);
                          resourceMap.forEach((id, path) -> {
-                             Set<ConfigAttribute> permissions = this.baseMapper.getPermission(id)
-                                                                               .stream()
-                                                                               .map(attribute -> (ConfigAttribute) () -> attribute)
-                                                                               .collect(Collectors.toSet());
-                             matcherResourceMap.put(path, permissions);
+                             // 权限值
+                             List<ConfigAttribute> configAttributeList = this.baseMapper.getPermission(id)
+                                                                                        .stream()
+                                                                                        .map(AuthConfigAttribute::new)
+                                                                                        .distinct()
+                                                                                        .collect(Collectors.toList());
+                             matcherResourceMap.put(path, configAttributeList);
                              this.matcherMethodMap.put(path, methodMap.get(id));
                          });
                      });
-
         return matcherResourceMap;
     }
 
@@ -157,28 +153,27 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
         return this.matcherMethodMap;
     }
 
-    private void collectChildrenResourcePath(Long nodeId, String path, String method, Boolean allow,
-                                             Supplier<Map<Long, String>> var1,
-                                             Supplier<Map<Long, String>> var2,
-                                             Supplier<Set<String>> var3) {
-        Assert.notNull(nodeId, "nodeId cannot been null");
-        Assert.notNull(var1, "supplier cannot been null");
-        Assert.notNull(var2, "supplier cannot been null");
+    private void collectChildrenResourcePath(SysResource rootResource, Map<Long, String> resourceMap, Map<Long, String> methodMap) {
+        Long nodeId = rootResource.getId();
+        String nodeUri = rootResource.getUri();
+        String method = rootResource.getMethod();
+        Boolean allow = rootResource.getAllow();
         boolean condition = true;
         List<SysResource> resources = ChainWrappers.lambdaQueryChain(this.sysResourceDao)
-                                              .eq(SysResource::getPid, nodeId)
-                                              .list();
+                                                   .eq(SysResource::getPid, nodeId)
+                                                   .list();
         for (SysResource node : resources) {
             // 路径深搜
-            String nodePath = path.concat(node.getUrl());
-            this.collectChildrenResourcePath(node.getId(), nodePath, node.getMethod(),node.getAllow(), var1, var2, var3);
+            String concatNodeUri = nodeUri.concat(node.getUri());
+            node.setUri(concatNodeUri);
+            this.collectChildrenResourcePath(node, resourceMap, methodMap);
             condition = false;
         }
         if (condition) {
-            var1.get().put(nodeId, path);
-            var2.get().put(nodeId, method);
+            resourceMap.put(nodeId, nodeUri);
+            methodMap.put(nodeId, method);
             if (allow) {
-                var3.get().add(path);
+                this.allowMethodSet.add(nodeUri);
             }
         }
     }
@@ -202,7 +197,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
      * redis 反序化回来变成set
      * @return getAllowUri
      */
-    @CaffeinePut(namespace = Namespace.DYNAMIC, key = KeyConstants.ALLOW, relation = CacheRelation.REDIS)
+    @CachePut(namespace = Namespace.DYNAMIC, key = KeyConstants.ALLOW, relation = CacheRelation.REDIS)
     public List<String> getAllowUri() {
         CollectionUtils.mergeArrayIntoCollection(securityProperties.getIgnoreUri(), this.allowMethodSet);
         return Lists.newArrayList(this.allowMethodSet);

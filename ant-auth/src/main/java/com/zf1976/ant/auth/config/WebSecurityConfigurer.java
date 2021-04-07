@@ -26,7 +26,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
@@ -145,7 +144,10 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
             .addFilterBefore(new OAuth2TokenAuthenticationFilter(), LogoutFilter.class);
         var jdbcClientDetailsServiceEnhancer = SecurityContextHolder.getShareObject(JdbcClientDetailsServiceEnhancer.class);
         if (this.authProperties.getEnableSignature()) {
-            http.addFilterBefore(new SignatureAuthenticationFilter(jdbcClientDetailsServiceEnhancer, "/oauth/logout"), SecurityContextPersistenceFilter.class);
+            http.addFilterBefore(new SignatureAuthenticationFilter(jdbcClientDetailsServiceEnhancer,
+                            "/oauth/logout",
+                            "/oauth/info"
+                    ), SecurityContextPersistenceFilter.class);
         }
     }
 

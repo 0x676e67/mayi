@@ -2,8 +2,8 @@ package com.zf1976.ant.upms.biz.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zf1976.ant.common.component.session.SessionContextHolder;
-import com.zf1976.ant.common.component.session.repository.SessionRepository;
+import com.zf1976.ant.common.security.support.session.SessionContextHolder;
+import com.zf1976.ant.common.security.support.session.repository.SessionRepository;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
 import com.zf1976.ant.common.core.util.RedisUtils;
 import com.zf1976.ant.common.core.util.StringUtils;
@@ -95,9 +95,7 @@ public class SysOnlineService {
     public Set<Long> getOnlinePageSessionIds(RequestPage<SessionQueryParam> requestPage) {
         final int page = requestPage.getPage();
         final int pageSize = requestPage.getSize();
-        return RedisUtils.scanKeysForPage(this.getPatternSessionId(),
-                page,
-                pageSize)
+        return RedisUtils.scanKeysForPage(this.getPatternSessionId(), page, pageSize)
                          .stream()
                          .map(StringUtils::getNumber)
                          .collect(Collectors.toSet());

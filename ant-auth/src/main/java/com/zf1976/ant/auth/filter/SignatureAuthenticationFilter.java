@@ -3,20 +3,19 @@ package com.zf1976.ant.auth.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.common.core.util.JSONUtil;
-import com.zf1976.ant.common.security.support.exception.SignatureException;
-import com.zf1976.ant.common.security.support.SignatureAuthenticationStrategy;
-import com.zf1976.ant.common.security.support.SignaturePattern;
-import com.zf1976.ant.common.security.support.StandardSignature;
-import com.zf1976.ant.common.security.support.datasource.ClientDataSourceProvider;
-import com.zf1976.ant.common.security.support.impl.OpenSignatureAuthenticationStrategy;
-import com.zf1976.ant.common.security.support.impl.SecretSignatureAuthenticationStrategy;
+import com.zf1976.ant.common.security.support.signature.exception.SignatureException;
+import com.zf1976.ant.common.security.support.signature.SignatureAuthenticationStrategy;
+import com.zf1976.ant.common.security.support.signature.enums.SignaturePattern;
+import com.zf1976.ant.common.security.support.signature.StandardSignature;
+import com.zf1976.ant.common.security.support.signature.datasource.ClientDataSourceProvider;
+import com.zf1976.ant.common.security.support.signature.impl.OpenSignatureAuthenticationStrategy;
+import com.zf1976.ant.common.security.support.signature.impl.SecretSignatureAuthenticationStrategy;
 import com.zf1976.ant.common.core.foundation.DataResult;
-import com.zf1976.ant.common.security.enums.SignatureState;
+import com.zf1976.ant.common.security.support.signature.SignatureState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
-import org.springframework.web.context.request.RequestScope;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -24,10 +23,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * 默认支持两种签名认证模式
@@ -41,10 +42,12 @@ public class SignatureAuthenticationFilter extends OncePerRequestFilter {
     private final Map<SignaturePattern, SignatureAuthenticationStrategy> strategies = new ConcurrentHashMap<>(2);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final Set<String> ignoredSet = new HashSet<>();
-    public SignatureAuthenticationFilter(ClientDataSourceProvider provider, String ignoredUri) {
+    public SignatureAuthenticationFilter(ClientDataSourceProvider provider, String ...ignoredUri) {
         super();
         Assert.notNull(ignoredUri, "ignored uri cannot benn null");
-        ignoredSet.add(ignoredUri);
+        final Set<String> set = Arrays.stream(ignoredUri)
+                                      .collect(Collectors.toSet());
+        ignoredSet.addAll(set);
         this.init(provider);
     }
 

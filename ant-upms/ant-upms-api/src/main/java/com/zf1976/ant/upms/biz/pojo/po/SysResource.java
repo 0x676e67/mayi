@@ -33,7 +33,7 @@ public class SysResource extends Model<SysResource> {
     /**
      * 资源url
      */
-    private String url;
+    private String uri;
 
     /**
      * 请求方法

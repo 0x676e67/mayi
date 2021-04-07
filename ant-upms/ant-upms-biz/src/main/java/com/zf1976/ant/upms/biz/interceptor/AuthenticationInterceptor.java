@@ -1,6 +1,6 @@
 package com.zf1976.ant.upms.biz.interceptor;
 
-import com.zf1976.ant.common.component.session.SessionContextHolder;
+import com.zf1976.ant.common.security.support.session.SessionContextHolder;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.core.util.JSONUtil;
 import org.slf4j.Logger;
@@ -49,7 +49,6 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         if (request.getMethod().equals(HttpMethod.OPTIONS.name())) {
             return  true;
         }
-        response.setHeader("X-Frame-Options", "ALLOW-FROM");
         var token = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (token == null) {
             this.unauthenticatedHandler(response);

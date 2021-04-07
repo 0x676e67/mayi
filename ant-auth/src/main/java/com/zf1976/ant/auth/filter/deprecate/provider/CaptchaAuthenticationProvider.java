@@ -4,7 +4,7 @@ import com.zf1976.ant.auth.exception.CaptchaException;
 import com.zf1976.ant.common.component.validate.service.CaptchaService;
 import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.security.enums.AuthenticationState;
-import com.zf1976.ant.common.security.pojo.LoginDTO;
+import com.zf1976.ant.common.security.pojo.dto.LoginDTO;
 import lombok.SneakyThrows;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

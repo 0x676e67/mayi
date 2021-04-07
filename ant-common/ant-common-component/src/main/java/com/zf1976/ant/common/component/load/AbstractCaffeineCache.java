@@ -2,6 +2,7 @@ package com.zf1976.ant.common.component.load;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.zf1976.ant.common.component.property.CacheProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +19,11 @@ public abstract class AbstractCaffeineCache<K, V> implements ICache<K, V> {
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractCaffeineCache.class);
     protected Map<String, Cache<K, V>> cacheSpace;
     protected Cache<K, V> kvCache;
+    protected final CacheProperties properties;
+
+    public AbstractCaffeineCache(CacheProperties properties) {
+        this.properties = properties;
+    }
 
     /**
      * 初始化
@@ -61,4 +67,10 @@ public abstract class AbstractCaffeineCache<K, V> implements ICache<K, V> {
         }
         return this.kvCache;
     }
+
+
+    protected String keyFormatter(String key) {
+        return this.properties.getKeyPrefix() + key;
+    }
+
 }

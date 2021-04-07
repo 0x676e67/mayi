@@ -1,10 +1,14 @@
 package com.zf1976.ant.common.component.load.impl;
 
+import com.power.common.util.CollectionUtil;
 import com.zf1976.ant.common.component.load.ICache;
-import com.zf1976.ant.common.security.property.CacheProperties;
+import com.zf1976.ant.common.component.property.CacheProperties;
+import com.zf1976.ant.common.core.util.RedisUtils;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -18,8 +22,7 @@ public class RedisCacheProvider<K, V> implements ICache<K, V> {
     private final CacheProperties properties;
     private final RedisTemplate<Object, Map<Object, Object>> redisTemplate;
 
-    public RedisCacheProvider(CacheProperties properties,
-                              RedisTemplate<Object, Map<Object, Object>> redisTemplate) {
+    public RedisCacheProvider(CacheProperties properties, RedisTemplate<Object, Map<Object, Object>> redisTemplate) {
         this.properties = properties;
         this.redisTemplate = redisTemplate;
     }
@@ -63,23 +66,28 @@ public class RedisCacheProvider<K, V> implements ICache<K, V> {
             kvMap = new ConcurrentHashMap<>(16);
         }
         kvMap.put(key, value);
-        this.saveCacheSpace(namespace, kvMap);
+        this.saveCacheSpace(namespace, kvMap, expired);
     }
 
     @Override
     public void set(String namespace, K key, V value) {
-        this.set(namespace,key, properties.getExpireAlterWrite(), value);
+        Map<K, V> kvMap = this.getCacheSpace(namespace);
+        if (kvMap == null) {
+            kvMap = new ConcurrentHashMap<>(16);
+        }
+        kvMap.put(key, value);
+        this.saveCacheSpace(namespace, kvMap);
     }
 
     @Override
     public void invalidate(String namespace) {
-        this.redisTemplate.delete(namespace);
+        this.redisTemplate.delete(this.keyFormatter(namespace));
     }
 
     @Override
     public void invalidate(String namespace, K key) {
         Map<K, V> kvMap = this.getCacheSpace(namespace);
-        Long expire = this.redisTemplate.getExpire(namespace, TimeUnit.MINUTES);
+        Long expire = this.redisTemplate.getExpire(this.keyFormatter(namespace), TimeUnit.MINUTES);
         if (kvMap != null && expire != null) {
             kvMap.remove(key);
             this.saveCacheSpace(namespace, kvMap, expire);
@@ -88,28 +96,40 @@ public class RedisCacheProvider<K, V> implements ICache<K, V> {
 
     @Override
     public void invalidateAll() {
-        throw new UnsupportedClassVersionError();
+        final Set<String> keys = RedisUtils.scanKeys(this.keyFormatter("*"));
+        if (!CollectionUtils.isEmpty(keys)) {
+            this.redisTemplate.delete(keys);
+        }
     }
 
     @SuppressWarnings("unchecked")
     private void saveCacheSpace(String namespace, Map<K, V> kvMap, Long expired) {
         this.redisTemplate.opsForValue()
-                          .set(namespace,
+                          .set(this.keyFormatter(namespace),
                                   (Map<Object, Object>) kvMap,
                                   expired == null || expired <0 ? properties.getExpireAlterWrite() : expired,
                                   TimeUnit.MINUTES);
     }
 
+    @SuppressWarnings("unchecked")
     private void saveCacheSpace(String namespace, Map<K, V> kvMap) {
-        this.saveCacheSpace(namespace, kvMap, properties.getExpireAlterWrite());
+        this.redisTemplate.opsForValue()
+                          .set(this.keyFormatter(namespace),
+                                  (Map<Object, Object>) kvMap,
+                                  properties.getExpireAlterWrite(),
+                                  TimeUnit.MINUTES);
     }
 
     @SuppressWarnings("unchecked")
     private Map<K, V> getCacheSpace(String namespace) {
-        return (Map<K, V>) this.redisTemplate.opsForValue().get(namespace);
+        return (Map<K, V>) this.redisTemplate.opsForValue().get(this.keyFormatter(namespace));
     }
 
-    private V getValue(Map<K, V> kvMap,K k,Supplier<V> supplier) {
+    private String keyFormatter(String key) {
+        return this.properties.getKeyPrefix() + key;
+    }
+
+    private V getValue(Map<K, V> kvMap, K k, Supplier<V> supplier) {
         V var1 = kvMap.get(k);
         if (var1 != null) {
             return var1;
