@@ -1,3 +1,5 @@
+server:
+  port: 9000
 #配置
 spring:
   profiles:
@@ -47,3 +49,29 @@ api-encrypt:
 auth:
   enable-signature: true
   model: false
+
+---
+#nacos配置
+spring:
+  profiles: prod
+  cloud:
+    nacos:
+      config:
+        file-extension: yaml
+      server-addr: innas.cn:8848
+      discovery:
+        register-enabled: true
+        enabled: true
+
+---
+#nacos配置
+spring:
+  profiles: dev
+  cloud:
+    nacos:
+      config:
+        file-extension: yaml
+      server-addr: 127.0.0.1:8848
+      discovery:
+        register-enabled: true
+        enabled: true
