@@ -4,14 +4,13 @@ import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.power.common.util.FileUtil;
 import com.zf1976.ant.upms.biz.handle.MetaDataHandler;
 import com.zf1976.ant.upms.biz.interceptor.AuthenticationInterceptor;
+import com.zf1976.ant.upms.biz.property.FileProperties;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.format.FormatterRegistry;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.ResourceUtils;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -19,16 +18,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.io.IOException;
 
 /**
  * @author mac
  * Create by Ant on 2020/8/30 下午1:58
  */
 @Configuration
-public class WebMvcConfig implements WebMvcConfigurer, InitializingBean {
+public class WebMvcConfiguration implements WebMvcConfigurer, InitializingBean {
 
-    public WebMvcConfig(FileProperties fileProperties) {
+    public WebMvcConfiguration(FileProperties fileProperties) {
         this.fileProperties = fileProperties;
     }
 

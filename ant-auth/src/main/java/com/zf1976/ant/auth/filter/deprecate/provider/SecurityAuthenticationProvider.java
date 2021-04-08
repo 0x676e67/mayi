@@ -52,7 +52,7 @@ public class SecurityAuthenticationProvider implements AuthenticationProvider {
             authenticationToken.setDetails(userDetails);
             return authenticationToken;
         } else {
-            throw new PasswordException(AuthenticationState.PASSWORD_ERROR);
+            throw new PasswordException(AuthenticationState.USERNAME_PASSWORD_ERROR);
         }
     }
 

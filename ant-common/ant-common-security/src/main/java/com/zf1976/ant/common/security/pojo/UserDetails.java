@@ -15,17 +15,21 @@ public class UserDetails implements Serializable {
     /**
      * 权限
      */
-    private List<String> permission;
+    private Set<String> permission;
+    /**
+     * 数据权限
+     */
+    private Set<Long> dataPermission;
     /**
      * 用户信息
      */
     private UserInfo userInfo;
 
-    public List<String> getPermission() {
+    public Set<String> getPermission() {
         return permission;
     }
 
-    public UserDetails setPermission(List<String> permission) {
+    public UserDetails setPermission(Set<String> permission) {
         this.permission = permission;
         return this;
     }
@@ -39,39 +43,57 @@ public class UserDetails implements Serializable {
         return this;
     }
 
+    public Set<Long> getDataPermission() {
+        return dataPermission;
+    }
+
+    public UserDetails setDataPermission(Set<Long> dataPermission) {
+        this.dataPermission = dataPermission;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "UserDetails{" +
                 "permission=" + permission +
+                ", dataPermission=" + dataPermission +
                 ", userInfo=" + userInfo +
                 '}';
     }
 
+
     public static final class UserDetailsBuilder {
-        private List<String> permission;
+        private Set<String> permission;
+        private Set<Long> dataPermission;
         private UserInfo userInfo;
 
         private UserDetailsBuilder() {
         }
 
-        public static UserDetailsBuilder anUserDetails() {
+        public static UserDetailsBuilder builder() {
             return new UserDetailsBuilder();
         }
 
-        public UserDetailsBuilder withPermission(List<String> permission) {
+        public UserDetailsBuilder permission(Set<String> permission) {
             this.permission = permission;
             return this;
         }
 
-        public UserDetailsBuilder withUserInfo(UserInfo userInfo) {
+        public UserDetailsBuilder dataPermission(Set<Long> dataPermission) {
+            this.dataPermission = dataPermission;
+            return this;
+        }
+
+        public UserDetailsBuilder userInfo(UserInfo userInfo) {
             this.userInfo = userInfo;
             return this;
         }
 
         public UserDetails build() {
             UserDetails userDetails = new UserDetails();
-            userDetails.permission = this.permission;
-            userDetails.userInfo = this.userInfo;
+            userDetails.setPermission(permission);
+            userDetails.setDataPermission(dataPermission);
+            userDetails.setUserInfo(userInfo);
             return userDetails;
         }
     }

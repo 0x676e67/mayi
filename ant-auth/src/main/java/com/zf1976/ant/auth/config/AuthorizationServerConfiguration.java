@@ -53,7 +53,7 @@ import java.util.List;
  **/
 @Configuration
 @EnableAuthorizationServer
-public class AuthorizationServerConfigurer extends AuthorizationServerConfigurerAdapter implements SmartLifecycle {
+public class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter implements SmartLifecycle {
 
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
@@ -65,13 +65,13 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
     private final KeyPair keyPair;
     private boolean isRunning = false;
 
-    public AuthorizationServerConfigurer(UserDetailsService userDetailsService,
-                                         PasswordEncoder passwordEncoder,
-                                         AuthenticationManager authenticationManager,
-                                         RedisTemplate<Object, Object> template,
-                                         JdbcClientDetailsServiceEnhancer jdbcClientDetailsServiceEnhancer,
-                                         CaptchaService captchaService,
-                                         KeyPair keyPair) {
+    public AuthorizationServerConfiguration(UserDetailsService userDetailsService,
+                                            PasswordEncoder passwordEncoder,
+                                            AuthenticationManager authenticationManager,
+                                            RedisTemplate<Object, Object> template,
+                                            JdbcClientDetailsServiceEnhancer jdbcClientDetailsServiceEnhancer,
+                                            CaptchaService captchaService,
+                                            KeyPair keyPair) {
         this.userDetailsService =  userDetailsService;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
@@ -181,7 +181,7 @@ public class AuthorizationServerConfigurer extends AuthorizationServerConfigurer
 
     /**
      * 所有bean初始化完成
-     * 增强Oauth Provide客户端处理
+     * 增强OAuth2 Provide客户端处理
      */
     @Override
     public void start() {

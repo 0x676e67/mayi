@@ -1,17 +1,22 @@
 package com.zf1976.ant.auth.filter.provider;
 
 import com.zf1976.ant.common.encrypt.EncryptUtil;
+import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
+
+import java.util.Locale;
 
 /**
  * 默认 {@link org.springframework.security.authentication.dao.DaoAuthenticationProvider} 不支持密码加密
@@ -27,13 +32,21 @@ public class DaoAuthenticationEnhancerProvider extends AbstractUserDetailsAuthen
     private DaoAuthenticationEnhancerProvider(Builder builder) {
         this.passwordEncoder = builder.passwordEncoder;
         this.userDetailsService = builder.userDetailsService;
+        // 设置英文消息源
+        setMessageSource();
+    }
+
+    protected void setMessageSource(){
+        ReloadableResourceBundleMessageSource localMessageSource = new ReloadableResourceBundleMessageSource();
+        localMessageSource.setBasenames("messages_en");
+        messages = new MessageSourceAccessor(localMessageSource);
+        this.setMessageSource(localMessageSource);
     }
 
     @Override
     protected void doAfterPropertiesSet() {
         Assert.notNull(this.userDetailsService, "A UserDetailsService must be set");
     }
-
 
     @Override
     protected void additionalAuthenticationChecks(UserDetails userDetails,
@@ -43,13 +56,14 @@ public class DaoAuthenticationEnhancerProvider extends AbstractUserDetailsAuthen
             throw new BadCredentialsException(this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
         } else {
             String encryptPassword = authentication.getCredentials().toString();
+            String rawPassword = userDetails.getPassword();
             String presentedPassword;
             try {
                 presentedPassword = EncryptUtil.decryptForRsaByPrivateKey(encryptPassword);
             } catch (Exception ignored) {
                 presentedPassword = encryptPassword;
             }
-            if (!this.passwordEncoder.matches(presentedPassword, userDetails.getPassword())) {
+            if (!this.passwordEncoder.matches(presentedPassword, rawPassword)) {
                 this.logger.debug("Authentication failed: password does not match stored value");
                 throw new BadCredentialsException(this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
             }

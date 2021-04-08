@@ -1,9 +1,13 @@
 package com.zf1976.ant.common.core.config;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -21,6 +25,7 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,7 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @ConditionalOnClass(RedisOperations.class)
 @EnableConfigurationProperties(RedisProperties.class)
 @SuppressWarnings("rawtypes, unchecked")
-public class RedisConfig extends CachingConfigurerSupport {
+public class RedisConfiguration extends CachingConfigurerSupport {
 
     @Bean(name = "template")
     public RedisTemplate<Object, Object> template(RedisConnectionFactory factory) {
@@ -56,6 +61,7 @@ public class RedisConfig extends CachingConfigurerSupport {
     private RedisTemplate setRedisSerializer(RedisTemplate<?,?> template, RedisConnectionFactory factory, Jackson2JsonRedisSerializer jackson2JsonRedisSerializer) {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.activateDefaultTyping(new LaissezFaireSubTypeValidator(), ObjectMapper.DefaultTyping.NON_FINAL);
         jackson2JsonRedisSerializer.setObjectMapper(objectMapper);
         StringRedisSerializer stringSerial = new StringRedisSerializer();

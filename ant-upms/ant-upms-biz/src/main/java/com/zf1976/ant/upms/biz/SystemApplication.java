@@ -1,6 +1,6 @@
 package com.zf1976.ant.upms.biz;
 
-import com.zf1976.ant.upms.biz.rpc.SecurityClient;
+import com.zf1976.ant.upms.biz.feign.SecurityClient;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

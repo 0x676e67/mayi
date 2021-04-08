@@ -15,7 +15,6 @@ import java.util.Optional;
  * @author mac
  * @date 2020/10/22 9:11 下午
  */
-@ToString
 public class RequestPage<T extends AbstractQueryParam> {
 
     public static final int MAX_SIZE = 10000;
@@ -154,5 +153,16 @@ public class RequestPage<T extends AbstractQueryParam> {
                 return Optional.empty();
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "RequestPage{" +
+                "page=" + page +
+                ", size=" + size +
+                ", sort=" + sort +
+                ", orders=" + orders +
+                ", query=" + query +
+                '}';
     }
 }

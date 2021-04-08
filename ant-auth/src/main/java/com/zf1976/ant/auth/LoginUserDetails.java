@@ -3,6 +3,7 @@ package com.zf1976.ant.auth;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zf1976.ant.common.security.pojo.UserInfo;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 
 import java.util.Collection;
 import java.util.Set;
@@ -16,18 +17,16 @@ public class LoginUserDetails implements org.springframework.security.core.userd
 
     private final UserInfo userInfo;
     private final Set<Long> dataScopes;
-    private final Collection<? extends GrantedAuthority> authorities;
+    private final Set<String> permission;
 
     public LoginUserDetails(UserInfo userInfo, Collection<? extends GrantedAuthority> authorities, Set<Long> dataScopes) {
         this.userInfo = userInfo;
         this.dataScopes = dataScopes;
-        this.authorities = authorities;
+        this.permission = AuthorityUtils.authorityListToSet(authorities);
     }
 
     public Set<String> getPermission() {
-        return authorities.stream()
-                          .map(GrantedAuthority::getAuthority)
-                          .collect(Collectors.toSet());
+        return this.permission;
     }
 
     public Set<Long> getDataScopes() {
@@ -41,7 +40,8 @@ public class LoginUserDetails implements org.springframework.security.core.userd
     @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
+        final String[] authority = permission.toArray(new String[1]);
+        return AuthorityUtils.createAuthorityList(authority);
     }
 
     @JsonIgnore
@@ -56,6 +56,7 @@ public class LoginUserDetails implements org.springframework.security.core.userd
     }
 
     @Override
+    @JsonIgnore
     public String getUsername() {
         return userInfo.getUsername();
     }
@@ -67,6 +68,7 @@ public class LoginUserDetails implements org.springframework.security.core.userd
     }
 
     @Override
+    @JsonIgnore
     public boolean isAccountNonLocked() {
         return this.isEnabled();
     }

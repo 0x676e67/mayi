@@ -41,16 +41,16 @@ import java.security.KeyPair;
  */
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final SecurityProperties securityProperties;
     private final PasswordEncoder passwordEncoder;
     private final UserDetailsService userDetailsService;
     private final AuthProperties authProperties;
 
-    public WebSecurityConfigurer(SecurityProperties securityProperties,
-                                 UserDetailsService userDetailsService,
-                                 AuthProperties authProperties) {
+    public WebSecurityConfiguration(SecurityProperties securityProperties,
+                                    UserDetailsService userDetailsService,
+                                    AuthProperties authProperties) {
         this.securityProperties = securityProperties;
         this.userDetailsService = userDetailsService;
         this.authProperties = authProperties;

@@ -7,7 +7,7 @@ import com.zf1976.ant.common.security.support.session.repository.SessionReposito
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
 import com.zf1976.ant.common.core.util.RedisUtils;
 import com.zf1976.ant.common.core.util.StringUtils;
-import com.zf1976.ant.upms.biz.rpc.SecurityClient;
+import com.zf1976.ant.upms.biz.feign.SecurityClient;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import com.zf1976.ant.upms.biz.convert.SessionConvert;
 import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
@@ -151,16 +151,10 @@ public class SysOnlineService {
             // 不允许强制自己离线
             if (!ObjectUtils.nullSafeEquals(id, sessionId)){
                 // 调用远程服务进行登出处理
-                String token = this.generatedToken(id);
-                var logout = this.securityClient.logout(token);
+                var logout = this.securityClient.logout();
                 Assert.isTrue(logout.getSuccess(),"this session not online");
             }
         });
         return Optional.empty();
-    }
-
-    private String generatedToken(Long sessionId) {
-        String value = SessionContextHolder.readSession(sessionId).getToken();
-        return "Bearer " + value;
     }
 }

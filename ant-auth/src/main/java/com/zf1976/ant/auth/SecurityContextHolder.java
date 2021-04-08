@@ -1,15 +1,13 @@
 package com.zf1976.ant.auth;
 
 import com.zf1976.ant.auth.service.DynamicDataSourceService;
+import com.zf1976.ant.auth.service.UserDetailsServiceEnhancer;
+import com.zf1976.ant.common.security.standard.AttributeStandards;
 import com.zf1976.ant.common.security.support.session.Session;
-import com.zf1976.ant.common.security.support.session.SessionContextHolder;
 import com.zf1976.ant.common.core.util.RequestUtils;
-import com.zf1976.ant.common.security.pojo.UserDetails;
 import com.zf1976.ant.common.security.property.SecurityProperties;
-import com.zf1976.ant.common.security.support.signature.standard.AttributeStandards;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
@@ -35,18 +33,9 @@ public class SecurityContextHolder extends org.springframework.security.core.con
             return super.initialValue();
         }
     };
-    private static UserDetailsService userDetailsService;
+    private static UserDetailsServiceEnhancer userDetailsService;
     private static DynamicDataSourceService dynamicDataSourceService;
     private static SecurityProperties securityProperties;
-
-    public static UserDetails userDetails(){
-        final String username = SessionContextHolder.username();
-        LoginUserDetails userDetails = (LoginUserDetails) userDetailsService.loadUserByUsername(username);
-        return UserDetails.UserDetailsBuilder.anUserDetails()
-                                             .withUserInfo(userDetails.getUserInfo())
-                                             .withPermission(new ArrayList<>(userDetails.getPermission()))
-                                             .build();
-    }
 
     /**
      * 验证uri
@@ -91,6 +80,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
                .setBrowser(RequestUtils.getBrowser(request))
                .setOperatingSystemType(RequestUtils.getOpsSystemType(request))
                .setToken(token);
+        session.setAttribute(AttributeStandards.AUTH_DATA_SCOPE, userDetails.getDataScopes());
         return session;
     }
 
@@ -117,7 +107,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
     }
 
     @Autowired
-    public void setUserDetailsService(UserDetailsService userDetailsService) {
+    public void setUserDetailsService(UserDetailsServiceEnhancer userDetailsService) {
         SecurityContextHolder.userDetailsService = userDetailsService;
     }
 

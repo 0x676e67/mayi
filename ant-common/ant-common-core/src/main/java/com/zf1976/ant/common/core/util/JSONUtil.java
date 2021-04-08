@@ -1,10 +1,13 @@
 package com.zf1976.ant.common.core.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.ser.BeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.zf1976.ant.common.core.constants.ParameterConstants;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -45,6 +48,8 @@ public class JSONUtil {
         JSON_MAPPER.setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE);
         // 使用bean名称
         JSON_MAPPER.enable(MapperFeature.USE_STD_BEAN_NAMING);
+        // 忽略空字段
+        JSON_MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         // 所有日期格式都统一为固定格式
         JSON_MAPPER.setDateFormat(new SimpleDateFormat(ParameterConstants.DATETIME_FORMAT));
         // 设置时区

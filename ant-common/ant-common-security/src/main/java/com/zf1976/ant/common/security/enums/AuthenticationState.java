@@ -19,7 +19,7 @@ public enum AuthenticationState {
     CAPTCHA_FAIL(401, "captcha fail"),
 
     // 密码error异常
-    PASSWORD_ERROR(401, "incorrect user name or password"),
+    USERNAME_PASSWORD_ERROR(401, "incorrect username or password"),
 
     // expired jwt 异常
     EXPIRED_JWT(401,"expired token"),

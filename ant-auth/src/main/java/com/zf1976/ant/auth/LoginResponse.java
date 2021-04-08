@@ -4,12 +4,14 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.security.core.userdetails.UserDetails;
 
+
 /**
  * @author ant
  * Create by Ant on 2020/9/8 9:06 下午
  */
 @Data
 @Accessors(chain = true)
+@Deprecated
 public class LoginResponse {
 
     /**

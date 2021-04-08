@@ -17,7 +17,7 @@ import java.io.IOException;
  * @date 2021/1/1
  **/
 @Configuration
-public class JacksonConfig {
+public class JacksonConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(ObjectMapper.class)
@@ -27,9 +27,11 @@ public class JacksonConfig {
                                            .createXmlMapper(false)
                                            .build();
         objectMapper.getSerializerProvider()
-                    .setNullValueSerializer(new JsonSerializer<Object>() {
+                    .setNullValueSerializer(new JsonSerializer<>() {
                         @Override
-                        public void serialize(Object o, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+                        public void serialize(Object o,
+                                              JsonGenerator jsonGenerator,
+                                              SerializerProvider serializerProvider) throws IOException {
                             jsonGenerator.writeString("");
                         }
                     });

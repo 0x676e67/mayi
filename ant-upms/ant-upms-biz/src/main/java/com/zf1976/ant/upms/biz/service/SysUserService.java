@@ -16,8 +16,7 @@ import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
 import com.zf1976.ant.common.encrypt.MD5Encoder;
 import com.zf1976.ant.common.encrypt.RsaUtil;
 import com.zf1976.ant.common.encrypt.property.RsaProperties;
-import com.zf1976.ant.common.security.support.signature.standard.AttributeStandards;
-import com.zf1976.ant.upms.biz.config.FileProperties;
+import com.zf1976.ant.upms.biz.property.FileProperties;
 import com.zf1976.ant.upms.biz.convert.SysUserConvert;
 import com.zf1976.ant.upms.biz.dao.SysDepartmentDao;
 import com.zf1976.ant.upms.biz.dao.SysPositionDao;
@@ -25,6 +24,7 @@ import com.zf1976.ant.upms.biz.dao.SysRoleDao;
 import com.zf1976.ant.upms.biz.dao.SysUserDao;
 import com.zf1976.ant.upms.biz.exception.UserException;
 import com.zf1976.ant.upms.biz.exception.enums.UserState;
+import com.zf1976.ant.upms.biz.feign.SecurityClient;
 import com.zf1976.ant.upms.biz.pojo.dto.user.UpdateEmailDTO;
 import com.zf1976.ant.upms.biz.pojo.dto.user.UpdateInfoDTO;
 import com.zf1976.ant.upms.biz.pojo.dto.user.UpdatePasswordDTO;
@@ -67,11 +67,11 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     private final SysPositionDao sysPositionDao;
     private final SysRoleDao sysRoleDao;
     private final SysUserConvert convert;
+    private final SecurityClient securityClient;
     private final MD5Encoder encoder = new MD5Encoder();
 
-    public SysUserService(SysDepartmentDao sysDepartmentDao,
-                          SysPositionDao sysJobDao,
-                          SysRoleDao sysRoleDao) {
+    public SysUserService(SysDepartmentDao sysDepartmentDao, SysPositionDao sysJobDao, SysRoleDao sysRoleDao, SecurityClient securityClient) {
+        this.securityClient = securityClient;
         this.jdkIdGenerator = new AlternativeJdkIdGenerator();
         this.sysDepartmentDao = sysDepartmentDao;
         this.sysPositionDao = sysJobDao;
@@ -91,12 +91,9 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         IPage<SysUser> sourcePage = null;
         // 非super admin 过滤数据权限
         if (!SessionContextHolder.isOwner()) {
-            var session = SessionContextHolder.readSession();
-            Assert.notNull(session, "current session details can not been null");
             // 用户可观察数据范围
-            @SuppressWarnings("unchecked")
-            List<Long> dataPermission = (List<Long>) session.getAttribute(AttributeStandards.AUTH_DATA_SCOPE);
-            List<Long> userIds = super.baseMapper.selectByDepartmentIds(new HashSet<>(dataPermission));
+            Set<Long> dataPermission = securityClient.getUserDetails().getData().getDataPermission();
+            List<Long> userIds = super.baseMapper.selectByDepartmentIds(dataPermission);
             sourcePage = super.queryChain()
                              .setQueryParam(requestPage, () -> {
                                  // 自定义条件

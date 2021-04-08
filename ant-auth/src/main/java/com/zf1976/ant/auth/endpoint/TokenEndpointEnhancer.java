@@ -2,9 +2,7 @@ package com.zf1976.ant.auth.endpoint;
 
 import com.wf.captcha.base.Captcha;
 import com.zf1976.ant.auth.SecurityContextHolder;
-import com.zf1976.ant.common.component.load.annotation.CachePut;
-import com.zf1976.ant.common.component.load.enums.CacheRelation;
-import com.zf1976.ant.common.core.constants.Namespace;
+import com.zf1976.ant.auth.service.UserDetailsServiceEnhancer;
 import com.zf1976.ant.common.security.support.session.SessionContextHolder;
 import com.zf1976.ant.common.component.validate.service.CaptchaService;
 import com.zf1976.ant.common.component.validate.support.CaptchaGenerator;
@@ -47,11 +45,16 @@ public class TokenEndpointEnhancer {
     private static final AlternativeJdkIdGenerator ALTERNATIVE_JDK_ID_GENERATOR = new AlternativeJdkIdGenerator();
     private final WebResponseExceptionTranslator<OAuth2Exception> providerExceptionHandler = new DefaultWebResponseExceptionTranslator();
     private final CaptchaService captchaService;
+    private final UserDetailsServiceEnhancer userDetailsService;
     private final CaptchaProperties captchaConfig;
     private final TokenEndpoint tokenEndpoint;
 
-    public TokenEndpointEnhancer(CaptchaService captchaService, CaptchaProperties captchaConfig, TokenEndpoint tokenEndpoint) {
+    public TokenEndpointEnhancer(CaptchaService captchaService,
+                                 UserDetailsServiceEnhancer userDetailsService,
+                                 CaptchaProperties captchaConfig,
+                                 TokenEndpoint tokenEndpoint) {
         this.captchaService = captchaService;
+        this.userDetailsService = userDetailsService;
         this.captchaConfig = captchaConfig;
         this.tokenEndpoint = tokenEndpoint;
     }
@@ -94,7 +97,7 @@ public class TokenEndpointEnhancer {
             }
         } else {
             if (logger.isDebugEnabled()) {
-                logger.info("Captcha not saved!");
+                logger.info("Captcha not saved.");
             }
         }
         final CaptchaVo captchaVo = CaptchaVo.builder()
@@ -105,12 +108,11 @@ public class TokenEndpointEnhancer {
     }
 
     @PostMapping("/info")
-    @CachePut(namespace = Namespace.USER, relation = CacheRelation.REDIS, dynamicsKey = true)
-    public DataResult<UserDetails> getUserInfo(){
-        return DataResult.success(SecurityContextHolder.userDetails());
+    public DataResult<UserDetails> getUserDetails(){
+        return DataResult.success(userDetailsService.userDetails());
     }
 
-    public void saveSessionState(OAuth2AccessToken oAuth2AccessToken) {
+    private void saveSessionState(OAuth2AccessToken oAuth2AccessToken) {
         // 获取token
         String tokenValue = oAuth2AccessToken.getValue();
         if (SessionContextHolder.readSession(tokenValue) == null) {

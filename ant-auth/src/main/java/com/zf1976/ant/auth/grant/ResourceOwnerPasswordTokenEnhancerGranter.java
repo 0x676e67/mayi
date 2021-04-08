@@ -54,16 +54,19 @@ public class ResourceOwnerPasswordTokenEnhancerGranter extends AbstractTokenGran
         Authentication userAuth = new UsernamePasswordAuthenticationToken(username, password);
         ((AbstractAuthenticationToken)userAuth).setDetails(parameters);
 
+        // 无效验证码
         if (!this.verifyCodeAuthentication(uuid, verifyCode)) {
             throw new InvalidGrantException("Could not authenticate verify code: " + verifyCode);
         }
 
+        // 认证账号
         try {
             userAuth = this.authenticationManager.authenticate(userAuth);
         } catch (AccountStatusException | BadCredentialsException var8) {
             throw new InvalidGrantException(var8.getMessage());
         }
 
+        // 是否认证成功
         if (userAuth != null && userAuth.isAuthenticated()) {
             var storedOAuth2Request = this.getRequestFactory().createOAuth2Request(client, tokenRequest);
             return new OAuth2Authentication(storedOAuth2Request, userAuth);

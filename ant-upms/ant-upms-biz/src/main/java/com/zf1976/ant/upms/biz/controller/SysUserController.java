@@ -1,13 +1,9 @@
 package com.zf1976.ant.upms.biz.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.zf1976.ant.common.component.load.annotation.CachePut;
-import com.zf1976.ant.common.component.load.enums.CacheRelation;
 import com.zf1976.ant.common.component.mail.ValidateFactory;
-import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.log.annotation.Log;
-import com.zf1976.ant.common.security.pojo.UserDetails;
 import com.zf1976.ant.upms.biz.pojo.dto.user.UpdateEmailDTO;
 import com.zf1976.ant.upms.biz.pojo.dto.user.UpdateInfoDTO;
 import com.zf1976.ant.upms.biz.pojo.dto.user.UpdatePasswordDTO;
@@ -17,9 +13,8 @@ import com.zf1976.ant.upms.biz.pojo.query.UserQueryParam;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationInsertGroup;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationUpdateGroup;
 import com.zf1976.ant.upms.biz.pojo.vo.user.UserVO;
-import com.zf1976.ant.upms.biz.rpc.SecurityClient;
+import com.zf1976.ant.upms.biz.feign.SecurityClient;
 import com.zf1976.ant.upms.biz.service.SysUserService;
-import org.springframework.http.HttpHeaders;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;

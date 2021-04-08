@@ -1,4 +1,4 @@
-package com.zf1976.ant.upms.biz.config;
+package com.zf1976.ant.upms.biz.property;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

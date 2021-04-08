@@ -5,18 +5,17 @@ import com.zf1976.ant.auth.LoginUserDetails;
 import com.zf1976.ant.auth.convert.UserConversion;
 import com.zf1976.ant.auth.exception.UserNotFountException;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
-import com.zf1976.ant.common.component.load.enums.CacheRelation;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.security.enums.AuthenticationState;
 import com.zf1976.ant.common.security.pojo.vo.RoleVo;
 import com.zf1976.ant.common.security.pojo.UserInfo;
 import com.zf1976.ant.common.security.property.SecurityProperties;
+import com.zf1976.ant.common.security.support.session.SessionContextHolder;
 import com.zf1976.ant.upms.biz.dao.*;
 import com.zf1976.ant.upms.biz.pojo.po.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -32,7 +31,7 @@ import java.util.stream.Collectors;
  * Create by Ant on 2020/9/2 下午7:02
  */
 @Service("userDetailsService")
-public class SecurityUserDetailsServiceImpl implements UserDetailsService {
+public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhancer {
 
     private final SecurityProperties securityProperties;
     private final SysDepartmentDao sysDepartmentDao;
@@ -42,12 +41,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
     private final SysPositionDao positionDao;
     private final UserConversion convert;
 
-    public SecurityUserDetailsServiceImpl(SecurityProperties properties,
-                                          SysDepartmentDao sysDepartmentDao,
-                                          SysUserDao sysUserDao,
-                                          SysRoleDao sysRoleDao,
-                                          SysMenuDao sysMenuDao,
-                                          SysPositionDao positionDao) {
+    public SecurityUserDetailsServiceImpl(SecurityProperties properties, SysDepartmentDao sysDepartmentDao, SysUserDao sysUserDao, SysRoleDao sysRoleDao, SysMenuDao sysMenuDao, SysPositionDao positionDao) {
         this.sysUserDao = sysUserDao;
         this.sysDepartmentDao = sysDepartmentDao;
         this.sysRoleDao = sysRoleDao;
@@ -57,7 +51,6 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
         this.convert = UserConversion.INSTANCE;
     }
 
-    @CachePut(namespace = Namespace.USER, key = "#username")
     @Override
     public UserDetails loadUserByUsername(String username) {
         // 初步验证用户是否存在
@@ -69,16 +62,13 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
         SysDepartment department = ChainWrappers.lambdaQueryChain(this.sysDepartmentDao)
                                                 .eq(SysDepartment::getId, user.getDepartmentId())
                                                 .one();
-        user.setDepartment(department);
-
         // 查询用户角色
         List<SysRole> roleList = this.sysRoleDao.selectListByUserId(user.getId());
-        user.setRoleList(roleList);
-
         // 查询用户职位
         List<SysPosition> positionList = this.positionDao.selectListByUserId(user.getId());
+        user.setDepartment(department);
+        user.setRoleList(roleList);
         user.setPositionList(positionList);
-
         final UserInfo userInfo = this.convert.convert(user);
         if (userInfo == null) {
             throw new UserNotFountException(AuthenticationState.USER_NOT_FOUNT);
@@ -211,4 +201,15 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsService {
         }
     }
 
+    @CachePut(namespace = Namespace.USER, dynamicsKey = true)
+    @Override
+    public  com.zf1976.ant.common.security.pojo.UserDetails userDetails(){
+        final String username = SessionContextHolder.username();
+        LoginUserDetails userDetails = (LoginUserDetails) this.loadUserByUsername(username);
+        return com.zf1976.ant.common.security.pojo.UserDetails.UserDetailsBuilder.builder()
+                                                                                 .userInfo(userDetails.getUserInfo())
+                                                                                 .permission(userDetails.getPermission())
+                                                                                 .dataPermission(userDetails.getDataScopes())
+                                                                                 .build();
+    }
 }
