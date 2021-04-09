@@ -93,7 +93,8 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
                  throw new JobException(JobState.JOB_EXISTING, sysJob.getName());
              });
         SysPosition sysJob = convert.toEntity(dto);
-        String username = DistributedSessionManager.username();
+        String username = Objects.requireNonNull(DistributedSessionManager.getSession())
+                                 .getUsername();
         sysJob.setCreateBy(username);
         sysJob.setCreateTime(new Date());
         super.savaEntity(sysJob);
@@ -123,7 +124,8 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
                  });
         }
         this.convert.copyProperties(dto, sysJob);
-        String username = DistributedSessionManager.username();
+        String username = Objects.requireNonNull(DistributedSessionManager.getSession())
+                                 .getUsername();
         sysJob.setCreateBy(username);
         sysJob.setUpdateTime(new Date());
         super.updateEntityById(sysJob);

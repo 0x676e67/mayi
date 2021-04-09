@@ -387,7 +387,8 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
                 });
              });
         SysUser sysUser = this.convert.toEntity(dto);
-        String username = DistributedSessionManager.username();
+        String username = Objects.requireNonNull(DistributedSessionManager.getSession())
+                                 .getUsername();
         sysUser.setPassword(DigestUtils.md5DigestAsHex(DEFAULT_PASSWORD_BYTE));
         sysUser.setCreateBy(username);
         sysUser.setCreateTime(new Date());
@@ -497,7 +498,8 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     public Optional<Void> deleteUser(Set<Long> ids) {
         if (DistributedSessionManager.isOwner()) {
             SysUser sysUser = super.lambdaQuery()
-                                   .eq(SysUser::getUsername, DistributedSessionManager.username())
+                                   .eq(SysUser::getUsername, Objects.requireNonNull(DistributedSessionManager.getSession())
+                                                                    .getUsername())
                                    .oneOpt().orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
             if (ids.contains(sysUser.getId())) {
                 throw new UserException(UserState.USER_OPT_ERROR);

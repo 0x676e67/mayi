@@ -1,7 +1,7 @@
 package com.zf1976.ant.auth.filter.datasource;
 
 import com.zf1976.ant.common.core.util.SpringContextHolder;
-import com.zf1976.ant.auth.service.DynamicDataSourceService;
+import com.zf1976.ant.auth.service.impl.DynamicDataSourceService;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;

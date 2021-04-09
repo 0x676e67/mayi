@@ -1,6 +1,7 @@
 package com.zf1976.ant.auth.endpoint;
 
 import com.wf.captcha.base.Captcha;
+import com.zf1976.ant.auth.LoginDetails;
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.auth.service.UserDetailsServiceEnhancer;
 import com.zf1976.ant.common.component.validate.service.CaptchaService;
@@ -8,7 +9,7 @@ import com.zf1976.ant.common.component.validate.support.CaptchaGenerator;
 import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.core.util.RequestUtils;
-import com.zf1976.ant.common.security.pojo.AuthUserDetails;
+import com.zf1976.ant.common.security.pojo.Details;
 import com.zf1976.ant.common.security.pojo.vo.CaptchaVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,12 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.common.exceptions.BadClientCredentialsException;
-import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
-import org.springframework.security.oauth2.provider.ClientRegistrationException;
 import org.springframework.security.oauth2.provider.endpoint.TokenEndpoint;
-import org.springframework.security.oauth2.provider.error.DefaultWebResponseExceptionTranslator;
-import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
 import org.springframework.util.AlternativeJdkIdGenerator;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +36,6 @@ public class TokenEndpointEnhancer {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final AlternativeJdkIdGenerator ALTERNATIVE_JDK_ID_GENERATOR = new AlternativeJdkIdGenerator();
-    private final WebResponseExceptionTranslator<OAuth2Exception> providerExceptionHandler = new DefaultWebResponseExceptionTranslator();
     private final CaptchaService captchaService;
     private final UserDetailsServiceEnhancer userDetailsService;
     private final TokenEndpoint tokenEndpoint;
@@ -57,7 +52,7 @@ public class TokenEndpointEnhancer {
     }
 
     @PostMapping("/token")
-    public DataResult<OAuth2AccessToken> postAccessToken(Principal principal, @RequestParam Map<String, String> parameters) throws HttpRequestMethodNotSupportedException {
+    public DataResult<LoginDetails> postAccessToken(Principal principal, @RequestParam Map<String, String> parameters) throws HttpRequestMethodNotSupportedException {
         if (!(principal instanceof Authentication)) {
             throw new InsufficientAuthenticationException("There is no client authentication. Try adding an appropriate authentication filter.");
         } else {
@@ -66,17 +61,22 @@ public class TokenEndpointEnhancer {
             OAuth2AccessToken oAuth2AccessToken = responseEntity.getBody();
             if (responseEntity.getStatusCode().is2xxSuccessful() && oAuth2AccessToken != null) {
                 String username = (String) oAuth2AccessToken.getAdditionalInformation().get(AuthConstants.USERNAME);
+                Details details = userDetailsService.selectUserDetails(username);
                 RequestUtils.getRequest().setAttribute(AuthConstants.DETAILS, userDetailsService.selectUserDetails(username));
                 RequestUtils.getRequest().setAttribute(AuthConstants.SESSION_EXPIRED, oAuth2AccessToken.getExpiresIn());
                 SecurityContextHolder.createSession(oAuth2AccessToken);
-                return DataResult.success(oAuth2AccessToken);
+                final LoginDetails loginDetails = LoginDetails.LoginDetailsBuilder.builder()
+                                                                           .details(details)
+                                                                           .oAuth2AccessToken(oAuth2AccessToken)
+                                                                           .build();
+                return DataResult.success(loginDetails);
             }
             throw new InsufficientAuthenticationException("Client authentication failed.");
         }
     }
 
     @PostMapping("/info")
-    public DataResult<AuthUserDetails> getUserDetails(){
+    public DataResult<Details> getUserDetails(){
         return DataResult.success(userDetailsService.selectUserDetails());
     }
 
@@ -94,7 +94,7 @@ public class TokenEndpointEnhancer {
             }
         } else {
             if (logger.isDebugEnabled()) {
-                logger.info("Captcha not saved.");
+                logger.info("Captcha：{} not saved.", captcha.text());
             }
         }
         final CaptchaVo captchaVo = CaptchaVo.builder()
@@ -102,38 +102,6 @@ public class TokenEndpointEnhancer {
                                              .uuid(uuid.toString())
                                              .build();
         return ResponseEntity.ok(captchaVo);
-    }
-
-    @ExceptionHandler({HttpRequestMethodNotSupportedException.class})
-    public ResponseEntity<OAuth2Exception> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) throws Exception {
-        if (this.logger.isInfoEnabled()) {
-            this.logger.info("Handling error: " + e.getClass().getSimpleName() + ", " + e.getMessage());
-        }
-        return this.providerExceptionHandler.translate(e);
-    }
-
-    @ExceptionHandler({ClientRegistrationException.class})
-    public ResponseEntity<OAuth2Exception> handleClientRegistrationException(Exception e) throws Exception {
-        if (this.logger.isWarnEnabled()) {
-            this.logger.warn("Handling error: " + e.getClass().getSimpleName() + ", " + e.getMessage());
-        }
-        return this.providerExceptionHandler.translate(new BadClientCredentialsException());
-    }
-
-    @ExceptionHandler({Exception.class})
-    public ResponseEntity<OAuth2Exception> handleException(Exception e) throws Exception {
-        if (this.logger.isWarnEnabled()) {
-            this.logger.warn("Handling error: " + e.getClass().getSimpleName() + ", " + e.getMessage());
-        }
-        return this.providerExceptionHandler.translate(e);
-    }
-
-    @ExceptionHandler({OAuth2Exception.class})
-    public ResponseEntity<OAuth2Exception> handleException(OAuth2Exception e) throws Exception {
-        if (this.logger.isWarnEnabled()) {
-            this.logger.warn("Handling error: " + e.getClass().getSimpleName() + ", " + e.getMessage());
-        }
-        return this.providerExceptionHandler.translate(e);
     }
 
 }

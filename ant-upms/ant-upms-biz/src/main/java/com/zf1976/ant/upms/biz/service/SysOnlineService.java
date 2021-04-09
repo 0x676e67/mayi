@@ -3,7 +3,6 @@ package com.zf1976.ant.upms.biz.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
-import com.zf1976.ant.common.security.support.session.repository.SessionRepository;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
 import com.zf1976.ant.common.core.util.RedisUtils;
 import com.zf1976.ant.common.core.util.StringUtils;
@@ -42,17 +41,15 @@ public class SysOnlineService {
 
     private final SecurityProperties securityProperties;
     private final RedisTemplate<Object, Object> redisTemplate;
-    private final SessionRepository sessionRepository;
     private final static String PATTERN_SUFFIX = "*";
     private final SessionConvert sessionConvert = SessionConvert.INSTANCE;
     private final RestTemplate restTemplate = new RestTemplate();
     private final SecurityClient securityClient;
     private ClientHttpRequest clientHttpRequest;
 
-    public SysOnlineService(RedisTemplate<Object, Object> template, SecurityProperties securityConfig, SessionRepository sessionRepository, SecurityClient securityClient) {
+    public SysOnlineService(RedisTemplate<Object, Object> template, SecurityProperties securityConfig, SecurityClient securityClient) {
         this.redisTemplate = template;
         this.securityProperties = securityConfig;
-        this.sessionRepository = sessionRepository;
         this.securityClient = securityClient;
         this.checkState();
     }
@@ -67,17 +64,16 @@ public class SysOnlineService {
         final Set<Long> sessionIdList = this.getOnlinePageSessionIds(requestPage);
         final SessionQueryParam param = requestPage.getQuery();
         Assert.notNull(param, BusinessMsgState.PARAM_ILLEGAL::getReasonPhrase);
-        final List<SessionVO> vos = this.sessionRepository.selectListByIds(sessionIdList)
-                                                          .stream()
-                                                          .map(sessionConvert::toVO)
-                                                          .filter(vo -> {
-                                                              if (param.getFilter() != null) {
-                                                                  return this.getKeyword(vo)
-                                                                             .contains(param.getFilter());
-                                                              }
-                                                              return true;
-                                                          })
-                                                          .collect(Collectors.toList());
+        final List<SessionVO> vos = DistributedSessionManager.selectListByIds(sessionIdList)
+                                                             .stream()
+                                                             .map(sessionConvert::toVO)
+                                                             .filter(vo -> {
+                                                                 if (param.getFilter() != null) {
+                                                                     return this.getKeyword(vo)
+                                                                                .contains(param.getFilter());
+                                                                 }
+                                                                 return true;
+                                                             }).collect(Collectors.toList());
         final Page<SessionVO> page = new Page<>(requestPage.getPage(), requestPage.getSize(), vos.size());
         return page.setRecords(vos);
     }

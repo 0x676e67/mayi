@@ -26,6 +26,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.util.Date;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -102,7 +103,8 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
                                            .oneOpt()
                                            .orElseThrow(() -> new DictException(DictState.DICT_NOT_FOUND));
         this.convert.copyProperties(dto, sysDictDetail);
-        String username = DistributedSessionManager.username();
+        String username = Objects.requireNonNull(DistributedSessionManager.getSession())
+                                 .getUsername();
         sysDictDetail.setCreateBy(username);
         sysDictDetail.setUpdateTime(new Date());
         super.updateEntityById(sysDictDetail);

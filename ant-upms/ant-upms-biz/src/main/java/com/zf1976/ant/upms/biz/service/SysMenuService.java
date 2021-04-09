@@ -293,7 +293,8 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
 
         dto.setPid(dto.getPid() != null? dto.getPid() > 0? dto.getPid(): null : null);
         SysMenu sysMenu = this.convert.toEntity(dto);
-        String username = DistributedSessionManager.username();
+        String username = Objects.requireNonNull(DistributedSessionManager.getSession())
+                                 .getUsername();
         sysMenu.setCreateBy(username);
         sysMenu.setCreateTime(new Date());
         super.savaEntity(sysMenu);
@@ -378,7 +379,8 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
     private void update(MenuDTO dto, SysMenu sysMenu) {
         dto.setPid(dto.getPid() != null? dto.getPid() > 0? dto.getPid(): null : null);
         this.convert.copyProperties(dto, sysMenu);
-        String username = DistributedSessionManager.username();
+        String username = Objects.requireNonNull(DistributedSessionManager.getSession())
+                                 .getUsername();
         sysMenu.setUpdateBy(username);
         sysMenu.setUpdateTime(new Date());
         super.updateEntityById(sysMenu);

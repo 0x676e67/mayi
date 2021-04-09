@@ -173,7 +173,8 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
                  throw new DepartmentException(DepartmentState.DEPARTMENT_EXISTING, dto.getName());
              });
         SysDepartment sysDept = this.convert.toEntity(dto);
-        String username = DistributedSessionManager.username();
+        String username = Objects.requireNonNull(DistributedSessionManager.getSession())
+                                 .getUsername();
         sysDept.setCreateBy(username);
         sysDept.setCreateTime(new Date());
         super.savaEntity(sysDept);
@@ -247,7 +248,8 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
 
     private void update(DepartmentDTO dto, SysDepartment currentDept) {
         this.convert.copyProperties(dto, currentDept);
-        String username = DistributedSessionManager.username();
+        String username = Objects.requireNonNull(DistributedSessionManager.getSession())
+                                 .getUsername();
         currentDept.setCreateBy(username);
         currentDept.setUpdateTime(new Date());
         super.updateEntityById(currentDept);

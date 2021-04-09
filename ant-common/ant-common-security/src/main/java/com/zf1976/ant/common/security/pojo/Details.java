@@ -9,7 +9,7 @@ import java.util.Set;
  * @date 2021/4/6
  */
 
-public class AuthUserDetails implements Serializable {
+public class Details implements Serializable {
 
     /**
      * 权限
@@ -28,7 +28,7 @@ public class AuthUserDetails implements Serializable {
         return permission;
     }
 
-    public AuthUserDetails setPermission(Set<String> permission) {
+    public Details setPermission(Set<String> permission) {
         this.permission = permission;
         return this;
     }
@@ -37,7 +37,7 @@ public class AuthUserDetails implements Serializable {
         return userInfo;
     }
 
-    public AuthUserDetails setUserInfo(UserInfo userInfo) {
+    public Details setUserInfo(UserInfo userInfo) {
         this.userInfo = userInfo;
         return this;
     }
@@ -46,7 +46,7 @@ public class AuthUserDetails implements Serializable {
         return dataPermission;
     }
 
-    public AuthUserDetails setDataPermission(Set<Long> dataPermission) {
+    public Details setDataPermission(Set<Long> dataPermission) {
         this.dataPermission = dataPermission;
         return this;
     }
@@ -88,8 +88,8 @@ public class AuthUserDetails implements Serializable {
             return this;
         }
 
-        public AuthUserDetails build() {
-            AuthUserDetails userDetails = new AuthUserDetails();
+        public Details build() {
+            Details userDetails = new Details();
             userDetails.setPermission(permission);
             userDetails.setDataPermission(dataPermission);
             userDetails.setUserInfo(userInfo);

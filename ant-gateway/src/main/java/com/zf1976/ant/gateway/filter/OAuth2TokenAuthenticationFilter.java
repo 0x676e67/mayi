@@ -82,10 +82,8 @@ public class OAuth2TokenAuthenticationFilter implements WebFilter {
                 BearerTokenError bearerTokenError = this.bearerTokenError();
                 throw new OAuth2AuthenticationException(bearerTokenError);
             }
-            serverWebExchange.getAttributes()
-                             .put(AuthConstants.OWNER, isOwner(token));
+            serverWebExchange.getAttributes().put(AuthConstants.OWNER, isOwner(token));
         } catch (AuthenticationException e) {
-            SecurityContextHolder.clearContext();
             return this.exceptionHandler(response, e);
         }
         return webFilterChain.filter(serverWebExchange);
@@ -117,11 +115,7 @@ public class OAuth2TokenAuthenticationFilter implements WebFilter {
             // 向服务端校验token 有效性
             ResponseEntity<Map> responseEntity = this.restTemplate.getForEntity(this.jwtCheckUrl, Map.class, token);
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
-                final Map body = responseEntity.getBody();
-                if (body != null) {
-                    final Object active = body.get("active");
-                    return Boolean.valueOf((String) active);
-                }
+                return true;
             }
             return false;
         } catch (Exception ignored) {

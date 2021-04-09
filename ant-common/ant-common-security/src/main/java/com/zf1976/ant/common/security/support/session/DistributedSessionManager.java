@@ -6,21 +6,14 @@ import com.zf1976.ant.common.core.util.RequestUtils;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.Cursor;
-import org.springframework.data.redis.core.RedisConnectionUtils;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -66,6 +59,17 @@ public class DistributedSessionManager {
         }
     }
 
+    public static List<Session> selectListByIds(Collection<Long> ids) {
+        List<Session> sessions = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(ids)) {
+            ids.forEach(aLong -> {
+                sessions.add(getSession(aLong));
+            });
+
+        }
+        return sessions;
+    }
+
     /**
      * 读取当前请求session
      *
@@ -74,7 +78,7 @@ public class DistributedSessionManager {
      */
     public static Session getSession(){
         try {
-            final String token = token();
+            final String token = getToken();
             Object o = redisTemplate.opsForValue().get(formatToken(token));
             if (ObjectUtils.isEmpty(o)) {
                 return null;
@@ -84,7 +88,7 @@ public class DistributedSessionManager {
             return getSession(sessionId);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e.getCause());
-            return null;
+            throw e;
         }
     }
 
@@ -99,7 +103,7 @@ public class DistributedSessionManager {
             return (Session) redisTemplate.opsForValue().get(formatId(sessionId));
         } catch (Exception e) {
             LOG.error(e.getMessage(), e.getCause());
-            return null;
+            throw e;
         }
     }
 
@@ -125,7 +129,7 @@ public class DistributedSessionManager {
      */
     public static void removeSession(){
         try {
-            final String token = token();
+            final String token = getToken();
             Object o = redisTemplate.opsForValue().get(formatToken(token));
             if (ObjectUtils.isEmpty(o)) {
                 return;
@@ -155,7 +159,7 @@ public class DistributedSessionManager {
      * @return session
      */
     public static Long getSessionId(){
-        return (Long) redisTemplate.opsForValue().get(formatToken(token()));
+        return (Long) redisTemplate.opsForValue().get(formatToken(getToken()));
     }
     /**
      * owner
@@ -181,8 +185,9 @@ public class DistributedSessionManager {
      *
      * @return token
      */
-    private static String token(){
-        var header = getAuthenticationForHeader() == null ? getAuthenticationForAttribute() : null;
+    private static String getToken(){
+        final String token = getAuthenticationForHeader();
+        var header = token == null ? getAuthenticationForAttribute() : token;
         if (header == null) {
             throw new UnsupportedOperationException(HttpStatus.UNAUTHORIZED.getReasonPhrase());
         }

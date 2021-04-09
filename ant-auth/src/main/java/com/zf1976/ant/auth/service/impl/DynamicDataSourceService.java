@@ -1,9 +1,10 @@
-package com.zf1976.ant.auth.service;
+package com.zf1976.ant.auth.service.impl;
 
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.google.common.collect.Lists;
+import com.zf1976.ant.auth.service.AuthConfigAttribute;
 import com.zf1976.ant.common.component.action.ActionsScanner;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.component.load.enums.CacheRelation;

@@ -5,6 +5,7 @@ import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
 import org.apache.ibatis.reflection.MetaObject;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * @author mac
@@ -27,7 +28,7 @@ public class MetaDataHandler implements MetaObjectHandler {
     }
 
     private String getPrincipal() {
-        return DistributedSessionManager.username();
+        return Objects.requireNonNull(DistributedSessionManager.getSession()).getUsername();
     }
 
 }

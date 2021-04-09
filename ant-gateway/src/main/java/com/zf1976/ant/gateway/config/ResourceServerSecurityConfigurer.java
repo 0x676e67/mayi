@@ -47,11 +47,10 @@ public class ResourceServerSecurityConfigurer {
         return httpSecurity.httpBasic()
                            .disable()
                            // 关闭csrf
-                           .csrf()
-                           .disable()
+                           .csrf().disable()
                            // 允许跨域
                            .cors()
-                           .disable()
+                           .and()
                            // 关闭表单登录
                            .formLogin()
                            .disable()
@@ -73,8 +72,7 @@ public class ResourceServerSecurityConfigurer {
                                }).bearerTokenConverter(new ServerBearerTokenAuthenticationConverter());
 
                            })
-                           .addFilterBefore(new OAuth2TokenAuthenticationFilter(properties.getJwtCheckUri()),
-                                   SecurityWebFiltersOrder.HTTP_BASIC)
+                           .addFilterBefore(new OAuth2TokenAuthenticationFilter(properties.getJwtCheckUri()), SecurityWebFiltersOrder.HTTP_BASIC)
                            .build();
     }
 

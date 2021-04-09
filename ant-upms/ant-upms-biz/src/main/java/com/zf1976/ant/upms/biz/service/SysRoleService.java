@@ -26,10 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -92,7 +89,8 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
         if (DistributedSessionManager.isOwner()) {
             return 0;
         }
-        return super.baseMapper.selectListByUsername(DistributedSessionManager.username())
+        return super.baseMapper.selectListByUsername(Objects.requireNonNull(DistributedSessionManager.getSession())
+                                                            .getUsername())
                                .stream()
                                .map(SysRole::getLevel)
                                .min(Integer::compareTo)
@@ -180,7 +178,8 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
                  throw new RoleException(RoleState.ROLE_EXISTING, sysRole.getName());
              });
         SysRole sysRole = this.convert.toEntity(dto);
-        String currentUser = DistributedSessionManager.username();
+        String currentUser = Objects.requireNonNull(DistributedSessionManager.getSession())
+                                    .getUsername();
         sysRole.setCreateBy(currentUser);
         sysRole.setCreateTime(new Date());
         super.savaEntity(sysRole);
@@ -262,7 +261,8 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      */
     private void update(RoleDTO dto, SysRole sysRole) {
         this.convert.copyProperties(dto, sysRole);
-        final String username = DistributedSessionManager.username();
+        String username = Objects.requireNonNull(DistributedSessionManager.getSession())
+                                 .getUsername();
         sysRole.setUpdateBy(username);
         sysRole.setCreateTime(new Date());
         super.updateEntityById(sysRole);
