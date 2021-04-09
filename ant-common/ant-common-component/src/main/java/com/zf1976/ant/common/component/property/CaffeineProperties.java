@@ -8,28 +8,23 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @ConfigurationProperties(prefix = "cache")
-public class CacheProperties {
-
+public class CaffeineProperties {
     /**
      * 并发级别
      */
     private Integer concurrencyLevel;
-
     /**
      * 初始化容量
      */
     private Integer initialCapacity;
-
     /**
      * 最大容量
      */
     private Integer maximumSize;
-
     /**
      * 写入后过期时间 单位/seconds
      */
     private Long expireAlterWrite;
-
     /**
      * key前缀
      */
@@ -39,7 +34,7 @@ public class CacheProperties {
         return keyPrefix;
     }
 
-    public CacheProperties setKeyPrefix(String keyPrefix) {
+    public CaffeineProperties setKeyPrefix(String keyPrefix) {
         this.keyPrefix = keyPrefix;
         return this;
     }
@@ -48,7 +43,7 @@ public class CacheProperties {
         return concurrencyLevel;
     }
 
-    public CacheProperties setConcurrencyLevel(Integer concurrencyLevel) {
+    public CaffeineProperties setConcurrencyLevel(Integer concurrencyLevel) {
         this.concurrencyLevel = concurrencyLevel;
         return this;
     }
@@ -57,7 +52,7 @@ public class CacheProperties {
         return initialCapacity;
     }
 
-    public CacheProperties setInitialCapacity(Integer initialCapacity) {
+    public CaffeineProperties setInitialCapacity(Integer initialCapacity) {
         this.initialCapacity = initialCapacity;
         return this;
     }
@@ -66,7 +61,7 @@ public class CacheProperties {
         return maximumSize;
     }
 
-    public CacheProperties setMaximumSize(Integer maximumSize) {
+    public CaffeineProperties setMaximumSize(Integer maximumSize) {
         this.maximumSize = maximumSize;
         return this;
     }
@@ -75,7 +70,7 @@ public class CacheProperties {
         return expireAlterWrite;
     }
 
-    public CacheProperties setExpireAlterWrite(Long expireAlterWrite) {
+    public CaffeineProperties setExpireAlterWrite(Long expireAlterWrite) {
         this.expireAlterWrite = expireAlterWrite;
         return this;
     }

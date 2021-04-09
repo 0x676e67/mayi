@@ -2,7 +2,7 @@ package com.zf1976.ant.upms.biz.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zf1976.ant.common.security.support.session.SessionContextHolder;
+import com.zf1976.ant.common.security.support.session.RedisSessionHolder;
 import com.zf1976.ant.common.security.support.session.repository.SessionRepository;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
 import com.zf1976.ant.common.core.util.RedisUtils;
@@ -49,10 +49,7 @@ public class SysOnlineService {
     private final SecurityClient securityClient;
     private ClientHttpRequest clientHttpRequest;
 
-    public SysOnlineService(RedisTemplate<Object, Object> template,
-                            SecurityProperties securityConfig,
-                            SessionRepository sessionRepository,
-                            SecurityClient securityClient) {
+    public SysOnlineService(RedisTemplate<Object, Object> template, SecurityProperties securityConfig, SessionRepository sessionRepository, SecurityClient securityClient) {
         this.redisTemplate = template;
         this.securityProperties = securityConfig;
         this.sessionRepository = sessionRepository;
@@ -70,7 +67,7 @@ public class SysOnlineService {
         final Set<Long> sessionIdList = this.getOnlinePageSessionIds(requestPage);
         final SessionQueryParam param = requestPage.getQuery();
         Assert.notNull(param, BusinessMsgState.PARAM_ILLEGAL::getReasonPhrase);
-        final List<SessionVO> vos = this.sessionRepository.selectSessionByIds(sessionIdList)
+        final List<SessionVO> vos = this.sessionRepository.selectListByIds(sessionIdList)
                                                           .stream()
                                                           .map(sessionConvert::toVO)
                                                           .filter(vo -> {
@@ -146,7 +143,7 @@ public class SysOnlineService {
 
     public Optional<Void> forceOffline(Set<Long> ids) {
         // 操作方
-        Long sessionId = SessionContextHolder.getSessionId();
+        Long sessionId = RedisSessionHolder.getSessionId();
         ids.forEach(id -> {
             // 不允许强制自己离线
             if (!ObjectUtils.nullSafeEquals(id, sessionId)){

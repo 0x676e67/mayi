@@ -6,7 +6,7 @@ import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.auth.exception.ExpiredJwtException;
 import com.zf1976.ant.auth.exception.IllegalAccessException;
 import com.zf1976.ant.auth.exception.IllegalJwtException;
-import com.zf1976.ant.common.security.support.session.SessionContextHolder;
+import com.zf1976.ant.common.security.support.session.RedisSessionHolder;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.security.enums.AuthenticationState;
 import lombok.SneakyThrows;
@@ -81,7 +81,7 @@ public class Oauth2LogoutHandler implements LogoutHandler {
             // 删除refresh token
             this.tokenStore.removeRefreshToken(oAuth2RefreshToken);
             // 删除会话
-            SessionContextHolder.removeSession(oAuth2AccessToken.getValue());
+            RedisSessionHolder.removeSession(oAuth2AccessToken.getValue());
         } catch (AuthenticationException e) {
             this.unSuccessLogoutHandler(httpServletRequest, httpServletResponse, e);
             throw e;

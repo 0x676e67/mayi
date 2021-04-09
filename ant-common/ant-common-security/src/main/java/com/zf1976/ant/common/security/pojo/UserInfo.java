@@ -16,8 +16,6 @@ import java.util.Set;
  * @author ant
  * Create by Ant on 2020/9/8 12:32 下午
  */
-@Data
-@Accessors(chain = true)
 public class UserInfo implements Serializable {
 
     /**
@@ -92,4 +90,149 @@ public class UserInfo implements Serializable {
      */
     private Date createTime;
 
+    public Long getId() {
+        return id;
+    }
+
+    public UserInfo setId(Long id) {
+        this.id = id;
+        return this;
+    }
+
+    public DepartmentVo getDepartment() {
+        return department;
+    }
+
+    public UserInfo setDepartment(DepartmentVo department) {
+        this.department = department;
+        return this;
+    }
+
+    public Set<RoleVo> getRoleList() {
+        return roleList;
+    }
+
+    public UserInfo setRoleList(Set<RoleVo> roleList) {
+        this.roleList = roleList;
+        return this;
+    }
+
+    public Set<PositionVo> getPositionList() {
+        return positionList;
+    }
+
+    public UserInfo setPositionList(Set<PositionVo> positionList) {
+        this.positionList = positionList;
+        return this;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public UserInfo setUsername(String username) {
+        this.username = username;
+        return this;
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public UserInfo setNickName(String nickName) {
+        this.nickName = nickName;
+        return this;
+    }
+
+    public GenderEnum getGender() {
+        return gender;
+    }
+
+    public UserInfo setGender(GenderEnum gender) {
+        this.gender = gender;
+        return this;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public UserInfo setPhone(String phone) {
+        this.phone = phone;
+        return this;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public UserInfo setEmail(String email) {
+        this.email = email;
+        return this;
+    }
+
+    public String getAvatarName() {
+        return avatarName;
+    }
+
+    public UserInfo setAvatarName(String avatarName) {
+        this.avatarName = avatarName;
+        return this;
+    }
+
+    public String getAvatarPath() {
+        return avatarPath;
+    }
+
+    public UserInfo setAvatarPath(String avatarPath) {
+        this.avatarPath = avatarPath;
+        return this;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public UserInfo setPassword(String password) {
+        this.password = password;
+        return this;
+    }
+
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public UserInfo setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+        return this;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public UserInfo setCreateTime(Date createTime) {
+        this.createTime = createTime;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "UserInfo{" +
+                "id=" + id +
+                ", department=" + department +
+                ", roleList=" + roleList +
+                ", positionList=" + positionList +
+                ", username='" + username + '\'' +
+                ", nickName='" + nickName + '\'' +
+                ", gender=" + gender +
+                ", phone='" + phone + '\'' +
+                ", email='" + email + '\'' +
+                ", avatarName='" + avatarName + '\'' +
+                ", avatarPath='" + avatarPath + '\'' +
+                ", password='" + password + '\'' +
+                ", enabled=" + enabled +
+                ", createTime=" + createTime +
+                '}';
+    }
 }

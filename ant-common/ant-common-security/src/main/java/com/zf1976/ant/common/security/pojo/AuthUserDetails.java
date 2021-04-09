@@ -2,7 +2,6 @@ package com.zf1976.ant.common.security.pojo;
 
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -10,7 +9,7 @@ import java.util.Set;
  * @date 2021/4/6
  */
 
-public class UserDetails implements Serializable {
+public class AuthUserDetails implements Serializable {
 
     /**
      * 权限
@@ -29,7 +28,7 @@ public class UserDetails implements Serializable {
         return permission;
     }
 
-    public UserDetails setPermission(Set<String> permission) {
+    public AuthUserDetails setPermission(Set<String> permission) {
         this.permission = permission;
         return this;
     }
@@ -38,7 +37,7 @@ public class UserDetails implements Serializable {
         return userInfo;
     }
 
-    public UserDetails setUserInfo(UserInfo userInfo) {
+    public AuthUserDetails setUserInfo(UserInfo userInfo) {
         this.userInfo = userInfo;
         return this;
     }
@@ -47,7 +46,7 @@ public class UserDetails implements Serializable {
         return dataPermission;
     }
 
-    public UserDetails setDataPermission(Set<Long> dataPermission) {
+    public AuthUserDetails setDataPermission(Set<Long> dataPermission) {
         this.dataPermission = dataPermission;
         return this;
     }
@@ -89,8 +88,8 @@ public class UserDetails implements Serializable {
             return this;
         }
 
-        public UserDetails build() {
-            UserDetails userDetails = new UserDetails();
+        public AuthUserDetails build() {
+            AuthUserDetails userDetails = new AuthUserDetails();
             userDetails.setPermission(permission);
             userDetails.setDataPermission(dataPermission);
             userDetails.setUserInfo(userInfo);

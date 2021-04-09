@@ -1,9 +1,7 @@
 package com.zf1976.ant.upms.biz.config;
 
-import com.zf1976.ant.common.security.support.session.SessionContextHolder;
-import feign.Contract;
+import com.zf1976.ant.common.security.support.session.RedisSessionHolder;
 import feign.RequestInterceptor;
-import feign.RequestTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -18,8 +16,8 @@ public class FeignConfiguration {
     @Bean
     public RequestInterceptor requestInterceptor(){
         return requestTemplate -> {
-            final String token = SessionContextHolder.readSession()
-                                                     .getToken();
+            final String token = RedisSessionHolder.readSession()
+                                                   .getToken();
             requestTemplate.header(HttpHeaders.AUTHORIZATION, token);
         };
     }

@@ -39,4 +39,9 @@ public class SessionVO {
      * 登录时间
      */
     private Date loginTime;
+
+    /**
+     * 到期时间
+     */
+    private Date expiredTime;
 }

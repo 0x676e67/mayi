@@ -1,11 +1,9 @@
 package com.zf1976.ant.upms.biz.feign;
 
 import com.zf1976.ant.common.core.foundation.DataResult;
-import com.zf1976.ant.common.security.pojo.UserDetails;
+import com.zf1976.ant.common.security.pojo.AuthUserDetails;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 
 /**
  * @author ant
@@ -32,5 +30,5 @@ public interface SecurityClient {
      * @return /
      */
     @PostMapping("/oauth/info")
-    DataResult<UserDetails> getUserDetails();
+    DataResult<AuthUserDetails> getUserDetails();
 }

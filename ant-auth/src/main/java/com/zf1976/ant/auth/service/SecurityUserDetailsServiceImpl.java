@@ -2,15 +2,16 @@ package com.zf1976.ant.auth.service;
 
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.zf1976.ant.auth.LoginUserDetails;
-import com.zf1976.ant.auth.convert.UserConversion;
+import com.zf1976.ant.auth.convert.UserConvert;
 import com.zf1976.ant.auth.exception.UserNotFountException;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.security.enums.AuthenticationState;
+import com.zf1976.ant.common.security.pojo.AuthUserDetails;
 import com.zf1976.ant.common.security.pojo.vo.RoleVo;
 import com.zf1976.ant.common.security.pojo.UserInfo;
 import com.zf1976.ant.common.security.property.SecurityProperties;
-import com.zf1976.ant.common.security.support.session.SessionContextHolder;
+import com.zf1976.ant.common.security.support.session.RedisSessionHolder;
 import com.zf1976.ant.upms.biz.dao.*;
 import com.zf1976.ant.upms.biz.pojo.po.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -39,7 +40,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
     private final SysRoleDao sysRoleDao;
     private final SysMenuDao sysMenuDao;
     private final SysPositionDao positionDao;
-    private final UserConversion convert;
+    private final UserConvert convert;
 
     public SecurityUserDetailsServiceImpl(SecurityProperties properties, SysDepartmentDao sysDepartmentDao, SysUserDao sysUserDao, SysRoleDao sysRoleDao, SysMenuDao sysMenuDao, SysPositionDao positionDao) {
         this.sysUserDao = sysUserDao;
@@ -48,7 +49,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
         this.sysMenuDao = sysMenuDao;
         this.securityProperties = properties;
         this.positionDao = positionDao;
-        this.convert = UserConversion.INSTANCE;
+        this.convert = UserConvert.INSTANCE;
     }
 
     @Override
@@ -203,13 +204,13 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
 
     @CachePut(namespace = Namespace.USER, dynamicsKey = true)
     @Override
-    public  com.zf1976.ant.common.security.pojo.UserDetails userDetails(){
-        final String username = SessionContextHolder.username();
+    public AuthUserDetails userDetails(){
+        final String username = RedisSessionHolder.username();
         LoginUserDetails userDetails = (LoginUserDetails) this.loadUserByUsername(username);
-        return com.zf1976.ant.common.security.pojo.UserDetails.UserDetailsBuilder.builder()
-                                                                                 .userInfo(userDetails.getUserInfo())
-                                                                                 .permission(userDetails.getPermission())
-                                                                                 .dataPermission(userDetails.getDataScopes())
-                                                                                 .build();
+        return AuthUserDetails.UserDetailsBuilder.builder()
+                                                 .userInfo(userDetails.getUserInfo())
+                                                 .permission(userDetails.getPermission())
+                                                 .dataPermission(userDetails.getDataScopes())
+                                                 .build();
     }
 }

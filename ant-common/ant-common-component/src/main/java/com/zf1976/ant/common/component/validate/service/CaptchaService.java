@@ -17,7 +17,7 @@ public interface CaptchaService {
      * @param timeUnit 时间单位
      * @return 是否发送成功
      */
-    boolean sendCaptcha(String key, String value, Long expire, TimeUnit timeUnit);
+    boolean storeCaptcha(String key, String value);
 
     /**
      * 校验验证码

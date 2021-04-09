@@ -6,7 +6,7 @@ import lombok.Data;
  * @author ant
  * Create by Ant on 2020/9/14 4:10 下午
  */
-@Data
+@Deprecated
 public class LoginDTO {
 
     /**
@@ -24,4 +24,39 @@ public class LoginDTO {
      */
     private String code;
 
+    public String getPassword() {
+        return password;
+    }
+
+    public LoginDTO setPassword(String password) {
+        this.password = password;
+        return this;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public LoginDTO setUuid(String uuid) {
+        this.uuid = uuid;
+        return this;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public LoginDTO setCode(String code) {
+        this.code = code;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "LoginDTO{" +
+                "password='" + password + '\'' +
+                ", uuid='" + uuid + '\'' +
+                ", code='" + code + '\'' +
+                '}';
+    }
 }

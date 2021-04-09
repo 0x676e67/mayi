@@ -1,7 +1,7 @@
 package com.zf1976.ant.upms.biz.handle;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
-import com.zf1976.ant.common.security.support.session.SessionContextHolder;
+import com.zf1976.ant.common.security.support.session.RedisSessionHolder;
 import org.apache.ibatis.reflection.MetaObject;
 
 import java.util.Date;
@@ -27,7 +27,7 @@ public class MetaDataHandler implements MetaObjectHandler {
     }
 
     private String getPrincipal() {
-        return SessionContextHolder.username();
+        return RedisSessionHolder.username();
     }
 
 }

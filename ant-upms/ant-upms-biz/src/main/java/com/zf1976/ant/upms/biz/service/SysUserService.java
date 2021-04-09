@@ -9,7 +9,7 @@ import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.component.mail.ValidateFactory;
 import com.zf1976.ant.common.component.mail.ValidateService;
 import com.zf1976.ant.common.security.support.session.Session;
-import com.zf1976.ant.common.security.support.session.SessionContextHolder;
+import com.zf1976.ant.common.security.support.session.RedisSessionHolder;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.core.foundation.exception.BusinessException;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
@@ -90,7 +90,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         Assert.notNull(requestPage, "request page can not been null");
         IPage<SysUser> sourcePage = null;
         // 非super admin 过滤数据权限
-        if (!SessionContextHolder.isOwner()) {
+        if (!RedisSessionHolder.isOwner()) {
             // 用户可观察数据范围
             Set<Long> dataPermission = securityClient.getUserDetails().getData().getDataPermission();
             List<Long> userIds = super.baseMapper.selectByDepartmentIds(dataPermission);
@@ -209,7 +209,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     @CacheEvict(namespace =  Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateAvatar(MultipartFile multipartFile) {
-        final Long sessionId = SessionContextHolder.getSessionId();
+        final Long sessionId = RedisSessionHolder.getSessionId();
         final SysUser sysUser = super.lambdaQuery()
                                  .eq(SysUser::getId, sessionId)
                                  .one();
@@ -238,7 +238,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     @CacheEvict(namespace =  Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updatePassword(UpdatePasswordDTO dto) {
-        final Long sessionId = SessionContextHolder.getSessionId();
+        final Long sessionId = RedisSessionHolder.getSessionId();
         final SysUser sysUser = super.lambdaQuery()
                                      .eq(SysUser::getId, sessionId)
                                      .oneOpt().orElseThrow(() -> new BusinessException(BusinessMsgState.CODE_NOT_FOUNT));
@@ -263,7 +263,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
             sysUser.setPassword(encoder.encode(freshPassword));
             super.updateEntityById(sysUser);
             // 强制用户重新登陆
-            SessionContextHolder.removeSession();
+            RedisSessionHolder.removeSession();
         }else {
             throw new BusinessException(BusinessMsgState.PASSWORD_LOW);
         }
@@ -288,7 +288,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         ValidateService validateService = ValidateFactory.getInstance();
         var sysUser = super.lambdaQuery()
                             .select(SysUser::getPassword)
-                            .eq(SysUser::getId, SessionContextHolder.getSessionId())
+                            .eq(SysUser::getId, RedisSessionHolder.getSessionId())
                             .oneOpt()
                             .orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
         BusinessException businessException = null;
@@ -326,7 +326,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     @CacheEvict(namespace =  Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateInfo(UpdateInfoDTO dto) {
-        Session session = SessionContextHolder.readSession();
+        Session session = RedisSessionHolder.readSession();
         Assert.notNull(session, "session cannot been null");
         // 查询当前用户是否存在
         SysUser sysUser = super.lambdaQuery()
@@ -387,7 +387,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
                 });
              });
         SysUser sysUser = this.convert.toEntity(dto);
-        String username = SessionContextHolder.username();
+        String username = RedisSessionHolder.username();
         sysUser.setPassword(DigestUtils.md5DigestAsHex(DEFAULT_PASSWORD_BYTE));
         sysUser.setCreateBy(username);
         sysUser.setCreateTime(new Date());
@@ -411,10 +411,10 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         SysUser sysUser = super.lambdaQuery()
                                 .eq(SysUser::getId, dto.getId())
                                 .oneOpt().orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
-        long sessionId = SessionContextHolder.getSessionId();
+        long sessionId = RedisSessionHolder.getSessionId();
         if (!dto.getEnabled()) {
             // 禁止禁用管理员
-            if (SessionContextHolder.isOwner(sysUser.getUsername())) {
+            if (RedisSessionHolder.isOwner(sysUser.getUsername())) {
                 throw new UserException(UserState.USER_OPT_ERROR);
             }
             // 禁止禁用当前操作用户
@@ -495,9 +495,9 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     @CacheEvict(namespace =  Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deleteUser(Set<Long> ids) {
-        if (SessionContextHolder.isOwner()) {
+        if (RedisSessionHolder.isOwner()) {
             SysUser sysUser = super.lambdaQuery()
-                                   .eq(SysUser::getUsername, SessionContextHolder.username())
+                                   .eq(SysUser::getUsername, RedisSessionHolder.username())
                                    .oneOpt().orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
             if (ids.contains(sysUser.getId())) {
                 throw new UserException(UserState.USER_OPT_ERROR);
@@ -506,10 +506,10 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         super.deleteByIds(ids);
         super.baseMapper.deleteRoleRelationByIds(ids);
         this.sysPositionDao.deleteUserRelationById(ids);
-        long sessionId = SessionContextHolder.getSessionId();
+        long sessionId = RedisSessionHolder.getSessionId();
         // 相当于注销
         if (ids.contains(sessionId)) {
-            SessionContextHolder.removeSession(sessionId);
+            RedisSessionHolder.removeSession(sessionId);
         }
         return Optional.empty();
     }

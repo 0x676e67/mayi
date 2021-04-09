@@ -97,9 +97,7 @@ public class OAuth2TokenAuthenticationFilter implements WebFilter {
             Assert.hasText(token, "token cannot be empty");
             final JWSObject parseToken = JWSObject.parse(token);
             // 提取jwt token 载荷
-            final Object o = parseToken.getPayload()
-                                       .toJSONObject()
-                                       .get(AuthConstants.JWT_AUTHORITIES_KEY);
+            final Object o = parseToken.getPayload().toJSONObject().get(AuthConstants.JWT_AUTHORITIES_KEY);
             if (o instanceof JSONArray) {
                 return  ((JSONArray) o).stream()
                                        .map(Object::toString)
@@ -118,7 +116,14 @@ public class OAuth2TokenAuthenticationFilter implements WebFilter {
             Assert.hasText(token, "token cannot be empty");
             // 向服务端校验token 有效性
             ResponseEntity<Map> responseEntity = this.restTemplate.getForEntity(this.jwtCheckUrl, Map.class, token);
-            return responseEntity.getStatusCode().is2xxSuccessful();
+            if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                final Map body = responseEntity.getBody();
+                if (body != null) {
+                    final Object active = body.get("active");
+                    return Boolean.valueOf((String) active);
+                }
+            }
+            return false;
         } catch (Exception ignored) {
             return false;
         }

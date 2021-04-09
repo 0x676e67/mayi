@@ -1,7 +1,7 @@
 package com.zf1976.ant.auth.config.evaluator;
 
 import com.zf1976.ant.auth.JwtTokenProvider;
-import com.zf1976.ant.common.security.support.session.SessionContextHolder;
+import com.zf1976.ant.common.security.support.session.RedisSessionHolder;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,7 +18,7 @@ import java.util.Arrays;
 public class SecurityPermissionEvaluator implements PermissionEvaluator {
 
     public boolean hasPrivilege(Authentication authentication, String... permission) {
-        if (SessionContextHolder.isOwner()) {
+        if (RedisSessionHolder.isOwner()) {
             return true;
         } else {
             return AuthorityUtils.authorityListToSet(authentication.getAuthorities())

@@ -2,9 +2,10 @@ package com.zf1976.ant.common.component.load;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.zf1976.ant.common.component.property.CacheProperties;
+import com.zf1976.ant.common.component.property.CaffeineProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,9 +20,9 @@ public abstract class AbstractCaffeineCache<K, V> implements ICache<K, V> {
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractCaffeineCache.class);
     protected Map<String, Cache<K, V>> cacheSpace;
     protected Cache<K, V> kvCache;
-    protected final CacheProperties properties;
+    protected final CaffeineProperties properties;
 
-    public AbstractCaffeineCache(CacheProperties properties) {
+    public AbstractCaffeineCache(CaffeineProperties properties) {
         this.properties = properties;
     }
 
@@ -42,12 +43,12 @@ public abstract class AbstractCaffeineCache<K, V> implements ICache<K, V> {
      * @return cache object
      */
     protected Cache<K, V> loadCache(Long expired) {
-        int processors = Runtime.getRuntime().availableProcessors();
-        assert expired != null;
+        Assert.notNull(expired,"expired time cannot been null");
         return CacheBuilder.newBuilder()
-                           .concurrencyLevel(processors)
-                           .initialCapacity(10)
-                           .maximumSize(100)
+                           .recordStats()
+                           .concurrencyLevel(properties.getConcurrencyLevel())
+                           .initialCapacity(properties.getInitialCapacity())
+                           .maximumSize(properties.getMaximumSize())
                            .expireAfterWrite(expired, TimeUnit.SECONDS)
                            .removalListener(removalNotification -> {
                                LOG.info(removalNotification.getKey() + " " + removalNotification.getValue() + " is remove!");

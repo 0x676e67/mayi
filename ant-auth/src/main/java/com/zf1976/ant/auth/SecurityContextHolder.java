@@ -2,6 +2,7 @@ package com.zf1976.ant.auth;
 
 import com.zf1976.ant.auth.service.DynamicDataSourceService;
 import com.zf1976.ant.auth.service.UserDetailsServiceEnhancer;
+import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.common.security.standard.AttributeStandards;
 import com.zf1976.ant.common.security.support.session.Session;
 import com.zf1976.ant.common.core.util.RequestUtils;
@@ -68,11 +69,15 @@ public class SecurityContextHolder extends org.springframework.security.core.con
     public static Session generatedSession(String token) {
         // 获取用户认证登录细节
         LoginUserDetails userDetails = (LoginUserDetails) SecurityContextHolder.getAuthenticationThreadLocal().getPrincipal();
-        Long id = userDetails.getId();
         var request = RequestUtils.getRequest();
+        Object expiredTime = request.getAttribute(AuthConstants.EXPIRED);
+        Calendar instance = Calendar.getInstance();
+        instance.add(Calendar.SECOND, (Integer) expiredTime);
+        Assert.isInstanceOf(Integer.class, expiredTime, "must be an Integer instance");
         Session session = new Session();
-        session.setId(id)
+        session.setId(userDetails.getId())
                .setLoginTime(new Date())
+               .setExpiredTime(instance.getTime())
                .setUsername(userDetails.getUsername())
                .setOwner(ObjectUtils.nullSafeEquals(userDetails.getUsername(), securityProperties.getOwner()))
                .setIp(RequestUtils.getIpAddress(request))
@@ -80,7 +85,6 @@ public class SecurityContextHolder extends org.springframework.security.core.con
                .setBrowser(RequestUtils.getBrowser(request))
                .setOperatingSystemType(RequestUtils.getOpsSystemType(request))
                .setToken(token);
-        session.setAttribute(AttributeStandards.AUTH_DATA_SCOPE, userDetails.getDataScopes());
         return session;
     }
 

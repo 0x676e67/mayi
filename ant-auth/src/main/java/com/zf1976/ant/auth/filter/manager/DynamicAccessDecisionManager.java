@@ -1,7 +1,7 @@
 package com.zf1976.ant.auth.filter.manager;
 
 import com.zf1976.ant.auth.service.DynamicDataSourceService;
-import com.zf1976.ant.common.security.support.session.SessionContextHolder;
+import com.zf1976.ant.common.security.support.session.RedisSessionHolder;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
@@ -35,7 +35,7 @@ public class DynamicAccessDecisionManager implements AccessDecisionManager {
     @Override
     public void decide(Authentication authentication, Object target, Collection<ConfigAttribute> collection) throws AccessDeniedException, InsufficientAuthenticationException {
         // 资源所有者放行
-        if (SessionContextHolder.isOwner()) {
+        if (RedisSessionHolder.isOwner()) {
             return;
         }
         // 过滤调用

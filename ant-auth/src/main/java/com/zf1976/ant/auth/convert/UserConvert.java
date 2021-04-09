@@ -12,8 +12,8 @@ import org.mapstruct.factory.Mappers;
  * Create by Ant on 2020/9/10 4:12 下午
  */
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface UserConversion {
-    UserConversion INSTANCE = Mappers.getMapper(UserConversion.class);
+public interface UserConvert {
+    UserConvert INSTANCE = Mappers.getMapper(UserConvert.class);
 
     /**
      * 转 认证信息

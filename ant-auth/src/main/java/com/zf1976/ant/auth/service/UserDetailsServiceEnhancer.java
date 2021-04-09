@@ -1,6 +1,6 @@
 package com.zf1976.ant.auth.service;
 
-import com.zf1976.ant.common.security.pojo.UserDetails;
+import com.zf1976.ant.common.security.pojo.AuthUserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 /**
@@ -16,5 +16,5 @@ public interface UserDetailsServiceEnhancer extends UserDetailsService {
      *
      * @return /
      */
-    UserDetails userDetails();
+    AuthUserDetails userDetails();
 }

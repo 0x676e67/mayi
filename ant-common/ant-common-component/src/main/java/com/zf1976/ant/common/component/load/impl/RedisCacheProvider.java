@@ -1,8 +1,7 @@
 package com.zf1976.ant.common.component.load.impl;
 
-import com.power.common.util.CollectionUtil;
 import com.zf1976.ant.common.component.load.ICache;
-import com.zf1976.ant.common.component.property.CacheProperties;
+import com.zf1976.ant.common.component.property.CaffeineProperties;
 import com.zf1976.ant.common.core.util.RedisUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.CollectionUtils;
@@ -19,10 +18,10 @@ import java.util.function.Supplier;
  **/
 public class RedisCacheProvider<K, V> implements ICache<K, V> {
 
-    private final CacheProperties properties;
+    private final CaffeineProperties properties;
     private final RedisTemplate<Object, Map<Object, Object>> redisTemplate;
 
-    public RedisCacheProvider(CacheProperties properties, RedisTemplate<Object, Map<Object, Object>> redisTemplate) {
+    public RedisCacheProvider(CaffeineProperties properties, RedisTemplate<Object, Map<Object, Object>> redisTemplate) {
         this.properties = properties;
         this.redisTemplate = redisTemplate;
     }

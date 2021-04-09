@@ -10,7 +10,7 @@ import com.zf1976.ant.common.component.load.enums.CacheRelation;
 import com.zf1976.ant.common.component.load.impl.CaffeineCacheProvider;
 import com.zf1976.ant.common.component.load.impl.RedisCacheProvider;
 import com.zf1976.ant.common.core.util.RequestUtils;
-import com.zf1976.ant.common.component.property.CacheProperties;
+import com.zf1976.ant.common.component.property.CaffeineProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -33,7 +33,7 @@ public class LoadCacheAspect {
 
     private final SpringElExpressionHandler handler;
     private Map<CacheRelation, ICache<Object, Object>> cacheProviderMap;
-    public LoadCacheAspect(RedisTemplate<Object, Map<Object, Object>> mapRedisTemplate, CacheProperties properties) {
+    public LoadCacheAspect(RedisTemplate<Object, Map<Object, Object>> mapRedisTemplate, CaffeineProperties properties) {
         cacheProviderMap = new ConcurrentHashMap<>();
         cacheProviderMap.put(CacheRelation.CAFFEINE, new CaffeineCacheProvider<>(properties));
         cacheProviderMap.put(CacheRelation.REDIS, new RedisCacheProvider<>(properties, mapRedisTemplate));

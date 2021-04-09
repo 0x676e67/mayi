@@ -7,6 +7,7 @@ import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.component.property.CaptchaProperties;
 import com.zf1976.ant.common.component.property.CaptchaTypeEnum;
 import lombok.Data;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.awt.*;
@@ -15,11 +16,9 @@ import java.awt.*;
  * @author mac
  * Create by Ant on 2020/9/1 下午12:37
  */
-@Data
 public class CaptchaGenerator {
 
     private static CaptchaProperties captchaProperties;
-
 
     /**
      * 获取验证码对象
@@ -74,7 +73,7 @@ public class CaptchaGenerator {
                 break;
         }
 
-        if (StringUtils.isEmpty(config.getFontName())) {
+        if (config.getFontName() == null || "".equals(config.getFontName())) {
             captcha.setFont(new Font(Font.MONOSPACED,
                                      Font.PLAIN,
                                      config.getFontSize()));

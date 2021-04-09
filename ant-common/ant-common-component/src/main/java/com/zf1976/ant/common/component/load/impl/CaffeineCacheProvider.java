@@ -3,8 +3,7 @@ package com.zf1976.ant.common.component.load.impl;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.zf1976.ant.common.component.load.AbstractCaffeineCache;
-import com.zf1976.ant.common.component.load.ICache;
-import com.zf1976.ant.common.component.property.CacheProperties;
+import com.zf1976.ant.common.component.property.CaffeineProperties;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
@@ -12,7 +11,6 @@ import java.time.Duration;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -22,7 +20,7 @@ import java.util.function.Supplier;
  */
 public class CaffeineCacheProvider<K, V> extends AbstractCaffeineCache<K, V> {
 
-    public CaffeineCacheProvider(CacheProperties properties) {
+    public CaffeineCacheProvider(CaffeineProperties properties) {
         super(properties);
         this.initialCache();
         this.checkStatus();

@@ -46,6 +46,10 @@ public class Session implements Serializable {
      * 登录时间
      */
     private Date loginTime;
+    /**
+     * 到期时间
+     */
+    private Date expiredTime;
 
     private final Map<Object, Object> attribute = new HashMap<>();
 
@@ -143,6 +147,15 @@ public class Session implements Serializable {
         return this.attribute.get(key);
     }
 
+    public Date getExpiredTime() {
+        return expiredTime;
+    }
+
+    public Session setExpiredTime(Date expiredTime) {
+        this.expiredTime = expiredTime;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "Session{" +
@@ -155,6 +168,7 @@ public class Session implements Serializable {
                 ", ipRegion='" + ipRegion + '\'' +
                 ", token='" + token + '\'' +
                 ", loginTime=" + loginTime +
+                ", expiredTime=" + expiredTime +
                 ", attribute=" + attribute +
                 '}';
     }

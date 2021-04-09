@@ -3,15 +3,14 @@ package com.zf1976.ant.auth.endpoint;
 import com.wf.captcha.base.Captcha;
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.auth.service.UserDetailsServiceEnhancer;
-import com.zf1976.ant.common.security.support.session.SessionContextHolder;
+import com.zf1976.ant.common.security.support.session.RedisSessionHolder;
 import com.zf1976.ant.common.component.validate.service.CaptchaService;
 import com.zf1976.ant.common.component.validate.support.CaptchaGenerator;
 import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.core.util.RequestUtils;
-import com.zf1976.ant.common.security.pojo.UserDetails;
+import com.zf1976.ant.common.security.pojo.AuthUserDetails;
 import com.zf1976.ant.common.security.pojo.vo.CaptchaVo;
-import com.zf1976.ant.common.component.property.CaptchaProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +30,6 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author mac
@@ -46,16 +44,13 @@ public class TokenEndpointEnhancer {
     private final WebResponseExceptionTranslator<OAuth2Exception> providerExceptionHandler = new DefaultWebResponseExceptionTranslator();
     private final CaptchaService captchaService;
     private final UserDetailsServiceEnhancer userDetailsService;
-    private final CaptchaProperties captchaConfig;
     private final TokenEndpoint tokenEndpoint;
 
     public TokenEndpointEnhancer(CaptchaService captchaService,
                                  UserDetailsServiceEnhancer userDetailsService,
-                                 CaptchaProperties captchaConfig,
                                  TokenEndpoint tokenEndpoint) {
         this.captchaService = captchaService;
         this.userDetailsService = userDetailsService;
-        this.captchaConfig = captchaConfig;
         this.tokenEndpoint = tokenEndpoint;
     }
 
@@ -84,13 +79,10 @@ public class TokenEndpointEnhancer {
     public ResponseEntity<CaptchaVo> getVerifyCode() {
         // 获取验证码
         Captcha captcha = CaptchaGenerator.getCaptcha();
-        // 生产uuid
+        // 生成uuid
         UUID uuid = ALTERNATIVE_JDK_ID_GENERATOR.generateId();
         //将验证码保存在 redis 缓存中
-        boolean isSave = captchaService.sendCaptcha(uuid.toString(),
-                                                    captcha.text(),
-                                                    captchaConfig.getExpiration(),
-                                                    TimeUnit.MILLISECONDS);
+        boolean isSave = captchaService.storeCaptcha(uuid.toString(), captcha.text());
         if (isSave) {
             if (logger.isDebugEnabled()) {
                 logger.info("Generator Captcha is：" + captcha.text());
@@ -108,14 +100,14 @@ public class TokenEndpointEnhancer {
     }
 
     @PostMapping("/info")
-    public DataResult<UserDetails> getUserDetails(){
+    public DataResult<AuthUserDetails> getUserDetails(){
         return DataResult.success(userDetailsService.userDetails());
     }
 
     private void saveSessionState(OAuth2AccessToken oAuth2AccessToken) {
         // 获取token
         String tokenValue = oAuth2AccessToken.getValue();
-        if (SessionContextHolder.readSession(tokenValue) == null) {
+        if (RedisSessionHolder.readSession(tokenValue) == null) {
             // 获取token过期时间
             Integer expiration = oAuth2AccessToken.getExpiresIn();
             // 设置token过期时间
@@ -123,7 +115,7 @@ public class TokenEndpointEnhancer {
             // 构建session
             var session = SecurityContextHolder.generatedSession(tokenValue);
             // 保存会话
-            SessionContextHolder.storeSession(tokenValue, session);
+            RedisSessionHolder.storeSession(tokenValue, session);
         }
     }
 

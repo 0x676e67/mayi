@@ -1,7 +1,7 @@
 # 公用captcha配置
 verify-code:
-  #  登录图形验证码有效时间/毫秒
-  expiration: 120000
+  #  登录图形验证码有效时间/分钟
+  expiration: 2
   #  验证码高度
   width: 111
   #  验证码宽度

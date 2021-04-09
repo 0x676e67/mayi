@@ -5,7 +5,7 @@ import com.zf1976.ant.auth.exception.ExpiredJwtException;
 import com.zf1976.ant.auth.exception.IllegalAccessException;
 import com.zf1976.ant.auth.exception.IllegalJwtException;
 import com.zf1976.ant.common.security.support.session.Session;
-import com.zf1976.ant.common.security.support.session.SessionContextHolder;
+import com.zf1976.ant.common.security.support.session.RedisSessionHolder;
 import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.security.enums.AuthenticationState;
 import com.zf1976.ant.common.security.property.SecurityProperties;
@@ -104,10 +104,10 @@ public class SecurityJwtAuthenticationFilter extends OncePerRequestFilter {
             throw new IllegalAccessException(AuthenticationState.ILLEGAL_ACCESS);
         }
         Long id = JwtTokenProvider.getSessionId(token);
-        Session session = SessionContextHolder.readSession(token);
+        Session session = RedisSessionHolder.readSession(token);
         long remainingTime;
         if (session != null) {
-            if (CONFIG.getEnableRestore() & (remainingTime = SessionContextHolder.getExpiredTime(id)) > 0) {
+            if (CONFIG.getEnableRestore() & (remainingTime = RedisSessionHolder.getExpiredTime(id)) > 0) {
                 String refreshToken;
                 if (remainingTime < CONFIG.getTokenDetect()) {
                     refreshToken = JwtTokenProvider.refreshToken(token, CONFIG.getTokenRestore());
@@ -118,7 +118,7 @@ public class SecurityJwtAuthenticationFilter extends OncePerRequestFilter {
                 Assert.notNull(refreshToken, "token cannot been null");
                 session.setToken(refreshToken);
                 // 更新session
-                SessionContextHolder.refreshSession(id, session, remainingTime);
+                //RedisSessionHolder.refreshSession(id, session, remainingTime);
                 httpServletResponse.setHeader(HttpHeaders.AUTHORIZATION, refreshToken);
                 return refreshToken;
             } else if (remainingTime > 0) {

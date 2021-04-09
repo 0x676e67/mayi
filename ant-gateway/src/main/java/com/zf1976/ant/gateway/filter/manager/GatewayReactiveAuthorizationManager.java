@@ -123,8 +123,7 @@ public class GatewayReactiveAuthorizationManager implements ReactiveAuthorizatio
     }
 
     private String getRequestUri(ServerHttpRequest serverHttpRequest) {
-        return serverHttpRequest.getURI()
-                                .getPath();
+        return serverHttpRequest.getURI().getPath();
     }
 
 }

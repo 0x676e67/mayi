@@ -46,30 +46,16 @@ public class OAuth2TokenAuthenticationFilter extends OncePerRequestFilter {
     @SneakyThrows
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws IOException, ServletException {
-        // 无请求头直接放行 或在放行名单 直接放行
-        Authentication authentication = this.tokenExtractor.extract(request);
-        String accessToken;
-        if (authentication instanceof AbstractAuthenticationToken) {
-            accessToken = (String) authentication.getPrincipal();
-            // 放行url
-            if (StringUtil.isEmpty(accessToken) || validateAllowUri(request)) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-        } else {
-            SecurityContextHolder.clearContext();
+        // 放行url
+        if (validateAllowUri(request)) {
             filterChain.doFilter(request, response);
             return;
         }
-        // 校验token
+        // 校验token 合法性
         try {
-            OAuth2AccessToken oAuth2AccessToken = this.tokenStore.readAccessToken(accessToken);
-            if (oAuth2AccessToken == null) {
-                throw new InvalidTokenException("Token was not recognised");
-            } else if (oAuth2AccessToken.isExpired()) {
-                throw new InvalidTokenException("Token has expired");
-            }
-            OAuth2Authentication oAuth2Authentication = this.tokenStore.readAuthentication(oAuth2AccessToken);
+            final String accessToken = this.extractAccessToken(request);
+            final OAuth2AccessToken oAuth2AccessToken = this.checkTokenLegality(accessToken);
+            final OAuth2Authentication oAuth2Authentication = this.tokenStore.readAuthentication(oAuth2AccessToken);
             SecurityContext context = SecurityContextHolder.getContext();
             if (context != null) {
                 if (context.getAuthentication() != null) {
@@ -85,6 +71,40 @@ public class OAuth2TokenAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         filterChain.doFilter(request, response);
+    }
+
+    /**
+     * 提取token
+     *
+     * @param request request
+     * @return
+     */
+    protected String extractAccessToken(HttpServletRequest request) {
+        Authentication authentication = this.tokenExtractor.extract(request);
+        String accessToken;
+        if (authentication instanceof AbstractAuthenticationToken) {
+            accessToken = (String) authentication.getPrincipal();
+            if (!StringUtil.isEmpty(accessToken)) {
+                return accessToken;
+            }
+        }
+        SecurityContextHolder.clearContext();
+        throw new InvalidTokenException("Token was not recognised");
+    }
+
+    /**
+     * 确认 token 合法性
+     * @param accessToken token
+     * @return
+     */
+    protected OAuth2AccessToken checkTokenLegality(String accessToken) {
+        OAuth2AccessToken oAuth2AccessToken = this.tokenStore.readAccessToken(accessToken);
+        if (oAuth2AccessToken == null) {
+            throw new InvalidTokenException("Token was not recognised");
+        } else if (oAuth2AccessToken.isExpired()) {
+            throw new InvalidTokenException("Token has expired");
+        }
+        return oAuth2AccessToken;
     }
 
     /**

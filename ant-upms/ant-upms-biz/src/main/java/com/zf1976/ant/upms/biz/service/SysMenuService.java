@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.core.constants.Namespace;
-import com.zf1976.ant.common.security.support.session.SessionContextHolder;
+import com.zf1976.ant.common.security.support.session.RedisSessionHolder;
 import com.zf1976.ant.upms.biz.pojo.po.SysMenu;
 import com.zf1976.ant.upms.biz.convert.SysMenuConvert;
 import com.zf1976.ant.upms.biz.dao.SysMenuDao;
@@ -60,12 +60,12 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
     public Collection<MenuBuildVO> getMenuRoute() {
         // 菜单
         List<SysMenu> menuList;
-        if (SessionContextHolder.isOwner()) {
+        if (RedisSessionHolder.isOwner()) {
             // 管理员获取所有菜单
             menuList = super.selectList();
         } else {
             // 用户id
-            final long sessionId = SessionContextHolder.getSessionId();
+            final long sessionId = RedisSessionHolder.getSessionId();
             // 获取用户所有角色id
             final Set<Long> roleIds = sysRoleDao.selectListByUserId(sessionId)
                                                 .stream()
@@ -293,7 +293,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
 
         dto.setPid(dto.getPid() != null? dto.getPid() > 0? dto.getPid(): null : null);
         SysMenu sysMenu = this.convert.toEntity(dto);
-        String username = SessionContextHolder.username();
+        String username = RedisSessionHolder.username();
         sysMenu.setCreateBy(username);
         sysMenu.setCreateTime(new Date());
         super.savaEntity(sysMenu);
@@ -378,7 +378,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
     private void update(MenuDTO dto, SysMenu sysMenu) {
         dto.setPid(dto.getPid() != null? dto.getPid() > 0? dto.getPid(): null : null);
         this.convert.copyProperties(dto, sysMenu);
-        String username = SessionContextHolder.username();
+        String username = RedisSessionHolder.username();
         sysMenu.setUpdateBy(username);
         sysMenu.setUpdateTime(new Date());
         super.updateEntityById(sysMenu);
