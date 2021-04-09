@@ -5,7 +5,7 @@ import com.zf1976.ant.auth.exception.ExpiredJwtException;
 import com.zf1976.ant.auth.exception.IllegalAccessException;
 import com.zf1976.ant.auth.exception.IllegalJwtException;
 import com.zf1976.ant.common.security.support.session.Session;
-import com.zf1976.ant.common.security.support.session.RedisSessionHolder;
+import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
 import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.security.enums.AuthenticationState;
 import com.zf1976.ant.common.security.property.SecurityProperties;
@@ -104,10 +104,10 @@ public class SecurityJwtAuthenticationFilter extends OncePerRequestFilter {
             throw new IllegalAccessException(AuthenticationState.ILLEGAL_ACCESS);
         }
         Long id = JwtTokenProvider.getSessionId(token);
-        Session session = RedisSessionHolder.readSession(token);
+        Session session = DistributedSessionManager.getSession();
         long remainingTime;
         if (session != null) {
-            if (CONFIG.getEnableRestore() & (remainingTime = RedisSessionHolder.getExpiredTime(id)) > 0) {
+            if (CONFIG.getTokenRefresh() & (remainingTime = DistributedSessionManager.getExpiredTime(id)) > 0) {
                 String refreshToken;
                 if (remainingTime < CONFIG.getTokenDetect()) {
                     refreshToken = JwtTokenProvider.refreshToken(token, CONFIG.getTokenRestore());

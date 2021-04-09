@@ -43,7 +43,7 @@ import java.security.KeyPair;
 @EnableWebSecurity
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    private final SecurityProperties securityProperties;
+    private final SecurityProperties properties;
     private final PasswordEncoder passwordEncoder;
     private final UserDetailsService userDetailsService;
     private final AuthProperties authProperties;
@@ -51,7 +51,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     public WebSecurityConfiguration(SecurityProperties securityProperties,
                                     UserDetailsService userDetailsService,
                                     AuthProperties authProperties) {
-        this.securityProperties = securityProperties;
+        this.properties = securityProperties;
         this.userDetailsService = userDetailsService;
         this.authProperties = authProperties;
         this.passwordEncoder = new MD5PasswordEncoder();
@@ -67,8 +67,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @ConditionalOnMissingBean
     public KeyPair keyPair() {
         ClassPathResource classPathResource = new ClassPathResource("root.jks");
-        KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(classPathResource, securityProperties.getRsaSecret().toCharArray());
-        return keyStoreKeyFactory.getKeyPair("root", securityProperties.getRsaSecret().toCharArray());
+        KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(classPathResource, properties.getRsaSecret().toCharArray());
+        return keyStoreKeyFactory.getKeyPair("root", properties.getRsaSecret().toCharArray());
     }
 
     /**
@@ -106,47 +106,38 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         //关闭CSRF
-        http.csrf()
-            .disable()
+        http.csrf().disable()
             // 允许跨域
             .cors()
             .and()
             // 登出处理
-            .logout()
-            .logoutUrl("/oauth/logout")
+            .logout().logoutUrl("/oauth/logout")
             .addLogoutHandler(new Oauth2LogoutHandler())
             .logoutSuccessHandler(new Oauth2LogoutSuccessHandler())
             .and()
             // 防止iframe跨域
             .headers()
-            .frameOptions()
-            .disable()
+            .frameOptions().disable()
             .and()
             // 关闭会话创建
             .sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
-            .requestMatchers(EndpointRequest.toAnyEndpoint())
-            .permitAll()
+            .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
             // 放行OPTIONS请求
-            .antMatchers(HttpMethod.OPTIONS, "/**")
-            .permitAll()
+            .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             // 白名单
-            .antMatchers(securityProperties.getIgnoreUri())
-            .permitAll()
-            .antMatchers("/oauth/**")
-            .permitAll()
-            .anyRequest()
-            .authenticated()
+            .antMatchers(properties.getIgnoreUri()).permitAll()
+            .antMatchers("/oauth/**").permitAll()
+            .anyRequest().authenticated()
             .and()
             .addFilterAt(new DynamicSecurityFilter(), FilterSecurityInterceptor.class)
-            .addFilterBefore(new OAuth2TokenAuthenticationFilter(), LogoutFilter.class);
+            .addFilterBefore(new OAuth2TokenAuthenticationFilter(properties), LogoutFilter.class);
         var jdbcClientDetailsServiceEnhancer = SecurityContextHolder.getShareObject(JdbcClientDetailsServiceEnhancer.class);
         if (this.authProperties.getEnableSignature()) {
             http.addFilterBefore(new SignatureAuthenticationFilter(jdbcClientDetailsServiceEnhancer,
-                            "/oauth/logout",
-                            "/oauth/info"
+                            "/oauth/**"
                     ), SecurityContextPersistenceFilter.class);
         }
     }

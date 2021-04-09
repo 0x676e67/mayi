@@ -1,18 +1,17 @@
 package com.zf1976.ant.auth;
 
 import com.zf1976.ant.auth.service.DynamicDataSourceService;
-import com.zf1976.ant.auth.service.UserDetailsServiceEnhancer;
 import com.zf1976.ant.common.core.constants.AuthConstants;
-import com.zf1976.ant.common.security.standard.AttributeStandards;
+import com.zf1976.ant.common.security.pojo.AuthUserDetails;
+import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
 import com.zf1976.ant.common.security.support.session.Session;
 import com.zf1976.ant.common.core.util.RequestUtils;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
-import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -27,16 +26,63 @@ public class SecurityContextHolder extends org.springframework.security.core.con
 
     private static final AntPathMatcher PATH_MATCHER= new AntPathMatcher();
     private static final Map<Class<?>, Object> CONTENTS_MAP = new HashMap<>(16);
-    private static final ThreadLocal<Authentication> AUTHENTICATION_THREAD_LOCAL = new ThreadLocal<>() {
-        @Override
-        protected Authentication initialValue() {
-            super.remove();
-            return super.initialValue();
-        }
-    };
-    private static UserDetailsServiceEnhancer userDetailsService;
     private static DynamicDataSourceService dynamicDataSourceService;
     private static SecurityProperties securityProperties;
+
+
+    public static void createSession(OAuth2AccessToken oAuth2AccessToken) {
+        // 获取token
+        String tokenValue = oAuth2AccessToken.getValue();
+        // 构建session
+        Session session = generatedSession(tokenValue);
+        // 保存会话
+        DistributedSessionManager.storeSession(tokenValue, session);
+    }
+
+    @Deprecated
+    public static void createSession(String jwtToken) {
+        // 构建session
+        Session session = generatedSession(jwtToken);
+        DistributedSessionManager.storeSession(jwtToken, session);
+    }
+
+    /**
+     * 构建会话
+     *
+     * @param token token
+     * @return /
+     */
+    public static Session generatedSession(String token) {
+        // 获取用户认证登录细节
+        // 当前请求
+        HttpServletRequest request = RequestUtils.getRequest();
+        AuthUserDetails userDetails = (AuthUserDetails) request.getAttribute(AuthConstants.DETAILS);
+        Object expiredTime = request.getAttribute(AuthConstants.SESSION_EXPIRED);
+        Calendar instance = Calendar.getInstance();
+        instance.add(Calendar.SECOND, (Integer) expiredTime);
+        Assert.isInstanceOf(Integer.class, expiredTime, "must be an Integer instance");
+        Session session = new Session();
+        session.setId(userDetails.getUserInfo().getId())
+               .setLoginTime(new Date())
+               .setExpiredTime(instance.getTime())
+               .setUsername(userDetails.getUserInfo().getUsername())
+               .setOwner(DistributedSessionManager.isOwner(session.getUsername()))
+               .setIp(RequestUtils.getIpAddress())
+               .setIpRegion(RequestUtils.getIpRegion())
+               .setBrowser(RequestUtils.getUserAgent())
+               .setOperatingSystemType(RequestUtils.getOpsSystemType())
+               .setToken(token);
+        return session;
+    }
+
+    public static void setShareObject(Class<?> clazz, Object object) {
+        Assert.isInstanceOf(clazz, object, "must be an instance of class");
+        CONTENTS_MAP.put(clazz, object);
+    }
+
+    public static <T> T getShareObject(Class<T> clazz){
+        return clazz.cast(CONTENTS_MAP.get(clazz));
+    }
 
     /**
      * 验证uri
@@ -60,59 +106,9 @@ public class SecurityContextHolder extends org.springframework.security.core.con
         return securityProperties.getTokenIssuer();
     }
 
-    /**
-     * 构建会话
-     *
-     * @param token token
-     * @return /
-     */
-    public static Session generatedSession(String token) {
-        // 获取用户认证登录细节
-        LoginUserDetails userDetails = (LoginUserDetails) SecurityContextHolder.getAuthenticationThreadLocal().getPrincipal();
-        var request = RequestUtils.getRequest();
-        Object expiredTime = request.getAttribute(AuthConstants.EXPIRED);
-        Calendar instance = Calendar.getInstance();
-        instance.add(Calendar.SECOND, (Integer) expiredTime);
-        Assert.isInstanceOf(Integer.class, expiredTime, "must be an Integer instance");
-        Session session = new Session();
-        session.setId(userDetails.getId())
-               .setLoginTime(new Date())
-               .setExpiredTime(instance.getTime())
-               .setUsername(userDetails.getUsername())
-               .setOwner(ObjectUtils.nullSafeEquals(userDetails.getUsername(), securityProperties.getOwner()))
-               .setIp(RequestUtils.getIpAddress(request))
-               .setIpRegion(RequestUtils.getIpRegion(request))
-               .setBrowser(RequestUtils.getBrowser(request))
-               .setOperatingSystemType(RequestUtils.getOpsSystemType(request))
-               .setToken(token);
-        return session;
-    }
-
-    public static void setShareObject(Class<?> clazz, Object object) {
-        Assert.isInstanceOf(clazz, object, "must be an instance of class");
-        CONTENTS_MAP.put(clazz, object);
-    }
-
-    public static <T> T getShareObject(Class<T> clazz){
-        return clazz.cast(CONTENTS_MAP.get(clazz));
-    }
-
-    public static void setAuthenticationThreadLocal(Authentication authentication) {
-        AUTHENTICATION_THREAD_LOCAL.set(authentication);
-    }
-
-    public static Authentication getAuthenticationThreadLocal(){
-        return AUTHENTICATION_THREAD_LOCAL.get();
-    }
-
     @Autowired
     public void setSecurityProperties(SecurityProperties securityProperties) {
         SecurityContextHolder.securityProperties = securityProperties;
-    }
-
-    @Autowired
-    public void setUserDetailsService(UserDetailsServiceEnhancer userDetailsService) {
-        SecurityContextHolder.userDetailsService = userDetailsService;
     }
 
     @Autowired

@@ -2,7 +2,7 @@ package com.zf1976.ant.upms.biz.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zf1976.ant.common.security.support.session.RedisSessionHolder;
+import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
 import com.zf1976.ant.common.security.support.session.repository.SessionRepository;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
 import com.zf1976.ant.common.core.util.RedisUtils;
@@ -143,7 +143,7 @@ public class SysOnlineService {
 
     public Optional<Void> forceOffline(Set<Long> ids) {
         // 操作方
-        Long sessionId = RedisSessionHolder.getSessionId();
+        Long sessionId = DistributedSessionManager.getSessionId();
         ids.forEach(id -> {
             // 不允许强制自己离线
             if (!ObjectUtils.nullSafeEquals(id, sessionId)){

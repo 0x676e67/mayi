@@ -20,23 +20,8 @@ public class ResourceOwnerPasswordTokenEnhancerGranter extends AbstractTokenGran
     private final AuthenticationManager authenticationManager;
     private final CaptchaService captchaService;
 
-    public ResourceOwnerPasswordTokenEnhancerGranter(AuthenticationManager authenticationManager,
-                                                     AuthorizationServerTokenServices tokenServices,
-                                                     ClientDetailsService clientDetailsService,
-                                                     OAuth2RequestFactory requestFactory,
-                                                     CaptchaService captchaService) {
+    public ResourceOwnerPasswordTokenEnhancerGranter(AuthenticationManager authenticationManager, AuthorizationServerTokenServices tokenServices, ClientDetailsService clientDetailsService, OAuth2RequestFactory requestFactory, CaptchaService captchaService) {
         super(tokenServices, clientDetailsService, requestFactory, GRANT_TYPE);
-        this.authenticationManager = authenticationManager;
-        this.captchaService = captchaService;
-    }
-
-    protected ResourceOwnerPasswordTokenEnhancerGranter(AuthenticationManager authenticationManager,
-                                                        AuthorizationServerTokenServices tokenServices,
-                                                        ClientDetailsService clientDetailsService,
-                                                        OAuth2RequestFactory requestFactory,
-                                                        String grantType,
-                                                        CaptchaService captchaService) {
-        super(tokenServices, clientDetailsService, requestFactory, grantType);
         this.authenticationManager = authenticationManager;
         this.captchaService = captchaService;
     }

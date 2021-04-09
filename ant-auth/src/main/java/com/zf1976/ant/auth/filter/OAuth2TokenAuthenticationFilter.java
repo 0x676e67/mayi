@@ -1,9 +1,8 @@
 package com.zf1976.ant.auth.filter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.power.common.util.StringUtil;
 import com.zf1976.ant.auth.SecurityContextHolder;
-import com.zf1976.ant.common.core.util.SpringContextHolder;
+import com.zf1976.ant.common.core.util.JSONUtil;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
@@ -11,15 +10,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.common.OAuth2RefreshToken;
+import org.springframework.security.oauth2.common.exceptions.InvalidGrantException;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.TokenRequest;
 import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
 import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -38,22 +42,25 @@ public class OAuth2TokenAuthenticationFilter extends OncePerRequestFilter {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
-    private final SecurityProperties config = SpringContextHolder.getBean(SecurityProperties.class);
     private final TokenStore tokenStore = SecurityContextHolder.getShareObject(TokenStore.class);
     private final TokenExtractor tokenExtractor = new BearerTokenExtractor();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final SecurityProperties properties;
+
+    public OAuth2TokenAuthenticationFilter(SecurityProperties properties) {
+        this.properties = properties;
+    }
 
     @SneakyThrows
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws IOException, ServletException {
-        // 放行url
-        if (validateAllowUri(request)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        // 校验token 合法性
         try {
             final String accessToken = this.extractAccessToken(request);
+            // token为空放行 放行url
+            if (StringUtils.isEmpty(accessToken) || validateAllowUri(request)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+            // 校验token 合法性
             final OAuth2AccessToken oAuth2AccessToken = this.checkTokenLegality(accessToken);
             final OAuth2Authentication oAuth2Authentication = this.tokenStore.readAuthentication(oAuth2AccessToken);
             SecurityContext context = SecurityContextHolder.getContext();
@@ -88,8 +95,7 @@ public class OAuth2TokenAuthenticationFilter extends OncePerRequestFilter {
                 return accessToken;
             }
         }
-        SecurityContextHolder.clearContext();
-        throw new InvalidTokenException("Token was not recognised");
+        return null;
     }
 
     /**
@@ -119,9 +125,8 @@ public class OAuth2TokenAuthenticationFilter extends OncePerRequestFilter {
             this.logger.info("Handling error: " + e.getClass().getSimpleName() + ", " + e.getMessage());
         }
         InvalidTokenException e400 = new InvalidTokenException(e.getMessage());
-        response.setContentType("application/json");
         response.setStatus(e400.getHttpErrorCode());
-        objectMapper.writeValue(response.getOutputStream(), e400);
+        JSONUtil.writeValue(response, e400);
     }
 
     /**
@@ -132,7 +137,7 @@ public class OAuth2TokenAuthenticationFilter extends OncePerRequestFilter {
      */
     private boolean validateAllowUri(HttpServletRequest request) {
         // 匿名放行uri
-        String[] allowUri = config.getIgnoreUri();
+        String[] allowUri = properties.getIgnoreUri();
         // 请求uri
         String requestUri = request.getRequestURI();
         return Arrays.stream(allowUri).anyMatch(url -> pathMatcher.match(url, requestUri));

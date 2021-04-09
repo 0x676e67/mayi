@@ -13,7 +13,7 @@ import com.zf1976.ant.common.log.pojo.SysLog;
 import com.zf1976.ant.common.log.pojo.enums.LogType;
 import com.zf1976.ant.common.log.pojo.vo.base.AbstractLogVO;
 import com.zf1976.ant.common.log.query.LogQueryParam;
-import com.zf1976.ant.common.security.support.session.RedisSessionHolder;
+import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
 import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -42,7 +42,7 @@ public class SysLogService extends ServiceImpl<SysLogDao, SysLog> {
         Assert.notNull(param, BusinessMsgState.PARAM_ILLEGAL::getReasonPhrase);
         // 构建分页对象
         Page<SysLog> page = new Page<>(requestPage.getPage(), requestPage.getSize());
-        var username = RedisSessionHolder.username();
+        var username = DistributedSessionManager.username();
         Page<SysLog> sourcePage = super.lambdaQuery()
                                        .eq(SysLog::getLogType, LogType.INFO)
                                        .eq(SysLog::getUsername, username)

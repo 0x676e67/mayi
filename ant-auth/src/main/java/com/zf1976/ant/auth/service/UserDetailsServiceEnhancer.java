@@ -12,9 +12,17 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 public interface UserDetailsServiceEnhancer extends UserDetailsService {
 
     /**
-     * 用户细节
+     * 查询当前用户细节
      *
      * @return /
      */
-    AuthUserDetails userDetails();
+    AuthUserDetails selectUserDetails();
+
+    /**
+     * 根据用户名查询用户认证细节
+     *
+     * @param username 用户名
+     * @return /
+     */
+    AuthUserDetails selectUserDetails(String username);
 }

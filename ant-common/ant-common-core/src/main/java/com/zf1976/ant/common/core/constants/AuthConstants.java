@@ -47,6 +47,11 @@ public interface AuthConstants {
     String EMPTY_AUTHORITIES_VALUE = "";
 
     /**
+     * grant type
+     */
+    String GRANT_TYPE = "grant_type";
+
+    /**
      * 资源所有者
      */
     String OWNER = "admin";
@@ -59,7 +64,7 @@ public interface AuthConstants {
     /**
      * 过期时间
      */
-    String EXPIRED = "expired";
+    String SESSION_EXPIRED = "session_expired";
 
     /**
      * jwt 唯一标示

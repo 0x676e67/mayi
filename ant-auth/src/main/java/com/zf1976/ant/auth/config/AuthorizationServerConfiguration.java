@@ -2,9 +2,10 @@ package com.zf1976.ant.auth.config;
 
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.auth.enhance.JdbcClientDetailsServiceEnhancer;
-import com.zf1976.ant.auth.enhance.JwtTokenEnhancer;
+import com.zf1976.ant.auth.enhance.OAuth2TokenEnhancer;
 import com.zf1976.ant.auth.enhance.RedisTokenStoreEnhancer;
 import com.zf1976.ant.auth.filter.provider.DaoAuthenticationEnhancerProvider;
+import com.zf1976.ant.auth.grant.RefreshTokenEnhancerGranter;
 import com.zf1976.ant.auth.grant.ResourceOwnerPasswordTokenEnhancerGranter;
 import com.zf1976.ant.auth.handler.access.Oauth2AccessDeniedHandler;
 import com.zf1976.ant.auth.handler.access.Oauth2AuthenticationEntryPoint;
@@ -154,7 +155,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         OAuth2RequestFactory requestFactory = endpoints.getOAuth2RequestFactory();
         List<TokenGranter> tokenGranters = new ArrayList<>();
         tokenGranters.add(new AuthorizationCodeTokenGranter(tokenServices, authorizationCodeServices, clientDetails, requestFactory));
-        tokenGranters.add(new RefreshTokenGranter(tokenServices, clientDetails, requestFactory));
+        tokenGranters.add(new RefreshTokenEnhancerGranter(tokenServices, clientDetails, requestFactory));
         ImplicitTokenGranter implicit = new ImplicitTokenGranter(tokenServices, clientDetails, requestFactory);
         tokenGranters.add(implicit);
         tokenGranters.add(new ClientCredentialsTokenGranter(tokenServices, clientDetails, requestFactory));
@@ -173,7 +174,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
     private TokenEnhancerChain tokenEnhancerChain() {
         var enhancerChain = new TokenEnhancerChain();
-        List<TokenEnhancer> enhancerList = Arrays.asList(new JwtTokenEnhancer(), jwtAccessTokenConverter());
+        List<TokenEnhancer> enhancerList = Arrays.asList(new OAuth2TokenEnhancer(), jwtAccessTokenConverter());
         enhancerChain.setTokenEnhancers(enhancerList);
         return enhancerChain;
     }

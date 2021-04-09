@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.power.common.util.Base64Util;
 import com.zf1976.ant.auth.LoginResponse;
 import com.zf1976.ant.auth.SecurityContextHolder;
-import com.zf1976.ant.common.security.support.session.RedisSessionHolder;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.encrypt.EncryptUtil;
 import org.slf4j.Logger;
@@ -43,10 +42,9 @@ public class SecurityAuthenticationSuccessHandler implements AuthenticationSucce
         final UserDetails userDetails = (UserDetails) authentication.getDetails();
         final String token = (String) authentication.getCredentials();
         final LoginResponse loginResponse = new LoginResponse();
-        loginResponse.setToken(token)
-                     .setUser(userDetails);
-        var session = SecurityContextHolder.generatedSession(token);
-        RedisSessionHolder.storeSession(token, session);
+        loginResponse.setToken(token).setUser(userDetails);
+        // 创建session
+        SecurityContextHolder.createSession(token);
         // 原始content
         String rawContent = jsonMapper.writeValueAsString(DataResult.success(loginResponse));
         // 加密后内容
@@ -54,9 +52,6 @@ public class SecurityAuthenticationSuccessHandler implements AuthenticationSucce
         httpServletResponse.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
         jsonMapper.writeValue(httpServletResponse.getOutputStream(), Base64Util.encryptToString(result));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        if (log.isDebugEnabled()) {
-            log.debug("login username:{}", session.getUsername());
-        }
     }
 
 }

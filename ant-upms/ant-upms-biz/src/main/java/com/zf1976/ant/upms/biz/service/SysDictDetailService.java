@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.core.constants.Namespace;
-import com.zf1976.ant.common.security.support.session.RedisSessionHolder;
+import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
 import com.zf1976.ant.upms.biz.dao.SysDictDao;
 import com.zf1976.ant.upms.biz.dao.SysDictDetailDao;
 import com.zf1976.ant.upms.biz.pojo.po.SysDict;
@@ -102,7 +102,7 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
                                            .oneOpt()
                                            .orElseThrow(() -> new DictException(DictState.DICT_NOT_FOUND));
         this.convert.copyProperties(dto, sysDictDetail);
-        String username = RedisSessionHolder.username();
+        String username = DistributedSessionManager.username();
         sysDictDetail.setCreateBy(username);
         sysDictDetail.setUpdateTime(new Date());
         super.updateEntityById(sysDictDetail);

@@ -1,6 +1,6 @@
 package com.zf1976.ant.upms.biz.interceptor;
 
-import com.zf1976.ant.common.security.support.session.RedisSessionHolder;
+import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.core.util.JSONUtil;
 import org.slf4j.Logger;
@@ -55,7 +55,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             return false;
         }
         try {
-            return RedisSessionHolder.readSession() != null;
+            return DistributedSessionManager.getSession() != null;
         }catch (Exception e) {
             if (logger.isDebugEnabled()) {
                 logger.debug(e.getMessage(), e.getCause());

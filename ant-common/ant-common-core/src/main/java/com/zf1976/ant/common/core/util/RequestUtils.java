@@ -52,43 +52,43 @@ public final class RequestUtils extends RequestContextHolder {
     /**
      * 获取真实ip地址
      *
-     * @param httpServletRequest 请求
      * @return ip
      */
-    public static String getIpAddress(HttpServletRequest httpServletRequest) {
+    public static String getIpAddress() {
+        final HttpServletRequest request = getRequest();
         // 获取请求主机IP地址,如果通过代理进来，则透过防火墙获取真实IP地址
-        String ip = httpServletRequest.getHeader("X-Forwarded-For");
+        String ip = request.getHeader("X-Forwarded-For");
         if (LOG.isDebugEnabled()) {
             LOG.debug("getIpAddress(HttpServletRequest) - X-Forwarded-For - String ip=" + ip);
         }
 
         if (ip == null || ip.length() == 0 || UNKNOWN.equalsIgnoreCase(ip)) {
             if (ip == null || ip.length() == 0 || UNKNOWN.equalsIgnoreCase(ip)) {
-                ip = httpServletRequest.getHeader("Proxy-Client-IP");
+                ip = request.getHeader("Proxy-Client-IP");
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("getIpAddress(HttpServletRequest) - Proxy-Client-IP - String ip=" + ip);
                 }
             }
             if (ip == null || ip.length() == 0 || UNKNOWN.equalsIgnoreCase(ip)) {
-                ip = httpServletRequest.getHeader("WL-Proxy-Client-IP");
+                ip = request.getHeader("WL-Proxy-Client-IP");
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("getIpAddress(HttpServletRequest) - WL-Proxy-Client-IP - String ip=" + ip);
                 }
             }
             if (ip == null || ip.length() == 0 || UNKNOWN.equalsIgnoreCase(ip)) {
-                ip = httpServletRequest.getHeader("HTTP_CLIENT_IP");
+                ip = request.getHeader("HTTP_CLIENT_IP");
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("getIpAddress(HttpServletRequest) - HTTP_CLIENT_IP - String ip=" + ip);
                 }
             }
             if (ip == null || ip.length() == 0 || UNKNOWN.equalsIgnoreCase(ip)) {
-                ip = httpServletRequest.getHeader("HTTP_X_FORWARDED_FOR");
+                ip = request.getHeader("HTTP_X_FORWARDED_FOR");
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("getIpAddress(HttpServletRequest) - HTTP_X_FORWARDED_FOR - String ip=" + ip);
                 }
             }
             if (ip == null || ip.length() == 0 || UNKNOWN.equalsIgnoreCase(ip)) {
-                ip = httpServletRequest.getRemoteAddr();
+                ip = request.getRemoteAddr();
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("getIpAddress(HttpServletRequest) - getRemoteAddr - String ip=" + ip);
                 }
@@ -142,20 +142,18 @@ public final class RequestUtils extends RequestContextHolder {
             return getResult(httpResponse);
         } catch (Exception ignore) {
             LOG.error("get ip region error");
-            return CommonResult.fail()
-                               .getMessage();
+            return UNKNOWN_HOST;
         }
     }
 
     /**
      * 获取ip区域
      *
-     * @param request request
      * @return region
      */
-    public static String getIpRegion(HttpServletRequest request) {
-        try {
-            String ipRegion = getIpAddress(request);
+    public static String getIpRegion() {
+        try { ;
+            String ipRegion = getIpAddress();
             return getIpRegion(ipRegion);
         } catch (Exception e) {
             LOG.error("get ip region error", e.getCause());
@@ -164,12 +162,12 @@ public final class RequestUtils extends RequestContextHolder {
     }
 
     /**
-     * 获取浏览器
+     * 获取User-Agent名称
      *
-     * @param request 请求
-     * @return 浏览器名称
+     * @return User-Agent名称
      */
-    public static String getBrowser(HttpServletRequest request) {
+    public static String getUserAgent() {
+        final HttpServletRequest request = getRequest();
         String header = request.getHeader(HttpHeaders.USER_AGENT);
         return UserAgent.parseUserAgentString(header)
                         .getBrowser()
@@ -179,10 +177,10 @@ public final class RequestUtils extends RequestContextHolder {
     /**
      * 获取操作系统类型
      *
-     * @param request 名称
      * @return 操作系统名称
      */
-    public static String getOpsSystemType(HttpServletRequest request) {
+    public static String getOpsSystemType() {
+        final HttpServletRequest request = getRequest();
         String header = request.getHeader(HttpHeaders.USER_AGENT);
         return UserAgent.parseUserAgentString(header)
                         .getOperatingSystem()
@@ -282,14 +280,6 @@ public final class RequestUtils extends RequestContextHolder {
             builder.append(bytes[i] & 0xff);
         }
         return builder.toString();
-    }
-
-    public static String getAuthentication() {
-        return getRequest().getHeader(HttpHeaders.AUTHORIZATION);
-    }
-
-    public static String getRequestUri() {
-        return getRequest().getRequestURI();
     }
 
 }

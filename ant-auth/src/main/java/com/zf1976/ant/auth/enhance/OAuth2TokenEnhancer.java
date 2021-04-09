@@ -3,12 +3,16 @@ package com.zf1976.ant.auth.enhance;
 import com.zf1976.ant.auth.LoginUserDetails;
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.common.core.constants.AuthConstants;
+import com.zf1976.ant.common.core.util.RequestUtils;
+import okhttp3.Request;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
+import org.springframework.security.oauth2.provider.TokenRequest;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -16,27 +20,29 @@ import java.util.Map;
  * @author mac
  * @date 2021/2/16
  **/
-public class JwtTokenEnhancer implements TokenEnhancer {
+@SuppressWarnings("all")
+public class OAuth2TokenEnhancer implements TokenEnhancer {
 
     @Override
     public OAuth2AccessToken enhance(OAuth2AccessToken oAuth2AccessToken, OAuth2Authentication oAuth2Authentication) {
         OAuth2Request oAuth2Request = oAuth2Authentication.getOAuth2Request();
+        LoginUserDetails loginDetails = (LoginUserDetails) oAuth2Authentication.getPrincipal();
+        Integer expiredIn = oAuth2AccessToken.getExpiresIn();
         Map<String, Object> additionalInformation = new LinkedHashMap<>();
         // 签发方
         additionalInformation.put(AuthConstants.ISSUER, SecurityContextHolder.getIssuer());
         // 签发时间
-        additionalInformation.put(AuthConstants.IAT, System.currentTimeMillis() / 1000);
+        additionalInformation.put(AuthConstants.IAT, new Date());
         // token唯一标识
         additionalInformation.put(AuthConstants.JTI, oAuth2AccessToken.getValue());
-        // 用户id
-        additionalInformation.put(AuthConstants.JWT_USER_ID_KEY, this.getId(oAuth2Authentication));
         // 客户端id
         additionalInformation.put(AuthConstants.JWT_CLIENT_ID_KEY, oAuth2Request.getClientId());
-        // 用户细节
-        additionalInformation.put(AuthConstants.DETAILS, oAuth2Authentication.getPrincipal());
+        // 用户名
+        additionalInformation.put(AuthConstants.USERNAME, loginDetails.getUsername());
+        // grant类型
+        additionalInformation.put(AuthConstants.GRANT_TYPE, oAuth2Request.getGrantType());
         // 设置自定义information
         ((DefaultOAuth2AccessToken) oAuth2AccessToken).setAdditionalInformation(additionalInformation);
-        SecurityContextHolder.setAuthenticationThreadLocal(oAuth2Authentication);
         return oAuth2AccessToken;
     }
 

@@ -3,7 +3,6 @@ package com.zf1976.ant.auth.endpoint;
 import com.wf.captcha.base.Captcha;
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.auth.service.UserDetailsServiceEnhancer;
-import com.zf1976.ant.common.security.support.session.RedisSessionHolder;
 import com.zf1976.ant.common.component.validate.service.CaptchaService;
 import com.zf1976.ant.common.component.validate.support.CaptchaGenerator;
 import com.zf1976.ant.common.core.constants.AuthConstants;
@@ -46,9 +45,7 @@ public class TokenEndpointEnhancer {
     private final UserDetailsServiceEnhancer userDetailsService;
     private final TokenEndpoint tokenEndpoint;
 
-    public TokenEndpointEnhancer(CaptchaService captchaService,
-                                 UserDetailsServiceEnhancer userDetailsService,
-                                 TokenEndpoint tokenEndpoint) {
+    public TokenEndpointEnhancer(CaptchaService captchaService, UserDetailsServiceEnhancer userDetailsService, TokenEndpoint tokenEndpoint) {
         this.captchaService = captchaService;
         this.userDetailsService = userDetailsService;
         this.tokenEndpoint = tokenEndpoint;
@@ -65,14 +62,22 @@ public class TokenEndpointEnhancer {
             throw new InsufficientAuthenticationException("There is no client authentication. Try adding an appropriate authentication filter.");
         } else {
             ResponseEntity<OAuth2AccessToken> responseEntity = this.tokenEndpoint.postAccessToken(principal, parameters);
+
             OAuth2AccessToken oAuth2AccessToken = responseEntity.getBody();
             if (responseEntity.getStatusCode().is2xxSuccessful() && oAuth2AccessToken != null) {
-                // 保存登录会话
-                this.saveSessionState(oAuth2AccessToken);
+                String username = (String) oAuth2AccessToken.getAdditionalInformation().get(AuthConstants.USERNAME);
+                RequestUtils.getRequest().setAttribute(AuthConstants.DETAILS, userDetailsService.selectUserDetails(username));
+                RequestUtils.getRequest().setAttribute(AuthConstants.SESSION_EXPIRED, oAuth2AccessToken.getExpiresIn());
+                SecurityContextHolder.createSession(oAuth2AccessToken);
                 return DataResult.success(oAuth2AccessToken);
             }
             throw new InsufficientAuthenticationException("Client authentication failed.");
         }
+    }
+
+    @PostMapping("/info")
+    public DataResult<AuthUserDetails> getUserDetails(){
+        return DataResult.success(userDetailsService.selectUserDetails());
     }
 
     @GetMapping("/code")
@@ -97,26 +102,6 @@ public class TokenEndpointEnhancer {
                                              .uuid(uuid.toString())
                                              .build();
         return ResponseEntity.ok(captchaVo);
-    }
-
-    @PostMapping("/info")
-    public DataResult<AuthUserDetails> getUserDetails(){
-        return DataResult.success(userDetailsService.userDetails());
-    }
-
-    private void saveSessionState(OAuth2AccessToken oAuth2AccessToken) {
-        // 获取token
-        String tokenValue = oAuth2AccessToken.getValue();
-        if (RedisSessionHolder.readSession(tokenValue) == null) {
-            // 获取token过期时间
-            Integer expiration = oAuth2AccessToken.getExpiresIn();
-            // 设置token过期时间
-            RequestUtils.getRequest().setAttribute(AuthConstants.EXPIRED, expiration);
-            // 构建session
-            var session = SecurityContextHolder.generatedSession(tokenValue);
-            // 保存会话
-            RedisSessionHolder.storeSession(tokenValue, session);
-        }
     }
 
     @ExceptionHandler({HttpRequestMethodNotSupportedException.class})

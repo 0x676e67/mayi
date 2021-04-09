@@ -5,17 +5,20 @@ import com.zf1976.ant.auth.LoginUserDetails;
 import com.zf1976.ant.auth.convert.UserConvert;
 import com.zf1976.ant.auth.exception.UserNotFountException;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
+import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.common.core.constants.Namespace;
+import com.zf1976.ant.common.core.util.RequestUtils;
 import com.zf1976.ant.common.security.enums.AuthenticationState;
 import com.zf1976.ant.common.security.pojo.AuthUserDetails;
 import com.zf1976.ant.common.security.pojo.vo.RoleVo;
 import com.zf1976.ant.common.security.pojo.UserInfo;
 import com.zf1976.ant.common.security.property.SecurityProperties;
-import com.zf1976.ant.common.security.support.session.RedisSessionHolder;
+import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
 import com.zf1976.ant.upms.biz.dao.*;
 import com.zf1976.ant.upms.biz.pojo.po.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -202,10 +205,9 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
         }
     }
 
-    @CachePut(namespace = Namespace.USER, dynamicsKey = true)
+    @CachePut(namespace = Namespace.USER, key = "#username")
     @Override
-    public AuthUserDetails userDetails(){
-        final String username = RedisSessionHolder.username();
+    public AuthUserDetails selectUserDetails(String username){
         LoginUserDetails userDetails = (LoginUserDetails) this.loadUserByUsername(username);
         return AuthUserDetails.UserDetailsBuilder.builder()
                                                  .userInfo(userDetails.getUserInfo())
@@ -213,4 +215,11 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
                                                  .dataPermission(userDetails.getDataScopes())
                                                  .build();
     }
+
+    @Override
+    public AuthUserDetails selectUserDetails() {
+        final String username = Objects.requireNonNull(DistributedSessionManager.getSession()).getUsername();
+        return selectUserDetails(username);
+    }
+
 }

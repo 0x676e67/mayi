@@ -189,7 +189,7 @@ public class DataResult<T> implements Serializable {
      * @return uri
      */
     public static String getUri() {
-        return RequestUtils.getRequestUri();
+        return RequestUtils.getRequest().getRequestURI();
     }
 
 }

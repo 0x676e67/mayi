@@ -66,7 +66,11 @@ public class SecurityProperties {
     /**
      * 是否开启续期
      */
-    private Boolean enableRestore;
+    private Boolean tokenRefresh;
+    /**
+     * token 续期范围
+     */
+    private Integer tokenRefreshScope;
     /**
      * jwt 证书密钥
      */
@@ -86,6 +90,15 @@ public class SecurityProperties {
 
     public SecurityProperties setLogoutUrl(String logoutUrl) {
         this.logoutUrl = logoutUrl;
+        return this;
+    }
+
+    public Integer getTokenRefreshScope() {
+        return tokenRefreshScope;
+    }
+
+    public SecurityProperties setTokenRefreshScope(Integer tokenRefreshScope) {
+        this.tokenRefreshScope = tokenRefreshScope;
         return this;
     }
 
@@ -197,12 +210,12 @@ public class SecurityProperties {
         return this;
     }
 
-    public Boolean getEnableRestore() {
-        return enableRestore;
+    public Boolean getTokenRefresh() {
+        return tokenRefresh;
     }
 
-    public SecurityProperties setEnableRestore(Boolean enableRestore) {
-        this.enableRestore = enableRestore;
+    public SecurityProperties setTokenRefresh(Boolean tokenRefresh) {
+        this.tokenRefresh = tokenRefresh;
         return this;
     }
 
@@ -239,7 +252,8 @@ public class SecurityProperties {
                 ", tokenRestore=" + tokenRestore +
                 ", prefixSessionId='" + prefixSessionId + '\'' +
                 ", prefixSessionToken='" + prefixSessionToken + '\'' +
-                ", enableRestore=" + enableRestore +
+                ", tokenRefresh=" + tokenRefresh +
+                ", tokenRefreshScope=" + tokenRefreshScope +
                 ", rsaSecret='" + rsaSecret + '\'' +
                 ", logoutUrl='" + logoutUrl + '\'' +
                 ", ignoreUri=" + Arrays.toString(ignoreUri) +

@@ -44,7 +44,9 @@ security:
   # 会话token
   prefix-session-token: session-token-
   # 开启续期 策略
-  enable-restore: true
+  token-refresh: true
+  # 剩下一小时内自动刷新
+  token-refresh-scope: 3600
   # jwt证书 rsa密钥
   rsa-secret: 123456
   # logout url
@@ -68,6 +70,7 @@ security:
     - /druid/**
     # 安全配置接口
     - /security/**
+    - /oauth/code
 
 #公用缓存配置
 cache:

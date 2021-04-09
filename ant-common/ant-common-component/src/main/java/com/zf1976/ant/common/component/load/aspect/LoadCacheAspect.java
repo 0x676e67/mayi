@@ -119,7 +119,7 @@ public class LoadCacheAspect {
 
 
     private String getPrincipal() {
-        return RequestUtils.getAuthentication();
+        return RequestUtils.getRequest().getHeader("Authorization");
     }
 
 }

@@ -17,7 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,15 +30,15 @@ import java.util.concurrent.TimeUnit;
  * Create by Ant on 2020/10/4 14:11
  */
 @Component
-public class RedisSessionHolder {
+public class DistributedSessionManager {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RedisSessionHolder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DistributedSessionManager.class);
     private static SecurityProperties properties;
     private static RedisTemplate<Object, Object> redisTemplate;
 
-    public RedisSessionHolder(RedisTemplate<Object, Object> template, SecurityProperties securityProperties) {
-        RedisSessionHolder.redisTemplate = template;
-        RedisSessionHolder.properties = securityProperties;
+    public DistributedSessionManager(RedisTemplate<Object, Object> template, SecurityProperties properties) {
+        DistributedSessionManager.redisTemplate = template;
+        DistributedSessionManager.properties = properties;
     }
 
     /**
@@ -52,15 +51,15 @@ public class RedisSessionHolder {
         try {
             // token指向id
             redisTemplate.opsForValue()
-                         .set(formatSessionToken(token),
+                         .set(formatToken(token),
                                  session.getId(),
-                                 getExpired(),
+                                 getExpiredIn(),
                                  TimeUnit.SECONDS);
             // id指向session
             redisTemplate.opsForValue()
-                         .set(formatSessionId(session.getId()),
+                         .set(formatId(session.getId()),
                                  session,
-                                 getExpired(),
+                                 getExpiredIn(),
                                  TimeUnit.SECONDS);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e.getCause());
@@ -73,8 +72,20 @@ public class RedisSessionHolder {
      * @date 2021-03-23 12:19:55
      * @return {@link Session}
      */
-    public static Session readSession(){
-        return readSession(token());
+    public static Session getSession(){
+        try {
+            final String token = token();
+            Object o = redisTemplate.opsForValue().get(formatToken(token));
+            if (ObjectUtils.isEmpty(o)) {
+                return null;
+            }
+            // 抛出NumberFormatException
+            final long sessionId = Long.parseLong(o.toString());
+            return getSession(sessionId);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e.getCause());
+            return null;
+        }
     }
 
     /**
@@ -83,57 +94,12 @@ public class RedisSessionHolder {
      * @param sessionId session id
      * @return session
      */
-    public static Session readSession(Long sessionId) {
+    public static Session getSession(Long sessionId) {
         try {
-            return (Session) redisTemplate.opsForValue().get(formatSessionId(sessionId));
+            return (Session) redisTemplate.opsForValue().get(formatId(sessionId));
         } catch (Exception e) {
             LOG.error(e.getMessage(), e.getCause());
             return null;
-        }
-    }
-
-    /**
-     * 根据token读取会话
-     *
-     * @param token token
-     * @return session
-     */
-    public static Session readSession(String token) {
-        try {
-            Object o = redisTemplate.opsForValue().get(formatSessionToken(token));
-            if (ObjectUtils.isEmpty(o)) {
-                return null;
-            }
-            // 抛出NumberFormatException
-            final long sessionId = Long.parseLong(o.toString());
-            return readSession(sessionId);
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e.getCause());
-            return null;
-        }
-    }
-
-
-    /**
-     * 强制下线
-     *
-     * @param token token
-     */
-    public static void removeSession(String token) {
-
-        try {
-            if (token != null) {
-                Object o = redisTemplate.opsForValue().get(formatSessionToken(token));
-                if (ObjectUtils.isEmpty(o)) {
-                    return;
-                }
-                // 抛出NumberFormatException
-                final long sessionId = Long.parseLong(o.toString());
-                redisTemplate.delete(formatSessionId(sessionId));
-                redisTemplate.delete(formatSessionToken(token));
-            }
-        } catch (Exception e) {
-            LOG.info("user not online", e);
         }
     }
 
@@ -144,10 +110,10 @@ public class RedisSessionHolder {
      */
     public static void removeSession(Long sessionId) {
         try {
-            Optional.ofNullable(readSession(sessionId))
+            Optional.ofNullable(getSession(sessionId))
                     .ifPresent(session -> {
-                        redisTemplate.delete(formatSessionId(sessionId));
-                        redisTemplate.delete(formatSessionToken(session.getToken()));
+                        redisTemplate.delete(formatId(sessionId));
+                        redisTemplate.delete(formatToken(session.getToken()));
                     });
         } catch (Exception e) {
             LOG.info("user not online", e);
@@ -158,7 +124,19 @@ public class RedisSessionHolder {
      * 强制当前用户下限
      */
     public static void removeSession(){
-        removeSession(token());
+        try {
+            final String token = token();
+            Object o = redisTemplate.opsForValue().get(formatToken(token));
+            if (ObjectUtils.isEmpty(o)) {
+                return;
+            }
+            // 抛出NumberFormatException
+            final long sessionId = Long.parseLong(o.toString());
+            redisTemplate.delete(formatId(sessionId));
+            redisTemplate.delete(formatToken(token));
+        } catch (Exception e) {
+            LOG.info("user not online", e);
+        }
     }
 
     /**
@@ -168,7 +146,7 @@ public class RedisSessionHolder {
      * @return timestamp
      */
     public static Long getExpiredTime(Long sessionId) {
-        return Objects.requireNonNull(readSession(sessionId)).getExpiredTime().getTime();
+        return Objects.requireNonNull(getSession(sessionId)).getExpiredTime().getTime();
     }
 
     /**
@@ -177,25 +155,15 @@ public class RedisSessionHolder {
      * @return session
      */
     public static Long getSessionId(){
-        return (Long) redisTemplate.opsForValue().get(formatSessionToken(token()));
+        return (Long) redisTemplate.opsForValue().get(formatToken(token()));
     }
-
-    /**
-     * 获取当前会话用户名
-     *
-     * @return username
-     */
-    public static String username() {
-        return readSession().getUsername();
-    }
-
     /**
      * owner
      *
      * @return boolean
      */
     public static boolean isOwner(){
-        return readSession().getOwner();
+        return Objects.requireNonNull(getSession()).getOwner();
     }
 
     /**
@@ -214,11 +182,19 @@ public class RedisSessionHolder {
      * @return token
      */
     private static String token(){
-        var header = RequestUtils.getRequest().getHeader(HttpHeaders.AUTHORIZATION);
+        var header = getAuthenticationForHeader() == null ? getAuthenticationForAttribute() : null;
         if (header == null) {
             throw new UnsupportedOperationException(HttpStatus.UNAUTHORIZED.getReasonPhrase());
         }
         return extractToken(header);
+    }
+
+    private static String getAuthenticationForHeader(){
+        return RequestUtils.getRequest().getHeader(HttpHeaders.AUTHORIZATION);
+    }
+
+    private static String getAuthenticationForAttribute() {
+        return (String) RequestUtils.getRequest().getAttribute(HttpHeaders.AUTHORIZATION);
     }
 
     /**
@@ -231,44 +207,14 @@ public class RedisSessionHolder {
         return header.replace("Bearer ", StringUtil.ENMPTY);
     }
 
-    private static String formatSessionId(Object id) {
+    private static String formatId(Object id) {
         return properties.getPrefixSessionId() + "["+ id +"]";
     }
 
-    private static String formatSessionToken(Object token) {
+    private static String formatToken(Object token) {
         return properties.getPrefixSessionToken() + "[" + token + "]";
     }
 
-    private static long getExpired() {
-        return (Integer) RequestUtils.getRequest().getAttribute(AuthConstants.EXPIRED);
-    }
+    private static long getExpiredIn() { return (Integer) RequestUtils.getRequest().getAttribute(AuthConstants.SESSION_EXPIRED); }
 
-
-    /**
-     * 扫描所有包含关键字的条目
-     *
-     * @param keyword 关键字
-     * @return entry
-     */
-    @Deprecated
-    protected Set<String> scanKeys(String keyword) {
-        ScanOptions options = ScanOptions.scanOptions()
-                                         .match(keyword + "*")
-                                         .build();
-        RedisConnectionFactory factory = redisTemplate.getRequiredConnectionFactory();
-        RedisConnection connection = factory.getConnection();
-        try  {
-            Cursor<byte[]> cursor = connection.scan(options);
-            HashSet<String> result = new HashSet<>();
-            while (cursor.hasNext()) {
-                result.add(new String(cursor.next()));
-            }
-            return result;
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            RedisConnectionUtils.releaseConnection(connection, factory);
-        }
-        return new HashSet<>();
-    }
 }

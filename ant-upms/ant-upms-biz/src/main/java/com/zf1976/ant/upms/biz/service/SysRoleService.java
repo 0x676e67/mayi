@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.core.constants.Namespace;
-import com.zf1976.ant.common.security.support.session.RedisSessionHolder;
+import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
 import com.zf1976.ant.upms.biz.pojo.po.SysMenu;
 import com.zf1976.ant.upms.biz.convert.SysRoleConvert;
 import com.zf1976.ant.upms.biz.dao.SysDepartmentDao;
@@ -89,10 +89,10 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      */
     @CachePut(namespace = Namespace.ROLE, key = "level")
     public Integer selectRoleLevel() {
-        if (RedisSessionHolder.isOwner()) {
+        if (DistributedSessionManager.isOwner()) {
             return 0;
         }
-        return super.baseMapper.selectListByUsername(RedisSessionHolder.username())
+        return super.baseMapper.selectListByUsername(DistributedSessionManager.username())
                                .stream()
                                .map(SysRole::getLevel)
                                .min(Integer::compareTo)
@@ -180,7 +180,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
                  throw new RoleException(RoleState.ROLE_EXISTING, sysRole.getName());
              });
         SysRole sysRole = this.convert.toEntity(dto);
-        String currentUser = RedisSessionHolder.username();
+        String currentUser = DistributedSessionManager.username();
         sysRole.setCreateBy(currentUser);
         sysRole.setCreateTime(new Date());
         super.savaEntity(sysRole);
@@ -262,7 +262,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      */
     private void update(RoleDTO dto, SysRole sysRole) {
         this.convert.copyProperties(dto, sysRole);
-        final String username = RedisSessionHolder.username();
+        final String username = DistributedSessionManager.username();
         sysRole.setUpdateBy(username);
         sysRole.setCreateTime(new Date());
         super.updateEntityById(sysRole);
