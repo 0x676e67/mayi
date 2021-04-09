@@ -90,28 +90,32 @@ public class SysUser extends Model<SysUser> {
     private Boolean enabled;
 
     /**
-     * 创建者
-     */
-    private String createBy;
-
-    /**
-     * 更新着
-     */
-    private String updateBy;
-
-    /**
      * 修改密码的时间
      */
     private Date pwdResetTime;
 
     /**
+     * 创建者
+     */
+    @TableField(fill = FieldFill.INSERT)
+    private String createBy;
+
+    /**
+     * 更新着
+     */
+    @TableField(fill = FieldFill.UPDATE)
+    private String updateBy;
+
+    /**
      * 创建日期
      */
+    @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 
     /**
      * 更新时间
      */
+    @TableField(fill = FieldFill.UPDATE)
     private Date updateTime;
 
     /**

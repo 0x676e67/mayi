@@ -83,7 +83,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
      * @param dto dto
      * @return /
      */
-    @CacheEvict(namespace = Namespace.JOB, dependsOn = "user")
+    @CacheEvict(namespace = Namespace.JOB)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> savePosition(PositionDTO dto) {
         super.lambdaQuery()
@@ -93,9 +93,6 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
                  throw new JobException(JobState.JOB_EXISTING, sysJob.getName());
              });
         SysPosition sysJob = convert.toEntity(dto);
-        String username = DistributedSessionManager.username();
-        sysJob.setCreateBy(username);
-        sysJob.setCreateTime(new Date());
         super.savaEntity(sysJob);
         return Optional.empty();
     }
@@ -106,7 +103,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
      * @param dto dto
      * @return /
      */
-    @CacheEvict(namespace = Namespace.JOB, dependsOn = "user")
+    @CacheEvict(namespace = Namespace.JOB, dependsOn = Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updatePosition(PositionDTO dto) {
         // 查询更新岗位是否存在
@@ -122,10 +119,8 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
                      throw new JobException(JobState.JOB_EXISTING, var1.getName());
                  });
         }
+        // 复制属性
         this.convert.copyProperties(dto, sysJob);
-        String username = DistributedSessionManager.username();
-        sysJob.setCreateBy(username);
-        sysJob.setUpdateTime(new Date());
         super.updateEntityById(sysJob);
         return Optional.empty();
     }
@@ -136,7 +131,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
      * @param ids id collection
      * @return /
      */
-    @CacheEvict(namespace = Namespace.JOB, dependsOn = "user")
+    @CacheEvict(namespace = Namespace.JOB, dependsOn = Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deletePositionList(Set<Long> ids) {
         super.deleteByIds(ids);

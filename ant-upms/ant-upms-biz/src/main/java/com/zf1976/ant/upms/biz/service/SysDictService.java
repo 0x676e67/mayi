@@ -75,9 +75,6 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
                  throw new DictException(DictState.DICT_EXISTING, sysDict.getDictName());
              });
         SysDict sysDict = convert.toEntity(dto);
-        String username = DistributedSessionManager.username();
-        sysDict.setCreateBy(username);
-        sysDict.setCreateTime(new Date());
         super.savaEntity(sysDict);
         return Optional.empty();
     }
@@ -107,9 +104,6 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
         }
 
         this.convert.copyProperties(dto, sysDict);
-        String username = DistributedSessionManager.username();
-        sysDict.setCreateBy(username);
-        sysDict.setUpdateTime(new Date());
         super.updateEntityById(sysDict);
         return Optional.empty();
     }

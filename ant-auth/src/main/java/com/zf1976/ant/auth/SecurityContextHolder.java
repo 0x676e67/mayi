@@ -1,8 +1,8 @@
 package com.zf1976.ant.auth;
 
-import com.zf1976.ant.auth.service.DynamicDataSourceService;
+import com.zf1976.ant.auth.service.impl.DynamicDataSourceService;
 import com.zf1976.ant.common.core.constants.AuthConstants;
-import com.zf1976.ant.common.security.pojo.AuthUserDetails;
+import com.zf1976.ant.common.security.pojo.Details;
 import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
 import com.zf1976.ant.common.security.support.session.Session;
 import com.zf1976.ant.common.core.util.RequestUtils;
@@ -56,7 +56,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
         // 获取用户认证登录细节
         // 当前请求
         HttpServletRequest request = RequestUtils.getRequest();
-        AuthUserDetails userDetails = (AuthUserDetails) request.getAttribute(AuthConstants.DETAILS);
+        Details userDetails = (Details) request.getAttribute(AuthConstants.DETAILS);
         Object expiredTime = request.getAttribute(AuthConstants.SESSION_EXPIRED);
         Calendar instance = Calendar.getInstance();
         instance.add(Calendar.SECOND, (Integer) expiredTime);

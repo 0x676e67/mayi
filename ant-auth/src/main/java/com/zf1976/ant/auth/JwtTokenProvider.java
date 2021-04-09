@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
  * @author mac
  * Create by Ant on 2020/9/3 下午9:51
  */
+@Deprecated
 public class JwtTokenProvider {
 
     private static final SecurityProperties CONFIG;

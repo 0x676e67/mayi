@@ -1,6 +1,6 @@
 package com.zf1976.ant.common.component.load.annotation;
 
-import com.zf1976.ant.common.component.load.enums.CacheRelation;
+import com.zf1976.ant.common.component.load.enums.CacheImplement;
 
 import java.lang.annotation.*;
 
@@ -33,8 +33,13 @@ public @interface CacheEvict {
     String key() default "";
 
     /**
+     * 默认,当清除缓存时候默认清除所有（REDIS,CAFFEINE）缓存
+     */
+    boolean strategy() default true;
+
+    /**
      * 缓存实现
      * @return relation
      */
-    CacheRelation relation() default CacheRelation.DEFAULT;
+    CacheImplement implement() default CacheImplement.REDIS;
 }

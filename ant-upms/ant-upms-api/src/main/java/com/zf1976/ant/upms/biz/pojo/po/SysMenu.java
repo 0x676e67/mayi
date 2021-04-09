@@ -82,27 +82,29 @@ public class SysMenu extends Model<SysMenu> {
      * 权限
      */
     private String permission;
-
     /**
      * 创建者
      */
+    @TableField(fill = FieldFill.INSERT)
     private String createBy;
 
     /**
-     * 更新者
+     * 更新着
      */
+    @TableField(fill = FieldFill.UPDATE)
     private String updateBy;
 
     /**
      * 创建日期
      */
+    @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 
     /**
      * 更新时间
      */
+    @TableField(fill = FieldFill.UPDATE)
     private Date updateTime;
-
     /**
      * 版本号
      */

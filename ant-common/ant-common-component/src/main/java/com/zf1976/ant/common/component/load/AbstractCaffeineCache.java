@@ -16,8 +16,8 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class AbstractCaffeineCache<K, V> implements ICache<K, V> {
 
-    public static final byte MAP_INITIAL_CAPACITY = 16;
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractCaffeineCache.class);
+    protected static final byte MAP_INITIAL_CAPACITY = 16;
     protected Map<String, Cache<K, V>> cacheSpace;
     protected Cache<K, V> kvCache;
     protected final CaffeineProperties properties;
@@ -70,8 +70,9 @@ public abstract class AbstractCaffeineCache<K, V> implements ICache<K, V> {
     }
 
 
-    protected String keyFormatter(String key) {
-        return this.properties.getKeyPrefix() + key;
+    @Override
+    public String formatNamespace(String key) {
+        return this.properties.getKeyPrefix().concat(key);
     }
 
 }

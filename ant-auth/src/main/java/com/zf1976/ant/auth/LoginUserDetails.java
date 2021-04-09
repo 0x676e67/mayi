@@ -7,7 +7,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
 
 import java.util.Collection;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author mac
@@ -16,12 +15,12 @@ import java.util.stream.Collectors;
 public class LoginUserDetails implements org.springframework.security.core.userdetails.UserDetails {
 
     private final UserInfo userInfo;
-    private final Set<Long> dataScopes;
+    private final Set<Long> dataPermission;
     private final Set<String> permission;
 
-    public LoginUserDetails(UserInfo userInfo, Collection<? extends GrantedAuthority> authorities, Set<Long> dataScopes) {
+    public LoginUserDetails(UserInfo userInfo, Collection<? extends GrantedAuthority> authorities, Set<Long> dataPermission) {
         this.userInfo = userInfo;
-        this.dataScopes = dataScopes;
+        this.dataPermission = dataPermission;
         this.permission = AuthorityUtils.authorityListToSet(authorities);
     }
 
@@ -29,8 +28,8 @@ public class LoginUserDetails implements org.springframework.security.core.userd
         return this.permission;
     }
 
-    public Set<Long> getDataScopes() {
-        return this.dataScopes;
+    public Set<Long> getDataPermission() {
+        return this.dataPermission;
     }
 
     public UserInfo getUserInfo() {

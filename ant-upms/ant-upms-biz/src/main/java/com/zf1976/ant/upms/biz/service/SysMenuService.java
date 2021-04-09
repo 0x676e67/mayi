@@ -57,7 +57,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
      *
      * @return menu list
      */
-    public Collection<MenuBuildVO> getMenuRoute() {
+    public Collection<MenuBuildVO> generatedMenu() {
         // 菜单
         List<SysMenu> menuList;
         if (DistributedSessionManager.isOwner()) {
@@ -102,7 +102,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
         final List<SysMenu> targetTree = targetMenu.stream()
                                                  .filter(sysMenu -> ObjectUtils.isEmpty(sysMenu.getPid()))
                                                  .collect(Collectors.toList());
-        return Collections.unmodifiableCollection(this.initMenuRoute(targetTree));
+        return Collections.unmodifiableCollection(this.generatedRoute(targetTree));
     }
 
     /**
@@ -110,7 +110,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
      *
      * @param menuTree 菜单树
      */
-    private List<MenuBuildVO> initMenuRoute(List<SysMenu> menuTree) {
+    private List<MenuBuildVO> generatedRoute(List<SysMenu> menuTree) {
         List<MenuBuildVO> menuBuildList = new LinkedList<>();
         for (SysMenu menu : menuTree) {
             if (Objects.nonNull(menu)) {
@@ -136,7 +136,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
                 if (!CollectionUtils.isEmpty(childrenMenu)) {
                     var1.setAlwaysShow(true);
                     var1.setRedirect(NO_REDIRECT);
-                    var1.setChildren(this.initMenuRoute(childrenMenu));
+                    var1.setChildren(this.generatedRoute(childrenMenu));
                     // 顶级菜单 无子菜单
                 }else if (Objects.isNull(menu.getPid())) {
                     MenuBuildVO var2 = new MenuBuildVO(var1.getMeta());
@@ -293,9 +293,6 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
 
         dto.setPid(dto.getPid() != null? dto.getPid() > 0? dto.getPid(): null : null);
         SysMenu sysMenu = this.convert.toEntity(dto);
-        String username = DistributedSessionManager.username();
-        sysMenu.setCreateBy(username);
-        sysMenu.setCreateTime(new Date());
         super.savaEntity(sysMenu);
         return Optional.empty();
     }
@@ -378,9 +375,6 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
     private void update(MenuDTO dto, SysMenu sysMenu) {
         dto.setPid(dto.getPid() != null? dto.getPid() > 0? dto.getPid(): null : null);
         this.convert.copyProperties(dto, sysMenu);
-        String username = DistributedSessionManager.username();
-        sysMenu.setUpdateBy(username);
-        sysMenu.setUpdateTime(new Date());
         super.updateEntityById(sysMenu);
     }
 

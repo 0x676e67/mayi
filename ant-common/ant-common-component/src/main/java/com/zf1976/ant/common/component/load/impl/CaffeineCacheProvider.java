@@ -27,8 +27,8 @@ public class CaffeineCacheProvider<K, V> extends AbstractCaffeineCache<K, V> {
     }
 
     private void checkStatus() {
-        Assert.notNull(super.kvCache, "Uninitialized!");
-        Assert.notNull(super.cacheSpace, "Uninitialized!");
+        Assert.notNull(super.kvCache, "caffeine cache uninitialized");
+        Assert.notNull(super.cacheSpace, "caffeine cache space uninitialized");
     }
 
     @Override
@@ -46,7 +46,7 @@ public class CaffeineCacheProvider<K, V> extends AbstractCaffeineCache<K, V> {
                                                         .maximumSize(properties.getMaximumSize())
                                                         .removalListener(removalNotification -> {
                                                             if (LOG.isInfoEnabled()) {
-                                                                LOG.info("key：{}---- value：{} is remove!", removalNotification.getKey(), removalNotification.getValue());
+                                                                LOG.info("key：{} \n value：{} is remove", removalNotification.getKey(), removalNotification.getValue());
                                                             }
                                                         });
 
@@ -59,37 +59,37 @@ public class CaffeineCacheProvider<K, V> extends AbstractCaffeineCache<K, V> {
     }
 
     @Override
-    public V get(String namespace, K key, Long expired, Supplier<V> supplier) {
+    public V getValueAndSupplier(String namespace, K key, Long expired, Supplier<V> supplier) {
         Cache<K, V> kvCache = this.getCache(namespace);
         if (kvCache == null) {
             kvCache = this.loadCache(expired);
             this.putNamespace(namespace, kvCache);
         }
-        return this.getValue(kvCache, key, supplier);
+        return this.get(kvCache, key, supplier);
     }
 
     @Override
-    public V get(String namespace, K key, Supplier<V> supplier) {
+    public V getValueAndSupplier(String namespace, K key, Supplier<V> supplier) {
         Cache<K, V> kvCache = this.getCache(namespace);
         if (kvCache == null) {
             kvCache = this.loadCache(properties.getExpireAlterWrite());
             this.putNamespace(namespace, kvCache);
         }
-        return this.getValue(kvCache, key, supplier);
+        return this.get(kvCache, key, supplier);
     }
 
     @Override
-    public V get(String namespace, K key) {
+    public V getValue(String namespace, K key) {
         Cache<K, V> kvCache = this.getCache(namespace);
         if (kvCache == null) {
             kvCache = this.loadCache(properties.getExpireAlterWrite());
             this.putNamespace(namespace, kvCache);
         }
-        return this.getDefaultValue(kvCache, key);
+        return this.get(kvCache, key);
     }
 
     @Override
-    public void set(String namespace, K key, Long expired, V value) {
+    public void setValue(String namespace, K key, V value, Long expired) {
         Cache<K, V> kvCache = this.getCache(namespace);
         if (kvCache == null) {
             kvCache = this.loadCache(expired);
@@ -99,7 +99,7 @@ public class CaffeineCacheProvider<K, V> extends AbstractCaffeineCache<K, V> {
     }
 
     @Override
-    public void set(String namespace, K key, V value) {
+    public void setValue(String namespace, K key, V value) {
         Cache<K, V> kvCache = this.getCache(namespace);
         if (kvCache == null) {
             kvCache = this.loadCache(properties.getExpireAlterWrite());
@@ -110,7 +110,7 @@ public class CaffeineCacheProvider<K, V> extends AbstractCaffeineCache<K, V> {
 
     @Override
     public void invalidate(String namespace) {
-        this.cacheSpace.remove(this.keyFormatter(namespace));
+        this.cacheSpace.remove(this.formatNamespace(namespace));
         this.removeNamespaceLog(namespace);
     }
 
@@ -131,16 +131,24 @@ public class CaffeineCacheProvider<K, V> extends AbstractCaffeineCache<K, V> {
         }
     }
 
+    @Override
+    public void recordNamespace(String namespace) {
+
+    }
+
     private Cache<K, V> getCache(String namespace) {
-        return super.cacheSpace.get(this.keyFormatter(namespace));
+        return super.cacheSpace.get(this.formatNamespace(namespace));
     }
 
     private void putNamespace(String namespace, Cache<K, V> kvCache) {
-        super.cacheSpace.put(this.keyFormatter(namespace), kvCache);
+        final String formatNamespace = this.formatNamespace(namespace);
+        // 记录命名空间
+        this.recordNamespace(formatNamespace);
+        super.cacheSpace.put(formatNamespace, kvCache);
     }
 
-    private V getValue(Cache<K, V> cache, K key, Supplier<V> supplier) {
-        V var1 = this.getDefaultValue(cache, key);
+    private V get(Cache<K, V> cache, K key, Supplier<V> supplier) {
+        V var1 = this.get(cache, key);
         if (var1 != null) {
             return var1;
         }
@@ -152,7 +160,7 @@ public class CaffeineCacheProvider<K, V> extends AbstractCaffeineCache<K, V> {
         return var2;
     }
 
-    private V getDefaultValue(Cache<K, V> cache, K key) {
+    private V get(Cache<K, V> cache, K key) {
         assert cache != null;
         if (ObjectUtils.isEmpty(key)) {
             return null;

@@ -1,6 +1,6 @@
 package com.zf1976.ant.common.component.load.annotation;
 
-import com.zf1976.ant.common.component.load.enums.CacheRelation;
+import com.zf1976.ant.common.component.load.enums.CacheImplement;
 
 import java.lang.annotation.*;
 
@@ -27,13 +27,14 @@ public @interface CachePut {
     String key() default "";
 
     /**
-     * 开启动态key，根据token分组
+     * 动态命名空间缓存 根据用户分组
+     *
      * @return /
      */
-    boolean dynamicsKey() default false;
+    boolean dynamics() default false;
 
     /**
-     * 超时时间 - 单位:秒
+     * 命名空间超时时间 - 单位:分钟
      *
      * @return time
      */
@@ -43,5 +44,7 @@ public @interface CachePut {
      * 缓存实现
      * @return relation
      */
-    CacheRelation relation() default CacheRelation.REDIS;
+    CacheImplement implement() default CacheImplement.REDIS;
 }
+
+

@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
  * @author ant
  */
 @Slf4j
-@ResponseBody
 @RestControllerAdvice
 @SuppressWarnings("rawtypes")
 public class GlobalExceptionHandler {

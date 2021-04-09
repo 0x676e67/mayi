@@ -6,11 +6,11 @@ import com.zf1976.ant.common.component.load.ICache;
 import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.component.load.aspect.handler.SpringElExpressionHandler;
-import com.zf1976.ant.common.component.load.enums.CacheRelation;
+import com.zf1976.ant.common.component.load.enums.CacheImplement;
 import com.zf1976.ant.common.component.load.impl.CaffeineCacheProvider;
 import com.zf1976.ant.common.component.load.impl.RedisCacheProvider;
-import com.zf1976.ant.common.core.util.RequestUtils;
 import com.zf1976.ant.common.component.property.CaffeineProperties;
+import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -31,38 +31,25 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class LoadCacheAspect {
 
-    private final SpringElExpressionHandler handler;
-    private Map<CacheRelation, ICache<Object, Object>> cacheProviderMap;
-    public LoadCacheAspect(RedisTemplate<Object, Map<Object, Object>> mapRedisTemplate, CaffeineProperties properties) {
-        cacheProviderMap = new ConcurrentHashMap<>();
-        cacheProviderMap.put(CacheRelation.CAFFEINE, new CaffeineCacheProvider<>(properties));
-        cacheProviderMap.put(CacheRelation.REDIS, new RedisCacheProvider<>(properties, mapRedisTemplate));
-        handler = new SpringElExpressionHandler();
+    private final SpringElExpressionHandler handler = new SpringElExpressionHandler();
+    private Map<CacheImplement, ICache<Object, Object>> cacheProviderMap;
+    public LoadCacheAspect(RedisTemplate<Object, Object> template, CaffeineProperties properties) {
+        this.addProvider(CacheImplement.CAFFEINE, new CaffeineCacheProvider<>(properties));
+        this.addProvider(CacheImplement.REDIS, new RedisCacheProvider<>(properties, template));
         this.checkStatus();
     }
 
-    private void checkStatus() {
-        Assert.notNull(this.handler, "expression handler Uninitialized!");
-        Assert.notNull(this.cacheProviderMap, "cache provider Uninitialized!");
-    }
-
-    public void setCacheProvider(CacheRelation relation, ICache<Object, Object> cacheProvider) {
-        if (this.cacheProviderMap == null) {
-            this.cacheProviderMap = new ConcurrentHashMap<>(2);
-        }
-        this.cacheProviderMap.put(relation, cacheProvider);
-    }
-
-    @Around("@annotation(com.zf1976.ant.common.component.load.annotation.CachePut) && @annotation(cachePut))")
-    public Object saveCache(ProceedingJoinPoint joinPoint, CachePut cachePut) {
+    @Around("@annotation(com.zf1976.ant.common.component.load.annotation.CachePut) && @annotation(annotation))")
+    public Object put(ProceedingJoinPoint joinPoint, CachePut annotation) {
         Method method = this.handler.filterMethod(joinPoint);
         Object[] joinPointArgs = joinPoint.getArgs();
-        String key = this.handler.parse(method, joinPointArgs, cachePut.key(), String.class, cachePut.key());
-        if (cachePut.dynamicsKey()) {
-            key = this.formatDynamicsKey(this.getPrincipal(), key);
+        String namespace = annotation.namespace();
+        String key = this.handler.parse(method, joinPointArgs, annotation.key(), String.class, annotation.key());
+        if (annotation.dynamics()) {
+            key = key.concat(getUsername());
         }
-        ICache<Object, Object> cacheProvider = this.getCacheProvider(cachePut.relation());
-        return cacheProvider.get(cachePut.namespace(), key, cachePut.expired(), () -> {
+        ICache<Object, Object> cacheProvider = this.getProvider(annotation.implement());
+        return cacheProvider.getValueAndSupplier(namespace, key, annotation.expired(), () -> {
             try {
                 return joinPoint.proceed();
             } catch (Throwable throwable) {
@@ -74,14 +61,15 @@ public class LoadCacheAspect {
         });
     }
 
-    @Around("@annotation(com.zf1976.ant.common.component.load.annotation.CacheEvict) && @annotation(cacheEvict)")
-    public Object removeCache(ProceedingJoinPoint joinPoint, CacheEvict cacheEvict) throws Throwable {
+    @Around("@annotation(com.zf1976.ant.common.component.load.annotation.CacheEvict) && @annotation(annotation)")
+    public Object remove(ProceedingJoinPoint joinPoint, CacheEvict annotation) throws Throwable {
         Method method = this.handler.filterMethod(joinPoint);
         Object[] joinPointArgs = joinPoint.getArgs();
-        String[] dependOnNamespace = cacheEvict.dependsOn();
-        String namespace = cacheEvict.namespace();
+        String[] dependOnNamespace = annotation.dependsOn();
+        String namespace = annotation.namespace();
+        String key = annotation.key();
         // 默认策略清除所有缓存实现的命名空间
-        if (cacheEvict.relation() == CacheRelation.DEFAULT) {
+        if (annotation.strategy()) {
             this.cacheProviderMap.forEach((relation, cache) -> {
                 // 清除缓存空间
                 cache.invalidate(namespace);
@@ -92,9 +80,9 @@ public class LoadCacheAspect {
             });
         } else {
             // 根据缓存实现清除命名空间
-            ICache<Object, Object> cacheProvider = this.getCacheProvider(cacheEvict.relation());
+            ICache<Object, Object> cacheProvider = this.getProvider(annotation.implement());
             // 不存在key，清除缓存空间
-            if (StringUtil.isEmpty(cacheEvict.key())) {
+            if (StringUtil.isEmpty(key)) {
                 // 清除缓存空间
                 cacheProvider.invalidate(namespace);
                 // 清除依赖缓存空间
@@ -102,24 +90,30 @@ public class LoadCacheAspect {
                     cacheProvider.invalidate(depend);
                 }
             } else {
-                String key = this.handler.parse(method, joinPointArgs, cacheEvict.key(), String.class, null);
+                key = this.handler.parse(method, joinPointArgs, key, String.class, null);
                 cacheProvider.invalidate(namespace, key);
             }
         }
         return joinPoint.proceed();
     }
 
-    private ICache<Object, Object> getCacheProvider(CacheRelation relation) {
-        return this.cacheProviderMap.get(relation);
+    private void checkStatus() {
+        Assert.notNull(this.handler, "expression handler Uninitialized!");
+        Assert.notNull(this.cacheProviderMap, "cache provider Uninitialized!");
     }
 
-    private String formatDynamicsKey(Object prefix, String key) {
-        return prefix + "-" + key;
+    public void addProvider(CacheImplement relation, ICache<Object, Object> cacheProvider) {
+        if (this.cacheProviderMap == null) {
+            this.cacheProviderMap = new ConcurrentHashMap<>(2);
+        }
+        this.cacheProviderMap.put(relation, cacheProvider);
     }
 
-
-    private String getPrincipal() {
-        return RequestUtils.getRequest().getHeader("Authorization");
+    public ICache<Object, Object> getProvider(CacheImplement implement) {
+        return this.cacheProviderMap.get(implement);
     }
 
+    private String getUsername(){
+        return DistributedSessionManager.getUsername();
+    }
 }

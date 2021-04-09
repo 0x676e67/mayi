@@ -31,8 +31,8 @@ public class OAuth2TokenEnhancer implements TokenEnhancer {
         Map<String, Object> additionalInformation = new LinkedHashMap<>();
         // 签发方
         additionalInformation.put(AuthConstants.ISSUER, SecurityContextHolder.getIssuer());
-        // 签发时间
-        additionalInformation.put(AuthConstants.IAT, new Date());
+        // 签发时间 如果时间为new Date(), 网关拿公钥 解析错误:An error occurred while trying to decode Jwt: expiresAt must be after issueAt
+        additionalInformation.put(AuthConstants.IAT, System.currentTimeMillis() / 1000);
         // token唯一标识
         additionalInformation.put(AuthConstants.JTI, oAuth2AccessToken.getValue());
         // 客户端id

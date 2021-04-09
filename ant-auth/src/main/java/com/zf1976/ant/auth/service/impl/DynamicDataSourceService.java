@@ -1,12 +1,13 @@
-package com.zf1976.ant.auth.service;
+package com.zf1976.ant.auth.service.impl;
 
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.google.common.collect.Lists;
+import com.zf1976.ant.auth.service.AuthConfigAttribute;
 import com.zf1976.ant.common.component.action.ActionsScanner;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
-import com.zf1976.ant.common.component.load.enums.CacheRelation;
+import com.zf1976.ant.common.component.load.enums.CacheImplement;
 import com.zf1976.ant.common.core.constants.KeyConstants;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.security.annotation.Authorize;
@@ -16,14 +17,11 @@ import com.zf1976.ant.upms.biz.dao.SysResourceDao;
 import com.zf1976.ant.upms.biz.pojo.po.SysPermission;
 import com.zf1976.ant.upms.biz.pojo.po.SysResource;
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
-import javax.management.relation.Relation;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -115,7 +113,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
         }
     }
 
-    @CachePut(namespace = Namespace.DYNAMIC, key = KeyConstants.RESOURCES, relation = CacheRelation.REDIS)
+    @CachePut(namespace = Namespace.DYNAMIC, key = KeyConstants.RESOURCES)
     public Map<String, Collection<ConfigAttribute>> loadDataSource() {
         Map<String, Collection<ConfigAttribute>> matcherResourceMap = new HashMap<>(16);
         //清空缓存
@@ -197,7 +195,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
      * redis 反序化回来变成set
      * @return getAllowUri
      */
-    @CachePut(namespace = Namespace.DYNAMIC, key = KeyConstants.ALLOW, relation = CacheRelation.REDIS)
+    @CachePut(namespace = Namespace.DYNAMIC, key = KeyConstants.ALLOW)
     public List<String> getAllowUri() {
         CollectionUtils.mergeArrayIntoCollection(securityProperties.getIgnoreUri(), this.allowMethodSet);
         return Lists.newArrayList(this.allowMethodSet);

@@ -1,15 +1,14 @@
-package com.zf1976.ant.auth.service;
+package com.zf1976.ant.auth.service.impl;
 
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.zf1976.ant.auth.LoginUserDetails;
 import com.zf1976.ant.auth.convert.UserConvert;
 import com.zf1976.ant.auth.exception.UserNotFountException;
+import com.zf1976.ant.auth.service.UserDetailsServiceEnhancer;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
-import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.common.core.constants.Namespace;
-import com.zf1976.ant.common.core.util.RequestUtils;
 import com.zf1976.ant.common.security.enums.AuthenticationState;
-import com.zf1976.ant.common.security.pojo.AuthUserDetails;
+import com.zf1976.ant.common.security.pojo.Details;
 import com.zf1976.ant.common.security.pojo.vo.RoleVo;
 import com.zf1976.ant.common.security.pojo.UserInfo;
 import com.zf1976.ant.common.security.property.SecurityProperties;
@@ -18,7 +17,6 @@ import com.zf1976.ant.upms.biz.dao.*;
 import com.zf1976.ant.upms.biz.pojo.po.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -44,6 +42,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
     private final SysMenuDao sysMenuDao;
     private final SysPositionDao positionDao;
     private final UserConvert convert;
+    private final ThreadLocal<UserDetails> userDetailsThreadLocal = new ThreadLocal<>();
 
     public SecurityUserDetailsServiceImpl(SecurityProperties properties, SysDepartmentDao sysDepartmentDao, SysUserDao sysUserDao, SysRoleDao sysRoleDao, SysMenuDao sysMenuDao, SysPositionDao positionDao) {
         this.sysUserDao = sysUserDao;
@@ -53,39 +52,48 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
         this.securityProperties = properties;
         this.positionDao = positionDao;
         this.convert = UserConvert.INSTANCE;
+        this.userDetailsThreadLocal.remove();
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) {
-        // 初步验证用户是否存在
-        SysUser user = ChainWrappers.lambdaQueryChain(this.sysUserDao)
-                                    .eq(SysUser::getUsername, username)
-                                    .oneOpt()
-                                    .orElseThrow(() -> new UserNotFountException(AuthenticationState.USER_NOT_FOUNT));
-        // 查询用户部门
-        SysDepartment department = ChainWrappers.lambdaQueryChain(this.sysDepartmentDao)
-                                                .eq(SysDepartment::getId, user.getDepartmentId())
-                                                .one();
-        // 查询用户角色
-        List<SysRole> roleList = this.sysRoleDao.selectListByUserId(user.getId());
-        // 查询用户职位
-        List<SysPosition> positionList = this.positionDao.selectListByUserId(user.getId());
-        user.setDepartment(department);
-        user.setRoleList(roleList);
-        user.setPositionList(positionList);
-        final UserInfo userInfo = this.convert.convert(user);
-        if (userInfo == null) {
-            throw new UserNotFountException(AuthenticationState.USER_NOT_FOUNT);
+        UserDetails userDetails = this.userDetailsThreadLocal.get();
+        if (userDetails != null) {
+            return userDetails;
         }
+
+        final UserInfo userInfo = this.getUserInfo(username);
         if (!userInfo.getEnabled()) {
             throw new UserNotFountException(AuthenticationState.ACCOUNT_DISABLED);
         } else {
             // 权限值
-            final List<GrantedAuthority> grantedAuthorities = this.grantedAuthorities(userInfo);
+            List<GrantedAuthority> grantedAuthorities = this.grantedAuthorities(userInfo);
             // 数据权限
-            final Set<Long> grantedDataPermission = this.grantedDataPermission(userInfo);
-            return new LoginUserDetails(userInfo, grantedAuthorities, grantedDataPermission);
+            Set<Long> grantedDataPermission = this.grantedDataPermission(userInfo);
+            LoginUserDetails loginUserDetails = new LoginUserDetails(userInfo, grantedAuthorities, grantedDataPermission);
+            this.userDetailsThreadLocal.set(loginUserDetails);
+            return loginUserDetails;
         }
+    }
+
+    private UserInfo getUserInfo(String username) {
+        // 初步验证用户是否存在
+        SysUser sysUser = ChainWrappers.lambdaQueryChain(this.sysUserDao)
+                                       .eq(SysUser::getUsername, username)
+                                       .oneOpt()
+                                       .orElseThrow(() -> new UserNotFountException(AuthenticationState.USER_NOT_FOUNT));
+        // 查询用户部门
+        SysDepartment department = ChainWrappers.lambdaQueryChain(this.sysDepartmentDao)
+                                                .eq(SysDepartment::getId, sysUser.getDepartmentId())
+                                                .one();
+        // 查询用户角色
+        List<SysRole> roleList = this.sysRoleDao.selectListByUserId(sysUser.getId());
+        // 查询用户职位
+        List<SysPosition> positionList = this.positionDao.selectListByUserId(sysUser.getId());
+        sysUser.setDepartment(department);
+        sysUser.setRoleList(roleList);
+        sysUser.setPositionList(positionList);
+        return this.convert.convert(sysUser);
     }
 
     /**
@@ -189,9 +197,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
         } else {
             List<SysRole> sysRoles = sysRoleDao.selectListByUserId(userInfo.getId());
             authorities = sysRoles.stream()
-                                  .flatMap(sysRole -> sysMenuDao.selectListByRoleId(sysRole.getId())
-                                                                .stream()
-                                          )
+                                  .flatMap(sysRole -> sysMenuDao.selectListByRoleId(sysRole.getId()).stream())
                                   .map(SysMenu::getPermission)
                                   .filter(s -> !StringUtils.isEmpty(s))
                                   .collect(Collectors.toSet());
@@ -205,21 +211,21 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
         }
     }
 
-    @CachePut(namespace = Namespace.USER, key = "#username")
     @Override
-    public AuthUserDetails selectUserDetails(String username){
+    public Details selectUserDetails(String username){
         LoginUserDetails userDetails = (LoginUserDetails) this.loadUserByUsername(username);
-        return AuthUserDetails.UserDetailsBuilder.builder()
-                                                 .userInfo(userDetails.getUserInfo())
-                                                 .permission(userDetails.getPermission())
-                                                 .dataPermission(userDetails.getDataScopes())
-                                                 .build();
+        return Details.UserDetailsBuilder.builder()
+                                         .userInfo(userDetails.getUserInfo())
+                                         .permission(userDetails.getPermission())
+                                         .dataPermission(userDetails.getDataPermission())
+                                         .build();
     }
 
     @Override
-    public AuthUserDetails selectUserDetails() {
-        final String username = Objects.requireNonNull(DistributedSessionManager.getSession()).getUsername();
-        return selectUserDetails(username);
+    @CachePut(namespace = Namespace.USER, dynamics = true)
+    public Details selectUserDetails() {
+        final String username = DistributedSessionManager.getUsername();
+        return this.selectUserDetails(username);
     }
 
 }

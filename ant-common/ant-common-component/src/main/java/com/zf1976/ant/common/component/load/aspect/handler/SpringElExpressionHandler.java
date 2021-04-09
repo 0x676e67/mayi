@@ -23,7 +23,6 @@ import java.util.Optional;
  */
 public class SpringElExpressionHandler {
 
-    private static final Log LOG = LogFactory.getLog(SpringElExpressionHandler.class);
     /**
      * SpEL表达式解析器
      */
@@ -53,9 +52,8 @@ public class SpringElExpressionHandler {
         }
         try {
             Expression expression = parser.parseExpression(springEl);
-            return Optional.ofNullable(expression.getValue(context, clazz))
-                           .orElse(defaultResult);
-        } catch (Exception e) {
+            return Optional.ofNullable(expression.getValue(context, clazz)).orElse(defaultResult);
+        } catch (Exception ignored) {
             return defaultResult;
         }
     }

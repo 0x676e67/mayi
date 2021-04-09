@@ -26,10 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -56,7 +53,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      *
      * @return /
      */
-    @CachePut(namespace = Namespace.ROLE, key = "list")
+    @CachePut(namespace = Namespace.ROLE, key = "selectAllRole")
     public IPage<RoleVO> selectAll() {
         IPage<SysRole> page = super.lambdaQuery()
                                    .select(SysRole::getId, SysRole::getName)
@@ -87,12 +84,12 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      *
      * @return math
      */
-    @CachePut(namespace = Namespace.ROLE, key = "level")
+    @CachePut(namespace = Namespace.ROLE, dynamics = true)
     public Integer selectRoleLevel() {
         if (DistributedSessionManager.isOwner()) {
             return 0;
         }
-        return super.baseMapper.selectListByUsername(DistributedSessionManager.username())
+        return super.baseMapper.selectListByUsername(Objects.requireNonNull(DistributedSessionManager.getSession()).getUsername())
                                .stream()
                                .map(SysRole::getLevel)
                                .min(Integer::compareTo)
@@ -108,7 +105,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      */
     @CacheEvict(namespace = Namespace.ROLE, dependsOn = Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> setRoleStatus(Long id, Boolean enabled) {
+    public Optional<Void> updateRoleStatus(Long id, Boolean enabled) {
         SysRole sysRole = super.lambdaQuery()
                                .eq(SysRole::getId, id)
                                .oneOpt().orElseThrow(() -> new RoleException(RoleState.ROLE_NOT_FOUND));
@@ -166,7 +163,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      * @param dto role dto
      * @return /
      */
-    @CacheEvict(namespace = Namespace.ROLE, dependsOn = Namespace.USER)
+    @CacheEvict(namespace = Namespace.ROLE)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> savaRole(RoleDTO dto) {
         // 范围消息
@@ -180,9 +177,6 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
                  throw new RoleException(RoleState.ROLE_EXISTING, sysRole.getName());
              });
         SysRole sysRole = this.convert.toEntity(dto);
-        String currentUser = DistributedSessionManager.username();
-        sysRole.setCreateBy(currentUser);
-        sysRole.setCreateTime(new Date());
         super.savaEntity(sysRole);
         if (permissionEnum == DataPermissionEnum.ALL) {
             Set<Long> result = this.sysDepartmentDao.selectList(null)
@@ -211,7 +205,8 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
         //查询角色是否存在
         SysRole sysRole = super.lambdaQuery()
                                .eq(SysRole::getId, dto.getId())
-                               .oneOpt().orElseThrow(() -> new RoleException(RoleState.ROLE_NOT_FOUND));
+                               .oneOpt()
+                               .orElseThrow(() -> new RoleException(RoleState.ROLE_NOT_FOUND));
         switch (permissionEnum) {
             case ALL:
                 Set<Long> dataPermission = this.sysDepartmentDao.selectList(null)
@@ -226,8 +221,11 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
             default:
                 break;
         }
-        this.update(dto, sysRole);
+        // 复制属性
+        this.convert.copyProperties(dto, sysRole);
+
         this.updateDependent(dto);
+        super.updateEntityById(sysRole);
         return Optional.empty();
     }
 
@@ -252,20 +250,6 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
                         super.baseMapper.saveMenuRelationById(dto.getId(), result);
                     }
                 });
-    }
-
-    /**
-     * 更新
-     *
-     * @param dto dto
-     * @param sysRole sysRole
-     */
-    private void update(RoleDTO dto, SysRole sysRole) {
-        this.convert.copyProperties(dto, sysRole);
-        final String username = DistributedSessionManager.username();
-        sysRole.setUpdateBy(username);
-        sysRole.setCreateTime(new Date());
-        super.updateEntityById(sysRole);
     }
 
     /**

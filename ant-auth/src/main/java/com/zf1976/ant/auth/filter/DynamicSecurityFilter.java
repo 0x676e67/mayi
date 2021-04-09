@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.zf1976.ant.auth.filter.datasource.DynamicSecurityMetadataSource;
 import com.zf1976.ant.auth.filter.manager.DynamicAccessDecisionManager;
-import com.zf1976.ant.auth.service.DynamicDataSourceService;
+import com.zf1976.ant.auth.service.impl.DynamicDataSourceService;
 import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import org.slf4j.Logger;

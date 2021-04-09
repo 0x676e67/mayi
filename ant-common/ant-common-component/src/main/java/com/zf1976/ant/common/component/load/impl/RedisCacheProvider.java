@@ -3,140 +3,116 @@ package com.zf1976.ant.common.component.load.impl;
 import com.zf1976.ant.common.component.load.ICache;
 import com.zf1976.ant.common.component.property.CaffeineProperties;
 import com.zf1976.ant.common.core.util.RedisUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 /**
+ * 如果命名空间缓存保持活跃状态，那么剩余时间将被更新
+ *
  * @author mac
  * @date 2021/3/14
  **/
 public class RedisCacheProvider<K, V> implements ICache<K, V> {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final CaffeineProperties properties;
-    private final RedisTemplate<Object, Map<Object, Object>> redisTemplate;
+    private final RedisTemplate<Object, Object> redisTemplate;
 
-    public RedisCacheProvider(CaffeineProperties properties, RedisTemplate<Object, Map<Object, Object>> redisTemplate) {
+    public RedisCacheProvider(CaffeineProperties properties, RedisTemplate<Object, Object> redisTemplate) {
         this.properties = properties;
         this.redisTemplate = redisTemplate;
     }
 
     @Override
-    public V get(String namespace, K key, Long expired, Supplier<V> supplier) {
-        Map<K, V> kvMap = this.getCacheSpace(namespace);
-        if (kvMap == null) {
-            kvMap = new ConcurrentHashMap<>(16);
-        }
-        V value = this.getValue(kvMap, key, supplier);
-        this.saveCacheSpace(namespace, kvMap, expired);
-        return value;
+    public void recordNamespace(String namespace) {
+        throw new UnsupportedOperationException("unsupported this record method");
     }
 
     @Override
-    public V get(String namespace, K key, Supplier<V> supplier) {
-        Map<K, V> kvMap = this.getCacheSpace(namespace);
-        if (kvMap == null) {
-            kvMap = new ConcurrentHashMap<>(16);
-        }
-        V value = this.getValue(kvMap, key, supplier);
-        this.saveCacheSpace(namespace, kvMap);
-        return value;
+    public String formatNamespace(String namespace) {
+        return this.properties.getKeyPrefix().concat("[" + namespace + "]");
     }
 
     @Override
-    public V get(String namespace, K key) {
-        Map<K, V> kvMap = this.getCacheSpace(namespace);
-        if (kvMap == null) {
-            kvMap = new ConcurrentHashMap<>(16);
-        }
-        this.saveCacheSpace(namespace, kvMap);
-        return  kvMap.get(key);
+    public void setValue(String namespace, K key, V value, Long expired) {
+        final String formatNamespace = this.formatNamespace(namespace);
+        this.redisTemplate.opsForHash().put(formatNamespace, key, value);
+        this.setExpired(formatNamespace, expired);
     }
 
     @Override
-    public void set(String namespace, K key, Long expired, V value) {
-        Map<K, V> kvMap = this.getCacheSpace(namespace);
-        if (kvMap == null) {
-            kvMap = new ConcurrentHashMap<>(16);
-        }
-        kvMap.put(key, value);
-        this.saveCacheSpace(namespace, kvMap, expired);
+    public void setValue(String namespace, K key, V value) {
+        this.setValue(namespace, key, value, properties.getExpireAlterWrite());
     }
 
-    @Override
-    public void set(String namespace, K key, V value) {
-        Map<K, V> kvMap = this.getCacheSpace(namespace);
-        if (kvMap == null) {
-            kvMap = new ConcurrentHashMap<>(16);
-        }
-        kvMap.put(key, value);
-        this.saveCacheSpace(namespace, kvMap);
+    private void setExpired(String namespace, Long expired) {
+        this.redisTemplate.expire(namespace,
+                expired == null || expired < properties.getExpireAlterWrite()? properties.getExpireAlterWrite() : expired,
+                TimeUnit.MINUTES);
     }
 
     @Override
     public void invalidate(String namespace) {
-        this.redisTemplate.delete(this.keyFormatter(namespace));
+        this.redisTemplate.delete(this.formatNamespace(namespace));
     }
 
     @Override
     public void invalidate(String namespace, K key) {
-        Map<K, V> kvMap = this.getCacheSpace(namespace);
-        Long expire = this.redisTemplate.getExpire(this.keyFormatter(namespace), TimeUnit.MINUTES);
-        if (kvMap != null && expire != null) {
-            kvMap.remove(key);
-            this.saveCacheSpace(namespace, kvMap, expire);
-        }
+        this.redisTemplate.opsForHash().delete(namespace, key);
     }
 
     @Override
     public void invalidateAll() {
-        final Set<String> keys = RedisUtils.scanKeys(this.keyFormatter("*"));
+        final Set<String> keys = RedisUtils.scanKeys(this.formatNamespace("*"));
         if (!CollectionUtils.isEmpty(keys)) {
             this.redisTemplate.delete(keys);
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private void saveCacheSpace(String namespace, Map<K, V> kvMap, Long expired) {
-        this.redisTemplate.opsForValue()
-                          .set(this.keyFormatter(namespace),
-                                  (Map<Object, Object>) kvMap,
-                                  expired == null || expired <0 ? properties.getExpireAlterWrite() : expired,
-                                  TimeUnit.MINUTES);
-    }
 
-    @SuppressWarnings("unchecked")
-    private void saveCacheSpace(String namespace, Map<K, V> kvMap) {
-        this.redisTemplate.opsForValue()
-                          .set(this.keyFormatter(namespace),
-                                  (Map<Object, Object>) kvMap,
-                                  properties.getExpireAlterWrite(),
-                                  TimeUnit.MINUTES);
-    }
-
-    @SuppressWarnings("unchecked")
-    private Map<K, V> getCacheSpace(String namespace) {
-        return (Map<K, V>) this.redisTemplate.opsForValue().get(this.keyFormatter(namespace));
-    }
-
-    private String keyFormatter(String key) {
-        return this.properties.getKeyPrefix() + key;
-    }
-
-    private V getValue(Map<K, V> kvMap, K k, Supplier<V> supplier) {
-        V var1 = kvMap.get(k);
-        if (var1 != null) {
-            return var1;
+    @Override
+    public V getValueAndSupplier(String namespace, K key, Long expired, Supplier<V> supplier) {
+        V value = this.getValueAndUpdate(namespace, key, expired);
+        if (value != null) {
+            return value;
         }
-        V var2 = supplier.get();
-        if (var2 != null) {
-            kvMap.put(k, var2);
+        value = supplier.get();
+        if (value != null) {
+            this.setValue(namespace, key, value, expired);
         }
-        return var2;
+        return value;
+    }
+
+    @Override
+    public V getValueAndSupplier(String namespace, K key, Supplier<V> supplier) {
+        V value = this.getValue(namespace, key);
+        if (value != null) {
+            return value;
+        }
+        value = supplier.get();
+        if (value != null) {
+            this.setValue(namespace, key, value);
+        }
+        return value;
+    }
+
+    public V getValueAndUpdate(String namespace, K key, Long expired) {
+        @SuppressWarnings("unchecked")
+        V value = (V) this.redisTemplate.opsForHash().get(this.formatNamespace(namespace), key);
+        this.setExpired(namespace, expired);
+        return value;
+    }
+
+    @Override
+    public V getValue(String namespace, K key) {
+        @SuppressWarnings("unchecked")
+        V value = (V) this.redisTemplate.opsForHash().get(this.formatNamespace(namespace), key);
+        return value;
     }
 }

@@ -1,4 +1,4 @@
-package com.zf1976.ant.auth;
+package com.zf1976.ant.common.security.constant;
 
 /**
  * @author mac

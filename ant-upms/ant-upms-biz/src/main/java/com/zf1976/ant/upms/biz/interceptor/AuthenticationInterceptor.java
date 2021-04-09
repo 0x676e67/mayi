@@ -47,14 +47,14 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) {
         if (request.getMethod().equals(HttpMethod.OPTIONS.name())) {
-            return  true;
+            return true;
         }
-        var token = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (token == null) {
-            this.unauthenticatedHandler(response);
-            return false;
-        }
+
         try {
+            var token = request.getHeader(HttpHeaders.AUTHORIZATION);
+            if (token == null) {
+                throw new UnsupportedOperationException(HttpStatus.UNAUTHORIZED.getReasonPhrase());
+            }
             return DistributedSessionManager.getSession() != null;
         }catch (Exception e) {
             if (logger.isDebugEnabled()) {

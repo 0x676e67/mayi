@@ -85,9 +85,8 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param requestPage request page
      * @return /
      */
-    @CachePut(namespace = Namespace.USER, key = "#requestPage", dynamicsKey = true)
+    @CachePut(namespace = Namespace.USER, key = "#requestPage", dynamics = true)
     public IPage<UserVO> selectUserPage(RequestPage<UserQueryParam> requestPage) {
-        Assert.notNull(requestPage, "request page can not been null");
         IPage<SysUser> sourcePage = null;
         // 非super admin 过滤数据权限
         if (!DistributedSessionManager.isOwner()) {
@@ -309,7 +308,6 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
             }finally {
                 validateService.clear(dto.getEmail());
             }
-
         }
         if (!ObjectUtils.isEmpty(businessException)) {
             throw  businessException;
@@ -387,10 +385,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
                 });
              });
         SysUser sysUser = this.convert.toEntity(dto);
-        String username = DistributedSessionManager.username();
         sysUser.setPassword(DigestUtils.md5DigestAsHex(DEFAULT_PASSWORD_BYTE));
-        sysUser.setCreateBy(username);
-        sysUser.setCreateTime(new Date());
         super.savaEntity(sysUser);
         super.baseMapper.savePositionRelationById(sysUser.getId(), dto.getPositionIds());
         super.baseMapper.savaRoleRelationById(sysUser.getId(), dto.getRoleIds());
@@ -497,7 +492,8 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     public Optional<Void> deleteUser(Set<Long> ids) {
         if (DistributedSessionManager.isOwner()) {
             SysUser sysUser = super.lambdaQuery()
-                                   .eq(SysUser::getUsername, DistributedSessionManager.username())
+                                   .eq(SysUser::getUsername, Objects.requireNonNull(DistributedSessionManager.getSession())
+                                                                    .getUsername())
                                    .oneOpt().orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
             if (ids.contains(sysUser.getId())) {
                 throw new UserException(UserState.USER_OPT_ERROR);

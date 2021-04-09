@@ -33,7 +33,7 @@ public class SysMenuController {
 
     @GetMapping("/build")
     public DataResult<Collection<MenuBuildVO>> buildMenuRoute() {
-        return DataResult.success(service.getMenuRoute());
+        return DataResult.success(service.generatedMenu());
     }
 
     @PostMapping("/page")

@@ -66,13 +66,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     private final KeyPair keyPair;
     private boolean isRunning = false;
 
-    public AuthorizationServerConfiguration(UserDetailsService userDetailsService,
-                                            PasswordEncoder passwordEncoder,
-                                            AuthenticationManager authenticationManager,
-                                            RedisTemplate<Object, Object> template,
-                                            JdbcClientDetailsServiceEnhancer jdbcClientDetailsServiceEnhancer,
-                                            CaptchaService captchaService,
-                                            KeyPair keyPair) {
+    public AuthorizationServerConfiguration(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, RedisTemplate<Object, Object> template, JdbcClientDetailsServiceEnhancer jdbcClientDetailsServiceEnhancer, CaptchaService captchaService, KeyPair keyPair) {
         this.userDetailsService =  userDetailsService;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
@@ -125,7 +119,6 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         SecurityContextHolder.setShareObject(TokenStore.class, tokenStore);
         endpoints.authenticationManager(authenticationManager)
                  .tokenStore(tokenStore)
-                 .allowedTokenEndpointRequestMethods(HttpMethod.POST)
                  .tokenEnhancer(tokenEnhancerChain())
                  .accessTokenConverter(jwtAccessTokenConverter())
                  .userDetailsService(userDetailsService)
@@ -178,7 +171,6 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         enhancerChain.setTokenEnhancers(enhancerList);
         return enhancerChain;
     }
-
 
     /**
      * 所有bean初始化完成

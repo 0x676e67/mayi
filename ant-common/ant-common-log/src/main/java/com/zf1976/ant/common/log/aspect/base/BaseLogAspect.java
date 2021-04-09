@@ -117,6 +117,7 @@ public abstract class BaseLogAspect {
     }
 
     private String getPrincipal() {
-        return DistributedSessionManager.username();
+        return Objects.requireNonNull(DistributedSessionManager.getSession())
+                      .getUsername();
     }
 }

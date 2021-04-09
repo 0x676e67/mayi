@@ -59,7 +59,7 @@ public class SysRoleController {
     @PatchMapping("/status")
 //    @Authorize("role:edit")
     public DataResult<Optional<Void>> setRoleStatus(@RequestParam @NotNull Long id, @RequestParam @NotNull Boolean enabled) {
-        return DataResult.success(service.setRoleStatus(id, enabled));
+        return DataResult.success(service.updateRoleStatus(id, enabled));
     }
 
     @Log(description = "新增角色")

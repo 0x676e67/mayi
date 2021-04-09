@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author mac
@@ -137,9 +138,8 @@ public final class RequestUtils extends RequestContextHolder {
                     }
                 }
             });
-
-            HttpResponse httpResponse = future.get();
-            return getResult(httpResponse);
+            HttpResponse httpResponse = future.get(100, TimeUnit.MILLISECONDS);
+            return getRegionResult(httpResponse);
         } catch (Exception ignore) {
             LOG.error("get ip region error");
             return UNKNOWN_HOST;
@@ -195,7 +195,7 @@ public final class RequestUtils extends RequestContextHolder {
      * @return result
      */
     @SuppressWarnings("unchecked")
-    private static String getResult(HttpResponse response) {
+    private static String getRegionResult(HttpResponse response) {
         try (InputStream inputStream = response.getEntity()
                                                .getContent()) {
             byte[] bytes = new byte[inputStream.available()];

@@ -1,6 +1,6 @@
 package com.zf1976.ant.auth.filter.manager;
 
-import com.zf1976.ant.auth.service.DynamicDataSourceService;
+import com.zf1976.ant.auth.service.impl.DynamicDataSourceService;
 import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;

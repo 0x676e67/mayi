@@ -21,10 +21,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -42,7 +39,7 @@ public class SysLogService extends ServiceImpl<SysLogDao, SysLog> {
         Assert.notNull(param, BusinessMsgState.PARAM_ILLEGAL::getReasonPhrase);
         // 构建分页对象
         Page<SysLog> page = new Page<>(requestPage.getPage(), requestPage.getSize());
-        var username = DistributedSessionManager.username();
+        var username = Objects.requireNonNull(DistributedSessionManager.getSession()).getUsername();
         Page<SysLog> sourcePage = super.lambdaQuery()
                                        .eq(SysLog::getLogType, LogType.INFO)
                                        .eq(SysLog::getUsername, username)

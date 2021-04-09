@@ -4,23 +4,19 @@ import com.power.common.util.StringUtil;
 import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.common.core.util.RequestUtils;
 import com.zf1976.ant.common.security.property.SecurityProperties;
+import lombok.NonNull;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.Cursor;
-import org.springframework.data.redis.core.RedisConnectionUtils;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -66,6 +62,21 @@ public class DistributedSessionManager {
         }
     }
 
+    public static List<Session> selectListByIds(Collection<Long> ids) {
+        List<Session> sessions = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(ids)) {
+            ids.forEach(aLong -> {
+                sessions.add(getSession(aLong));
+            });
+
+        }
+        return sessions;
+    }
+
+    public static String getUsername() {
+        return Objects.requireNonNull(getSession()).getUsername();
+    }
+
     /**
      * 读取当前请求session
      *
@@ -74,7 +85,7 @@ public class DistributedSessionManager {
      */
     public static Session getSession(){
         try {
-            final String token = token();
+            final String token = getToken();
             Object o = redisTemplate.opsForValue().get(formatToken(token));
             if (ObjectUtils.isEmpty(o)) {
                 return null;
@@ -84,7 +95,7 @@ public class DistributedSessionManager {
             return getSession(sessionId);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e.getCause());
-            return null;
+            throw e;
         }
     }
 
@@ -94,12 +105,17 @@ public class DistributedSessionManager {
      * @param sessionId session id
      * @return session
      */
+    @NonNull
     public static Session getSession(Long sessionId) {
         try {
-            return (Session) redisTemplate.opsForValue().get(formatId(sessionId));
+            final Object o = redisTemplate.opsForValue().get(formatId(sessionId));
+            if (o == null) {
+                throw new UnsupportedOperationException("session expired");
+            }
+            return (Session) o;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e.getCause());
-            return null;
+            throw e;
         }
     }
 
@@ -110,7 +126,7 @@ public class DistributedSessionManager {
      */
     public static void removeSession(Long sessionId) {
         try {
-            Optional.ofNullable(getSession(sessionId))
+            Optional.of(getSession(sessionId))
                     .ifPresent(session -> {
                         redisTemplate.delete(formatId(sessionId));
                         redisTemplate.delete(formatToken(session.getToken()));
@@ -125,7 +141,7 @@ public class DistributedSessionManager {
      */
     public static void removeSession(){
         try {
-            final String token = token();
+            final String token = getToken();
             Object o = redisTemplate.opsForValue().get(formatToken(token));
             if (ObjectUtils.isEmpty(o)) {
                 return;
@@ -155,7 +171,10 @@ public class DistributedSessionManager {
      * @return session
      */
     public static Long getSessionId(){
-        return (Long) redisTemplate.opsForValue().get(formatToken(token()));
+        final Object o = redisTemplate.opsForValue().get(formatToken(getToken()));
+        Assert.isInstanceOf(Integer.class, o);
+        Assert.notNull(o,"session id cannot been null");
+        return Long.parseLong(o.toString());
     }
     /**
      * owner
@@ -181,8 +200,9 @@ public class DistributedSessionManager {
      *
      * @return token
      */
-    private static String token(){
-        var header = getAuthenticationForHeader() == null ? getAuthenticationForAttribute() : null;
+    private static String getToken(){
+        final String token = getAuthenticationForHeader();
+        var header = token == null ? getAuthenticationForAttribute() : token;
         if (header == null) {
             throw new UnsupportedOperationException(HttpStatus.UNAUTHORIZED.getReasonPhrase());
         }
