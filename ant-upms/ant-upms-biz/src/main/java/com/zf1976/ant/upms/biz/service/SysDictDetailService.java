@@ -26,7 +26,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.util.Date;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -81,6 +80,9 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> saveDictDetail(DictDetailDTO dto) {
         SysDictDetail sysDictDetail = convert.toEntity(dto);
+//        final String principal = SecurityContextHolder.getPrincipal();
+//        sysDictDetail.setCreateBy(principal);
+        sysDictDetail.setCreateTime(new Date());
         super.savaEntity(sysDictDetail);
         return Optional.empty();
     }
@@ -100,6 +102,9 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
                                            .oneOpt()
                                            .orElseThrow(() -> new DictException(DictState.DICT_NOT_FOUND));
         this.convert.copyProperties(dto, sysDictDetail);
+        String username = DistributedSessionManager.username();
+        sysDictDetail.setCreateBy(username);
+        sysDictDetail.setUpdateTime(new Date());
         super.updateEntityById(sysDictDetail);
         return Optional.empty();
     }
