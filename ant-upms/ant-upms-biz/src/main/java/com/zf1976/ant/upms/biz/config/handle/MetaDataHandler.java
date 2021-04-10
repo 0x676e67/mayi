@@ -37,7 +37,7 @@ public class MetaDataHandler implements MetaObjectHandler {
     }
 
     private String getPrincipal() {
-        return Objects.requireNonNull(DistributedSessionManager.getSession()).getUsername();
+        return DistributedSessionManager.getUsername();
     }
 
 }

@@ -291,7 +291,8 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
                  });
              });
 
-        dto.setPid(dto.getPid() != null? dto.getPid() > 0? dto.getPid(): null : null);
+        final Long id = (dto.getPid() != null)? (dto.getPid() > 0 ? dto.getPid() : null) : null;
+        dto.setPid(id);
         SysMenu sysMenu = this.convert.toEntity(dto);
         super.savaEntity(sysMenu);
         return Optional.empty();

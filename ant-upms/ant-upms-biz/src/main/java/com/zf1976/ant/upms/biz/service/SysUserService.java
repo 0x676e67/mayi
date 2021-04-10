@@ -94,11 +94,11 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
             Set<Long> dataPermission = securityClient.getUserDetails().getData().getDataPermission();
             List<Long> userIds = super.baseMapper.selectByDepartmentIds(dataPermission);
             sourcePage = super.queryChain()
-                             .setQueryParam(requestPage, () -> {
-                                 // 自定义条件
-                                 return ChainWrappers.queryChain(super.baseMapper)
-                                                     .in(getColumn(SysUser::getId), userIds);
-                             }).selectPage();
+                              .setQueryParam(requestPage, () -> {
+                                  // 自定义条件
+                                  return ChainWrappers.queryChain(super.baseMapper)
+                                                      .in(getColumn(SysUser::getId), userIds);
+                              }).selectPage();
         } else {
             sourcePage = super.queryChain()
                               .setQueryParam(requestPage)
@@ -107,9 +107,9 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         // 根据部门分页
         IPage<SysUser> finalSourcePage = sourcePage;
         Optional.ofNullable(requestPage.getQuery())
-                .ifPresent(userQueryParam -> {
-                    if (userQueryParam.getDepartmentId() != null) {
-                        Long departmentId = userQueryParam.getDepartmentId();
+                .ifPresent(queryParam -> {
+                    if (queryParam.getDepartmentId() != null) {
+                        Long departmentId = queryParam.getDepartmentId();
                         Set<Long> ids = new HashSet<>();
                         ids.add(departmentId);
                         this.sysDepartmentDao.selectChildrenById(departmentId)

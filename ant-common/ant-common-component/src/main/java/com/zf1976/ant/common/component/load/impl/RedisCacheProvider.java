@@ -51,12 +51,6 @@ public class RedisCacheProvider<K, V> implements ICache<K, V> {
         this.setValue(namespace, key, value, properties.getExpireAlterWrite());
     }
 
-    private void setExpired(String namespace, Long expired) {
-        this.redisTemplate.expire(namespace,
-                expired == null || expired < properties.getExpireAlterWrite()? properties.getExpireAlterWrite() : expired,
-                TimeUnit.MINUTES);
-    }
-
     @Override
     public void invalidate(String namespace) {
         this.redisTemplate.delete(this.formatNamespace(namespace));
@@ -100,6 +94,12 @@ public class RedisCacheProvider<K, V> implements ICache<K, V> {
             this.setValue(namespace, key, value);
         }
         return value;
+    }
+
+    private void setExpired(String namespace, Long expired) {
+        this.redisTemplate.expire(namespace,
+                expired == null || expired < properties.getExpireAlterWrite()? properties.getExpireAlterWrite() : expired,
+                TimeUnit.MINUTES);
     }
 
     public V getValueAndUpdate(String namespace, K key, Long expired) {

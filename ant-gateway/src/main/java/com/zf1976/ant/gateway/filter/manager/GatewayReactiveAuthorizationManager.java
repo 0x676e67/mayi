@@ -77,9 +77,9 @@ public class GatewayReactiveAuthorizationManager implements ReactiveAuthorizatio
         }
         // 提取系统资源权限
         Set<String> permissionSet = this.extractPermission(request)
-                                  .stream()
-                                  .map(GrantedAuthority::getAuthority)
-                                  .collect(Collectors.toSet());
+                                        .stream()
+                                        .map(GrantedAuthority::getAuthority)
+                                        .collect(Collectors.toSet());
         return mono.filter(Authentication::isAuthenticated)
                    .flatMapIterable(Authentication::getAuthorities)
                    .map(GrantedAuthority::getAuthority)

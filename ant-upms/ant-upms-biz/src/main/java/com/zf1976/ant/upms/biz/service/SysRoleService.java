@@ -87,7 +87,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
     @CachePut(namespace = Namespace.ROLE, dynamics = true)
     public Integer selectRoleLevel() {
         if (DistributedSessionManager.isOwner()) {
-            return 0;
+            return -1;
         }
         return super.baseMapper.selectListByUsername(Objects.requireNonNull(DistributedSessionManager.getSession()).getUsername())
                                .stream()
@@ -223,7 +223,6 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
         }
         // 复制属性
         this.convert.copyProperties(dto, sysRole);
-
         this.updateDependent(dto);
         super.updateEntityById(sysRole);
         return Optional.empty();
