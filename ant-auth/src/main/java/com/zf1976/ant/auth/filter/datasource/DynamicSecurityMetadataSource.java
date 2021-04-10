@@ -3,6 +3,7 @@ package com.zf1976.ant.auth.filter.datasource;
 import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.auth.service.impl.DynamicDataSourceService;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.util.AntPathMatcher;
@@ -13,7 +14,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
 
 /**
  * 动态权限数据源
@@ -23,7 +26,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  **/
 public class DynamicSecurityMetadataSource implements FilterInvocationSecurityMetadataSource {
 
-    private Map<String, Collection<ConfigAttribute>> requestMap;
+    private Map<String, Collection<String>> requestMap;
 
     public DynamicSecurityMetadataSource() {
         this.initialize();
@@ -43,21 +46,33 @@ public class DynamicSecurityMetadataSource implements FilterInvocationSecurityMe
         HttpServletRequest request = ((FilterInvocation) o).getRequest();
         String uri = request.getRequestURI();
         AntPathMatcher pathMatcher = new AntPathMatcher();
-        for (Map.Entry<String, Collection<ConfigAttribute>> entry : requestMap.entrySet()) {
+        for (Map.Entry<String, Collection<String>> entry : requestMap.entrySet()) {
             if (pathMatcher.match(entry.getKey(), uri)) {
                 // 返回匹配URL权限值，自定义数据源
-                return Collections.unmodifiableCollection(entry.getValue());
+                return entry.getValue()
+                            .stream()
+                            .map(SecurityConfig::new)
+                            .collect(Collectors.toUnmodifiableSet());
             }
         }
         // 不存在资源资源路径 返回空
         return Collections.emptyList();
     }
 
+    /**
+     * 获取所有权限属性
+     *
+     * @return {@link Collection<ConfigAttribute>}
+     */
     @Override
     public Collection<ConfigAttribute> getAllConfigAttributes() {
         Collection<ConfigAttribute> configAttributes = new CopyOnWriteArraySet<>();
-        for (Map.Entry<String, Collection<ConfigAttribute>> collectionEntry : this.requestMap.entrySet()) {
-            configAttributes.addAll(collectionEntry.getValue());
+        for (Map.Entry<String, Collection<String>> collectionEntry : this.requestMap.entrySet()) {
+            final Set<SecurityConfig> securityConfigs = collectionEntry.getValue()
+                                                                       .stream()
+                                                                       .map(SecurityConfig::new)
+                                                                       .collect(Collectors.toSet());
+            configAttributes.addAll(securityConfigs);
         }
         return configAttributes;
     }

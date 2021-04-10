@@ -6,6 +6,7 @@ import lombok.ToString;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -15,9 +16,9 @@ import java.util.Optional;
  * @author mac
  * @date 2020/10/22 9:11 下午
  */
-public class RequestPage<T extends AbstractQueryParam> {
+public class Query<T extends AbstractQueryParam> implements Serializable {
 
-    public static final int MAX_SIZE = 10000;
+    public static final int MAX_SIZE = 1000;
     public static final int MIN_PAGE = 0;
 
     /**
@@ -26,7 +27,7 @@ public class RequestPage<T extends AbstractQueryParam> {
     private int page;
 
     /**
-     * 每页最大数
+     * 每页数
      */
     private int size;
 

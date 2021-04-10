@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.log.annotation.Log;
 import com.zf1976.ant.upms.biz.pojo.dto.role.RoleDTO;
-import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.query.RoleQueryParam;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationInsertGroup;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationUpdateGroup;
@@ -38,7 +38,7 @@ public class SysRoleController {
 
     @PostMapping("/page")
 //    @Authorize("role:list")
-    public DataResult<IPage<RoleVO>> selectRolePage(@RequestBody RequestPage<RoleQueryParam> requestPage) {
+    public DataResult<IPage<RoleVO>> selectRolePage(@RequestBody Query<RoleQueryParam> requestPage) {
         return DataResult.success(service.selectRolePage(requestPage));
     }
 

@@ -2,7 +2,7 @@ package com.zf1976.ant.upms.biz.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.common.core.foundation.DataResult;
-import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.query.SessionQueryParam;
 import com.zf1976.ant.upms.biz.pojo.vo.SessionVO;
 import com.zf1976.ant.upms.biz.service.SysOnlineService;
@@ -26,7 +26,7 @@ public class OnlineController {
     }
 
     @PostMapping("/page")
-    public DataResult<IPage<SessionVO>> selectSessionList(@RequestBody RequestPage<SessionQueryParam> requestPage) {
+    public DataResult<IPage<SessionVO>> selectSessionList(@RequestBody Query<SessionQueryParam> requestPage) {
         return DataResult.success(this.service.selectSessionPage(requestPage));
     }
 

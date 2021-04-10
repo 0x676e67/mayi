@@ -7,8 +7,7 @@ import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.core.foundation.exception.BusinessException;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
-import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
-import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.convert.DepartmentConvert;
 import com.zf1976.ant.upms.biz.dao.SysDepartmentDao;
 import com.zf1976.ant.upms.biz.exception.DepartmentException;
@@ -45,13 +44,13 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
     /**
      * 按条件分页查询部门
      *
-     * @param requestPage page param
+     * @param page page param
      * @return dept list page
      */
-    @CachePut(namespace = Namespace.DEPARTMENT, key = "#requestPage")
-    public IPage<DepartmentVO> selectDeptPage(RequestPage<DeptQueryParam> requestPage) {
+    @CachePut(namespace = Namespace.DEPARTMENT, key = "#page")
+    public IPage<DepartmentVO> selectDeptPage(Query<DeptQueryParam> page) {
         IPage<SysDepartment> sourcePage = super.queryChain()
-                                               .setQueryParam(requestPage)
+                                               .chainQuery(page)
                                                .selectPage();
         return this.deptTreeBuilder(sourcePage);
     }
@@ -70,7 +69,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
              .oneOpt().orElseThrow(() -> new BusinessException(BusinessMsgState.DATA_NOT_FOUNT));
         // 获取查询页
         IPage<SysDepartment> sourcePage = super.queryChain()
-                                               .setQueryParam(new RequestPage<>())
+                                               .chainQuery(new Query<>())
                                                .selectPage();
         // 收集下级部门id集合
         Set<Long> nextLowDeptIds = this.collectCurrentChildrenDeptIds(id, null, HashSet::new);
@@ -87,12 +86,12 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
     /**
      * 收集顶点
      *
-     * @param currentDept 部门
+     * @param sysDepartment 部门
      * @param deptList 部门列表
      * @return /
      */
-    private List<SysDepartment> collectVertex(SysDepartment currentDept, List<SysDepartment> deptList) {
-        if (ObjectUtils.isEmpty(currentDept) || ObjectUtils.isEmpty(currentDept.getPid())) {
+    private List<SysDepartment> collectVertex(SysDepartment sysDepartment, List<SysDepartment> deptList) {
+        if (ObjectUtils.isEmpty(sysDepartment) || ObjectUtils.isEmpty(sysDepartment.getPid())) {
             List<SysDepartment> var3 = super.lambdaQuery()
                                             .isNull(SysDepartment::getPid)
                                             .list();
@@ -102,12 +101,12 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
         }
         // 查询同级部门 同时包含本部门
         List<SysDepartment> var1 = super.lambdaQuery()
-                                        .eq(SysDepartment::getPid, currentDept.getPid())
+                                        .eq(SysDepartment::getPid, sysDepartment.getPid())
                                         .list();
         deptList.addAll(var1);
         // 获取上级部门
         SysDepartment var2 = super.lambdaQuery()
-                                  .eq(SysDepartment::getId, currentDept.getPid())
+                                  .eq(SysDepartment::getId, sysDepartment.getPid())
                                   .one();
         return collectVertex(var2, deptList);
     }
@@ -382,13 +381,13 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
     /**
      * 下载部门信息
      *
-     * @param requestPage request
+     * @param query request
      * @param response    response
      * @return /
      */
-    public Optional<Void> downloadExcelDept(RequestPage<DeptQueryParam> requestPage, HttpServletResponse response) {
+    public Optional<Void> downloadExcelDept(Query<DeptQueryParam> query, HttpServletResponse response) {
         List<SysDepartment> departmentList = super.queryChain()
-                                                  .setQueryParam(requestPage)
+                                                  .chainQuery(query)
                                                   .selectList();
         final List<DepartmentVO> deptTree = super.mapListToTarget(departmentList, this.convert::toVo);
         final Collection<Map<String, Object>> mapCollection = this.downloadDeptTreeBuilder(new LinkedList<>(), deptTree);

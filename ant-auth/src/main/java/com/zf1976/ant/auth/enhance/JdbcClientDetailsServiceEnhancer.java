@@ -42,7 +42,6 @@ public class JdbcClientDetailsServiceEnhancer extends JdbcClientDetailsService i
     }
 
     @Override
-    @CacheEvict(namespace = Namespace.CLIENT)
     public void addClientDetails(ClientDetails clientDetails) throws ClientAlreadyExistsException {
         super.addClientDetails(clientDetails);
     }

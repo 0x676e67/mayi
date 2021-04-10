@@ -70,6 +70,8 @@ public class MybatisAutoConfiguration implements WebMvcConfigurer {
         paginationInterceptor.setSqlParserList(sqlParserList);
         // 单数据库类型设置，避免每次分页抓数据库类型
         paginationInterceptor.setDbType(DbType.MYSQL);
+        // 分页限制
+        paginationInterceptor.setLimit(1000);
         return paginationInterceptor.setOverflow(false)
                                     .setCountSqlParser(new JsqlParserCountOptimize(true))
                                     .setLimit(-1);

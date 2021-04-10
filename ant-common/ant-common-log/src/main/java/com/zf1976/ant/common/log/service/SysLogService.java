@@ -3,7 +3,6 @@ package com.zf1976.ant.common.log.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zf1976.ant.common.core.foundation.exception.BusinessException;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
@@ -14,7 +13,7 @@ import com.zf1976.ant.common.log.pojo.enums.LogType;
 import com.zf1976.ant.common.log.pojo.vo.base.AbstractLogVO;
 import com.zf1976.ant.common.log.query.LogQueryParam;
 import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
-import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -34,30 +33,30 @@ public class SysLogService extends ServiceImpl<SysLogDao, SysLog> {
 
     private final SysLogConvert convert = SysLogConvert.INSTANCE;
 
-    public IPage<AbstractLogVO> selectUserLogPage(RequestPage<LogQueryParam> requestPage) {
+    public IPage<AbstractLogVO> selectUserLogPage(Query<LogQueryParam> requestPage) {
         LogQueryParam param = requestPage.getQuery();
         Assert.notNull(param, BusinessMsgState.PARAM_ILLEGAL::getReasonPhrase);
         // 构建分页对象
-        Page<SysLog> page = new Page<>(requestPage.getPage(), requestPage.getSize());
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page page = new com.baomidou.mybatisplus.extension.plugins.pagination.Page(requestPage.getPage(), requestPage.getSize());
         var username = Objects.requireNonNull(DistributedSessionManager.getSession()).getUsername();
-        Page<SysLog> sourcePage = super.lambdaQuery()
-                                       .eq(SysLog::getLogType, LogType.INFO)
-                                       .eq(SysLog::getUsername, username)
-                                       .page(page);
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page sourcePage = super.lambdaQuery()
+                                                                                     .eq(SysLog::getLogType, LogType.INFO)
+                                                                                     .eq(SysLog::getUsername, username)
+                                                                                     .page(page);
         return this.mapPage(sourcePage,convert::toUserLogVo);
     }
 
-    public IPage<AbstractLogVO> selectLogPage(RequestPage<LogQueryParam> requestPage) {
+    public IPage<AbstractLogVO> selectLogPage(Query<LogQueryParam> requestPage) {
         LogQueryParam param = requestPage.getQuery();
         Assert.notNull(param, BusinessMsgState.PARAM_ILLEGAL::getReasonPhrase);
         if (param.getLogType() == null) {
             throw new BusinessException(BusinessMsgState.PARAM_ILLEGAL);
         }
         // 构建分页对象
-        Page<SysLog> page = new Page<>(requestPage.getPage(), requestPage.getSize());
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page page = new com.baomidou.mybatisplus.extension.plugins.pagination.Page(requestPage.getPage(), requestPage.getSize());
         // 构造查询条件
         byte range = 2;
-        Page<SysLog> sourcePage;
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page sourcePage;
         LambdaQueryChainWrapper<SysLog> lambdaQuery = super.lambdaQuery();
         if (param.getCreateTime() != null) {
             List<Date> createTime = param.getCreateTime();
@@ -113,7 +112,7 @@ public class SysLogService extends ServiceImpl<SysLogDao, SysLog> {
                                    .map(translator)
                                    .collect(Collectors.toList());
 
-        final Page<S> targetPage = new Page<>(sourcePage.getCurrent(),
+        final com.baomidou.mybatisplus.extension.plugins.pagination.Page targetPage = new com.baomidou.mybatisplus.extension.plugins.pagination.Page(sourcePage.getCurrent(),
                 sourcePage.getSize(),
                 sourcePage.getTotal(),
                 sourcePage.isSearchCount());

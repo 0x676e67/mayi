@@ -6,13 +6,12 @@ import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.core.constants.Namespace;
-import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
 import com.zf1976.ant.upms.biz.dao.SysDictDao;
 import com.zf1976.ant.upms.biz.dao.SysDictDetailDao;
 import com.zf1976.ant.upms.biz.pojo.po.SysDict;
 import com.zf1976.ant.upms.biz.pojo.po.SysDictDetail;
 import com.zf1976.ant.upms.biz.convert.SysDictDetailConvert;
-import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
 import com.zf1976.ant.upms.biz.pojo.dto.dict.DictDetailDTO;
 import com.zf1976.ant.upms.biz.pojo.query.DictDetailQueryParam;
@@ -25,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import java.util.Date;
 import java.util.Optional;
 
 /**
@@ -48,12 +46,12 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
     /**
      * 按条件查询字典详情
      *
-     * @param requestPage page param
+     * @param query page param
      * @return dict details page
      */
-    @CachePut(namespace = Namespace.DICT_DETAIL, key = "#requestPage")
-    public IPage<DictDetailVO> selectDictDetailPage(RequestPage<DictDetailQueryParam> requestPage) {
-        DictDetailQueryParam param = requestPage.getQuery();
+    @CachePut(namespace = Namespace.DICT_DETAIL, key = "#query")
+    public IPage<DictDetailVO> selectDictDetailPage(Query<DictDetailQueryParam> query) {
+        DictDetailQueryParam param = query.getQuery();
         Assert.notNull(param, BusinessMsgState.PARAM_ILLEGAL::getReasonPhrase);
         LambdaQueryChainWrapper<SysDictDetail> lambdaQuery = super.lambdaQuery();
         String dictName = param.getDictName();
@@ -66,7 +64,7 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
             lambdaQuery.eq(SysDictDetail::getDictId, dictId);
         }
         lambdaQuery.like(param.getLabel() != null, SysDictDetail::getLabel, param.getLabel());
-        IPage<SysDictDetail> sourcePage = super.selectPage(requestPage, lambdaQuery);
+        IPage<SysDictDetail> sourcePage = super.selectPage(query, lambdaQuery);
         return super.mapPageToTarget(sourcePage, this.convert::toVo);
     }
 

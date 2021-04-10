@@ -14,7 +14,7 @@ import com.power.common.util.StringUtil;
 import com.zf1976.ant.common.core.foundation.exception.BusinessException;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
 import com.zf1976.ant.upms.biz.pojo.query.AbstractQueryParam;
-import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.query.annotation.Param;
 import com.zf1976.ant.upms.biz.service.util.LambdaMethodUtils;
 import org.slf4j.Logger;
@@ -45,7 +45,7 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
     protected static final AlternativeJdkIdGenerator JDK_ID_GENERATOR = new AlternativeJdkIdGenerator();
     protected static final String SYS_TEM_DIR = System.getProperty("java.io.tmpdir") + File.separator;
     protected final ThreadLocal<QueryChainWrapper<E>> queryChainWrapperThreadLocal = new ThreadLocal<>() ;
-    protected final ThreadLocal<RequestPage<? extends AbstractQueryParam>> requestPageThreadLocal = new ThreadLocal<>();
+    protected final ThreadLocal<Query<? extends AbstractQueryParam>> requestPageThreadLocal = new ThreadLocal<>();
     public AbstractService() {
         this.removeThreadLocalVariable();
     }
@@ -149,8 +149,8 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
      * @return page entity
      */
     public IPage<E> selectPage() {
-        RequestPage<? extends AbstractQueryParam> requestPage = Optional.ofNullable(this.requestPageThreadLocal.get())
-                                                                        .orElseGet(RequestPage::new);
+        Query<? extends AbstractQueryParam> requestPage = Optional.ofNullable(this.requestPageThreadLocal.get())
+                                                                  .orElseGet(Query::new);
         QueryChainWrapper<E> queryChainWrapper = Optional.ofNullable(this.queryChainWrapperThreadLocal.get())
                                                           .orElseGet(() -> ChainWrappers.queryChain(super.baseMapper));
         IPage<E> selectPage = this.selectPage(requestPage, queryChainWrapper);
@@ -177,7 +177,7 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
      * @param requestPage request page param
      * @return page
      */
-    public IPage<E> selectPage(RequestPage<? extends AbstractQueryParam> requestPage, QueryChainWrapper<E> queryChainWrapper) {
+    public IPage<E> selectPage(Query<? extends AbstractQueryParam> requestPage, QueryChainWrapper<E> queryChainWrapper) {
         Page<E> configPage = this.getConfigPage(requestPage);
         return queryChainWrapper.page(configPage);
     }
@@ -188,7 +188,7 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
      * @param requestPage request page param
      * @return page
      */
-    public IPage<E> selectPage(RequestPage<? extends AbstractQueryParam> requestPage, LambdaQueryChainWrapper<E> lambdaQueryChainWrapper) {
+    public IPage<E> selectPage(Query<? extends AbstractQueryParam> requestPage, LambdaQueryChainWrapper<E> lambdaQueryChainWrapper) {
         Page<E> configPage = this.getConfigPage(requestPage);
         return lambdaQueryChainWrapper.page(configPage);
     }
@@ -198,7 +198,7 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
      *
      * @param requestPage request page
      */
-    protected Page<E> getConfigPage(RequestPage<? extends AbstractQueryParam> requestPage) {
+    protected Page<E> getConfigPage(Query<? extends AbstractQueryParam> requestPage) {
         Assert.notNull(requestPage, BusinessMsgState.PARAM_ILLEGAL.getReasonPhrase());
         Page<E> configPage = new Page<>();
         if (requestPage.isMinPage() || requestPage.isMaxSize()) {
@@ -212,7 +212,7 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
     }
 
     protected Page<E> getConfigPage() {
-        return this.getConfigPage(new RequestPage<>());
+        return this.getConfigPage(new Query<>());
     }
 
     /**
@@ -240,8 +240,8 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
      * @param requestPage request page
      * @return this
      */
-    public AbstractService<D, E> setQueryParam(RequestPage<? extends AbstractQueryParam> requestPage) {
-        return this.setQueryParam(requestPage, () -> null);
+    public AbstractService<D, E> chainQuery(Query<? extends AbstractQueryParam> requestPage) {
+        return this.chainQuery(requestPage, () -> null);
     }
 
     /**
@@ -250,7 +250,7 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
      * @param requestPage request page
      * @return this
      */
-    public AbstractService<D, E> setQueryParam(RequestPage<? extends AbstractQueryParam> requestPage, Supplier<QueryChainWrapper<E>> supplier) {
+    public AbstractService<D, E> chainQuery(Query<? extends AbstractQueryParam> requestPage, Supplier<QueryChainWrapper<E>> supplier) {
         Assert.notNull(requestPage, BusinessMsgState.PARAM_ILLEGAL.getReasonPhrase());
         AbstractQueryParam param = requestPage.getQuery();
         QueryChainWrapper<E> chainWrapper = supplier.get();

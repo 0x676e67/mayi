@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.upms.biz.pojo.dto.dict.DictDetailDTO;
 import com.zf1976.ant.upms.biz.pojo.query.DictDetailQueryParam;
-import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationInsertGroup;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationUpdateGroup;
 import com.zf1976.ant.upms.biz.pojo.vo.dict.DictDetailVO;
@@ -29,7 +29,7 @@ public class SysDictDetailController {
     }
 
     @PostMapping("/page")
-    public DataResult<IPage<DictDetailVO>> selectDictDetailPage(@RequestBody RequestPage<DictDetailQueryParam> requestPage) {
+    public DataResult<IPage<DictDetailVO>> selectDictDetailPage(@RequestBody Query<DictDetailQueryParam> requestPage) {
         return DataResult.success(service.selectDictDetailPage(requestPage));
     }
 

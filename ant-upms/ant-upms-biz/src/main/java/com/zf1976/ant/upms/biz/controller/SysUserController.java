@@ -8,7 +8,7 @@ import com.zf1976.ant.upms.biz.pojo.dto.user.UpdateEmailDTO;
 import com.zf1976.ant.upms.biz.pojo.dto.user.UpdateInfoDTO;
 import com.zf1976.ant.upms.biz.pojo.dto.user.UpdatePasswordDTO;
 import com.zf1976.ant.upms.biz.pojo.dto.user.UserDTO;
-import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.query.UserQueryParam;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationInsertGroup;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationUpdateGroup;
@@ -40,7 +40,7 @@ public class SysUserController {
 
     @PostMapping("/page")
 //    @Authorize("user:list")
-    public DataResult<IPage<UserVO>> selectUserPage(@RequestBody RequestPage<UserQueryParam> requestPage) {
+    public DataResult<IPage<UserVO>> selectUserPage(@RequestBody Query<UserQueryParam> requestPage) {
         return DataResult.success(service.selectUserPage(requestPage));
     }
 

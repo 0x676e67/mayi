@@ -9,4 +9,6 @@ public interface KeyConstants {
     String ALLOW = "allow";
 
     String RESOURCES = "resources";
+
+    String MATCH_METHOD = "matchMethod";
 }

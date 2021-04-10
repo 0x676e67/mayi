@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.upms.biz.pojo.dto.position.PositionDTO;
 import com.zf1976.ant.upms.biz.pojo.query.PositionQueryParam;
-import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationInsertGroup;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationUpdateGroup;
 import com.zf1976.ant.upms.biz.pojo.vo.job.PositionVO;
@@ -32,7 +32,7 @@ public class SysPositionController {
 
     @PostMapping("/page")
 //    @Authorize("positions:list")
-    public DataResult<IPage<PositionVO>> selectPositionPage(@RequestBody RequestPage<PositionQueryParam> requestPage) {
+    public DataResult<IPage<PositionVO>> selectPositionPage(@RequestBody Query<PositionQueryParam> requestPage) {
         return DataResult.success(service.selectPositionPage(requestPage));
     }
 
@@ -55,7 +55,7 @@ public class SysPositionController {
 
     @PostMapping("/download")
 //    @Authorize("positions:list")
-    public DataResult<Optional<Void>> downloadPositionExcel(@RequestBody RequestPage<PositionQueryParam> requestPage, HttpServletResponse response) {
+    public DataResult<Optional<Void>> downloadPositionExcel(@RequestBody Query<PositionQueryParam> requestPage, HttpServletResponse response) {
         return DataResult.success(service.downloadPositionExcel(requestPage, response));
     }
 }

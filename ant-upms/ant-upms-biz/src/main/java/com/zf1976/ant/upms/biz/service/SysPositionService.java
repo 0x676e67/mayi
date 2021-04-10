@@ -6,13 +6,12 @@ import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.core.constants.Namespace;
-import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
 import com.zf1976.ant.upms.biz.pojo.po.SysPosition;
 import com.zf1976.ant.upms.biz.pojo.po.SysUser;
 import com.zf1976.ant.upms.biz.convert.SysPositionConvert;
 import com.zf1976.ant.upms.biz.dao.SysPositionDao;
 import com.zf1976.ant.upms.biz.dao.SysUserDao;
-import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.dto.position.PositionDTO;
 import com.zf1976.ant.upms.biz.pojo.query.PositionQueryParam;
 import com.zf1976.ant.upms.biz.pojo.vo.job.JobExcelVO;
@@ -50,13 +49,13 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
     /**
      * 按条件查询岗位
      *
-     * @param requestPage page param
+     * @param query page param
      * @return job list
      */
-    @CachePut(namespace = Namespace.JOB, key = "#requestPage")
-    public IPage<PositionVO> selectPositionPage(RequestPage<PositionQueryParam> requestPage) {
+    @CachePut(namespace = Namespace.JOB, key = "#query")
+    public IPage<PositionVO> selectPositionPage(Query<PositionQueryParam> query) {
         IPage<SysPosition> sourcePage = this.queryChain()
-                                            .setQueryParam(requestPage)
+                                            .chainQuery(query)
                                             .selectPage();
         return super.mapPageToTarget(sourcePage, this.convert::toVo);
     }
@@ -142,13 +141,13 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
     /**
      * 下载excel岗位信息
      *
-     * @param requestPage request page
+     * @param query request page
      * @param response response
      * @return /
      */
-    public Optional<Void> downloadPositionExcel(RequestPage<PositionQueryParam> requestPage, HttpServletResponse response) {
+    public Optional<Void> downloadPositionExcel(Query<PositionQueryParam> query, HttpServletResponse response) {
         List<SysPosition> records = super.queryChain()
-                                         .setQueryParam(requestPage)
+                                         .chainQuery(query)
                                          .selectList();
         List<Map<String,Object>> mapList = new LinkedList<>();
         records.forEach(sysJob -> {

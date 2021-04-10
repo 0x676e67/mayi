@@ -59,24 +59,24 @@ public class DynamicSecurityFilter extends AbstractSecurityInterceptor implement
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
-        FilterInvocation fi = new FilterInvocation(servletRequest, servletResponse, filterChain);
+        FilterInvocation filterInvocation = new FilterInvocation(servletRequest, servletResponse, filterChain);
         //OPTIONS请求直接放行
         if (request.getMethod().equals(HttpMethod.OPTIONS.toString())) {
-            fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
+            filterInvocation.getChain().doFilter(filterInvocation.getRequest(), filterInvocation.getResponse());
             return;
         }
         //白名单请求直接放行
         PathMatcher pathMatcher = new AntPathMatcher();
         for (String path : this.loadAllowUrl()) {
             if (pathMatcher.match(path, request.getRequestURI())) {
-                fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
+                filterInvocation.getChain().doFilter(filterInvocation.getRequest(), filterInvocation.getResponse());
                 return;
             }
         }
-        //此处会调用AccessDecisionManager中的decide方法进行鉴权操作
-        InterceptorStatusToken token = super.beforeInvocation(fi);
+        //此处会调用AccessDecisionManager中的decide方法进行鉴权操作, 请求路径所需权限为空则返回null
+        InterceptorStatusToken token = super.beforeInvocation(filterInvocation);
         try {
-            fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
+            filterInvocation.getChain().doFilter(filterInvocation.getRequest(), filterInvocation.getResponse());
         } finally {
             super.afterInvocation(token, null);
         }

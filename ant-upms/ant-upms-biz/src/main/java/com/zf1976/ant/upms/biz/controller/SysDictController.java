@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.upms.biz.pojo.dto.dict.DictDTO;
 import com.zf1976.ant.upms.biz.pojo.query.DictQueryParam;
-import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationInsertGroup;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationUpdateGroup;
 import com.zf1976.ant.upms.biz.pojo.vo.dict.DictVO;
@@ -31,7 +31,7 @@ public class SysDictController {
     }
 
     @PostMapping("/page")
-    public DataResult<IPage<DictVO>> selectDictPage(@RequestBody RequestPage<DictQueryParam> requestPage) {
+    public DataResult<IPage<DictVO>> selectDictPage(@RequestBody Query<DictQueryParam> requestPage) {
         return DataResult.success(service.selectDictPage(requestPage));
     }
 
@@ -55,7 +55,7 @@ public class SysDictController {
 
     @PostMapping("/download")
 //    @Authorize("dict:list")
-    public DataResult<Optional<Void>> downloadDictExcel(@RequestBody RequestPage<DictQueryParam> requestPage, HttpServletResponse response) {
+    public DataResult<Optional<Void>> downloadDictExcel(@RequestBody Query<DictQueryParam> requestPage, HttpServletResponse response) {
         return DataResult.success(service.downloadDictExcel(requestPage, response));
     }
 

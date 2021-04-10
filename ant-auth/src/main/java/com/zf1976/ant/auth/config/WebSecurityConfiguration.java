@@ -137,7 +137,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         var jdbcClientDetailsServiceEnhancer = SecurityContextHolder.getShareObject(JdbcClientDetailsServiceEnhancer.class);
         if (this.authProperties.getEnableSignature()) {
             http.addFilterBefore(new SignatureAuthenticationFilter(jdbcClientDetailsServiceEnhancer,
-                            "/oauth/**"
+                            "/oauth/**","/**"
                     ), SecurityContextPersistenceFilter.class);
         }
     }

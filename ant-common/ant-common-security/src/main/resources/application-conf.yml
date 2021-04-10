@@ -68,9 +68,6 @@ security:
     - /file/**
     # 阿里巴巴监控
     - /druid/**
-    # 安全配置接口
-    - /security/**
-    - /oauth/code
 
 #公用缓存配置
 cache:

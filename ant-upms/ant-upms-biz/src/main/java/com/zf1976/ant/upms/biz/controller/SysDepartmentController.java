@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.upms.biz.pojo.dto.dept.DepartmentDTO;
 import com.zf1976.ant.upms.biz.pojo.query.DeptQueryParam;
-import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationInsertGroup;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationUpdateGroup;
 import com.zf1976.ant.upms.biz.pojo.vo.dept.DepartmentVO;
@@ -32,7 +32,7 @@ public class SysDepartmentController {
 
     @PostMapping("/page")
 //    @Authorize("dept:list")
-    public DataResult<IPage<DepartmentVO>> selectDeptPage(@RequestBody RequestPage<DeptQueryParam> requestPage) {
+    public DataResult<IPage<DepartmentVO>> selectDeptPage(@RequestBody Query<DeptQueryParam> requestPage) {
         return DataResult.success(service.selectDeptPage(requestPage));
     }
 
@@ -62,7 +62,7 @@ public class SysDepartmentController {
 
     @PostMapping("/download")
 //    @Authorize("dept:list")
-    public DataResult<Optional<Void>> downloadDeptExcel(@RequestBody RequestPage<DeptQueryParam> requestPage, HttpServletResponse response) {
+    public DataResult<Optional<Void>> downloadDeptExcel(@RequestBody Query<DeptQueryParam> requestPage, HttpServletResponse response) {
         return DataResult.success(service.downloadExcelDept(requestPage, response));
     }
 }

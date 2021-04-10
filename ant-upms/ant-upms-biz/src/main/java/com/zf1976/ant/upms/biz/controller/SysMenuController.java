@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.upms.biz.pojo.dto.menu.MenuDTO;
 import com.zf1976.ant.upms.biz.pojo.query.MenuQueryParam;
-import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationInsertGroup;
 import com.zf1976.ant.upms.biz.pojo.validate.ValidationUpdateGroup;
 import com.zf1976.ant.upms.biz.pojo.vo.menu.MenuBuildVO;
@@ -38,7 +38,7 @@ public class SysMenuController {
 
     @PostMapping("/page")
 //    @Authorize("menu:list")
-    public DataResult<IPage<MenuVO>> selectMenuPage(@RequestBody RequestPage<MenuQueryParam> requestPage) {
+    public DataResult<IPage<MenuVO>> selectMenuPage(@RequestBody Query<MenuQueryParam> requestPage) {
         return DataResult.success(service.selectMenuPage(requestPage));
     }
 

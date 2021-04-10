@@ -4,10 +4,8 @@ package com.zf1976.ant.auth.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.google.common.collect.Lists;
-import com.zf1976.ant.auth.service.AuthConfigAttribute;
 import com.zf1976.ant.common.component.action.ActionsScanner;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
-import com.zf1976.ant.common.component.load.enums.CacheImplement;
 import com.zf1976.ant.common.core.constants.KeyConstants;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.security.annotation.Authorize;
@@ -42,9 +40,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
     private final Set<String> allowMethodSet;
     private final SecurityProperties securityProperties;
 
-    public DynamicDataSourceService(SysResourceDao sysResourceDao,
-                                    ActionsScanner actionsScanner,
-                                    SecurityProperties securityProperties) {
+    public DynamicDataSourceService(SysResourceDao sysResourceDao, ActionsScanner actionsScanner, SecurityProperties securityProperties) {
         this.actionsScanner = actionsScanner;
         this.sysResourceDao = sysResourceDao;
         this.securityProperties = securityProperties;
@@ -114,8 +110,8 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
     }
 
     @CachePut(namespace = Namespace.DYNAMIC, key = KeyConstants.RESOURCES)
-    public Map<String, Collection<ConfigAttribute>> loadDataSource() {
-        Map<String, Collection<ConfigAttribute>> matcherResourceMap = new HashMap<>(16);
+    public Map<String, Collection<String>> loadDataSource() {
+        Map<String, Collection<String>> matcherResourceMap = new HashMap<>(16);
         //清空缓存
         if (!CollectionUtils.isEmpty(this.matcherMethodMap)) {
             this.matcherMethodMap.clear();
@@ -132,18 +128,18 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
                          this.collectChildrenResourcePath(rootResource, resourceMap, methodMap);
                          resourceMap.forEach((id, path) -> {
                              // 权限值
-                             List<ConfigAttribute> configAttributeList = this.baseMapper.getPermission(id)
-                                                                                        .stream()
-                                                                                        .map(AuthConfigAttribute::new)
-                                                                                        .distinct()
-                                                                                        .collect(Collectors.toList());
-                             matcherResourceMap.put(path, configAttributeList);
+                             List<String> permissionList = this.baseMapper.getPermission(id)
+                                                                          .stream()
+                                                                          .distinct()
+                                                                          .collect(Collectors.toList());
+                             matcherResourceMap.put(path, permissionList);
                              this.matcherMethodMap.put(path, methodMap.get(id));
                          });
                      });
         return matcherResourceMap;
     }
 
+    @CachePut(namespace = Namespace.DYNAMIC, key = KeyConstants.MATCH_METHOD)
     public Map<String, String> getMatcherMethodMap() {
         if (CollectionUtils.isEmpty(this.matcherMethodMap)) {
             this.loadDataSource();

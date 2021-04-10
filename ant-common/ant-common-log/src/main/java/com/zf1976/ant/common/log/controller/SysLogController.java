@@ -5,7 +5,7 @@ import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.log.pojo.vo.base.AbstractLogVO;
 import com.zf1976.ant.common.log.query.LogQueryParam;
 import com.zf1976.ant.common.log.service.SysLogService;
-import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.Query;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -26,12 +26,12 @@ public class SysLogController {
     }
 
     @PostMapping("/page")
-    public DataResult<IPage<AbstractLogVO>> selectLogPage(@RequestBody RequestPage<LogQueryParam> requestPage) {
+    public DataResult<IPage<AbstractLogVO>> selectLogPage(@RequestBody Query<LogQueryParam> requestPage) {
         return DataResult.success(service.selectLogPage(requestPage));
     }
 
     @PostMapping("/users/page")
-    public DataResult<IPage<AbstractLogVO>> selectUserLogPage(@RequestBody RequestPage<LogQueryParam> requestPage) {
+    public DataResult<IPage<AbstractLogVO>> selectUserLogPage(@RequestBody Query<LogQueryParam> requestPage) {
         return DataResult.success(service.selectUserLogPage(requestPage));
     }
 

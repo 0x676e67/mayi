@@ -6,13 +6,12 @@ import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapp
 import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.core.constants.Namespace;
-import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
 import com.zf1976.ant.upms.biz.pojo.po.SysDict;
 import com.zf1976.ant.upms.biz.pojo.po.SysDictDetail;
 import com.zf1976.ant.upms.biz.convert.SysDictConvert;
 import com.zf1976.ant.upms.biz.dao.SysDictDao;
 import com.zf1976.ant.upms.biz.dao.SysDictDetailDao;
-import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.dto.dict.DictDTO;
 import com.zf1976.ant.upms.biz.pojo.query.DictQueryParam;
 import com.zf1976.ant.upms.biz.pojo.vo.dict.DictDownloadVO;
@@ -47,13 +46,13 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
     /**
      * 按条件查询字典页
      *
-     * @param requestPage page param
+     * @param query query param
      * @return dict list
      */
-    @CachePut(namespace = Namespace.DICT, key = "#requestPage")
-    public IPage<DictVO> selectDictPage(RequestPage<DictQueryParam> requestPage) {
+    @CachePut(namespace = Namespace.DICT, key = "#query")
+    public IPage<DictVO> selectDictPage(Query<DictQueryParam> query) {
         IPage<SysDict> sourcePage = super.queryChain()
-                                         .setQueryParam(requestPage)
+                                         .chainQuery(query)
                                          .selectPage();
         return super.mapPageToTarget(sourcePage, this.convert::toVo);
     }
@@ -122,13 +121,13 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
 
     /**
      * 下载dict excel文件
-     * @param requestPage page param
+     * @param query query param
      * @param response response
      * @return /
      */
-    public Optional<Void> downloadDictExcel(RequestPage<DictQueryParam> requestPage, HttpServletResponse response) {
+    public Optional<Void> downloadDictExcel(Query<DictQueryParam> query, HttpServletResponse response) {
         List<SysDict> records = super.queryChain()
-                                     .setQueryParam(requestPage)
+                                     .chainQuery(query)
                                      .selectList();
         List<Map<String,Object>> mapList = new LinkedList<>();
         records.forEach(sysDict -> {

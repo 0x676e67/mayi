@@ -11,7 +11,7 @@ import com.zf1976.ant.upms.biz.convert.SysRoleConvert;
 import com.zf1976.ant.upms.biz.dao.SysDepartmentDao;
 import com.zf1976.ant.upms.biz.dao.SysMenuDao;
 import com.zf1976.ant.upms.biz.dao.SysRoleDao;
-import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.dto.role.RoleDTO;
 import com.zf1976.ant.upms.biz.pojo.enums.DataPermissionEnum;
 import com.zf1976.ant.upms.biz.pojo.po.SysDepartment;
@@ -64,13 +64,13 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
     /**
      * 分页查询角色
      *
-     * @param requestPage request page
+     * @param query request page
      * @return /
      */
-    @CachePut(namespace = Namespace.ROLE, key = "#requestPage")
-    public IPage<RoleVO> selectRolePage(RequestPage<RoleQueryParam> requestPage) {
+    @CachePut(namespace = Namespace.ROLE, key = "#query")
+    public IPage<RoleVO> selectRolePage(Query<RoleQueryParam> query) {
         IPage<SysRole> sourcePage = this.queryChain()
-                                        .setQueryParam(requestPage)
+                                        .chainQuery(query)
                                         .selectPage();
         return super.mapPageToTarget(sourcePage, sysRole -> {
             sysRole.setDepartmentIds(this.selectRoleDepartmentIds(sysRole.getId()));

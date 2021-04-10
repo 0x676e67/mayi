@@ -9,7 +9,7 @@ import com.zf1976.ant.common.core.util.StringUtils;
 import com.zf1976.ant.upms.biz.feign.SecurityClient;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import com.zf1976.ant.upms.biz.convert.SessionConvert;
-import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.query.SessionQueryParam;
 import com.zf1976.ant.upms.biz.pojo.vo.SessionVO;
 import lombok.extern.slf4j.Slf4j;
@@ -47,9 +47,9 @@ public class SysOnlineService {
     private final SecurityClient securityClient;
     private ClientHttpRequest clientHttpRequest;
 
-    public SysOnlineService(RedisTemplate<Object, Object> template, SecurityProperties securityConfig, SecurityClient securityClient) {
+    public SysOnlineService(RedisTemplate<Object, Object> template, SecurityProperties securityProperties, SecurityClient securityClient) {
         this.redisTemplate = template;
-        this.securityProperties = securityConfig;
+        this.securityProperties = securityProperties;
         this.securityClient = securityClient;
         this.checkState();
     }
@@ -60,9 +60,9 @@ public class SysOnlineService {
     }
 
 
-    public IPage<SessionVO> selectSessionPage(RequestPage<SessionQueryParam> requestPage){
-        final Set<Long> sessionIdList = this.getOnlinePageSessionIds(requestPage);
-        final SessionQueryParam param = requestPage.getQuery();
+    public IPage<SessionVO> selectSessionPage(Query<SessionQueryParam> query){
+        final Set<Long> sessionIdList = this.getOnlinePageSessionIds(query);
+        final SessionQueryParam param = query.getQuery();
         Assert.notNull(param, BusinessMsgState.PARAM_ILLEGAL::getReasonPhrase);
         final List<SessionVO> vos = DistributedSessionManager.selectListByIds(sessionIdList)
                                                              .stream()
@@ -74,7 +74,7 @@ public class SysOnlineService {
                                                                  }
                                                                  return true;
                                                              }).collect(Collectors.toList());
-        final Page<SessionVO> page = new Page<>(requestPage.getPage(), requestPage.getSize(), vos.size());
+        final Page<SessionVO> page = new Page<>(query.getPage(), query.getSize(), vos.size());
         return page.setRecords(vos);
     }
 
@@ -85,10 +85,10 @@ public class SysOnlineService {
                          .collect(Collectors.toSet());
     }
 
-    public Set<Long> getOnlinePageSessionIds(RequestPage<SessionQueryParam> requestPage) {
-        final int page = requestPage.getPage();
-        final int pageSize = requestPage.getSize();
-        return RedisUtils.scanKeysForPage(this.getPatternSessionId(), page, pageSize)
+    public Set<Long> getOnlinePageSessionIds(Query<SessionQueryParam> query) {
+        final int page = query.getPage();
+        final int size = query.getSize();
+        return RedisUtils.scanKeysForPage(this.getPatternSessionId(), page, size)
                          .stream()
                          .map(StringUtils::getNumber)
                          .collect(Collectors.toSet());

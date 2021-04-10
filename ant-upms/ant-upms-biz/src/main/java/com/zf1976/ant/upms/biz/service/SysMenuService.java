@@ -10,7 +10,7 @@ import com.zf1976.ant.upms.biz.convert.SysMenuConvert;
 import com.zf1976.ant.upms.biz.dao.SysMenuDao;
 import com.zf1976.ant.upms.biz.dao.SysRoleDao;
 import com.zf1976.ant.upms.biz.pojo.po.SysRole;
-import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.dto.menu.MenuDTO;
 import com.zf1976.ant.upms.biz.pojo.dto.menu.MenuTypeEnum;
 import com.zf1976.ant.upms.biz.pojo.query.MenuQueryParam;
@@ -164,13 +164,13 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
     /**
      * 菜单查询
      *
-     * @param requestPage request page
+     * @param page request page
      * @return page
      */
-    @CachePut(namespace = Namespace.MENU, key = "#requestPage")
-    public IPage<MenuVO> selectMenuPage(RequestPage<MenuQueryParam> requestPage) {
+    @CachePut(namespace = Namespace.MENU, key = "#page")
+    public IPage<MenuVO> selectMenuPage(Query<MenuQueryParam> page) {
         final IPage<SysMenu> sourcePage = super.queryChain()
-                                               .setQueryParam(requestPage)
+                                               .chainQuery(page)
                                                .selectPage();
         return this.menuTreeBuilder(sourcePage);
     }
@@ -219,19 +219,6 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
     }
 
     /**
-     * 是否含有子树
-     *
-     * @param id id
-     * @return /
-     */
-    private Boolean hasChildrenMenu(long id) {
-        final Integer count = super.lambdaQuery()
-                                   .eq(SysMenu::getPid, id)
-                                   .count();
-        return count > 0;
-    }
-
-    /**
      * 排除本级菜单所在的菜单树
      * @param id id
      * @return 满足前提条件的菜单树
@@ -242,7 +229,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
              .eq(SysMenu::getId, id)
              .oneOpt().orElseThrow(() -> new MenuException(MenuState.MENU_NOT_FOUND));
         final IPage<SysMenu> sourcePage = super.queryChain()
-                                               .setQueryParam(new RequestPage<>())
+                                               .chainQuery(new Query<>())
                                                .selectPage();
         // 收集本级菜单下所有子菜单id集合
         final Set<Long> nextMenuLowIds = this.collectCurrentChildrenMenuIds(id, new HashSet<>());
@@ -273,23 +260,19 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
         // 确认菜单是否已存在
         super.lambdaQuery()
              .select(SysMenu::getTitle, SysMenu::getComponentName, SysMenu::getComponentPath, SysMenu::getRoutePath)
-             .and(sysMenuLambdaQueryWrapper -> {
-                 sysMenuLambdaQueryWrapper.eq(SysMenu::getTitle, dto.getTitle())
-                                          .or()
-                                          .eq(SysMenu::getComponentPath, dto.getComponentPath())
-                                          .or()
-                                          .eq(SysMenu::getComponentName, dto.getComponentPath())
-                                          .or()
-                                          .eq(SysMenu::getRoutePath, dto.getRoutePath());
-             })
+             .and(sysMenuLambdaQueryWrapper -> sysMenuLambdaQueryWrapper.eq(SysMenu::getTitle, dto.getTitle())
+                                                                        .or()
+                                                                        .eq(SysMenu::getComponentPath, dto.getComponentPath())
+                                                                        .or()
+                                                                        .eq(SysMenu::getComponentName, dto.getComponentPath())
+                                                                        .or()
+                                                                        .eq(SysMenu::getRoutePath, dto.getRoutePath()))
              .list()
-             .forEach(sysMenu -> {
-                 super.validateFields(sysMenu, dto, collection -> {
-                     if (!CollectionUtils.isEmpty(collection)) {
-                         throw new MenuException(MenuState.MENU_INFO_EXISTING, collection.toString());
-                     }
-                 });
-             });
+             .forEach(sysMenu -> super.validateFields(sysMenu, dto, collection -> {
+                 if (!CollectionUtils.isEmpty(collection)) {
+                     throw new MenuException(MenuState.MENU_INFO_EXISTING, collection.toString());
+                 }
+             }));
 
         final Long id = (dto.getPid() != null)? (dto.getPid() > 0 ? dto.getPid() : null) : null;
         dto.setPid(id);
@@ -354,23 +337,19 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
         super.lambdaQuery()
              .select(SysMenu::getTitle, SysMenu::getComponentName, SysMenu::getComponentPath, SysMenu::getRoutePath)
              .ne(SysMenu::getId, dto.getId())
-             .and(sysMenuLambdaQueryWrapper -> {
-                 sysMenuLambdaQueryWrapper.eq(!titleEq && dto.getTitle() != null, SysMenu::getTitle, dto.getTitle())
-                                          .or()
-                                          .eq(!nameEq && dto.getComponentName() != null, SysMenu::getComponentName, dto.getComponentName())
-                                          .or()
-                                          .eq(!pathEq && dto.getComponentPath() != null, SysMenu::getComponentPath, dto.getComponentPath())
-                                          .or()
-                                          .eq(!routeEq && dto.getRoutePath() != null, SysMenu::getRoutePath, dto.getRoutePath());
-             })
+             .and(sysMenuLambdaQueryWrapper -> sysMenuLambdaQueryWrapper.eq(!titleEq && dto.getTitle() != null, SysMenu::getTitle, dto.getTitle())
+                                                                    .or()
+                                                                    .eq(!nameEq && dto.getComponentName() != null, SysMenu::getComponentName, dto.getComponentName())
+                                                                    .or()
+                                                                    .eq(!pathEq && dto.getComponentPath() != null, SysMenu::getComponentPath, dto.getComponentPath())
+                                                                    .or()
+                                                                    .eq(!routeEq && dto.getRoutePath() != null, SysMenu::getRoutePath, dto.getRoutePath()))
              .list()
-             .forEach(var -> {
-                 super.validateFields(var, dto, collection -> {
-                     if (!CollectionUtils.isEmpty(collection)) {
-                         throw new MenuException(MenuState.MENU_INFO_EXISTING, collection.toString());
-                     }
-                 });
-             });
+             .forEach(var -> super.validateFields(var, dto, collection -> {
+                 if (!CollectionUtils.isEmpty(collection)) {
+                     throw new MenuException(MenuState.MENU_INFO_EXISTING, collection.toString());
+                 }
+             }));
     }
 
     private void update(MenuDTO dto, SysMenu sysMenu) {
@@ -434,9 +413,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
                 // collect
                 collectChildrenIds.addAll(childrenIds);
                 // 继续往下子菜单收集
-                childrenIds.forEach(childrenId -> {
-                    this.collectCurrentChildrenMenuIds(childrenId, collectChildrenIds);
-                });
+                childrenIds.forEach(childrenId -> this.collectCurrentChildrenMenuIds(childrenId, collectChildrenIds));
             }
         }
         return collectChildrenIds;

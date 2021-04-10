@@ -33,7 +33,7 @@ import com.zf1976.ant.upms.biz.pojo.po.SysDepartment;
 import com.zf1976.ant.upms.biz.pojo.po.SysPosition;
 import com.zf1976.ant.upms.biz.pojo.po.SysRole;
 import com.zf1976.ant.upms.biz.pojo.po.SysUser;
-import com.zf1976.ant.upms.biz.pojo.query.RequestPage;
+import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.query.UserQueryParam;
 import com.zf1976.ant.upms.biz.pojo.vo.user.UserVO;
 import com.zf1976.ant.upms.biz.service.base.AbstractService;
@@ -82,31 +82,31 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     /**
      * 按条件分页查询用户
      *
-     * @param requestPage request page
+     * @param query request page
      * @return /
      */
-    @CachePut(namespace = Namespace.USER, key = "#requestPage", dynamics = true)
-    public IPage<UserVO> selectUserPage(RequestPage<UserQueryParam> requestPage) {
-        IPage<SysUser> sourcePage = null;
+    @CachePut(namespace = Namespace.USER, key = "#query", dynamics = true)
+    public IPage<UserVO> selectUserPage(Query<UserQueryParam> query) {
+        IPage<SysUser> sourcePage;
         // 非super admin 过滤数据权限
         if (!DistributedSessionManager.isOwner()) {
             // 用户可观察数据范围
             Set<Long> dataPermission = securityClient.getUserDetails().getData().getDataPermission();
             List<Long> userIds = super.baseMapper.selectByDepartmentIds(dataPermission);
             sourcePage = super.queryChain()
-                              .setQueryParam(requestPage, () -> {
+                              .chainQuery(query, () -> {
                                   // 自定义条件
                                   return ChainWrappers.queryChain(super.baseMapper)
                                                       .in(getColumn(SysUser::getId), userIds);
                               }).selectPage();
         } else {
             sourcePage = super.queryChain()
-                              .setQueryParam(requestPage)
+                              .chainQuery(query)
                               .selectPage();
         }
         // 根据部门分页
         IPage<SysUser> finalSourcePage = sourcePage;
-        Optional.ofNullable(requestPage.getQuery())
+        Optional.ofNullable(query.getQuery())
                 .ifPresent(queryParam -> {
                     if (queryParam.getDepartmentId() != null) {
                         Long departmentId = queryParam.getDepartmentId();
