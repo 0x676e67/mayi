@@ -45,7 +45,7 @@ public class SysRoleController {
     @Log(description = "根据id查询角色")
     @PostMapping("/{id}")
 //    @Authorize("role:list")
-    public DataResult<RoleVO> selectRole(@PathVariable("id") Long id) {
+    public DataResult<RoleVO> selectRole(@PathVariable("id") @NotNull Long id) {
         return DataResult.success(service.selectRole(id));
     }
 

@@ -19,6 +19,10 @@ public class Session implements Serializable {
      */
     private String username;
     /**
+     * 登录客户端id
+     */
+    private String clientId;
+    /**
      * 资源所有者
      */
     private Boolean owner = Boolean.FALSE;
@@ -59,6 +63,15 @@ public class Session implements Serializable {
 
     public Session setId(Long id) {
         this.id = id;
+        return this;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public Session setClientId(String clientId) {
+        this.clientId = clientId;
         return this;
     }
 
@@ -134,6 +147,9 @@ public class Session implements Serializable {
         return this;
     }
 
+    public Map<Object, Object> getAttribute() {
+        return attribute;
+    }
 
     public void setAttribute(Object key, Object value) {
         this.attribute.put(key, value);
@@ -161,6 +177,7 @@ public class Session implements Serializable {
         return "Session{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
+                ", clientId='" + clientId + '\'' +
                 ", owner=" + owner +
                 ", browser='" + browser + '\'' +
                 ", operatingSystemType='" + operatingSystemType + '\'' +

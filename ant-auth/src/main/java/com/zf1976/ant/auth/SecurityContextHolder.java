@@ -8,6 +8,7 @@ import com.zf1976.ant.common.security.support.session.Session;
 import com.zf1976.ant.common.core.util.RequestUtils;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
@@ -57,12 +58,14 @@ public class SecurityContextHolder extends org.springframework.security.core.con
         // 当前请求
         HttpServletRequest request = RequestUtils.getRequest();
         Details userDetails = (Details) request.getAttribute(AuthConstants.DETAILS);
+
         Object expiredTime = request.getAttribute(AuthConstants.SESSION_EXPIRED);
         Calendar instance = Calendar.getInstance();
         instance.add(Calendar.SECOND, (Integer) expiredTime);
         Assert.isInstanceOf(Integer.class, expiredTime, "must be an Integer instance");
         Session session = new Session();
         session.setId(userDetails.getUserInfo().getId())
+               .setClientId(extractClientId())
                .setLoginTime(new Date())
                .setExpiredTime(instance.getTime())
                .setUsername(userDetails.getUserInfo().getUsername())
@@ -73,6 +76,11 @@ public class SecurityContextHolder extends org.springframework.security.core.con
                .setOperatingSystemType(RequestUtils.getOpsSystemType())
                .setToken(token);
         return session;
+    }
+
+    private static String extractClientId() {
+        return ((UserDetails) getContext().getAuthentication()
+                                          .getPrincipal()).getUsername();
     }
 
     public static void setShareObject(Class<?> clazz, Object object) {

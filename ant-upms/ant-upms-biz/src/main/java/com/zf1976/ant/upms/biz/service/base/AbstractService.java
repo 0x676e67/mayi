@@ -196,19 +196,14 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
     /**
      * 分页配置
      *
-     * @param requestPage request page
+     * @param query request param
      */
-    protected Page<E> getConfigPage(Query<? extends AbstractQueryParam> requestPage) {
-        Assert.notNull(requestPage, BusinessMsgState.PARAM_ILLEGAL.getReasonPhrase());
+    protected Page<E> getConfigPage(Query<? extends AbstractQueryParam> query) {
+        Assert.notNull(query, BusinessMsgState.PARAM_ILLEGAL.getReasonPhrase());
         Page<E> configPage = new Page<>();
-        if (requestPage.isMinPage() || requestPage.isMaxSize()) {
-            throw new BusinessException(BusinessMsgState.PARAM_ILLEGAL);
-        }
-        if (!requestPage.orderIsEmpty()) {
-            configPage.setOrders(requestPage.getOrders());
-        }
-        return configPage.setCurrent(requestPage.getPage())
-                         .setSize(requestPage.getSize());
+        configPage.setOrders(query.getOrders());
+        return configPage.setCurrent(query.getPage())
+                         .setSize(query.getSize());
     }
 
     protected Page<E> getConfigPage() {

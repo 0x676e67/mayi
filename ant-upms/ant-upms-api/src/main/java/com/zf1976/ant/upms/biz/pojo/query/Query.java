@@ -18,7 +18,17 @@ import java.util.Optional;
  */
 public class Query<T extends AbstractQueryParam> implements Serializable {
 
+    /**
+     * 每页最大数
+     */
     public static final int MAX_SIZE = 1000;
+    /**
+     * 每页最小数
+     */
+    public static final int MIN_SIZE = 5;
+    /**
+     * 最大页
+     */
     public static final int MIN_PAGE = 0;
 
     /**
@@ -55,10 +65,7 @@ public class Query<T extends AbstractQueryParam> implements Serializable {
     }
 
     public int getSize() {
-        if (this.size <= 0) {
-            return MAX_SIZE;
-        }
-        return Math.min(this.size, MAX_SIZE);
+        return this.size <= 0? MIN_SIZE : Math.min(this.size, MAX_SIZE);
     }
 
     public void setSize(int size) {
@@ -91,7 +98,7 @@ public class Query<T extends AbstractQueryParam> implements Serializable {
     }
 
     public boolean orderIsEmpty() {
-        return ObjectUtils.isEmpty(this.orders);
+        return ObjectUtils.isEmpty(this.getOrders());
     }
 
     private List<OrderItem> parser(List<String> sort){
@@ -106,14 +113,6 @@ public class Query<T extends AbstractQueryParam> implements Serializable {
             }
         });
         return orders;
-    }
-
-    public boolean isMaxSize(){
-        return this.size > MAX_SIZE;
-    }
-
-    public boolean isMinPage(){
-        return this.page < 0;
     }
 
     public enum Direction {

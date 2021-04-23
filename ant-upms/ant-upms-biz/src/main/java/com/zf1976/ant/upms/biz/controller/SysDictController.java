@@ -36,25 +36,21 @@ public class SysDictController {
     }
 
     @PostMapping("/save")
-//    @Authorize("dict:add")
     public DataResult<Optional<Void>> saveDict(@RequestBody @Validated({ValidationInsertGroup.class}) DictDTO dto) {
         return DataResult.success(service.saveDict(dto));
     }
 
     @PutMapping("/update")
-//    @Authorize("dict:edit")
     public DataResult<Optional<Void>> updateDict(@RequestBody @Validated(ValidationUpdateGroup.class) DictDTO dto) {
         return DataResult.success(service.updateDict(dto));
     }
 
     @DeleteMapping("/delete")
-//    @Authorize("dict:del")
     public DataResult<Optional<Void>> deleteDictList(@RequestBody Set<Long> ids) {
         return DataResult.success(service.deleteDictList(ids));
     }
 
     @PostMapping("/download")
-//    @Authorize("dict:list")
     public DataResult<Optional<Void>> downloadDictExcel(@RequestBody Query<DictQueryParam> requestPage, HttpServletResponse response) {
         return DataResult.success(service.downloadDictExcel(requestPage, response));
     }
