@@ -11,7 +11,7 @@
  Target Server Version : 50732
  File Encoding         : 65001
 
- Date: 10/04/2021 19:26:32
+ Date: 23/04/2021 14:59:44
 */
 
 SET NAMES utf8mb4;
@@ -99,7 +99,7 @@ CREATE TABLE `sys_dict` (
   `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `version` int(11) NOT NULL DEFAULT '0' COMMENT '版本号',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='数据字典';
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='数据字典';
 
 -- ----------------------------
 -- Records of sys_dict
@@ -109,6 +109,7 @@ INSERT INTO `sys_dict` VALUES (1, 'user_status', '用户状态', NULL, NULL, '20
 INSERT INTO `sys_dict` VALUES (4, 'dept_status', '部门状态', NULL, 'admin', '2019-10-27 20:31:36', '2020-10-26 09:01:26', 2);
 INSERT INTO `sys_dict` VALUES (5, 'position_status', '职位状态', NULL, 'admin', '2019-10-27 20:31:36', '2021-01-04 04:56:43', 1);
 INSERT INTO `sys_dict` VALUES (6, 'role_status', '角色状态', 'admin', NULL, '2021-01-04 06:18:13', NULL, 0);
+INSERT INTO `sys_dict` VALUES (7, 'asdasdas', 'dasd', 'admin', NULL, '2021-04-23 05:57:55', NULL, 0);
 COMMIT;
 
 -- ----------------------------
@@ -128,7 +129,7 @@ CREATE TABLE `sys_dict_detail` (
   `value` varchar(20) DEFAULT NULL COMMENT '值',
   PRIMARY KEY (`id`) USING BTREE,
   KEY `FK5tpkputc6d9nboxojdbgnpmyb` (`dict_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='数据字典详情';
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='数据字典详情';
 
 -- ----------------------------
 -- Records of sys_dict_detail
@@ -499,7 +500,7 @@ INSERT INTO `sys_menu` VALUES (112, 98, 2, '数据库新增', NULL, '', 999, '',
 INSERT INTO `sys_menu` VALUES (113, 98, 2, '数据库编辑', NULL, '', 999, '', '', b'0', b'0', b'0', 'database:edit', NULL, NULL, '2019-11-17 11:12:58', NULL, 0);
 INSERT INTO `sys_menu` VALUES (114, 98, 2, '数据库删除', NULL, '', 999, '', '', b'0', b'0', b'0', 'database:del', NULL, NULL, '2019-11-17 11:13:14', NULL, 0);
 INSERT INTO `sys_menu` VALUES (116, 36, 1, '生成预览', 'Preview', 'generator/preview', 999, 'java', 'generator/preview/:tableName', b'0', b'1', b'1', NULL, NULL, NULL, '2019-11-26 14:54:36', NULL, 0);
-INSERT INTO `sys_menu` VALUES (117, 1, 1, '权限资源', 'Permission', 'system/permission/index', 1, 'permission', 'pmission', b'0', b'0', b'0', 'admin', 'admin', 'admin', '2021-01-04 15:17:12', '2021-02-02 06:52:29', 3);
+INSERT INTO `sys_menu` VALUES (117, 1, 1, '安全管理', 'Security', 'system/security/index', 1, 'anq', 'security', b'0', b'0', b'0', 'admin', 'admin', 'admin', '2021-01-04 15:17:12', '2021-04-23 01:29:54', 4);
 INSERT INTO `sys_menu` VALUES (118, 6, 1, '系统日志', 'SystemLog', 'monitor/log/systemLog', 999, 'log', 'systemLog', b'0', b'0', b'0', NULL, 'admin', 'admin', '2021-01-26 12:30:50', '2021-01-26 12:31:30', 1);
 COMMIT;
 
