@@ -67,6 +67,7 @@ public class ClientDetails extends Model<ClientDetails> {
     /**
      * 设置用户是否自动批准授予权限操作, 默认值为 ‘false’, 可选值包括 ‘true’,‘false’, ‘read’,‘write’.
      */
+    @SuppressWarnings("all")
     @TableField(value = "autoapprove")
     private String autoApprove;
 

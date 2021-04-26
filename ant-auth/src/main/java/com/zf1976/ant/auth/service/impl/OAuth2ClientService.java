@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zf1976.ant.auth.dao.ClientDetailsDao;
 import com.zf1976.ant.auth.enhance.JdbcClientDetailsServiceEnhancer;
 import com.zf1976.ant.auth.pojo.ClientDetails;
+import com.zf1976.ant.auth.pojo.ClientDetailsDTO;
 import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
 import com.zf1976.ant.common.security.support.session.Session;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
@@ -48,5 +49,8 @@ public class OAuth2ClientService extends ServiceImpl<ClientDetailsDao, ClientDet
         return Optional.empty();
     }
 
+    public Optional<Void> addClient(ClientDetailsDTO dto) {
 
+        return Optional.empty();
+    }
 }
