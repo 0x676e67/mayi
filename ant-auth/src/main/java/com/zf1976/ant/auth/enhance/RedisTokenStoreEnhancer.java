@@ -62,13 +62,13 @@ public class RedisTokenStoreEnhancer implements TokenStore{
     }
 
     @Override
-    public OAuth2RefreshToken readRefreshToken(String s) {
-        return null;
+    public OAuth2RefreshToken readRefreshToken(String tokenValue) {
+        return this.tokenStore.readRefreshToken(tokenValue);
     }
 
     @Override
     public OAuth2Authentication readAuthenticationForRefreshToken(OAuth2RefreshToken oAuth2RefreshToken) {
-        return null;
+        return this.tokenStore.readAuthenticationForRefreshToken(oAuth2RefreshToken);
     }
 
     @Override
