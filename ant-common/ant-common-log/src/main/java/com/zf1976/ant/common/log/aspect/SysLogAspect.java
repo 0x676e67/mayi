@@ -21,7 +21,7 @@ import java.util.Arrays;
  * @date 2020/12/24
  **/
 @Aspect
-@Slf4j
+@Slf4j(topic = "System-[Log]")
 @Component
 public class SysLogAspect extends BaseLogAspect {
 

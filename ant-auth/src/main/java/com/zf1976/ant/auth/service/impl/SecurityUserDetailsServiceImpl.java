@@ -65,15 +65,14 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
         final UserInfo userInfo = this.getUserInfo(username);
         if (!userInfo.getEnabled()) {
             throw new UserNotFountException(AuthenticationState.ACCOUNT_DISABLED);
-        } else {
-            // 权限值
-            List<GrantedAuthority> grantedAuthorities = this.grantedAuthorities(userInfo);
-            // 数据权限
-            Set<Long> grantedDataPermission = this.grantedDataPermission(userInfo);
-            LoginUserDetails loginUserDetails = new LoginUserDetails(userInfo, grantedAuthorities, grantedDataPermission);
-            this.userDetailsThreadLocal.set(loginUserDetails);
-            return loginUserDetails;
         }
+        // 权限值
+        List<GrantedAuthority> grantedAuthorities = this.grantedAuthorities(userInfo);
+        // 数据权限
+        Set<Long> grantedDataPermission = this.grantedDataPermission(userInfo);
+        LoginUserDetails loginUserDetails = new LoginUserDetails(userInfo, grantedAuthorities, grantedDataPermission);
+        this.userDetailsThreadLocal.set(loginUserDetails);
+        return loginUserDetails;
     }
 
     private UserInfo getUserInfo(String username) {

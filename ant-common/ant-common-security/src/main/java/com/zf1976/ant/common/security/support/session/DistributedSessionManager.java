@@ -8,7 +8,12 @@ import lombok.NonNull;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.core.RedisCallback;
+import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -16,6 +21,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -28,11 +34,13 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class DistributedSessionManager {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DistributedSessionManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger("DistributedSession-[Log]");
     private static SecurityProperties properties;
     private static RedisTemplate<Object, Object> redisTemplate;
 
     public DistributedSessionManager(RedisTemplate<Object, Object> template, SecurityProperties properties) {
+        // 开启事务
+        template.setEnableTransactionSupport(true);
         DistributedSessionManager.redisTemplate = template;
         DistributedSessionManager.properties = properties;
     }
@@ -43,23 +51,31 @@ public class DistributedSessionManager {
      * @param token              token
      * @param session        用户会话details
      */
+    @SuppressWarnings("unchecked")
     public static void storeSession(String token, Session session) {
-        try {
-            // token指向id
-            redisTemplate.opsForValue()
-                         .set(formatToken(token),
-                                 session.getId(),
-                                 getExpiredIn(),
-                                 TimeUnit.SECONDS);
-            // id指向session
-            redisTemplate.opsForValue()
-                         .set(formatId(session.getId()),
-                                 session,
-                                 getExpiredIn(),
-                                 TimeUnit.SECONDS);
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e.getCause());
-        }
+        redisTemplate.execute(new SessionCallback<>() {
+            @Override
+            public Object execute(@Nullable RedisOperations redisOperations) throws DataAccessException {
+                Assert.notNull(redisOperations,"redis connection nullable in:" + DistributedSessionManager.class.getName());
+                try {
+                    // token指向id
+                    redisOperations.opsForValue()
+                                 .set(formatToken(token),
+                                         session.getId(),
+                                         getExpiredIn(),
+                                         TimeUnit.SECONDS);
+                    // id指向session
+                    redisOperations.opsForValue()
+                                 .set(formatId(session.getId()),
+                                         session,
+                                         getExpiredIn(),
+                                         TimeUnit.SECONDS);
+                } catch (Exception e) {
+                    LOG.error(e.getMessage(), e.getCause());
+                }
+                return redisOperations.exec();
+            }
+        });
     }
 
     public static List<Session> selectListByIds(Collection<Long> ids) {
@@ -124,35 +140,49 @@ public class DistributedSessionManager {
      *
      * @param sessionId 用户id
      */
+    @SuppressWarnings("unchecked")
     public static void removeSession(Long sessionId) {
-        try {
-            Optional.of(getSession(sessionId))
-                    .ifPresent(session -> {
-                        redisTemplate.delete(formatId(sessionId));
-                        redisTemplate.delete(formatToken(session.getToken()));
-                    });
-        } catch (Exception e) {
-            LOG.info("user not online", e);
-        }
+        redisTemplate.execute(new SessionCallback<>() {
+            @Override
+            public  Object execute(@Nullable RedisOperations redisOperations) throws DataAccessException {
+                Assert.notNull(redisOperations,"redis connection nullable in:" + DistributedSessionManager.class.getName());
+                try {
+                    Session session = getSession(sessionId);
+                    redisOperations.delete(formatId(sessionId));
+                    redisOperations.delete(formatToken(session.getToken()));
+                } catch (Exception e) {
+                    LOG.info("user not online", e);
+                }
+                return redisOperations.exec();
+            }
+        });
     }
 
     /**
      * 强制当前用户下限
      */
+    @SuppressWarnings("unchecked")
     public static void removeSession(){
-        try {
-            final String token = getToken();
-            Object o = redisTemplate.opsForValue().get(formatToken(token));
-            if (ObjectUtils.isEmpty(o)) {
-                return;
-            }
-            // 抛出NumberFormatException
-            final long sessionId = Long.parseLong(o.toString());
-            redisTemplate.delete(formatId(sessionId));
-            redisTemplate.delete(formatToken(token));
-        } catch (Exception e) {
-            LOG.info("user not online", e);
+        final String token = getToken();
+        final Object obj = redisTemplate.opsForValue().get(formatToken(token));
+        if (ObjectUtils.isEmpty(obj)) {
+            return;
         }
+        // 抛出NumberFormatException
+        final long sessionId = Long.parseLong(obj.toString());
+        redisTemplate.execute(new SessionCallback<>() {
+            @Override
+            public  Object execute(@Nullable RedisOperations redisOperations) throws DataAccessException {
+                Assert.notNull(redisOperations,"redis connection nullable in:" + DistributedSessionManager.class.getName());
+                try {
+                    redisOperations.delete(formatId(sessionId));
+                    redisOperations.delete(formatToken(token));
+                } catch (Exception e) {
+                    LOG.info("user not online", e);
+                }
+                return redisOperations.exec();
+            }
+        });
     }
 
     /**
