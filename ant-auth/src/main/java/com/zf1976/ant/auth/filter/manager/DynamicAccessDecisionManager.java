@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,29 +43,39 @@ public class DynamicAccessDecisionManager implements AccessDecisionManager {
         FilterInvocation filterInvocation = (FilterInvocation) target;
         // 请求
         HttpServletRequest request = filterInvocation.getRequest();
-        // 请求uri
+        // 请求URI
         String uri = request.getRequestURI();
         // 请求方法
         String method = request.getMethod();
+        // URI-Method
         Map<String, String> methodMap = this.dynamicDataSourceService.getMatcherMethodMap();
-        boolean val = false;
+        // 条件
+        boolean condition = false;
         for (Map.Entry<String, String> entry : methodMap.entrySet()) {
-            if (pathMatcher.match(entry.getKey(), uri) && ObjectUtils.nullSafeEquals(method,entry.getValue())) {
-                val = true;
+            // eq匹配
+            if (ObjectUtils.nullSafeEquals(entry.getKey(), uri) && ObjectUtils.nullSafeEquals(entry.getValue(), method)) {
+                condition = true;
+                break;
+                // 失败后进行模式匹配
+            } else if (pathMatcher.match(entry.getKey(), uri) && ObjectUtils.nullSafeEquals(method, entry.getValue())) {
+                condition = true;
                 break;
             }
         }
-        if (!val) {
+        if (!condition) {
             throw new AccessDeniedException("You do not have permission to access, please contact the administrator");
         }
         // 用户所有权限
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         // 所需要权限
         Set<String> needPermission = collection.stream()
-                                        .map(ConfigAttribute::getAttribute)
-                                        .collect(Collectors.toSet());
-
-        boolean condition = authorities.stream()
+                                               .map(ConfigAttribute::getAttribute)
+                                               .collect(Collectors.toSet());
+        // 所需权限为空，当即放行
+        if (CollectionUtils.isEmpty(needPermission)) {
+            return;
+        }
+        condition = authorities.stream()
                                .map(GrantedAuthority::getAuthority)
                                .collect(Collectors.toSet())
                                .containsAll(needPermission);

@@ -37,6 +37,13 @@ public class OAuth2ClientService extends ServiceImpl<ClientDetailsDao, ClientDet
         return super.lambdaQuery().page(page);
     }
 
+    /**
+     * 删除OAuth客户端
+     *
+     * @date 2021-05-05 19:48:08
+     * @param clientId 客户端id
+     * @return {@link Optional< Void>}
+     */
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deleteClient(String clientId) {
         final Session session = DistributedSessionManager.getSession();
@@ -50,7 +57,6 @@ public class OAuth2ClientService extends ServiceImpl<ClientDetailsDao, ClientDet
     }
 
     public Optional<Void> addClient(ClientDetailsDTO dto) {
-
         return Optional.empty();
     }
 }

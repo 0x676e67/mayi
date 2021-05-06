@@ -109,11 +109,17 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
         }
     }
 
+    /**
+     * 加载动态数据源资源 （URI--Permissions）
+     *
+     * @date 2021-05-05 19:53:43
+     * @return {@link Map}
+     */
     @CachePut(namespace = Namespace.DYNAMIC, key = KeyConstants.RESOURCES)
-    public Map<String, Collection<String>> loadDataSource() {
+    public Map<String, Collection<String>> loadDynamicDataSource() {
         Map<String, Collection<String>> matcherResourceMap = new HashMap<>(16);
         //清空缓存
-        if (!CollectionUtils.isEmpty(this.matcherMethodMap)) {
+        if (!CollectionUtils.isEmpty(this.matcherMethodMap) || !CollectionUtils.isEmpty(allowMethodSet)) {
             this.matcherMethodMap.clear();
             this.allowMethodSet.clear();
         }
@@ -125,14 +131,14 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
                          // 资源
                          Map<Long, String> resourceMap = new HashMap<>(16);
                          Map<Long, String> methodMap = new HashMap<>(16);
-                         this.collectChildrenResourcePath(rootResource, resourceMap, methodMap);
+                         this.makeResourcePath(rootResource, resourceMap, methodMap);
                          resourceMap.forEach((id, path) -> {
                              // 权限值
-                             List<String> permissionList = this.baseMapper.getPermission(id)
-                                                                          .stream()
-                                                                          .distinct()
-                                                                          .collect(Collectors.toList());
-                             matcherResourceMap.put(path, permissionList);
+                             List<String> permissions = this.baseMapper.getPermission(id)
+                                                                       .stream()
+                                                                       .distinct()
+                                                                       .collect(Collectors.toList());
+                             matcherResourceMap.put(path, permissions);
                              this.matcherMethodMap.put(path, methodMap.get(id));
                          });
                      });
@@ -142,32 +148,43 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
     @CachePut(namespace = Namespace.DYNAMIC, key = KeyConstants.MATCH_METHOD)
     public Map<String, String> getMatcherMethodMap() {
         if (CollectionUtils.isEmpty(this.matcherMethodMap)) {
-            this.loadDataSource();
+            this.loadDynamicDataSource();
         }
         return this.matcherMethodMap;
     }
 
-    private void collectChildrenResourcePath(SysResource rootResource, Map<Long, String> resourceMap, Map<Long, String> methodMap) {
-        Long nodeId = rootResource.getId();
-        String nodeUri = rootResource.getUri();
-        String method = rootResource.getMethod();
-        Boolean allow = rootResource.getAllow();
-        boolean condition = true;
+    /**
+     * 构造资源路径
+     *
+     * @date 2021-05-05 19:56:08
+     * @param rootResource 节点资源
+     * @param resourcePathMap id-path映射
+     * @param methodMap id-method映射
+     */
+    private void makeResourcePath(SysResource rootResource, Map<Long, String> resourcePathMap, Map<Long, String> methodMap) {
+        var nodeId = rootResource.getId();
+        var uri = rootResource.getUri();
+        var method = rootResource.getMethod();
+        // 判断是否make
+        var condition = true;
         List<SysResource> resources = ChainWrappers.lambdaQueryChain(this.sysResourceDao)
                                                    .eq(SysResource::getPid, nodeId)
                                                    .list();
         for (SysResource node : resources) {
             // 路径深搜
-            String concatNodeUri = nodeUri.concat(node.getUri());
+            String concatNodeUri = uri.concat(node.getUri());
             node.setUri(concatNodeUri);
-            this.collectChildrenResourcePath(node, resourceMap, methodMap);
+            // 继续make
+            this.makeResourcePath(node, resourcePathMap, methodMap);
+            // make完成
             condition = false;
         }
         if (condition) {
-            resourceMap.put(nodeId, nodeUri);
+            resourcePathMap.put(nodeId, uri);
             methodMap.put(nodeId, method);
-            if (allow) {
-                this.allowMethodSet.add(nodeUri);
+            // 是否allow
+            if (rootResource.getAllow()) {
+                this.allowMethodSet.add(uri);
             }
         }
     }

@@ -9,6 +9,7 @@ import org.springframework.security.web.access.intercept.FilterInvocationSecurit
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
@@ -46,9 +47,18 @@ public class DynamicSecurityMetadataSource implements FilterInvocationSecurityMe
         HttpServletRequest request = ((FilterInvocation) o).getRequest();
         String uri = request.getRequestURI();
         AntPathMatcher pathMatcher = new AntPathMatcher();
+        // 资源URI--Permissions
         for (Map.Entry<String, Collection<String>> entry : requestMap.entrySet()) {
-            if (pathMatcher.match(entry.getKey(), uri)) {
+            boolean condition = false;
+            // eq匹配
+            if (ObjectUtils.nullSafeEquals(entry.getKey(), uri)) {
+                condition = true;
+                // 失败后进行模式匹配
+            } else if (pathMatcher.match(entry.getKey(), uri)) {
                 // 返回匹配URL权限值，自定义数据源
+                condition = true;
+            }
+            if (condition) {
                 return entry.getValue()
                             .stream()
                             .map(SecurityConfig::new)
@@ -86,7 +96,7 @@ public class DynamicSecurityMetadataSource implements FilterInvocationSecurityMe
         DynamicDataSourceService dynamicDataSourceService = SpringContextHolder.getBean(DynamicDataSourceService.class);
         Assert.notNull(dynamicDataSourceService, "dynamic datasource cannot been null");
         if (this.requestMap == null) {
-            this.requestMap = dynamicDataSourceService.loadDataSource();
+            this.requestMap = dynamicDataSourceService.loadDynamicDataSource();
         }
     }
 }

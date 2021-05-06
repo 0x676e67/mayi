@@ -14,15 +14,15 @@ import java.util.Collection;
  * @author mac
  * @date 2021/2/16
  **/
-public class RedisTokenStoreEnhancer implements TokenStore{
+public class RedisTokenStoreDelegate implements TokenStore{
 
     private final RedisTokenStore tokenStore;
 
-    public RedisTokenStoreEnhancer(RedisTokenStore tokenStore) {
+    public RedisTokenStoreDelegate(RedisTokenStore tokenStore) {
         this.tokenStore = tokenStore;
     }
 
-    public RedisTokenStoreEnhancer(RedisConnectionFactory connectionFactory) {
+    public RedisTokenStoreDelegate(RedisConnectionFactory connectionFactory) {
         this.tokenStore = new RedisTokenStore(connectionFactory);
     }
 

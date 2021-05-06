@@ -11,7 +11,7 @@
  Target Server Version : 50732
  File Encoding         : 65001
 
- Date: 23/04/2021 14:59:44
+ Date: 06/05/2021 09:25:38
 */
 
 SET NAMES utf8mb4;
@@ -99,7 +99,7 @@ CREATE TABLE `sys_dict` (
   `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `version` int(11) NOT NULL DEFAULT '0' COMMENT '版本号',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='数据字典';
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='数据字典';
 
 -- ----------------------------
 -- Records of sys_dict
@@ -109,7 +109,6 @@ INSERT INTO `sys_dict` VALUES (1, 'user_status', '用户状态', NULL, NULL, '20
 INSERT INTO `sys_dict` VALUES (4, 'dept_status', '部门状态', NULL, 'admin', '2019-10-27 20:31:36', '2020-10-26 09:01:26', 2);
 INSERT INTO `sys_dict` VALUES (5, 'position_status', '职位状态', NULL, 'admin', '2019-10-27 20:31:36', '2021-01-04 04:56:43', 1);
 INSERT INTO `sys_dict` VALUES (6, 'role_status', '角色状态', 'admin', NULL, '2021-01-04 06:18:13', NULL, 0);
-INSERT INTO `sys_dict` VALUES (7, 'asdasdas', 'dasd', 'admin', NULL, '2021-04-23 05:57:55', NULL, 0);
 COMMIT;
 
 -- ----------------------------
@@ -129,7 +128,7 @@ CREATE TABLE `sys_dict_detail` (
   `value` varchar(20) DEFAULT NULL COMMENT '值',
   PRIMARY KEY (`id`) USING BTREE,
   KEY `FK5tpkputc6d9nboxojdbgnpmyb` (`dict_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='数据字典详情';
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='数据字典详情';
 
 -- ----------------------------
 -- Records of sys_dict_detail
@@ -624,24 +623,24 @@ INSERT INTO `sys_resource` VALUES (7, 1, 'user page', '/page', b'1', 'POST', b'0
 INSERT INTO `sys_resource` VALUES (8, 1, 'user save', '/save', b'1', 'POST', b'0', '-', '2020-12-29 05:13:05', '2020-12-29 05:13:05', 0, NULL, NULL);
 INSERT INTO `sys_resource` VALUES (9, 1, 'user update', '/update', b'1', 'PUT', b'0', '-', '2020-12-29 05:13:05', '2020-12-29 05:13:05', 0, NULL, NULL);
 INSERT INTO `sys_resource` VALUES (10, 1, 'user delete', '/delete', b'1', 'DELETE', b'0', '-', '2020-12-29 05:13:05', '2020-12-29 05:13:05', 0, NULL, NULL);
-INSERT INTO `sys_resource` VALUES (11, 1, 'user job', '/position/*', b'1', 'POST', b'0', '-', '2021-01-04 04:38:11', '2021-01-04 04:38:11', 0, NULL, NULL);
-INSERT INTO `sys_resource` VALUES (12, 1, 'user role', '/role/*', b'1', 'POST', b'0', '-', '2020-12-29 05:18:09', '2020-12-29 05:18:09', 0, NULL, NULL);
+INSERT INTO `sys_resource` VALUES (11, 1, 'user job', '/position', b'1', 'POST', b'0', '-', '2021-05-06 07:02:25', '2021-05-06 07:02:25', 0, NULL, NULL);
+INSERT INTO `sys_resource` VALUES (12, 1, 'user role', '/role', b'1', 'POST', b'0', '-', '2021-05-06 07:02:25', '2021-05-06 07:02:25', 0, NULL, NULL);
 INSERT INTO `sys_resource` VALUES (13, 2, 'role page', '/page', b'1', 'POST', b'0', '-', '2020-12-29 05:18:09', '2020-12-29 05:18:09', 0, NULL, NULL);
 INSERT INTO `sys_resource` VALUES (14, 2, 'role save', '/save', b'1', 'POST', b'0', '-', '2020-12-29 05:18:09', '2020-12-29 05:18:09', 0, NULL, NULL);
 INSERT INTO `sys_resource` VALUES (15, 2, 'role update', '/update', b'1', 'PUT', b'0', '-', '2020-12-29 05:18:09', '2020-12-29 05:18:09', 0, NULL, NULL);
 INSERT INTO `sys_resource` VALUES (16, 2, 'role delete', '/delete', b'1', 'DELETE', b'0', '-', '2020-12-29 05:18:09', '2020-12-29 05:18:09', 0, NULL, NULL);
-INSERT INTO `sys_resource` VALUES (17, 2, 'role something', '/*', b'1', 'POST', b'0', '-', '2020-12-29 05:18:09', '2020-12-29 05:18:09', 0, NULL, NULL);
+INSERT INTO `sys_resource` VALUES (17, 2, 'role something', '/{id}', b'1', 'POST', b'0', '-', '2021-05-06 09:02:22', '2021-05-06 09:02:22', 0, NULL, NULL);
 INSERT INTO `sys_resource` VALUES (18, 2, 'role level', '/level', b'1', 'GET', b'0', '-', '2020-12-29 05:18:09', '2020-12-29 05:18:09', 0, NULL, NULL);
 INSERT INTO `sys_resource` VALUES (19, 4, 'menu page', '/page', b'1', 'POST', b'0', '-', '2020-12-29 05:18:09', '2020-12-29 05:18:09', 0, NULL, NULL);
 INSERT INTO `sys_resource` VALUES (20, 4, 'menu save', '/save', b'1', 'POST', b'0', '-', '2020-12-29 05:18:09', '2020-12-29 05:18:09', 0, NULL, NULL);
 INSERT INTO `sys_resource` VALUES (21, 4, 'menu update', '/update', b'1', 'PUT', b'0', '-', '2020-12-29 05:18:09', '2020-12-29 05:18:09', 0, NULL, NULL);
 INSERT INTO `sys_resource` VALUES (22, 4, 'menu delete', '/delete', b'1', 'DELETE', b'0', '-', '2020-12-29 05:18:09', '2020-12-29 05:18:09', 0, NULL, NULL);
-INSERT INTO `sys_resource` VALUES (24, 4, 'menu vertex', '/vertex/*', b'1', 'POST', b'0', '-', '2020-12-29 05:18:09', '2020-12-29 05:18:09', 0, NULL, NULL);
+INSERT INTO `sys_resource` VALUES (24, 4, 'menu vertex', '/vertex/{id}', b'1', 'POST', b'0', '-', '2021-05-06 09:02:22', '2021-05-06 09:02:22', 0, NULL, NULL);
 INSERT INTO `sys_resource` VALUES (25, 3, 'department page', '/page', b'1', 'POST', b'0', '-', '2020-12-29 05:18:09', '2020-12-29 05:18:09', 0, NULL, NULL);
 INSERT INTO `sys_resource` VALUES (26, 3, 'department save', '/save', b'1', 'POST', b'0', '-', '2020-12-29 05:18:09', '2020-12-29 05:18:09', 0, NULL, NULL);
 INSERT INTO `sys_resource` VALUES (27, 3, 'department update', '/update', b'1', 'PUT', b'0', '-', '2020-12-29 05:18:09', '2020-12-29 05:18:09', 0, NULL, NULL);
 INSERT INTO `sys_resource` VALUES (28, 3, 'department delete', '/delete', b'1', 'DELETE', b'0', '-', '2020-12-29 05:18:09', '2020-12-29 05:18:09', 0, NULL, NULL);
-INSERT INTO `sys_resource` VALUES (29, 3, 'department vertex', '/vertex/*', b'1', 'POST', b'0', '-', '2020-12-29 05:18:09', '2020-12-29 05:18:09', 0, NULL, NULL);
+INSERT INTO `sys_resource` VALUES (29, 3, 'department vertex', '/vertex/{id}', b'1', 'POST', b'0', '-', '2021-05-06 09:02:22', '2021-05-06 09:02:22', 0, NULL, NULL);
 INSERT INTO `sys_resource` VALUES (30, 3, 'department download', '/download', b'1', 'POST', b'0', '-', '2020-12-29 05:18:09', '2020-12-29 05:18:09', 0, NULL, NULL);
 INSERT INTO `sys_resource` VALUES (31, 5, 'dict page', '/page', b'1', 'POST', b'1', '-', '2020-12-29 08:10:15', '2020-12-29 08:10:15', 0, NULL, NULL);
 INSERT INTO `sys_resource` VALUES (32, 5, 'dict save', '/save', b'1', 'POST', b'0', '-', '2020-12-29 05:18:09', '2020-12-29 05:18:09', 0, NULL, NULL);
@@ -651,7 +650,7 @@ INSERT INTO `sys_resource` VALUES (35, 5, 'dict download', '/download', b'1', 'P
 INSERT INTO `sys_resource` VALUES (36, 5, 'dict detail page', '/details/page', b'1', 'POST', b'1', '-', '2020-12-29 08:10:15', '2020-12-29 08:10:15', 0, NULL, NULL);
 INSERT INTO `sys_resource` VALUES (37, 5, 'dict detail save', '/details/save', b'1', 'POST', b'0', '-', '2020-12-29 05:18:09', '2020-12-29 05:18:09', 0, NULL, NULL);
 INSERT INTO `sys_resource` VALUES (38, 5, 'dict detail update', '/details/update', b'1', 'PUT', b'0', '-', '2020-12-29 05:18:09', '2020-12-29 05:18:09', 0, NULL, NULL);
-INSERT INTO `sys_resource` VALUES (39, 5, 'dict detail delete', '/details/delete/*', b'1', 'DELETE', b'0', '-', '2020-12-29 05:18:09', '2020-12-29 05:18:09', 0, NULL, NULL);
+INSERT INTO `sys_resource` VALUES (39, 5, 'dict detail delete', '/details/delete/{id}', b'1', 'DELETE', b'0', '-', '2021-05-06 09:02:22', '2021-05-06 09:02:22', 0, NULL, NULL);
 INSERT INTO `sys_resource` VALUES (40, 6, 'job page', '/page', b'1', 'POST', b'0', '-', '2020-12-29 05:18:09', '2020-12-29 05:18:09', 0, NULL, NULL);
 INSERT INTO `sys_resource` VALUES (41, 6, 'job save', '/save', b'1', 'POST', b'0', '-', '2020-12-29 05:18:09', '2020-12-29 05:18:09', 0, NULL, NULL);
 INSERT INTO `sys_resource` VALUES (42, 6, 'job update', '/update', b'1', 'PUT', b'0', '-', '2020-12-29 05:18:09', '2020-12-29 05:18:09', 0, NULL, NULL);

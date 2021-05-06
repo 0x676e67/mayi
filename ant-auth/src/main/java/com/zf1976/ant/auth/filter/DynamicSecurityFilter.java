@@ -15,6 +15,7 @@ import org.springframework.security.access.SecurityMetadataSource;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
 import org.springframework.security.access.intercept.InterceptorStatusToken;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.PathMatcher;
@@ -23,6 +24,7 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -34,25 +36,25 @@ import java.util.Set;
 public class DynamicSecurityFilter extends AbstractSecurityInterceptor implements Filter {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final SecurityProperties securityConfig;
+    private final SecurityProperties properties;
     private final DynamicDataSourceService dynamicDataSourceService;
 
     public DynamicSecurityFilter() {
-        this.securityConfig = SpringContextHolder.getBean(SecurityProperties.class);
+        this.properties = SpringContextHolder.getBean(SecurityProperties.class);
         this.dynamicDataSourceService = SpringContextHolder.getBean(DynamicDataSourceService.class);
         super.setAccessDecisionManager(new DynamicAccessDecisionManager(dynamicDataSourceService));
         this.checkState();
     }
 
     public void checkState() {
-        Assert.notNull(this.securityConfig, "security config cannot been null");
+        Assert.notNull(this.properties, "security config cannot been null");
         Assert.notNull(this.dynamicDataSourceService, "dynamicDataSourceService cannot been null");
         this.init();
     }
 
     private void init(){
         this.dynamicDataSourceService.getAllowUri();
-        this.dynamicDataSourceService.loadDataSource();
+        this.dynamicDataSourceService.loadDynamicDataSource();
         logger.info("Dynamic data sources rely on initialization！");
     }
 
@@ -62,21 +64,24 @@ public class DynamicSecurityFilter extends AbstractSecurityInterceptor implement
         FilterInvocation filterInvocation = new FilterInvocation(servletRequest, servletResponse, filterChain);
         //OPTIONS请求直接放行
         if (request.getMethod().equals(HttpMethod.OPTIONS.toString())) {
-            filterInvocation.getChain().doFilter(filterInvocation.getRequest(), filterInvocation.getResponse());
+            filterInvocation.getChain()
+                            .doFilter(filterInvocation.getRequest(), filterInvocation.getResponse());
             return;
         }
         //白名单请求直接放行
         PathMatcher pathMatcher = new AntPathMatcher();
-        for (String path : this.loadAllowUrl()) {
-            if (pathMatcher.match(path, request.getRequestURI())) {
-                filterInvocation.getChain().doFilter(filterInvocation.getRequest(), filterInvocation.getResponse());
+        for (String uri : this.loadAllowUrl()) {
+            if (pathMatcher.match(uri, request.getRequestURI())) {
+                filterInvocation.getChain()
+                                .doFilter(filterInvocation.getRequest(), filterInvocation.getResponse());
                 return;
             }
         }
-        //此处会调用AccessDecisionManager中的decide方法进行鉴权操作, 请求路径所需权限为空则返回null
+        //调用AccessDecisionManager中的decide方法进行鉴权操作
         InterceptorStatusToken token = super.beforeInvocation(filterInvocation);
         try {
-            filterInvocation.getChain().doFilter(filterInvocation.getRequest(), filterInvocation.getResponse());
+            filterInvocation.getChain()
+                            .doFilter(filterInvocation.getRequest(), filterInvocation.getResponse());
         } finally {
             super.afterInvocation(token, null);
         }
@@ -84,7 +89,7 @@ public class DynamicSecurityFilter extends AbstractSecurityInterceptor implement
 
     private Collection<String> loadAllowUrl() {
         // 配置文件白名单
-        Set<String> defaultAllow = Sets.newHashSet(this.securityConfig.getIgnoreUri());
+        Set<String> defaultAllow = Sets.newHashSet(this.properties.getIgnoreUri());
         return Lists.newArrayList(Iterables.concat(this.dynamicDataSourceService.getAllowUri(), defaultAllow));
     }
 
@@ -98,4 +103,10 @@ public class DynamicSecurityFilter extends AbstractSecurityInterceptor implement
         return new DynamicSecurityMetadataSource();
     }
 
+    public static void main(String[] args) {
+        final AntPathMatcher antPathMatcher = new AntPathMatcher();
+        final Map<String, String> withinPattern = antPathMatcher.extractUriTemplateVariables("/api/{[a-z]}", "/api/7897");
+        System.out.println(withinPattern);
+        System.out.println(antPathMatcher.match("/api/{api}", "/api/111"));
+    }
 }

@@ -2,6 +2,7 @@ package com.zf1976.ant.gateway.filter.manager;
 
 import com.nimbusds.jose.JWSObject;
 import com.power.common.util.StringUtil;
+import com.power.common.util.UrlUtil;
 import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.common.core.constants.KeyConstants;
 import com.zf1976.ant.common.core.constants.Namespace;
@@ -63,12 +64,12 @@ public class GatewayReactiveAuthorizationManager implements ReactiveAuthorizatio
         // 白名单放行
         String requestUri = this.getRequestUri(request);
         for (String ignored : this.ignoreUri()) {
-            if (pathMatcher.match(ignored, requestUri)) {
+            if (this.pathMatcher.match(ignored, requestUri)) {
                 return Mono.just(new AuthorizationDecision(true));
             }
         }
         // 确保未配置情况下 认证中心放行
-        if (pathMatcher.match(GatewayRouteConstants.AUTH_ROUTE, requestUri)) {
+        if (this.pathMatcher.match(GatewayRouteConstants.AUTH_ROUTE, requestUri)) {
             return Mono.just(new AuthorizationDecision(true));
         }
         // 非后台路径放行
@@ -76,14 +77,14 @@ public class GatewayReactiveAuthorizationManager implements ReactiveAuthorizatio
             return Mono.just(new AuthorizationDecision(true));
         }
         // 提取系统资源权限
-        Set<String> permissionSet = this.extractPermission(request)
+        Set<String> permissions = this.extractPermission(request)
                                         .stream()
                                         .map(GrantedAuthority::getAuthority)
                                         .collect(Collectors.toSet());
         return mono.filter(Authentication::isAuthenticated)
                    .flatMapIterable(Authentication::getAuthorities)
                    .map(GrantedAuthority::getAuthority)
-                   .all(permissionSet::contains)
+                   .all(permissions::contains)
                    .map(AuthorizationDecision::new)
                    .defaultIfEmpty(new AuthorizationDecision(false));
     }
@@ -96,9 +97,22 @@ public class GatewayReactiveAuthorizationManager implements ReactiveAuthorizatio
      */
     private List<GrantedAuthority> extractPermission(ServerHttpRequest serverHttpRequest) {
         Map<String, String> resourcePermission = this.loadResourcePermission();
-        String path = this.formatPath(serverHttpRequest);
-        String permission = resourcePermission.get(path);
-        return AuthorityUtils.commaSeparatedStringToAuthorityList(permission);
+        String requestUri = this.getRequestUri(serverHttpRequest);
+        for (Map.Entry<String, String> entry : resourcePermission.entrySet()) {
+            boolean condition = false;
+            // eq匹配
+            if (ObjectUtils.nullSafeEquals(entry.getKey(), requestUri)) {
+                condition = true;
+                // 进行模式匹配
+            } else if (this.pathMatcher.match(entry.getKey(), requestUri)) {
+                condition = true;
+            }
+            if (condition) {
+                return AuthorityUtils.commaSeparatedStringToAuthorityList(entry.getValue());
+            }
+        }
+        // 返回空
+        return AuthorityUtils.commaSeparatedStringToAuthorityList("");
     }
 
     private Map<String, String> loadResourcePermission() {
@@ -117,10 +131,6 @@ public class GatewayReactiveAuthorizationManager implements ReactiveAuthorizatio
         return Collections.emptyList();
     }
 
-    private String formatPath(ServerHttpRequest serverHttpRequest) {
-        String rawPath = this.getRequestUri(serverHttpRequest);
-        return rawPath.replaceFirst(GatewayRouteConstants.TEST_PREFIX, StringUtil.ENMPTY);
-    }
 
     private String getRequestUri(ServerHttpRequest serverHttpRequest) {
         return serverHttpRequest.getURI().getPath();

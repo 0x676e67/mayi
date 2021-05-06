@@ -3,7 +3,7 @@ package com.zf1976.ant.auth.config;
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.auth.enhance.JdbcClientDetailsServiceEnhancer;
 import com.zf1976.ant.auth.enhance.OAuth2TokenEnhancer;
-import com.zf1976.ant.auth.enhance.RedisTokenStoreEnhancer;
+import com.zf1976.ant.auth.enhance.RedisTokenStoreDelegate;
 import com.zf1976.ant.auth.filter.provider.DaoAuthenticationEnhancerProvider;
 import com.zf1976.ant.auth.grant.RefreshTokenEnhancerGranter;
 import com.zf1976.ant.auth.grant.ResourceOwnerPasswordTokenEnhancerGranter;
@@ -113,7 +113,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
         RedisConnectionFactory redisConnectionFactory = this.template.getRequiredConnectionFactory();
-        TokenStore tokenStore = new RedisTokenStoreEnhancer(redisConnectionFactory).enhance();
+        TokenStore tokenStore = new RedisTokenStoreDelegate(redisConnectionFactory).enhance();
         SecurityContextHolder.setShareObject(TokenStore.class, tokenStore);
         endpoints.authenticationManager(authenticationManager)
                  .tokenStore(tokenStore)

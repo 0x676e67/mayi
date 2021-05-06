@@ -73,7 +73,7 @@ public class DistributedSessionManager {
                 } catch (Exception e) {
                     LOG.error(e.getMessage(), e.getCause());
                 }
-                return redisOperations.exec();
+                return null;
             }
         });
     }
@@ -153,7 +153,7 @@ public class DistributedSessionManager {
                 } catch (Exception e) {
                     LOG.info("user not online", e);
                 }
-                return redisOperations.exec();
+                return null;
             }
         });
     }
@@ -180,7 +180,7 @@ public class DistributedSessionManager {
                 } catch (Exception e) {
                     LOG.info("user not online", e);
                 }
-                return redisOperations.exec();
+                return null;
             }
         });
     }
