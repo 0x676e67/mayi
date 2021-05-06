@@ -1,6 +1,7 @@
 package com.zf1976.ant.upms.biz.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.mapper.Mapper;
 import com.zf1976.ant.upms.biz.pojo.po.SysDictDetail;
 import org.springframework.stereotype.Repository;
 

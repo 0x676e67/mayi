@@ -94,8 +94,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
                          if (CollectionUtils.isEmpty(sysMenu.getChildren())) {
                              sysMenu.setChildren(new LinkedList<>());
                          }
-                         sysMenu.getChildren()
-                                .add(menuVo);
+                         sysMenu.getChildren().add(menuVo);
                      });
         }
         // 获取顶级节点树
