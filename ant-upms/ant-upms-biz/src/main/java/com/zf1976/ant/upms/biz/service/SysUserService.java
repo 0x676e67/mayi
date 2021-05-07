@@ -9,7 +9,7 @@ import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.component.mail.ValidateFactory;
 import com.zf1976.ant.common.component.mail.ValidateService;
 import com.zf1976.ant.common.security.support.session.Session;
-import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
+import com.zf1976.ant.common.security.support.session.SessionManagement;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.core.foundation.exception.BusinessException;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
@@ -48,7 +48,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -61,7 +60,7 @@ import java.util.stream.Collectors;
 @Service
 public class SysUserService extends AbstractService<SysUserDao, SysUser> {
 
-    private final AlternativeJdkIdGenerator jdkIdGenerator;
+    private final AlternativeJdkIdGenerator jdkIdGenerator = new AlternativeJdkIdGenerator();
     private final byte[] DEFAULT_PASSWORD_BYTE = "123456".getBytes(StandardCharsets.UTF_8);
     private final SysDepartmentDao sysDepartmentDao;
     private final SysPositionDao sysPositionDao;
@@ -72,7 +71,6 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
 
     public SysUserService(SysDepartmentDao sysDepartmentDao, SysPositionDao sysJobDao, SysRoleDao sysRoleDao, SecurityClient securityClient) {
         this.securityClient = securityClient;
-        this.jdkIdGenerator = new AlternativeJdkIdGenerator();
         this.sysDepartmentDao = sysDepartmentDao;
         this.sysPositionDao = sysJobDao;
         this.sysRoleDao = sysRoleDao;
@@ -89,7 +87,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     public IPage<UserVO> selectUserPage(Query<UserQueryParam> query) {
         IPage<SysUser> sourcePage;
         // 非super admin 过滤数据权限
-        if (!DistributedSessionManager.isOwner()) {
+        if (!SessionManagement.isOwner()) {
             // 用户可观察数据范围
             Set<Long> dataPermission = securityClient.getUserDetails().getData().getDataPermission();
             List<Long> userIds = super.baseMapper.selectByDepartmentIds(dataPermission);
@@ -109,20 +107,21 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         Optional.ofNullable(query.getQuery())
                 .ifPresent(queryParam -> {
                     if (queryParam.getDepartmentId() != null) {
+                        // 当前查询部门
                         Long departmentId = queryParam.getDepartmentId();
-                        Set<Long> ids = new HashSet<>();
-                        ids.add(departmentId);
+                        Set<Long> collectIds = new HashSet<>();
                         this.sysDepartmentDao.selectChildrenById(departmentId)
                                              .stream()
                                              .map(SysDepartment::getId)
                                              .forEach(id -> {
-                                                 this.selectDepartmentTreeIds(id, () -> ids);
+                                                 this.selectDepartmentTreeIds(id, collectIds);
                                              });
-                        List<SysUser> collect = finalSourcePage.getRecords()
-                                                               .stream()
-                                                               .filter(sysUser -> ids.contains(sysUser.getDepartmentId()))
-                                                               .collect(Collectors.toList());
-                        finalSourcePage.setRecords(collect);
+                        collectIds.add(departmentId);
+                        List<SysUser> collectUser = finalSourcePage.getRecords()
+                                                                   .stream()
+                                                                   .filter(sysUser -> collectIds.contains(sysUser.getDepartmentId()))
+                                                                   .collect(Collectors.toList());
+                        finalSourcePage.setRecords(collectUser);
                     }
                 });
         return super.mapPageToTarget(sourcePage, sysUser -> {
@@ -141,9 +140,9 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param departmentId id
      * @param supplier supplier
      */
-    public void selectDepartmentTreeIds(Long departmentId, Supplier<Collection<Long>> supplier){
+    public void selectDepartmentTreeIds(Long departmentId, Collection<Long> supplier){
         Assert.notNull(departmentId, "department id can not been null");
-        supplier.get().add(departmentId);
+        supplier.add(departmentId);
         this.sysDepartmentDao.selectChildrenById(departmentId)
                              .stream()
                              .map(SysDepartment::getId)
@@ -208,7 +207,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     @CacheEvict(namespace =  Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateAvatar(MultipartFile multipartFile) {
-        final Long sessionId = DistributedSessionManager.getSessionId();
+        final Long sessionId = SessionManagement.getSessionId();
         final SysUser sysUser = super.lambdaQuery()
                                  .eq(SysUser::getId, sessionId)
                                  .one();
@@ -237,7 +236,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     @CacheEvict(namespace =  Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updatePassword(UpdatePasswordDTO dto) {
-        final Long sessionId = DistributedSessionManager.getSessionId();
+        final Long sessionId = SessionManagement.getSessionId();
         final SysUser sysUser = super.lambdaQuery()
                                      .eq(SysUser::getId, sessionId)
                                      .oneOpt().orElseThrow(() -> new BusinessException(BusinessMsgState.CODE_NOT_FOUNT));
@@ -262,7 +261,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
             sysUser.setPassword(encoder.encode(freshPassword));
             super.updateEntityById(sysUser);
             // 强制用户重新登陆
-            DistributedSessionManager.removeSession();
+            SessionManagement.removeSession();
         }else {
             throw new BusinessException(BusinessMsgState.PASSWORD_LOW);
         }
@@ -287,7 +286,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         ValidateService validateService = ValidateFactory.getInstance();
         var sysUser = super.lambdaQuery()
                             .select(SysUser::getPassword)
-                            .eq(SysUser::getId, DistributedSessionManager.getSessionId())
+                            .eq(SysUser::getId, SessionManagement.getSessionId())
                             .oneOpt()
                             .orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
         BusinessException businessException = null;
@@ -324,8 +323,6 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     @CacheEvict(namespace =  Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateInfo(UpdateInfoDTO dto) {
-        Session session = DistributedSessionManager.getSession();
-        Assert.notNull(session, "session cannot been null");
         // 查询当前用户是否存在
         SysUser sysUser = super.lambdaQuery()
                                .eq(SysUser::getId, dto.getId())
@@ -406,10 +403,10 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         SysUser sysUser = super.lambdaQuery()
                                 .eq(SysUser::getId, dto.getId())
                                 .oneOpt().orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
-        long sessionId = DistributedSessionManager.getSessionId();
+        long sessionId = SessionManagement.getSessionId();
         if (!dto.getEnabled()) {
             // 禁止禁用管理员
-            if (DistributedSessionManager.isOwner(sysUser.getUsername())) {
+            if (SessionManagement.isOwner(sysUser.getUsername())) {
                 throw new UserException(UserState.USER_OPT_ERROR);
             }
             // 禁止禁用当前操作用户
@@ -490,9 +487,9 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     @CacheEvict(namespace =  Namespace.USER)
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deleteUser(Set<Long> ids) {
-        if (DistributedSessionManager.isOwner()) {
+        if (SessionManagement.isOwner()) {
             SysUser sysUser = super.lambdaQuery()
-                                   .eq(SysUser::getUsername, Objects.requireNonNull(DistributedSessionManager.getSession())
+                                   .eq(SysUser::getUsername, Objects.requireNonNull(SessionManagement.getSession())
                                                                     .getUsername())
                                    .oneOpt().orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
             if (ids.contains(sysUser.getId())) {
@@ -502,10 +499,10 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         super.deleteByIds(ids);
         super.baseMapper.deleteRoleRelationByIds(ids);
         this.sysPositionDao.deleteUserRelationById(ids);
-        long sessionId = DistributedSessionManager.getSessionId();
+        long sessionId = SessionManagement.getSessionId();
         // 相当于注销
         if (ids.contains(sessionId)) {
-            DistributedSessionManager.removeSession(sessionId);
+            SessionManagement.removeSession(sessionId);
         }
         return Optional.empty();
     }

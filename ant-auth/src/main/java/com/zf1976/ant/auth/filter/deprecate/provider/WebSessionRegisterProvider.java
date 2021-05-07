@@ -2,7 +2,7 @@ package com.zf1976.ant.auth.filter.deprecate.provider;
 
 import com.zf1976.ant.auth.LoginUserDetails;
 import com.zf1976.ant.auth.JwtTokenProvider;
-import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
+import com.zf1976.ant.common.security.support.session.SessionManagement;
 import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -25,7 +25,7 @@ public class WebSessionRegisterProvider implements AuthenticationProvider {
         final LoginUserDetails userDetails = (LoginUserDetails) authentication.getDetails();
         //校验登陆状态 踢下线
         if (CONFIG.getTokenSingle()) {
-            DistributedSessionManager.removeSession(userDetails.getId());
+            SessionManagement.removeSession(userDetails.getId());
         }
         UsernamePasswordAuthenticationToken authenticationToken;
         authenticationToken = new UsernamePasswordAuthenticationToken(authentication.getName(),

@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.core.constants.Namespace;
-import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
+import com.zf1976.ant.common.security.support.session.SessionManagement;
 import com.zf1976.ant.upms.biz.pojo.po.SysMenu;
 import com.zf1976.ant.upms.biz.convert.SysRoleConvert;
 import com.zf1976.ant.upms.biz.dao.SysDepartmentDao;
@@ -86,10 +86,10 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      */
     @CachePut(namespace = Namespace.ROLE, dynamics = true)
     public Integer selectRoleLevel() {
-        if (DistributedSessionManager.isOwner()) {
+        if (SessionManagement.isOwner()) {
             return -1;
         }
-        return super.baseMapper.selectListByUsername(Objects.requireNonNull(DistributedSessionManager.getSession()).getUsername())
+        return super.baseMapper.selectListByUsername(Objects.requireNonNull(SessionManagement.getSession()).getUsername())
                                .stream()
                                .map(SysRole::getLevel)
                                .min(Integer::compareTo)

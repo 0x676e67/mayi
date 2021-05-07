@@ -3,7 +3,7 @@ package com.zf1976.ant.auth;
 import com.zf1976.ant.auth.service.impl.DynamicDataSourceService;
 import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.common.security.pojo.Details;
-import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
+import com.zf1976.ant.common.security.support.session.SessionManagement;
 import com.zf1976.ant.common.security.support.session.Session;
 import com.zf1976.ant.common.core.util.RequestUtils;
 import com.zf1976.ant.common.security.property.SecurityProperties;
@@ -37,14 +37,14 @@ public class SecurityContextHolder extends org.springframework.security.core.con
         // 构建session
         Session session = generatedSession(tokenValue);
         // 保存会话
-        DistributedSessionManager.storeSession(tokenValue, session);
+        SessionManagement.storeSession(tokenValue, session);
     }
 
     @Deprecated
     public static void createSession(String jwtToken) {
         // 构建session
         Session session = generatedSession(jwtToken);
-        DistributedSessionManager.storeSession(jwtToken, session);
+        SessionManagement.storeSession(jwtToken, session);
     }
 
     /**
@@ -69,7 +69,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
                .setLoginTime(new Date())
                .setExpiredTime(instance.getTime())
                .setUsername(userDetails.getUserInfo().getUsername())
-               .setOwner(DistributedSessionManager.isOwner(session.getUsername()))
+               .setOwner(SessionManagement.isOwner(session.getUsername()))
                .setIp(RequestUtils.getIpAddress())
                .setIpRegion(RequestUtils.getIpRegion())
                .setBrowser(RequestUtils.getUserAgent())

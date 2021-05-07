@@ -1,6 +1,6 @@
 package com.zf1976.ant.test;
 
-import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
+import com.zf1976.ant.common.security.support.session.SessionManagement;
 import com.zf1976.ant.upms.biz.SystemApplication;
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,7 +14,7 @@ public class SystemApplicationTest {
 
     @Test
     public void contextLoads() {
-        var session = DistributedSessionManager.getSession(1L);
+        var session = SessionManagement.getSession(1L);
         System.out.println(session.getToken());
     }
 }

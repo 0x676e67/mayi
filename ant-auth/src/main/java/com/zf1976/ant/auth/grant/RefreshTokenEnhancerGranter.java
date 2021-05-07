@@ -1,20 +1,16 @@
 package com.zf1976.ant.auth.grant;
 
 import com.zf1976.ant.auth.SecurityContextHolder;
-import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.common.core.util.RequestUtils;
-import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
+import com.zf1976.ant.common.security.support.session.SessionManagement;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidGrantException;
 import org.springframework.security.oauth2.provider.*;
 import org.springframework.security.oauth2.provider.token.AbstractTokenGranter;
 import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
-import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
-
-import java.util.PrimitiveIterator;
 
 /**
  * @author mac
@@ -42,7 +38,7 @@ public class RefreshTokenEnhancerGranter extends AbstractTokenGranter {
             // 设置token 创建新会话用到
             RequestUtils.getRequest().setAttribute(HttpHeaders.AUTHORIZATION, oldAccessToken.getValue());
             // 清除当前会话
-            DistributedSessionManager.removeSession();
+            SessionManagement.removeSession();
             return oAuth2AccessToken;
         }
         throw new InvalidGrantException("Wrong client for this refresh token: " + refreshToken);

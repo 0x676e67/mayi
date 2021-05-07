@@ -3,7 +3,8 @@ package com.zf1976.ant.common.log.aspect.base;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.power.common.util.StringUtil;
-import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
+import com.zf1976.ant.common.security.support.session.Session;
+import com.zf1976.ant.common.security.support.session.SessionManagement;
 import com.zf1976.ant.common.core.util.RequestUtils;
 import com.zf1976.ant.common.log.pojo.SysLog;
 import com.zf1976.ant.common.log.pojo.enums.LogType;
@@ -42,9 +43,16 @@ public abstract class BaseLogAspect {
         String className = proceed.getClass().getName();
         // 方法名
         String methodSignatureName = methodSignature.getName();
+        // 当前session name
+        String username = null;
+        try {
+            Session currentSession = SessionManagement.getSession();
+            username = currentSession.getUsername();
+        } catch (Exception ignored) {
+
+        }
         SysLog sysLog = new SysLog();
-        Object parameters = this.getParameters(method, joinPoint.getArgs());
-        sysLog.setUsername(this.getPrincipal())
+        sysLog.setUsername(username)
               .setLogType(logType)
               .setDescription(description)
               .setClassName(className)
@@ -53,7 +61,7 @@ public abstract class BaseLogAspect {
               .setUri(request.getRequestURI())
               .setIp(RequestUtils.getIpAddress())
               .setIpRegion(RequestUtils.getIpRegion())
-              .setParameter(this.toJsonString(parameters))
+              .setParameter(this.toJsonString(this.getParameters(method, joinPoint.getArgs())))
               .setUserAgent(RequestUtils.getUserAgent())
               .setSpendTime((int) (System.currentTimeMillis() - start))
               .setCreateTime(new Date(start));
@@ -116,8 +124,4 @@ public abstract class BaseLogAspect {
         return argumentList;
     }
 
-    private String getPrincipal() {
-        return Objects.requireNonNull(DistributedSessionManager.getSession())
-                      .getUsername();
-    }
 }

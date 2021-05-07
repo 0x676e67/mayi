@@ -2,7 +2,9 @@ package com.zf1976.ant.upms.biz.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
+import com.zf1976.ant.common.core.foundation.DataResult;
+import com.zf1976.ant.common.security.support.session.Session;
+import com.zf1976.ant.common.security.support.session.SessionManagement;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
 import com.zf1976.ant.common.core.util.RedisUtils;
 import com.zf1976.ant.common.core.util.StringUtils;
@@ -64,10 +66,10 @@ public class SysOnlineService {
         final Set<Long> sessionIdList = this.getOnlinePageSessionIds(query);
         final SessionQueryParam param = query.getQuery();
         Assert.notNull(param, BusinessMsgState.PARAM_ILLEGAL::getReasonPhrase);
-        final List<SessionVO> vos = DistributedSessionManager.selectListByIds(sessionIdList)
-                                                             .stream()
-                                                             .map(sessionConvert::toVO)
-                                                             .filter(vo -> {
+        final List<SessionVO> vos = SessionManagement.selectListByIds(sessionIdList)
+                                                     .stream()
+                                                     .map(sessionConvert::toVO)
+                                                     .filter(vo -> {
                                                                  if (param.getFilter() != null) {
                                                                      return this.getKeyword(vo)
                                                                                 .contains(param.getFilter());
@@ -123,14 +125,19 @@ public class SysOnlineService {
         return this.clientHttpRequest;
     }
 
+    /**
+     * 执行登出处理
+     *
+     * @date 2021-05-07 11:32:45
+     * @param token 令牌
+     * @return {@link boolean}
+     */
     private boolean executeLogout(String token) {
         var logoutRequest = createLogoutRequest();
-        logoutRequest.getHeaders()
-                     .add(HttpHeaders.AUTHORIZATION, token);
+        logoutRequest.getHeaders().add(HttpHeaders.AUTHORIZATION, token);
         try {
             var response = logoutRequest.execute();
-            return response.getStatusCode()
-                           .is2xxSuccessful();
+            return response.getStatusCode().is2xxSuccessful();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -139,15 +146,23 @@ public class SysOnlineService {
 
     public Optional<Void> forceOffline(Set<Long> ids) {
         // 操作方
-        Long sessionId = DistributedSessionManager.getSessionId();
+        Long sessionId = SessionManagement.getSessionId();
         ids.forEach(id -> {
             // 不允许强制自己离线
             if (!ObjectUtils.nullSafeEquals(id, sessionId)){
                 // 调用远程服务进行登出处理
-                var logout = this.securityClient.logout();
-                Assert.isTrue(logout.getSuccess(),"this session not online");
+                @SuppressWarnings("rawtypes")
+                DataResult logoutResult;
+                Session forceSession = SessionManagement.getSession(id);
+                final String token = this.formatToken(forceSession.getToken());
+                logoutResult = this.securityClient.logout(token);
+                Assert.isTrue(logoutResult != null && logoutResult.getSuccess(),"this session not online");
             }
         });
         return Optional.empty();
+    }
+
+    private String formatToken(String tokenValue) {
+        return "Bearer " + tokenValue;
     }
 }

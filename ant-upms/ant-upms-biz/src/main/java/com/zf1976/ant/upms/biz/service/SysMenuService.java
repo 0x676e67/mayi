@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.core.constants.Namespace;
-import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
+import com.zf1976.ant.common.security.support.session.SessionManagement;
 import com.zf1976.ant.upms.biz.pojo.po.SysMenu;
 import com.zf1976.ant.upms.biz.convert.SysMenuConvert;
 import com.zf1976.ant.upms.biz.dao.SysMenuDao;
@@ -60,12 +60,12 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
     public Collection<MenuBuildVO> generatedMenu() {
         // 菜单
         List<SysMenu> menuList;
-        if (DistributedSessionManager.isOwner()) {
+        if (SessionManagement.isOwner()) {
             // 管理员获取所有菜单
             menuList = super.selectList();
         } else {
             // 用户id
-            final long sessionId = DistributedSessionManager.getSessionId();
+            final long sessionId = SessionManagement.getSessionId();
             // 获取用户所有角色id
             final Set<Long> roleIds = sysRoleDao.selectListByUserId(sessionId)
                                                 .stream()

@@ -12,7 +12,7 @@ import com.zf1976.ant.common.security.pojo.Details;
 import com.zf1976.ant.common.security.pojo.vo.RoleVo;
 import com.zf1976.ant.common.security.pojo.UserInfo;
 import com.zf1976.ant.common.security.property.SecurityProperties;
-import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
+import com.zf1976.ant.common.security.support.session.SessionManagement;
 import com.zf1976.ant.upms.biz.dao.*;
 import com.zf1976.ant.upms.biz.pojo.po.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -42,7 +42,6 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
     private final SysMenuDao sysMenuDao;
     private final SysPositionDao positionDao;
     private final UserConvert convert;
-    private final ThreadLocal<UserDetails> userDetailsThreadLocal = new ThreadLocal<>();
 
     public SecurityUserDetailsServiceImpl(SecurityProperties properties, SysDepartmentDao sysDepartmentDao, SysUserDao sysUserDao, SysRoleDao sysRoleDao, SysMenuDao sysMenuDao, SysPositionDao positionDao) {
         this.sysUserDao = sysUserDao;
@@ -52,16 +51,10 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
         this.securityProperties = properties;
         this.positionDao = positionDao;
         this.convert = UserConvert.INSTANCE;
-        this.userDetailsThreadLocal.remove();
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) {
-        UserDetails userDetails = this.userDetailsThreadLocal.get();
-        if (userDetails != null) {
-            return userDetails;
-        }
-
         final UserInfo userInfo = this.getUserInfo(username);
         if (!userInfo.getEnabled()) {
             throw new UserNotFountException(AuthenticationState.ACCOUNT_DISABLED);
@@ -70,9 +63,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
         List<GrantedAuthority> grantedAuthorities = this.grantedAuthorities(userInfo);
         // 数据权限
         Set<Long> grantedDataPermission = this.grantedDataPermission(userInfo);
-        LoginUserDetails loginUserDetails = new LoginUserDetails(userInfo, grantedAuthorities, grantedDataPermission);
-        this.userDetailsThreadLocal.set(loginUserDetails);
-        return loginUserDetails;
+        return new LoginUserDetails(userInfo, grantedAuthorities, grantedDataPermission);
     }
 
     private UserInfo getUserInfo(String username) {
@@ -223,7 +214,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
     @Override
     @CachePut(namespace = Namespace.USER, dynamics = true)
     public Details selectUserDetails() {
-        final String username = DistributedSessionManager.getUsername();
+        final String username = SessionManagement.getUsername();
         return this.selectUserDetails(username);
     }
 

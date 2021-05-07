@@ -1,6 +1,7 @@
 package com.zf1976.ant.auth.handler.logout;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zf1976.ant.auth.LoginUserDetails;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +21,7 @@ import java.io.IOException;
  */
 public class Oauth2LogoutSuccessHandler implements LogoutSuccessHandler {
 
-    public final Logger log = LoggerFactory.getLogger(this.getClass());
+    public final Logger log = LoggerFactory.getLogger("log-[Logout]-" + this.getClass());
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
@@ -28,6 +29,11 @@ public class Oauth2LogoutSuccessHandler implements LogoutSuccessHandler {
         httpServletResponse.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
         httpServletResponse.setStatus(HttpStatus.OK.value());
         objectMapper.writeValue(httpServletResponse.getOutputStream(), DataResult.success("Have to log out！"));
-        log.info("Authentication principle {} is logout", authentication.getPrincipal());
+        log.info("Authentication principle {} is logout", this.extractUsername(authentication));
+    }
+
+    private String extractUsername(Authentication authentication) {
+        LoginUserDetails userDetails = (LoginUserDetails) authentication.getPrincipal();
+        return userDetails.getUsername();
     }
 }

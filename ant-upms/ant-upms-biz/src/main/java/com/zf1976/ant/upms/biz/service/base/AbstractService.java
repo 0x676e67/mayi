@@ -231,28 +231,27 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
 
     /**
      * 链式查询 设置查询参数
-     *
-     * @param requestPage request page
+     ** @param query 查询参数
      * @return this
      */
-    public AbstractService<D, E> chainQuery(Query<? extends AbstractQueryParam> requestPage) {
-        return this.chainQuery(requestPage, () -> null);
+    public AbstractService<D, E> chainQuery(Query<? extends AbstractQueryParam> query) {
+        return this.chainQuery(query, () -> null);
     }
 
     /**
      * 链式查询 设置查询参数 / 暂时支持这么多 between 只支持时间类型
      *
-     * @param requestPage request page
+     * @param query 查询参数
      * @return this
      */
-    public AbstractService<D, E> chainQuery(Query<? extends AbstractQueryParam> requestPage, Supplier<QueryChainWrapper<E>> supplier) {
-        Assert.notNull(requestPage, BusinessMsgState.PARAM_ILLEGAL.getReasonPhrase());
-        AbstractQueryParam param = requestPage.getQuery();
+    public AbstractService<D, E> chainQuery(Query<? extends AbstractQueryParam> query, Supplier<QueryChainWrapper<E>> supplier) {
+        Assert.notNull(query, BusinessMsgState.PARAM_ILLEGAL.getReasonPhrase());
+        AbstractQueryParam param = query.getQuery();
         QueryChainWrapper<E> chainWrapper = supplier.get();
         if (param == null) {
             return this;
         }
-        this.requestPageThreadLocal.set(requestPage);
+        this.requestPageThreadLocal.set(query);
         QueryChainWrapper<E> queryChainWrapper;
         if (chainWrapper == null) {
             queryChainWrapper = this.queryChainWrapperThreadLocal.get();

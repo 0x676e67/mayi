@@ -8,6 +8,8 @@ import com.zf1976.ant.common.log.aspect.base.BaseLogAspect;
 import com.zf1976.ant.common.log.dao.SysLogDao;
 import com.zf1976.ant.common.log.pojo.SysLog;
 import com.zf1976.ant.common.log.pojo.enums.LogType;
+import com.zf1976.ant.common.security.support.session.Session;
+import com.zf1976.ant.common.security.support.session.SessionManagement;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;

@@ -1,12 +1,10 @@
 package com.zf1976.ant.upms.biz.config.handle;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
-import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
+import com.zf1976.ant.common.security.support.session.SessionManagement;
 import org.apache.ibatis.reflection.MetaObject;
-import org.springframework.stereotype.Component;
 
 import java.util.Date;
-import java.util.Objects;
 
 /**
  * 自动填充数据拦截器
@@ -37,7 +35,7 @@ public class MetaDataHandler implements MetaObjectHandler {
     }
 
     private String getPrincipal() {
-        return DistributedSessionManager.getUsername();
+        return SessionManagement.getUsername();
     }
 
 }

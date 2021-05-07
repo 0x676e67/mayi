@@ -1,6 +1,6 @@
 package com.zf1976.ant.upms.biz.interceptor;
 
-import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
+import com.zf1976.ant.common.security.support.session.SessionManagement;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.core.util.JSONUtil;
 import org.slf4j.Logger;
@@ -55,7 +55,8 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             if (token == null) {
                 throw new UnsupportedOperationException(HttpStatus.UNAUTHORIZED.getReasonPhrase());
             }
-            return DistributedSessionManager.getSession() != null;
+            SessionManagement.getSession();
+            return true;
         }catch (Exception e) {
             if (logger.isDebugEnabled()) {
                 logger.debug(e.getMessage(), e.getCause());

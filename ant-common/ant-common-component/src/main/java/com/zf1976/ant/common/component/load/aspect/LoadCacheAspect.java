@@ -10,7 +10,7 @@ import com.zf1976.ant.common.component.load.enums.CacheImplement;
 import com.zf1976.ant.common.component.load.impl.CaffeineCacheProvider;
 import com.zf1976.ant.common.component.load.impl.RedisCacheProvider;
 import com.zf1976.ant.common.component.property.CaffeineProperties;
-import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
+import com.zf1976.ant.common.security.support.session.SessionManagement;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -114,6 +114,6 @@ public class LoadCacheAspect {
     }
 
     private String getUsername(){
-        return DistributedSessionManager.getUsername();
+        return SessionManagement.getUsername();
     }
 }

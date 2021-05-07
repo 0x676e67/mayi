@@ -7,7 +7,7 @@ import com.zf1976.ant.auth.dao.ClientDetailsDao;
 import com.zf1976.ant.auth.enhance.JdbcClientDetailsServiceEnhancer;
 import com.zf1976.ant.auth.pojo.ClientDetails;
 import com.zf1976.ant.auth.pojo.ClientDetailsDTO;
-import com.zf1976.ant.common.security.support.session.DistributedSessionManager;
+import com.zf1976.ant.common.security.support.session.SessionManagement;
 import com.zf1976.ant.common.security.support.session.Session;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
@@ -46,7 +46,7 @@ public class OAuth2ClientService extends ServiceImpl<ClientDetailsDao, ClientDet
      */
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deleteClient(String clientId) {
-        final Session session = DistributedSessionManager.getSession();
+        final Session session = SessionManagement.getSession();
         if (ObjectUtils.nullSafeEquals(clientId, session.getClientId())) {
             throw new OAuth2Exception("Prohibit deleting the currently logged in client");
         }
