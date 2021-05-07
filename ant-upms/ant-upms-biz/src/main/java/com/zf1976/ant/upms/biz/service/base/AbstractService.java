@@ -115,11 +115,11 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
      *
      * @return this
      */
-    protected AbstractService<D, E> queryChain() {
-        return this.queryChain(ChainWrappers.queryChain(super.baseMapper));
+    protected AbstractService<D, E> queryWrapper() {
+        return this.queryWrapper(ChainWrappers.queryChain(super.baseMapper));
     }
 
-    protected AbstractService<D, E> queryChain(QueryChainWrapper<E> queryChainWrapper) {
+    protected AbstractService<D, E> queryWrapper(QueryChainWrapper<E> queryChainWrapper) {
         this.queryChainWrapperThreadLocal.set(queryChainWrapper);
         return this;
     }

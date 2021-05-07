@@ -51,7 +51,7 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
      */
     @CachePut(namespace = Namespace.DICT, key = "#query")
     public IPage<DictVO> selectDictPage(Query<DictQueryParam> query) {
-        IPage<SysDict> sourcePage = super.queryChain()
+        IPage<SysDict> sourcePage = super.queryWrapper()
                                          .chainQuery(query)
                                          .selectPage();
         return super.mapPageToTarget(sourcePage, this.convert::toVo);
@@ -126,7 +126,7 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
      * @return /
      */
     public Optional<Void> downloadDictExcel(Query<DictQueryParam> query, HttpServletResponse response) {
-        List<SysDict> records = super.queryChain()
+        List<SysDict> records = super.queryWrapper()
                                      .chainQuery(query)
                                      .selectList();
         List<Map<String,Object>> mapList = new LinkedList<>();

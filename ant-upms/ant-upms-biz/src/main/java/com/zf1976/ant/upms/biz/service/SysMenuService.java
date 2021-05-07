@@ -168,7 +168,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
      */
     @CachePut(namespace = Namespace.MENU, key = "#page")
     public IPage<MenuVO> selectMenuPage(Query<MenuQueryParam> page) {
-        final IPage<SysMenu> sourcePage = super.queryChain()
+        final IPage<SysMenu> sourcePage = super.queryWrapper()
                                                .chainQuery(page)
                                                .selectPage();
         return this.menuTreeBuilder(sourcePage);
@@ -227,7 +227,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
         super.lambdaQuery()
              .eq(SysMenu::getId, id)
              .oneOpt().orElseThrow(() -> new MenuException(MenuState.MENU_NOT_FOUND));
-        final IPage<SysMenu> sourcePage = super.queryChain()
+        final IPage<SysMenu> sourcePage = super.queryWrapper()
                                                .chainQuery(new Query<>())
                                                .selectPage();
         // 收集本级菜单下所有子菜单id集合

@@ -69,7 +69,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      */
     @CachePut(namespace = Namespace.ROLE, key = "#query")
     public IPage<RoleVO> selectRolePage(Query<RoleQueryParam> query) {
-        IPage<SysRole> sourcePage = this.queryChain()
+        IPage<SysRole> sourcePage = this.queryWrapper()
                                         .chainQuery(query)
                                         .selectPage();
         return super.mapPageToTarget(sourcePage, sysRole -> {

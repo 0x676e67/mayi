@@ -49,7 +49,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      */
     @CachePut(namespace = Namespace.DEPARTMENT, key = "#page")
     public IPage<DepartmentVO> selectDeptPage(Query<DeptQueryParam> page) {
-        IPage<SysDepartment> sourcePage = super.queryChain()
+        IPage<SysDepartment> sourcePage = super.queryWrapper()
                                                .chainQuery(page)
                                                .selectPage();
         return this.deptTreeBuilder(sourcePage);
@@ -68,7 +68,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
              .eq(SysDepartment::getId, id)
              .oneOpt().orElseThrow(() -> new BusinessException(BusinessMsgState.DATA_NOT_FOUNT));
         // 获取查询页
-        IPage<SysDepartment> sourcePage = super.queryChain()
+        IPage<SysDepartment> sourcePage = super.queryWrapper()
                                                .chainQuery(new Query<>())
                                                .selectPage();
         // 收集下级部门id集合
@@ -386,7 +386,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      * @return /
      */
     public Optional<Void> downloadExcelDept(Query<DeptQueryParam> query, HttpServletResponse response) {
-        List<SysDepartment> departmentList = super.queryChain()
+        List<SysDepartment> departmentList = super.queryWrapper()
                                                   .chainQuery(query)
                                                   .selectList();
         final List<DepartmentVO> deptTree = super.mapListToTarget(departmentList, this.convert::toVo);

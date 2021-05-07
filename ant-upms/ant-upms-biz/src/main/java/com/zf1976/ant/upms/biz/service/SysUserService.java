@@ -8,7 +8,6 @@ import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.component.mail.ValidateFactory;
 import com.zf1976.ant.common.component.mail.ValidateService;
-import com.zf1976.ant.common.security.support.session.Session;
 import com.zf1976.ant.common.security.support.session.SessionManagement;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.core.foundation.exception.BusinessException;
@@ -91,14 +90,14 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
             // 用户可观察数据范围
             Set<Long> dataPermission = securityClient.getUserDetails().getData().getDataPermission();
             List<Long> userIds = super.baseMapper.selectByDepartmentIds(dataPermission);
-            sourcePage = super.queryChain()
+            sourcePage = super.queryWrapper()
                               .chainQuery(query, () -> {
                                   // 自定义条件
                                   return ChainWrappers.queryChain(super.baseMapper)
                                                       .in(getColumn(SysUser::getId), userIds);
                               }).selectPage();
         } else {
-            sourcePage = super.queryChain()
+            sourcePage = super.queryWrapper()
                               .chainQuery(query)
                               .selectPage();
         }

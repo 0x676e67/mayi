@@ -54,7 +54,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
      */
     @CachePut(namespace = Namespace.JOB, key = "#query")
     public IPage<PositionVO> selectPositionPage(Query<PositionQueryParam> query) {
-        IPage<SysPosition> sourcePage = this.queryChain()
+        IPage<SysPosition> sourcePage = this.queryWrapper()
                                             .chainQuery(query)
                                             .selectPage();
         return super.mapPageToTarget(sourcePage, this.convert::toVo);
@@ -146,7 +146,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
      * @return /
      */
     public Optional<Void> downloadPositionExcel(Query<PositionQueryParam> query, HttpServletResponse response) {
-        List<SysPosition> records = super.queryChain()
+        List<SysPosition> records = super.queryWrapper()
                                          .chainQuery(query)
                                          .selectList();
         List<Map<String,Object>> mapList = new LinkedList<>();
