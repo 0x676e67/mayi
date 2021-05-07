@@ -48,6 +48,112 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
         this.allowMethodSet = new HashSet<>(16);
     }
 
+    /**
+     * 加载动态数据源资源 （URI--Permissions）
+     *
+     * @date 2021-05-05 19:53:43
+     * @return {@link Map}
+     */
+    @CachePut(namespace = Namespace.DYNAMIC, key = KeyConstants.RESOURCES)
+    public Map<String, Collection<String>> loadDynamicDataSource() {
+        Map<String, Collection<String>> matcherResourceMap = new HashMap<>(16);
+        //清空缓存
+        if (!CollectionUtils.isEmpty(this.matcherMethodMap) || !CollectionUtils.isEmpty(allowMethodSet)) {
+            this.matcherMethodMap.clear();
+            this.allowMethodSet.clear();
+        }
+        // 构造完整url 资源路径
+        ChainWrappers.lambdaQueryChain(this.sysResourceDao)
+                     .isNull(SysResource::getPid)
+                     .list()
+                     .forEach(resource -> {
+                         // 资源
+                         Map<Long, String> resourceLink = new HashMap<>(16);
+                         Map<Long, String> methodMap = new HashMap<>(16);
+                         this.makeResourceLink(resource, resourceLink, methodMap);
+                         resourceLink.forEach((id, path) -> {
+                             // 权限值
+                             List<String> permissions = this.baseMapper.getPermission(id)
+                                                                       .stream()
+                                                                       .distinct()
+                                                                       .collect(Collectors.toList());
+                             matcherResourceMap.put(path, permissions);
+                             this.matcherMethodMap.put(path, methodMap.get(id));
+                         });
+                     });
+        return matcherResourceMap;
+    }
+
+    /**
+     * 构造资源路径
+     *
+     * @date 2021-05-05 19:56:08
+     * @param parent 节点资源
+     * @param resourceLinkMap id-path映射
+     * @param methodMap id-method映射
+     */
+    private void makeResourceLink(SysResource parent, Map<Long, String> resourceLinkMap, Map<Long, String> methodMap) {
+        var parentId = parent.getId();
+        var parentUri = parent.getUri();
+        var parentMethod = parent.getMethod();
+        // 判断是否make
+        var condition = true;
+        List<SysResource> resources = ChainWrappers.lambdaQueryChain(this.sysResourceDao)
+                                                   .eq(SysResource::getPid, parentId)
+                                                   .list();
+        if (resources != null) {
+            for (SysResource child : resources) {
+                // 路径深搜
+                child.setUri(parentUri.concat(child.getUri()));
+                // 继续make
+                this.makeResourceLink(child, resourceLinkMap, methodMap);
+                // make完成
+                condition = false;
+            }
+        }
+        if (condition) {
+            resourceLinkMap.put(parentId, parentUri);
+            methodMap.put(parentId, parentMethod);
+            // 是否allow
+            if (parent.getAllow()) {
+                this.allowMethodSet.add(parentUri);
+            }
+        }
+    }
+
+    @CachePut(namespace = Namespace.DYNAMIC, key = KeyConstants.MATCH_METHOD)
+    public Map<String, String> getMatcherMethodMap() {
+        if (CollectionUtils.isEmpty(this.matcherMethodMap)) {
+            this.loadDynamicDataSource();
+        }
+        return this.matcherMethodMap;
+    }
+
+    private void collectPermissions(Long id, Supplier<Collection<ConfigAttribute>> collectionSupplier) {
+        Assert.notNull(id, "permission id cannot been null");
+        Assert.notNull(collectionSupplier, "supplier cannot been null");
+        super.lambdaQuery()
+             .select(SysPermission::getId, SysPermission::getValue)
+             .eq(SysPermission::getPid, id)
+             .list()
+             .forEach(sysPermission -> {
+                 if (sysPermission.getValue() != null) {
+                     collectionSupplier.get().add(sysPermission::getValue);
+                 }
+                 this.collectPermissions(sysPermission.getId(), collectionSupplier);
+             });
+    }
+
+    /**
+     * redis 反序化回来变成set
+     * @return getAllowUri
+     */
+    @CachePut(namespace = Namespace.DYNAMIC, key = KeyConstants.ALLOW)
+    public List<String> getAllowUri() {
+        CollectionUtils.mergeArrayIntoCollection(securityProperties.getIgnoreUri(), this.allowMethodSet);
+        return Lists.newArrayList(this.allowMethodSet);
+    }
+
     public void test() {
         Map<Class<?>, String> classStringMap = this.actionsScanner.doScan("com.zf1976.*.endpoint");
         for (Map.Entry<Class<?>, String> classStringEntry : classStringMap.entrySet()) {
@@ -107,111 +213,6 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
                 }
             }
         }
-    }
-
-    /**
-     * 加载动态数据源资源 （URI--Permissions）
-     *
-     * @date 2021-05-05 19:53:43
-     * @return {@link Map}
-     */
-    @CachePut(namespace = Namespace.DYNAMIC, key = KeyConstants.RESOURCES)
-    public Map<String, Collection<String>> loadDynamicDataSource() {
-        Map<String, Collection<String>> matcherResourceMap = new HashMap<>(16);
-        //清空缓存
-        if (!CollectionUtils.isEmpty(this.matcherMethodMap) || !CollectionUtils.isEmpty(allowMethodSet)) {
-            this.matcherMethodMap.clear();
-            this.allowMethodSet.clear();
-        }
-        // 构造完整url 资源路径
-        ChainWrappers.lambdaQueryChain(this.sysResourceDao)
-                     .isNull(SysResource::getPid)
-                     .list()
-                     .forEach(rootResource -> {
-                         // 资源
-                         Map<Long, String> resourceMap = new HashMap<>(16);
-                         Map<Long, String> methodMap = new HashMap<>(16);
-                         this.makeResourcePath(rootResource, resourceMap, methodMap);
-                         resourceMap.forEach((id, path) -> {
-                             // 权限值
-                             List<String> permissions = this.baseMapper.getPermission(id)
-                                                                       .stream()
-                                                                       .distinct()
-                                                                       .collect(Collectors.toList());
-                             matcherResourceMap.put(path, permissions);
-                             this.matcherMethodMap.put(path, methodMap.get(id));
-                         });
-                     });
-        return matcherResourceMap;
-    }
-
-    @CachePut(namespace = Namespace.DYNAMIC, key = KeyConstants.MATCH_METHOD)
-    public Map<String, String> getMatcherMethodMap() {
-        if (CollectionUtils.isEmpty(this.matcherMethodMap)) {
-            this.loadDynamicDataSource();
-        }
-        return this.matcherMethodMap;
-    }
-
-    /**
-     * 构造资源路径
-     *
-     * @date 2021-05-05 19:56:08
-     * @param rootResource 节点资源
-     * @param resourcePathMap id-path映射
-     * @param methodMap id-method映射
-     */
-    private void makeResourcePath(SysResource rootResource, Map<Long, String> resourcePathMap, Map<Long, String> methodMap) {
-        var nodeId = rootResource.getId();
-        var uri = rootResource.getUri();
-        var method = rootResource.getMethod();
-        // 判断是否make
-        var condition = true;
-        List<SysResource> resources = ChainWrappers.lambdaQueryChain(this.sysResourceDao)
-                                                   .eq(SysResource::getPid, nodeId)
-                                                   .list();
-        for (SysResource node : resources) {
-            // 路径深搜
-            String concatNodeUri = uri.concat(node.getUri());
-            node.setUri(concatNodeUri);
-            // 继续make
-            this.makeResourcePath(node, resourcePathMap, methodMap);
-            // make完成
-            condition = false;
-        }
-        if (condition) {
-            resourcePathMap.put(nodeId, uri);
-            methodMap.put(nodeId, method);
-            // 是否allow
-            if (rootResource.getAllow()) {
-                this.allowMethodSet.add(uri);
-            }
-        }
-    }
-
-    private void collectPermissions(Long id, Supplier<Collection<ConfigAttribute>> collectionSupplier) {
-        Assert.notNull(id, "permission id cannot been null");
-        Assert.notNull(collectionSupplier, "supplier cannot been null");
-        super.lambdaQuery()
-             .select(SysPermission::getId, SysPermission::getValue)
-             .eq(SysPermission::getPid, id)
-             .list()
-             .forEach(sysPermission -> {
-                 if (sysPermission.getValue() != null) {
-                     collectionSupplier.get().add(sysPermission::getValue);
-                 }
-                 this.collectPermissions(sysPermission.getId(), collectionSupplier);
-             });
-    }
-
-    /**
-     * redis 反序化回来变成set
-     * @return getAllowUri
-     */
-    @CachePut(namespace = Namespace.DYNAMIC, key = KeyConstants.ALLOW)
-    public List<String> getAllowUri() {
-        CollectionUtils.mergeArrayIntoCollection(securityProperties.getIgnoreUri(), this.allowMethodSet);
-        return Lists.newArrayList(this.allowMethodSet);
     }
 
 }
