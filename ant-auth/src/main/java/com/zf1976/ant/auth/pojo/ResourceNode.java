@@ -42,7 +42,7 @@ public class ResourceNode {
     /**
      * 子节点
      */
-    private List<ResourceTree.Node> children;
+    private List<ResourceNode> children;
 
     public ResourceNode(SysResource sysResource) {
         this.id = sysResource.getId();
@@ -127,11 +127,11 @@ public class ResourceNode {
         return this;
     }
 
-    public List<ResourceTree.Node> getChildren() {
+    public List<ResourceNode> getChildren() {
         return children;
     }
 
-    public ResourceNode setChildren(List<ResourceTree.Node> children) {
+    public ResourceNode setChildren(List<ResourceNode> children) {
         this.children = children;
         return this;
     }

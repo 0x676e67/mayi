@@ -1,4 +1,4 @@
-package com.zf1976.ant.auth.endpoint;
+package com.zf1976.ant.auth.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

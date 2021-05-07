@@ -1,4 +1,4 @@
-package com.zf1976.ant.auth.endpoint;
+package com.zf1976.ant.auth.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
