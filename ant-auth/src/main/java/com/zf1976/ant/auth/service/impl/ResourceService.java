@@ -70,7 +70,7 @@ public class ResourceService extends ServiceImpl<SysResourceDao, SysResource> {
     }
 
     /**
-     * 功能描述
+     * 获取资源节点列表
      *
      * @date 2021-05-07 23:40:54
      * @return {@link List<ResourceNode>}
