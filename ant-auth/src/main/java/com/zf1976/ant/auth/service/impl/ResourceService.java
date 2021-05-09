@@ -28,11 +28,11 @@ public class ResourceService extends ServiceImpl<SysResourceDao, SysResource> {
      * @return {@link List< ResourceLink>}
      */
     public List<ResourceLink> getResourceLinkList() {
-        final List<ResourceNode> nodeList = this.getResourceNodeList();
         List<ResourceLink> resourceLinkList = new LinkedList<>();
-        for (ResourceNode node : nodeList) {
-            this.traverseNode(node, resourceLinkList);
-        }
+        this.getResourceNodeList()
+            .forEach(resourceNode -> {
+                this.traverseNode(resourceNode, resourceLinkList);
+            });
         return resourceLinkList;
     }
 
@@ -47,15 +47,14 @@ public class ResourceService extends ServiceImpl<SysResourceDao, SysResource> {
         if (parentNode.getChildren() == null) {
             if (resourceLinkList != null) {
                 // 构造完整资源链接
-                ResourceLink resourceLink = ResourceLink.Builder.builder()
-                                                         .id(parentNode.getId())
-                                                         .name(parentNode.getName())
-                                                         .uri(parentNode.getUri())
-                                                         .method(parentNode.getMethod())
-                                                         .enabled(parentNode.getEnabled())
-                                                         .allow(parentNode.getAllow())
-                                                         .description(parentNode.getDescription())
-                                                         .build();
+                ResourceLink resourceLink = new ResourceLink();
+                        resourceLink.setId(parentNode.getId())
+                                    .setName(parentNode.getName())
+                                    .setUri(parentNode.getUri())
+                                    .setMethod(parentNode.getMethod())
+                                    .setEnabled(parentNode.getEnabled())
+                                    .setAllow(parentNode.getAllow())
+                                    .setDescription(parentNode.getDescription());
                 resourceLinkList.add(resourceLink);
             }
         } else {
