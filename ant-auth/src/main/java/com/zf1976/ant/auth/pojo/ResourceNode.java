@@ -1,5 +1,6 @@
 package com.zf1976.ant.auth.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zf1976.ant.upms.biz.pojo.po.SysResource;
 
 import java.util.List;
@@ -23,6 +24,10 @@ public class ResourceNode {
      * 资源url
      */
     private String uri;
+    /**
+     * 完整uri, 从父节点到当前节点到uri拼接
+     */
+    private String fullUri;
     /**
      * 请求方法
      */
@@ -59,81 +64,80 @@ public class ResourceNode {
         return id;
     }
 
-    public ResourceNode setId(Long id) {
+    public void setId(Long id) {
         this.id = id;
-        return this;
     }
 
     public Long getPid() {
         return pid;
     }
 
-    public ResourceNode setPid(Long pid) {
+    public void setPid(Long pid) {
         this.pid = pid;
-        return this;
     }
 
     public String getName() {
         return name;
     }
 
-    public ResourceNode setName(String name) {
+    public void setName(String name) {
         this.name = name;
-        return this;
     }
 
     public String getUri() {
         return uri;
     }
 
-    public ResourceNode setUri(String uri) {
+    public void setUri(String uri) {
         this.uri = uri;
-        return this;
+    }
+
+    public String getFullUri() {
+        return fullUri;
+    }
+
+    public void setFullUri(String fullUri) {
+        this.fullUri = fullUri;
     }
 
     public String getMethod() {
         return method;
     }
 
-    public ResourceNode setMethod(String method) {
+    public void setMethod(String method) {
         this.method = method;
-        return this;
     }
 
     public Boolean getEnabled() {
         return enabled;
     }
 
-    public ResourceNode setEnabled(Boolean enabled) {
+    public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
-        return this;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public ResourceNode setDescription(String description) {
+    public void setDescription(String description) {
         this.description = description;
-        return this;
     }
 
     public Boolean getAllow() {
         return allow;
     }
 
-    public ResourceNode setAllow(Boolean allow) {
+    public void setAllow(Boolean allow) {
         this.allow = allow;
-        return this;
     }
 
     public List<ResourceNode> getChildren() {
         return children;
     }
 
-    public ResourceNode setChildren(List<ResourceNode> children) {
+    public void setChildren(List<ResourceNode> children) {
         this.children = children;
-        return this;
     }
 
     @Override

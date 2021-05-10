@@ -1,11 +1,15 @@
 package com.zf1976.ant.auth.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.FluentIterable;
 import com.zf1976.ant.auth.pojo.ResourceLink;
 import com.zf1976.ant.auth.pojo.ResourceNode;
 import com.zf1976.ant.upms.biz.dao.SysResourceDao;
 import com.zf1976.ant.upms.biz.pojo.po.SysResource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,18 +25,76 @@ import java.util.stream.Collectors;
 @Service
 public class ResourceService extends ServiceImpl<SysResourceDao, SysResource> {
 
+
+    public IPage<ResourceNode> selectResourceNodeByPage(Page<SysResource> resourcePage) {
+        // 独立根据根节点分页查询
+        Page<SysResource> sourcePage = super.lambdaQuery()
+                                      .isNull(SysResource::getPid)
+                                      .page(resourcePage);
+
+        // 查询所有根节点的子节点
+        List<SysResource> childResourceList = super.lambdaQuery()
+                                              .isNotNull(SysResource::getPid)
+                                              .list();
+        // 合并所有节点
+        @SuppressWarnings("all")
+        FluentIterable<SysResource> allResourceList = FluentIterable.concat(childResourceList, sourcePage.getRecords());
+        // 根据分页出来的根节点构建资源树
+        List<ResourceNode> resourceTreeList = this.buildResourceTree(allResourceList.toList());
+        return new Page<ResourceNode>(sourcePage.getCurrent(),
+                sourcePage.getSize(),
+                sourcePage.getTotal(),
+                sourcePage.isSearchCount()).setRecords(resourceTreeList);
+    }
+
     /**
-     * 获取资源链接
+     * 构建资源树
+     *
+     * @date 2021-05-07 08:42:41
+     * @param resourceList 资源列表
+     * @return {@link List<ResourceNode>}
+     */
+    private List<ResourceNode> buildResourceTree(List<SysResource> resourceList) {
+        List<ResourceNode> treeList = resourceList.stream()
+                                                  .map(ResourceNode::new)
+                                                  .collect(Collectors.toList());
+        // 遍历所有根节点进行构造树
+        for (ResourceNode var1 : treeList) {
+            // 循环构造子节点
+            for (ResourceNode var2 : treeList) {
+                if (var1.getId().equals(var2.getPid())) {
+                    if (var1.getChildren() == null) {
+                        var1.setChildren(new ArrayList<>());
+                    }
+                    // 添加子节点
+                    var1.getChildren().add(var2);
+                }
+            }
+        }
+        //
+        return treeList.stream()
+                       .filter(resourceNode -> {
+                           // 根据树构建完整uri
+                           if (resourceNode.getPid() == null) {
+                               this.traverseNode(resourceNode);
+                               return true;
+                           }
+                           return false;
+                       })
+                       .collect(Collectors.toList());
+    }
+
+    /**
+     * 构建资源链接列表
      *
      * @date 2021-05-07 23:43:49
-     * @return {@link List< ResourceLink>}
+     * @return {@link List<ResourceLink>}
      */
-    public List<ResourceLink> getResourceLinkList() {
+    private List<ResourceLink> buildResourceLinkList(List<ResourceNode> resourceNodeList) {
         List<ResourceLink> resourceLinkList = new LinkedList<>();
-        this.getResourceNodeList()
-            .forEach(resourceNode -> {
-                this.traverseNode(resourceNode, resourceLinkList);
-            });
+        resourceNodeList.forEach(resourceNode -> {
+            this.traverseNode(resourceNode, resourceLinkList);
+        });
         return resourceLinkList;
     }
 
@@ -44,17 +106,18 @@ public class ResourceService extends ServiceImpl<SysResourceDao, SysResource> {
      * @param resourceLinkList 资源链接列表
      */
     private void traverseNode(ResourceNode parentNode, List<ResourceLink> resourceLinkList) {
+        // 递归到叶子节点
         if (parentNode.getChildren() == null) {
             if (resourceLinkList != null) {
                 // 构造完整资源链接
                 ResourceLink resourceLink = new ResourceLink();
-                        resourceLink.setId(parentNode.getId())
-                                    .setName(parentNode.getName())
-                                    .setUri(parentNode.getUri())
-                                    .setMethod(parentNode.getMethod())
-                                    .setEnabled(parentNode.getEnabled())
-                                    .setAllow(parentNode.getAllow())
-                                    .setDescription(parentNode.getDescription());
+                resourceLink.setId(parentNode.getId())
+                            .setName(parentNode.getName())
+                            .setUri(parentNode.getUri())
+                            .setMethod(parentNode.getMethod())
+                            .setEnabled(parentNode.getEnabled())
+                            .setAllow(parentNode.getAllow())
+                            .setDescription(parentNode.getDescription());
                 resourceLinkList.add(resourceLink);
             }
         } else {
@@ -69,43 +132,30 @@ public class ResourceService extends ServiceImpl<SysResourceDao, SysResource> {
     }
 
     /**
-     * 获取资源节点列表
+     * 遍历节点构造完整URI
      *
      * @date 2021-05-07 23:40:54
-     * @return {@link List<ResourceNode>}
+     * @param parentNode 父节点
      */
-    private List<ResourceNode> getResourceNodeList(){
-        final List<SysResource> resourceList = super.lambdaQuery().list();
-        return this.generatorResourceNode(resourceList);
-    }
-
-    /**
-     * 构建资源树
-     *
-     * @date 2021-05-07 08:42:41
-     * @param resourceList 资源列表
-     * @return {@link List<ResourceNode>}
-     */
-    private List<ResourceNode> generatorResourceNode(List<SysResource> resourceList) {
-        final List<ResourceNode> nodes = new ArrayList<>();
-        final Collection<ResourceNode> nodeCollection = resourceList.stream()
-                                                                    .map(ResourceNode::new)
-                                                                    .collect(Collectors.toCollection(ConcurrentLinkedDeque::new));
-        for (ResourceNode var1 : nodeCollection) {
-            // 根节点
-            if (var1.getPid() == null) {
-                nodes.add(var1);
-            }
-            for (ResourceNode var2 : nodeCollection) {
-                if (var1.getId().equals(var2.getPid())) {
-                    if (var1.getChildren() == null) {
-                        var1.setChildren(new ArrayList<>());
-                    }
-                    // 添加子节点
-                    var1.getChildren().add(var2);
-                }
+    private void traverseNode(ResourceNode parentNode) {
+        // 递归到叶子节点
+        if (parentNode.getChildren() != null) {
+            String parentUri = this.initResourceNodeFullUri(parentNode);
+            for (ResourceNode childNode : parentNode.getChildren()) {
+                String childUri = this.initResourceNodeFullUri(childNode);
+                // 构造uri
+                childNode.setFullUri(parentUri.concat(childUri));
+                // 递归
+                this.traverseNode(childNode);
             }
         }
-        return nodes;
+    }
+
+    private String initResourceNodeFullUri(ResourceNode resourceNode) {
+        String fullUri = resourceNode.getFullUri();
+        if (StringUtils.isEmpty(fullUri)) {
+            resourceNode.setFullUri(resourceNode.getUri());
+        }
+        return resourceNode.getFullUri();
     }
 }

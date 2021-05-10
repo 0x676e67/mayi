@@ -53,6 +53,11 @@ public class SysResource extends Model<SysResource> {
     private Boolean allow;
 
     /**
+     * 叶子
+     */
+    private Boolean leaf;
+
+    /**
      * 创建者
      */
     @TableField(fill = FieldFill.INSERT)

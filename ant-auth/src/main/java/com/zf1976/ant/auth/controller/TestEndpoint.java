@@ -1,5 +1,6 @@
 package com.zf1976.ant.auth.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zf1976.ant.auth.service.impl.ResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +25,6 @@ public class TestEndpoint {
 
     @GetMapping("/resource")
     public Object resource(){
-        return this.service.getResourceLinkList();
+        return this.service.selectResourceNodeByPage(new Page<>(1,2));
     }
 }
