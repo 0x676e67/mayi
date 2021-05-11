@@ -6,8 +6,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.FluentIterable;
 import com.zf1976.ant.auth.pojo.ResourceLink;
 import com.zf1976.ant.auth.pojo.ResourceNode;
-import com.zf1976.ant.upms.biz.dao.SysResourceDao;
-import com.zf1976.ant.upms.biz.pojo.po.SysResource;
+import com.zf1976.ant.auth.dao.SysResourceDao;
+import com.zf1976.ant.auth.pojo.po.SysResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.zf1976.ant.upms.biz.dao.SysPermissionDao">
+<mapper namespace="com.zf1976.ant.auth.dao.SysPermissionDao">
 
 <!--  获取接口权限值-->
     <select id="getPermission" resultType="java.lang.String">

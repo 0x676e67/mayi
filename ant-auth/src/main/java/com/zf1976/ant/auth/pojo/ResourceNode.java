@@ -1,7 +1,6 @@
 package com.zf1976.ant.auth.pojo;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.zf1976.ant.upms.biz.pojo.po.SysResource;
+import com.zf1976.ant.auth.pojo.po.SysResource;
 
 import java.util.List;
 

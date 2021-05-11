@@ -1,7 +1,7 @@
-package com.zf1976.ant.upms.biz.dao;
+package com.zf1976.ant.auth.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.zf1976.ant.upms.biz.pojo.po.SysPermission;
+import com.zf1976.ant.auth.pojo.po.SysPermission;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 

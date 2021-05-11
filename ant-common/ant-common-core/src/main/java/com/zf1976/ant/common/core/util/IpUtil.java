@@ -37,13 +37,17 @@ public class IpUtil {
      * @date 2021-05-11 13:37:51
      * @return {@link String}
      */
-    public static String getInterIP2() throws SocketException {
+    public static String getInterIP2() {
         // 本地IP，如果没有配置外网IP则返回它
         String localIp = null;
         // 外网IP
         String netip = null;
         Enumeration<NetworkInterface> netInterfaces;
-        netInterfaces = NetworkInterface.getNetworkInterfaces();
+        try {
+            netInterfaces = NetworkInterface.getNetworkInterfaces();
+        } catch (SocketException e) {
+            throw new RuntimeException("get NetworkInterfaces Error");
+        }
         InetAddress ip;
         // 是否找到外网IP
         boolean finded = false;

@@ -26,7 +26,6 @@ public class SystemApplication {
         SpringApplication.run(SystemApplication.class, args);
     }
 
-
     /**
      * 关闭runtime warnings
      */

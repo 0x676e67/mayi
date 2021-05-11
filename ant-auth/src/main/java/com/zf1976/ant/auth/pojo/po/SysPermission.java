@@ -1,4 +1,4 @@
-package com.zf1976.ant.upms.biz.pojo.po;
+package com.zf1976.ant.auth.pojo.po;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
@@ -11,52 +11,31 @@ import java.util.Date;
  * @date 2020/12/25
  **/
 @Data
-@TableName("sys_resource")
-public class SysResource extends Model<SysResource> {
+@TableName("sys_permission")
+public class SysPermission extends Model<SysPermission> {
 
     @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
-     * pid resource
+     * 父节点id
      */
     private Long pid;
 
     /**
-     * 资源名称
+     * 权限名称
      */
     private String name;
 
     /**
-     * 资源url
+     * 权限值
      */
-    private String uri;
-
-    /**
-     * 请求方法
-     */
-    private String method;
-
-    /**
-     * 开关
-     */
-    private Boolean enabled;
+    private String value;
 
     /**
      * 资源描述
      */
     private String description;
-
-    /**
-     * 放行
-     */
-    private Boolean allow;
-
-    /**
-     * 叶子
-     */
-    private Boolean leaf;
-
     /**
      * 创建者
      */

@@ -76,7 +76,6 @@ public class SysRole extends Model<SysRole> {
     @TableField(fill = FieldFill.UPDATE)
     private Date updateTime;
 
-
     /**
      * 版本号
      */

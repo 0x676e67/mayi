@@ -11,7 +11,7 @@
  Target Server Version : 50732
  File Encoding         : 65001
 
- Date: 11/05/2021 18:10:53
+ Date: 11/05/2021 23:02:22
 */
 
 SET NAMES utf8mb4;
@@ -1040,7 +1040,7 @@ CREATE TABLE `sys_user_position_relation` (
   `user_id` bigint(20) NOT NULL COMMENT '用户ID',
   `position_id` bigint(20) NOT NULL COMMENT '岗位ID',
   PRIMARY KEY (`user_id`,`position_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户岗位关联表';
 
 -- ----------------------------
 -- Records of sys_user_position_relation

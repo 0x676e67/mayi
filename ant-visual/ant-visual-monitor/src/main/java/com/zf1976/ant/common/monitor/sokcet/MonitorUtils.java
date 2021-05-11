@@ -1,5 +1,6 @@
 package com.zf1976.ant.common.monitor.sokcet;
 
+import com.zf1976.ant.common.core.util.IpUtil;
 import com.zf1976.ant.common.core.util.RequestUtil;
 import com.zf1976.ant.common.monitor.pojo.*;
 import org.slf4j.Logger;
@@ -149,12 +150,11 @@ public class MonitorUtils {
      */
     private static OperatingSystemVO getOperatingSystem(OperatingSystem operatingSystem) {
         OperatingSystemVO operatingSystemVo = new OperatingSystemVO();
-        long startTime = ManagementFactory.getRuntimeMXBean()
-                                          .getStartTime();
+        long startTime = ManagementFactory.getRuntimeMXBean().getStartTime();
         Date date = new Date(startTime);
         String formatBetween = DATE_FORMAT_THREAD_LOCAL.get().format(date);
         operatingSystemVo.setOs(operatingSystem.toString());
-        operatingSystemVo.setIp(RequestUtil.getLocalAddress());
+        operatingSystemVo.setIp(IpUtil.getInterIP2());
         operatingSystemVo.setRunningDay(formatBetween);
         return operatingSystemVo;
     }
