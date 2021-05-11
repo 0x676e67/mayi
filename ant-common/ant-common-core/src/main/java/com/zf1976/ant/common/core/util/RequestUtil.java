@@ -145,12 +145,11 @@ public final class RequestUtil extends RequestContextHolder {
      * @param response response
      * @return result
      */
+    @SuppressWarnings("rawtypes")
     private static String getRegionResult(HttpResponse<String> response) {
         String resultJson = JSONUtil.toJsonString(response.body());
-        @SuppressWarnings("rawtypes")
         Map dataMap = JSONUtil.readValue(resultJson, Map.class);
         if (!CollectionUtils.isEmpty(dataMap)) {
-            //noinspection rawtypes
             return (String) ((Map) ((List) dataMap.get("data")).get(0)).get("location");
         }
         return UNKNOWN;

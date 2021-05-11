@@ -11,7 +11,7 @@
  Target Server Version : 50732
  File Encoding         : 65001
 
- Date: 10/05/2021 11:25:40
+ Date: 11/05/2021 18:10:53
 */
 
 SET NAMES utf8mb4;
@@ -22,19 +22,19 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `oauth_client_details`;
 CREATE TABLE `oauth_client_details` (
-  `client_id` varchar(256) NOT NULL COMMENT '客户端id',
-  `resource_ids` varchar(256) DEFAULT NULL COMMENT '客户端所能访问的资源id集合，多个资源时用逗号(,)分隔\n客户端所能访问的资源id集合，多个资源时用逗号(,)分隔\n',
-  `client_secret` varchar(256) DEFAULT NULL COMMENT '客户端访问密匙',
-  `scope` varchar(256) DEFAULT NULL COMMENT '客户端申请的权限范围，可选值包括read,write,trust;若有多个权限范围用逗号(,)分隔\n',
-  `authorized_grant_types` varchar(256) DEFAULT NULL COMMENT 'authorization_code,password,refresh_token,implicit,client_credentials',
-  `web_server_redirect_uri` varchar(256) DEFAULT NULL COMMENT '客户端重定向URI，当grant_type为authorization_code或implicit时, 在Oauth的流程中会使用并检查与数据库内的redirect_uri是否一致',
-  `authorities` varchar(256) DEFAULT NULL COMMENT '客户端所拥有的Spring Security的权限值,可选, 若有多个权限值,用逗号(,)分隔\n',
+  `client_id` varchar(256) CHARACTER SET utf8 NOT NULL COMMENT '客户端id',
+  `resource_ids` varchar(256) CHARACTER SET utf8 DEFAULT NULL COMMENT '客户端所能访问的资源id集合，多个资源时用逗号(,)分隔\n客户端所能访问的资源id集合，多个资源时用逗号(,)分隔\n',
+  `client_secret` varchar(256) CHARACTER SET utf8 DEFAULT NULL COMMENT '客户端访问密匙',
+  `scope` varchar(256) CHARACTER SET utf8 DEFAULT NULL COMMENT '客户端申请的权限范围，可选值包括read,write,trust;若有多个权限范围用逗号(,)分隔\n',
+  `authorized_grant_types` varchar(256) CHARACTER SET utf8 DEFAULT NULL COMMENT 'authorization_code,password,refresh_token,implicit,client_credentials',
+  `web_server_redirect_uri` varchar(256) CHARACTER SET utf8 DEFAULT NULL COMMENT '客户端重定向URI，当grant_type为authorization_code或implicit时, 在Oauth的流程中会使用并检查与数据库内的redirect_uri是否一致',
+  `authorities` varchar(256) CHARACTER SET utf8 DEFAULT NULL COMMENT '客户端所拥有的Spring Security的权限值,可选, 若有多个权限值,用逗号(,)分隔\n',
   `access_token_validity` int(11) DEFAULT NULL COMMENT '设定客户端的access_token的有效时间值(单位:秒)，若不设定值则使用默认的有效时间值(60 * 60 * 12, 12小时)\n',
   `refresh_token_validity` int(11) DEFAULT NULL COMMENT '设定客户端的refresh_token的有效时间值(单位:秒)，若不设定值则使用默认的有效时间值(60 * 60 * 24 * 30, 30天)\n',
-  `additional_information` varchar(4096) DEFAULT NULL COMMENT '这是一个预留的字段,在Oauth的流程中没有实际的使用,可选,但若设置值,必须是JSON格式的数据\n',
-  `autoapprove` varchar(256) DEFAULT NULL COMMENT '设置用户是否自动批准授予权限操作, 默认值为 ‘false’, 可选值包括 ‘true’,‘false’, ‘read’,‘write’.\n',
+  `additional_information` varchar(4096) CHARACTER SET utf8 DEFAULT NULL COMMENT '这是一个预留的字段,在Oauth的流程中没有实际的使用,可选,但若设置值,必须是JSON格式的数据\n',
+  `autoapprove` varchar(256) CHARACTER SET utf8 DEFAULT NULL COMMENT '设置用户是否自动批准授予权限操作, 默认值为 ‘false’, 可选值包括 ‘true’,‘false’, ‘read’,‘write’.\n',
   PRIMARY KEY (`client_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='OAuth2客户端表';
 
 -- ----------------------------
 -- Records of oauth_client_details
@@ -51,18 +51,18 @@ CREATE TABLE `sys_department` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `pid` bigint(20) DEFAULT NULL COMMENT '上级部门',
   `sub_count` int(11) NOT NULL DEFAULT '0' COMMENT '子部门数目',
-  `name` varchar(255) NOT NULL COMMENT '名称',
+  `name` varchar(255) CHARACTER SET utf8 NOT NULL COMMENT '名称',
   `dept_sort` int(11) DEFAULT '999' COMMENT '排序',
   `enabled` bit(1) NOT NULL COMMENT '状态',
-  `create_by` varchar(255) DEFAULT NULL COMMENT '创建者',
-  `update_by` varchar(255) DEFAULT NULL COMMENT '更新者',
+  `create_by` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '创建者',
+  `update_by` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '更新者',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建日期',
   `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `version` int(11) NOT NULL DEFAULT '0' COMMENT '版本号',
   PRIMARY KEY (`id`) USING BTREE,
   KEY `inx_pid` (`pid`),
   KEY `inx_enabled` (`enabled`)
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='部门';
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT COMMENT='部门';
 
 -- ----------------------------
 -- Records of sys_department
@@ -91,15 +91,15 @@ COMMIT;
 DROP TABLE IF EXISTS `sys_dict`;
 CREATE TABLE `sys_dict` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
-  `dict_name` varchar(255) NOT NULL COMMENT '字典名称',
-  `description` varchar(255) DEFAULT NULL COMMENT '描述',
-  `create_by` varchar(255) DEFAULT NULL COMMENT '创建者',
-  `update_by` varchar(255) DEFAULT NULL COMMENT '更新者',
+  `dict_name` varchar(255) CHARACTER SET utf8 NOT NULL COMMENT '字典名称',
+  `description` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '描述',
+  `create_by` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '创建者',
+  `update_by` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '更新者',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建日期',
   `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `version` int(11) NOT NULL DEFAULT '0' COMMENT '版本号',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='数据字典';
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT COMMENT='数据字典';
 
 -- ----------------------------
 -- Records of sys_dict
@@ -118,17 +118,17 @@ DROP TABLE IF EXISTS `sys_dict_detail`;
 CREATE TABLE `sys_dict_detail` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `dict_id` bigint(20) DEFAULT NULL COMMENT '字典id',
-  `label` varchar(255) NOT NULL COMMENT '字典标签',
+  `label` varchar(255) CHARACTER SET utf8 NOT NULL COMMENT '字典标签',
   `dict_sort` int(11) DEFAULT NULL COMMENT '排序',
-  `create_by` varchar(255) DEFAULT NULL COMMENT '创建者',
-  `update_by` varchar(255) DEFAULT NULL COMMENT '更新者',
+  `create_by` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '创建者',
+  `update_by` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '更新者',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建日期',
   `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `version` int(11) NOT NULL DEFAULT '0' COMMENT '版本号',
-  `value` varchar(20) DEFAULT NULL COMMENT '值',
+  `value` varchar(20) CHARACTER SET utf8 DEFAULT NULL COMMENT '值',
   PRIMARY KEY (`id`) USING BTREE,
   KEY `FK5tpkputc6d9nboxojdbgnpmyb` (`dict_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='数据字典详情';
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT COMMENT='数据字典详情';
 
 -- ----------------------------
 -- Records of sys_dict_detail
@@ -151,23 +151,23 @@ DROP TABLE IF EXISTS `sys_log`;
 CREATE TABLE `sys_log` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `log_type` int(255) DEFAULT NULL COMMENT '日志类型',
-  `username` varchar(255) DEFAULT NULL COMMENT '用户名',
-  `ip` varchar(100) DEFAULT NULL COMMENT 'ip',
-  `ip_region` varchar(100) DEFAULT NULL COMMENT 'ip来源',
-  `uri` varchar(255) DEFAULT NULL COMMENT 'uri',
-  `request_method` varchar(255) DEFAULT NULL COMMENT '请求方法',
-  `parameter` text COMMENT '请求参数',
-  `user_agent` varchar(255) DEFAULT NULL COMMENT 'user agent',
+  `username` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '用户名',
+  `ip` varchar(100) CHARACTER SET utf8 DEFAULT NULL COMMENT 'ip',
+  `ip_region` varchar(100) CHARACTER SET utf8 DEFAULT NULL COMMENT 'ip来源',
+  `uri` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT 'uri',
+  `request_method` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '请求方法',
+  `parameter` text CHARACTER SET utf8 COMMENT '请求参数',
+  `user_agent` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT 'user agent',
   `spend_time` int(11) DEFAULT NULL COMMENT '消耗时间',
-  `description` text COMMENT '描述',
-  `class_name` varchar(255) DEFAULT NULL COMMENT '类名',
-  `method_name` varchar(255) DEFAULT NULL COMMENT '方法名',
-  `exception_details` text COMMENT '异常细节',
+  `description` text CHARACTER SET utf8 COMMENT '描述',
+  `class_name` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '类名',
+  `method_name` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '方法名',
+  `exception_details` text CHARACTER SET utf8 COMMENT '异常细节',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE,
   KEY `log_create_time_index` (`create_time`),
   KEY `inx_log_type` (`log_type`)
-) ENGINE=InnoDB AUTO_INCREMENT=246 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='系统日志';
+) ENGINE=InnoDB AUTO_INCREMENT=247 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT COMMENT='系统日志';
 
 -- ----------------------------
 -- Records of sys_log
@@ -417,6 +417,7 @@ INSERT INTO `sys_log` VALUES (242, 2, 'admin', '127.0.0.1', 'UNKNOWN HOST', '/ap
 INSERT INTO `sys_log` VALUES (243, 2, 'admin', '127.0.0.1', 'UNKNOWN HOST', '/api/online/delete', 'DELETE', '[[2]]', 'Chrome 8', 170, 'this session not online', 'com.zf1976.ant.upms.biz.controller.OnlineController', 'deleteSession', '\"java.lang.RuntimeException: this session not online\\n\\tat com.zf1976.ant.upms.biz.service.SysOnlineService.lambda$forceOffline$1(SysOnlineService.java:165)\\n\\tat java.base/java.lang.Iterable.forEach(Iterable.java:75)\\n\\tat com.zf1976.ant.upms.biz.service.SysOnlineService.forceOffline(SysOnlineService.java:150)\\n\\tat com.zf1976.ant.upms.biz.controller.OnlineController.deleteSession(OnlineController.java:35)\\n\\tat com.zf1976.ant.upms.biz.controller.OnlineController$$FastClassBySpringCGLIB$$fb24784e.invoke(<generated>)\\n\\tat org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\\n\\tat org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:771)\\n\\tat org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)\\n\\tat org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:749)\\n\\tat org.springframework.aop.aspectj.AspectJAfterThrowingAdvice.invoke(AspectJAfterThrowingAdvice.java:62)\\n\\tat org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\\n\\tat org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:749)\\n\\tat org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:95)\\n\\tat org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\\n\\tat org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:749)\\n\\tat org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:691)\\n\\tat com.zf1976.ant.upms.biz.controller.OnlineController$$EnhancerBySpringCGLIB$$85f35e78.deleteSession(<generated>)\\n\\tat java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\\n\\tat java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\\n\\tat java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\\n\\tat java.base/java.lang.reflect.Method.invoke(Method.java:566)\\n\\tat org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:190)\\n\\tat org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:138)\\n\\tat org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:105)\\n\\tat org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:879)\\n\\tat org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:793)\\n\\tat org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)\\n\\tat org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1040)\\n\\tat org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:943)\\n\\tat org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)\\n\\tat org.springframework.web.servlet.FrameworkServlet.doDelete(FrameworkServlet.java:931)\\n\\tat javax.servlet.http.HttpServlet.service(HttpServlet.java:666)\\n\\tat org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)\\n\\tat javax.servlet.http.HttpServlet.service(HttpServlet.java:741)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\\n\\tat org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\\n\\tat com.alibaba.druid.support.http.WebStatFilter.doFilter(WebStatFilter.java:124)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\\n\\tat com.zf1976.ant.upms.biz.config.WebMvcConfiguration.lambda$filter$0(WebMvcConfiguration.java:42)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\\n\\tat org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)\\n\\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\\n\\tat org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)\\n\\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\\n\\tat org.springframework.boot.actuate.metrics.web.servlet.WebMvcMetricsFilter.doFilterInternal(WebMvcMetricsFilter.java:93)\\n\\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\\n\\tat org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)\\n\\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\\n\\tat org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:202)\\n\\tat org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:96)\\n\\tat org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:541)\\n\\tat org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:139)\\n\\tat org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)\\n\\tat org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)\\n\\tat org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:343)\\n\\tat org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:373)\\n\\tat org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65)\\n\\tat org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:868)\\n\\tat org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1590)\\n\\tat org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)\\n\\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)\\n\\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)\\n\\tat org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)\\n\\tat java.base/java.lang.Thread.run(Thread.java:834)\\n\"', '2021-05-07 03:46:58');
 INSERT INTO `sys_log` VALUES (244, 2, 'admin', '127.0.0.1', 'UNKNOWN HOST', '/api/online/delete', 'DELETE', '[[2]]', 'Chrome 8', 180, 'Read timed out executing POST http://ant-auth/oauth/logout', 'com.zf1976.ant.upms.biz.controller.OnlineController', 'deleteSession', '\"feign.RetryableException: Read timed out executing POST http://ant-auth/oauth/logout\\n\\tat feign.FeignException.errorExecuting(FeignException.java:249)\\n\\tat feign.SynchronousMethodHandler.executeAndDecode(SynchronousMethodHandler.java:129)\\n\\tat feign.SynchronousMethodHandler.invoke(SynchronousMethodHandler.java:89)\\n\\tat feign.ReflectiveFeign$FeignInvocationHandler.invoke(ReflectiveFeign.java:100)\\n\\tat com.sun.proxy.$Proxy130.logout(Unknown Source)\\n\\tat com.zf1976.ant.upms.biz.service.SysOnlineService.lambda$forceOffline$1(SysOnlineService.java:158)\\n\\tat java.base/java.lang.Iterable.forEach(Iterable.java:75)\\n\\tat com.zf1976.ant.upms.biz.service.SysOnlineService.forceOffline(SysOnlineService.java:150)\\n\\tat com.zf1976.ant.upms.biz.controller.OnlineController.deleteSession(OnlineController.java:35)\\n\\tat com.zf1976.ant.upms.biz.controller.OnlineController$$FastClassBySpringCGLIB$$fb24784e.invoke(<generated>)\\n\\tat org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\\n\\tat org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:771)\\n\\tat org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)\\n\\tat org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:749)\\n\\tat org.springframework.aop.aspectj.AspectJAfterThrowingAdvice.invoke(AspectJAfterThrowingAdvice.java:62)\\n\\tat org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\\n\\tat org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:749)\\n\\tat org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:95)\\n\\tat org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\\n\\tat org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:749)\\n\\tat org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:691)\\n\\tat com.zf1976.ant.upms.biz.controller.OnlineController$$EnhancerBySpringCGLIB$$7d6ee6fe.deleteSession(<generated>)\\n\\tat java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\\n\\tat java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\\n\\tat java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\\n\\tat java.base/java.lang.reflect.Method.invoke(Method.java:566)\\n\\tat org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:190)\\n\\tat org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:138)\\n\\tat org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:105)\\n\\tat org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:879)\\n\\tat org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:793)\\n\\tat org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)\\n\\tat org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1040)\\n\\tat org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:943)\\n\\tat org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)\\n\\tat org.springframework.web.servlet.FrameworkServlet.doDelete(FrameworkServlet.java:931)\\n\\tat javax.servlet.http.HttpServlet.service(HttpServlet.java:666)\\n\\tat org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)\\n\\tat javax.servlet.http.HttpServlet.service(HttpServlet.java:741)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\\n\\tat org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\\n\\tat com.alibaba.druid.support.http.WebStatFilter.doFilter(WebStatFilter.java:124)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\\n\\tat com.zf1976.ant.upms.biz.config.WebMvcConfiguration.lambda$filter$0(WebMvcConfiguration.java:42)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\\n\\tat org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)\\n\\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\\n\\tat org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)\\n\\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\\n\\tat org.springframework.boot.actuate.metrics.web.servlet.WebMvcMetricsFilter.doFilterInternal(WebMvcMetricsFilter.java:93)\\n\\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\\n\\tat org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)\\n\\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\\n\\tat org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:202)\\n\\tat org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:96)\\n\\tat org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:541)\\n\\tat org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:139)\\n\\tat org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)\\n\\tat org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)\\n\\tat org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:343)\\n\\tat org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:373)\\n\\tat org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65)\\n\\tat org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:868)\\n\\tat org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1590)\\n\\tat org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)\\n\\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)\\n\\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)\\n\\tat org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)\\n\\tat java.base/java.lang.Thread.run(Thread.java:834)\\nCaused by: java.net.SocketTimeoutException: Read timed out\\n\\tat java.base/java.net.SocketInputStream.socketRead0(Native Method)\\n\\tat java.base/java.net.SocketInputStream.socketRead(SocketInputStream.java:115)\\n\\tat java.base/java.net.SocketInputStream.read(SocketInputStream.java:168)\\n\\tat java.base/java.net.SocketInputStream.read(SocketInputStream.java:140)\\n\\tat java.base/java.io.BufferedInputStream.fill(BufferedInputStream.java:252)\\n\\tat java.base/java.io.BufferedInputStream.read1(BufferedInputStream.java:292)\\n\\tat java.base/java.io.BufferedInputStream.read(BufferedInputStream.java:351)\\n\\tat java.base/sun.net.www.http.HttpClient.parseHTTPHeader(HttpClient.java:746)\\n\\tat java.base/sun.net.www.http.HttpClient.parseHTTP(HttpClient.java:689)\\n\\tat java.base/sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1610)\\n\\tat java.base/sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1515)\\n\\tat java.base/java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:527)\\n\\tat feign.Client$Default.convertResponse(Client.java:108)\\n\\tat feign.Client$Default.execute(Client.java:104)\\n\\tat org.springframework.cloud.openfeign.ribbon.FeignLoadBalancer.execute(FeignLoadBalancer.java:93)\\n\\tat org.springframework.cloud.openfeign.ribbon.FeignLoadBalancer.execute(FeignLoadBalancer.java:56)\\n\\tat com.netflix.client.AbstractLoadBalancerAwareClient$1.call(AbstractLoadBalancerAwareClient.java:104)\\n\\tat com.netflix.loadbalancer.reactive.LoadBalancerCommand$3$1.call(LoadBalancerCommand.java:303)\\n\\tat com.netflix.loadbalancer.reactive.LoadBalancerCommand$3$1.call(LoadBalancerCommand.java:287)\\n\\tat rx.internal.util.ScalarSynchronousObservable$3.call(ScalarSynchronousObservable.java:231)\\n\\tat rx.internal.util.ScalarSynchronousObservable$3.call(ScalarSynchronousObservable.java:228)\\n\\tat rx.Observable.unsafeSubscribe(Observable.java:10327)\\n\\tat rx.internal.operators.OnSubscribeConcatMap$ConcatMapSubscriber.drain(OnSubscribeConcatMap.java:286)\\n\\tat rx.internal.operators.OnSubscribeConcatMap$ConcatMapSubscriber.onNext(OnSubscribeConcatMap.java:144)\\n\\tat com.netflix.loadbalancer.reactive.LoadBalancerCommand$1.call(LoadBalancerCommand.java:185)\\n\\tat com.netflix.loadbalancer.reactive.LoadBalancerCommand$1.call(LoadBalancerCommand.java:180)\\n\\tat rx.Observable.unsafeSubscribe(Observable.java:10327)\\n\\tat rx.internal.operators.OnSubscribeConcatMap.call(OnSubscribeConcatMap.java:94)\\n\\tat rx.internal.operators.OnSubscribeConcatMap.call(OnSubscribeConcatMap.java:42)\\n\\tat rx.Observable.unsafeSubscribe(Observable.java:10327)\\n\\tat rx.internal.operators.OperatorRetryWithPredicate$SourceSubscriber$1.call(OperatorRetryWithPredicate.java:127)\\n\\tat rx.internal.schedulers.TrampolineScheduler$InnerCurrentThreadScheduler.enqueue(TrampolineScheduler.java:73)\\n\\tat rx.internal.schedulers.TrampolineScheduler$InnerCurrentThreadScheduler.schedule(TrampolineScheduler.java:52)\\n\\tat rx.internal.operators.OperatorRetryWithPredicate$SourceSubscriber.onNext(OperatorRetryWithPredicate.java:79)\\n\\tat rx.internal.operators.OperatorRetryWithPredicate$SourceSubscriber.onNext(OperatorRetryWithPredicate.java:45)\\n\\tat rx.internal.util.ScalarSynchronousObservable$WeakSingleProducer.request(ScalarSynchronousObservable.java:276)\\n\\tat rx.Subscriber.setProducer(Subscriber.java:209)\\n\\tat rx.internal.util.ScalarSynchronousObservable$JustOnSubscribe.call(ScalarSynchronousObservable.java:138)\\n\\tat rx.internal.util.ScalarSynchronousObservable$JustOnSubscribe.call(ScalarSynchronousObservable.java:129)\\n\\tat rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:48)\\n\\tat rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:30)\\n\\tat rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:48)\\n\\tat rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:30)\\n\\tat rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:48)\\n\\tat rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:30)\\n\\tat rx.Observable.subscribe(Observable.java:10423)\\n\\tat rx.Observable.subscribe(Observable.java:10390)\\n\\tat rx.observables.BlockingObservable.blockForSingle(BlockingObservable.java:443)\\n\\tat rx.observables.BlockingObservable.single(BlockingObservable.java:340)\\n\\tat com.netflix.client.AbstractLoadBalancerAwareClient.executeWithLoadBalancer(AbstractLoadBalancerAwareClient.java:112)\\n\\tat org.springframework.cloud.openfeign.ribbon.LoadBalancerFeignClient.execute(LoadBalancerFeignClient.java:83)\\n\\tat feign.SynchronousMethodHandler.executeAndDecode(SynchronousMethodHandler.java:119)\\n\\t... 80 more\\n\"', '2021-05-07 04:26:55');
 INSERT INTO `sys_log` VALUES (245, 2, 'admin', '127.0.0.1', 'UNKNOWN HOST', '/api/online/delete', 'DELETE', '[[2]]', 'Chrome 8', 177, 'Read timed out executing POST http://ant-auth/oauth/logout', 'com.zf1976.ant.upms.biz.controller.OnlineController', 'deleteSession', '\"feign.RetryableException: Read timed out executing POST http://ant-auth/oauth/logout\\n\\tat feign.FeignException.errorExecuting(FeignException.java:249)\\n\\tat feign.SynchronousMethodHandler.executeAndDecode(SynchronousMethodHandler.java:129)\\n\\tat feign.SynchronousMethodHandler.invoke(SynchronousMethodHandler.java:89)\\n\\tat feign.ReflectiveFeign$FeignInvocationHandler.invoke(ReflectiveFeign.java:100)\\n\\tat com.sun.proxy.$Proxy130.logout(Unknown Source)\\n\\tat com.zf1976.ant.upms.biz.service.SysOnlineService.lambda$forceOffline$1(SysOnlineService.java:158)\\n\\tat java.base/java.lang.Iterable.forEach(Iterable.java:75)\\n\\tat com.zf1976.ant.upms.biz.service.SysOnlineService.forceOffline(SysOnlineService.java:150)\\n\\tat com.zf1976.ant.upms.biz.controller.OnlineController.deleteSession(OnlineController.java:35)\\n\\tat com.zf1976.ant.upms.biz.controller.OnlineController$$FastClassBySpringCGLIB$$fb24784e.invoke(<generated>)\\n\\tat org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\\n\\tat org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:771)\\n\\tat org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)\\n\\tat org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:749)\\n\\tat org.springframework.aop.aspectj.AspectJAfterThrowingAdvice.invoke(AspectJAfterThrowingAdvice.java:62)\\n\\tat org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\\n\\tat org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:749)\\n\\tat org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:95)\\n\\tat org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\\n\\tat org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:749)\\n\\tat org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:691)\\n\\tat com.zf1976.ant.upms.biz.controller.OnlineController$$EnhancerBySpringCGLIB$$428c561c.deleteSession(<generated>)\\n\\tat java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\\n\\tat java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\\n\\tat java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\\n\\tat java.base/java.lang.reflect.Method.invoke(Method.java:566)\\n\\tat org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:190)\\n\\tat org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:138)\\n\\tat org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:105)\\n\\tat org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:879)\\n\\tat org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:793)\\n\\tat org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)\\n\\tat org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1040)\\n\\tat org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:943)\\n\\tat org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)\\n\\tat org.springframework.web.servlet.FrameworkServlet.doDelete(FrameworkServlet.java:931)\\n\\tat javax.servlet.http.HttpServlet.service(HttpServlet.java:666)\\n\\tat org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)\\n\\tat javax.servlet.http.HttpServlet.service(HttpServlet.java:741)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\\n\\tat org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\\n\\tat com.alibaba.druid.support.http.WebStatFilter.doFilter(WebStatFilter.java:124)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\\n\\tat com.zf1976.ant.upms.biz.config.WebMvcConfiguration.lambda$filter$0(WebMvcConfiguration.java:42)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\\n\\tat org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)\\n\\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\\n\\tat org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)\\n\\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\\n\\tat org.springframework.boot.actuate.metrics.web.servlet.WebMvcMetricsFilter.doFilterInternal(WebMvcMetricsFilter.java:93)\\n\\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\\n\\tat org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)\\n\\tat org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)\\n\\tat org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)\\n\\tat org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:202)\\n\\tat org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:96)\\n\\tat org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:541)\\n\\tat org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:139)\\n\\tat org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)\\n\\tat org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)\\n\\tat org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:343)\\n\\tat org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:373)\\n\\tat org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65)\\n\\tat org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:868)\\n\\tat org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1590)\\n\\tat org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)\\n\\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)\\n\\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)\\n\\tat org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)\\n\\tat java.base/java.lang.Thread.run(Thread.java:834)\\nCaused by: java.net.SocketTimeoutException: Read timed out\\n\\tat java.base/java.net.SocketInputStream.socketRead0(Native Method)\\n\\tat java.base/java.net.SocketInputStream.socketRead(SocketInputStream.java:115)\\n\\tat java.base/java.net.SocketInputStream.read(SocketInputStream.java:168)\\n\\tat java.base/java.net.SocketInputStream.read(SocketInputStream.java:140)\\n\\tat java.base/java.io.BufferedInputStream.fill(BufferedInputStream.java:252)\\n\\tat java.base/java.io.BufferedInputStream.read1(BufferedInputStream.java:292)\\n\\tat java.base/java.io.BufferedInputStream.read(BufferedInputStream.java:351)\\n\\tat java.base/sun.net.www.http.HttpClient.parseHTTPHeader(HttpClient.java:746)\\n\\tat java.base/sun.net.www.http.HttpClient.parseHTTP(HttpClient.java:689)\\n\\tat java.base/sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1610)\\n\\tat java.base/sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1515)\\n\\tat java.base/java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:527)\\n\\tat feign.Client$Default.convertResponse(Client.java:108)\\n\\tat feign.Client$Default.execute(Client.java:104)\\n\\tat org.springframework.cloud.openfeign.ribbon.FeignLoadBalancer.execute(FeignLoadBalancer.java:93)\\n\\tat org.springframework.cloud.openfeign.ribbon.FeignLoadBalancer.execute(FeignLoadBalancer.java:56)\\n\\tat com.netflix.client.AbstractLoadBalancerAwareClient$1.call(AbstractLoadBalancerAwareClient.java:104)\\n\\tat com.netflix.loadbalancer.reactive.LoadBalancerCommand$3$1.call(LoadBalancerCommand.java:303)\\n\\tat com.netflix.loadbalancer.reactive.LoadBalancerCommand$3$1.call(LoadBalancerCommand.java:287)\\n\\tat rx.internal.util.ScalarSynchronousObservable$3.call(ScalarSynchronousObservable.java:231)\\n\\tat rx.internal.util.ScalarSynchronousObservable$3.call(ScalarSynchronousObservable.java:228)\\n\\tat rx.Observable.unsafeSubscribe(Observable.java:10327)\\n\\tat rx.internal.operators.OnSubscribeConcatMap$ConcatMapSubscriber.drain(OnSubscribeConcatMap.java:286)\\n\\tat rx.internal.operators.OnSubscribeConcatMap$ConcatMapSubscriber.onNext(OnSubscribeConcatMap.java:144)\\n\\tat com.netflix.loadbalancer.reactive.LoadBalancerCommand$1.call(LoadBalancerCommand.java:185)\\n\\tat com.netflix.loadbalancer.reactive.LoadBalancerCommand$1.call(LoadBalancerCommand.java:180)\\n\\tat rx.Observable.unsafeSubscribe(Observable.java:10327)\\n\\tat rx.internal.operators.OnSubscribeConcatMap.call(OnSubscribeConcatMap.java:94)\\n\\tat rx.internal.operators.OnSubscribeConcatMap.call(OnSubscribeConcatMap.java:42)\\n\\tat rx.Observable.unsafeSubscribe(Observable.java:10327)\\n\\tat rx.internal.operators.OperatorRetryWithPredicate$SourceSubscriber$1.call(OperatorRetryWithPredicate.java:127)\\n\\tat rx.internal.schedulers.TrampolineScheduler$InnerCurrentThreadScheduler.enqueue(TrampolineScheduler.java:73)\\n\\tat rx.internal.schedulers.TrampolineScheduler$InnerCurrentThreadScheduler.schedule(TrampolineScheduler.java:52)\\n\\tat rx.internal.operators.OperatorRetryWithPredicate$SourceSubscriber.onNext(OperatorRetryWithPredicate.java:79)\\n\\tat rx.internal.operators.OperatorRetryWithPredicate$SourceSubscriber.onNext(OperatorRetryWithPredicate.java:45)\\n\\tat rx.internal.util.ScalarSynchronousObservable$WeakSingleProducer.request(ScalarSynchronousObservable.java:276)\\n\\tat rx.Subscriber.setProducer(Subscriber.java:209)\\n\\tat rx.internal.util.ScalarSynchronousObservable$JustOnSubscribe.call(ScalarSynchronousObservable.java:138)\\n\\tat rx.internal.util.ScalarSynchronousObservable$JustOnSubscribe.call(ScalarSynchronousObservable.java:129)\\n\\tat rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:48)\\n\\tat rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:30)\\n\\tat rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:48)\\n\\tat rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:30)\\n\\tat rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:48)\\n\\tat rx.internal.operators.OnSubscribeLift.call(OnSubscribeLift.java:30)\\n\\tat rx.Observable.subscribe(Observable.java:10423)\\n\\tat rx.Observable.subscribe(Observable.java:10390)\\n\\tat rx.observables.BlockingObservable.blockForSingle(BlockingObservable.java:443)\\n\\tat rx.observables.BlockingObservable.single(BlockingObservable.java:340)\\n\\tat com.netflix.client.AbstractLoadBalancerAwareClient.executeWithLoadBalancer(AbstractLoadBalancerAwareClient.java:112)\\n\\tat org.springframework.cloud.openfeign.ribbon.LoadBalancerFeignClient.execute(LoadBalancerFeignClient.java:83)\\n\\tat feign.SynchronousMethodHandler.executeAndDecode(SynchronousMethodHandler.java:119)\\n\\t... 80 more\\n\"', '2021-05-07 04:31:50');
+INSERT INTO `sys_log` VALUES (246, 0, 'admin', '127.0.0.1', '本地局域网', '/api/users/delete', 'DELETE', '[[4]]', 'Chrome 8', 262, '删除用户', 'com.zf1976.ant.upms.biz.controller.SysUserController', 'deleteUser', NULL, '2021-05-11 06:03:34');
 COMMIT;
 
 -- ----------------------------
@@ -427,18 +428,18 @@ CREATE TABLE `sys_menu` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `pid` bigint(20) DEFAULT NULL COMMENT '上级菜单ID',
   `type` int(11) DEFAULT NULL COMMENT '菜单类型',
-  `title` varchar(255) DEFAULT NULL COMMENT '菜单标题',
-  `component_name` varchar(255) DEFAULT NULL COMMENT '组件名称',
-  `component_path` varchar(255) DEFAULT NULL COMMENT '组件',
+  `title` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '菜单标题',
+  `component_name` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '组件名称',
+  `component_path` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '组件',
   `menu_sort` int(11) DEFAULT NULL COMMENT '排序',
-  `icon` varchar(255) DEFAULT NULL COMMENT '图标',
-  `route_path` varchar(255) DEFAULT NULL COMMENT '路由地址',
+  `icon` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '图标',
+  `route_path` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '路由地址',
   `iframe` bit(1) DEFAULT NULL COMMENT '是否外链',
   `cache` bit(1) DEFAULT b'0' COMMENT '缓存',
   `hidden` bit(1) DEFAULT b'0' COMMENT '隐藏',
-  `permission` varchar(255) DEFAULT NULL COMMENT '权限',
-  `create_by` varchar(255) DEFAULT NULL COMMENT '创建者',
-  `update_by` varchar(255) DEFAULT NULL COMMENT '更新者',
+  `permission` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '权限',
+  `create_by` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '创建者',
+  `update_by` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '更新者',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建日期',
   `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `version` int(11) NOT NULL DEFAULT '0' COMMENT '版本号',
@@ -446,7 +447,7 @@ CREATE TABLE `sys_menu` (
   UNIQUE KEY `uniq_title` (`title`),
   UNIQUE KEY `uniq_name` (`component_name`),
   KEY `inx_pid` (`pid`)
-) ENGINE=InnoDB AUTO_INCREMENT=119 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='系统菜单';
+) ENGINE=InnoDB AUTO_INCREMENT=119 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT COMMENT='系统菜单';
 
 -- ----------------------------
 -- Records of sys_menu
@@ -539,7 +540,6 @@ COMMIT;
 DROP TABLE IF EXISTS `sys_permission`;
 CREATE TABLE `sys_permission` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
-  `pid` bigint(20) DEFAULT NULL COMMENT '父节点ID',
   `name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '名称',
   `value` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '权限值',
   `description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '描述',
@@ -549,42 +549,36 @@ CREATE TABLE `sys_permission` (
   `create_by` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `update_by` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='权限表';
 
 -- ----------------------------
 -- Records of sys_permission
 -- ----------------------------
 BEGIN;
-INSERT INTO `sys_permission` VALUES (1, 9, '添加用户', 'user:add', '-', '2020-12-25 05:33:48', '2020-12-25 15:41:18', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (2, 9, '编辑用户', 'user:edit', '-', '2020-12-25 05:34:16', '2020-12-25 15:41:18', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (3, 9, '删除用户', 'user:del', '-', '2020-12-25 05:34:48', '2020-12-25 15:41:18', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (4, 9, '查询用户', 'user:list', '-', '2020-12-25 05:35:15', '2020-12-25 15:41:18', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (5, 10, '添加菜单', 'menu:add', '-', '2020-12-25 15:32:31', '2020-12-25 15:41:53', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (6, 10, '编辑菜单', 'menu:edit', '-', '2020-12-25 15:32:31', '2020-12-25 15:41:53', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (7, 10, '删除菜单', 'menu:del', '-', '2020-12-25 15:32:31', '2020-12-25 15:41:53', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (8, 10, '查询菜单', 'menu:list', '-', '2020-12-25 15:32:31', '2020-12-25 15:41:53', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (9, NULL, '用户管理', NULL, '用户root权限', '2020-12-25 15:39:04', '2020-12-25 15:56:13', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (10, NULL, '菜单管理', NULL, '菜单root权限', '2020-12-25 15:41:40', '2020-12-25 15:56:13', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (11, NULL, '部门管理', NULL, '部门root权限', '2020-12-25 15:43:22', '2020-12-25 15:56:13', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (12, NULL, '岗位管理', NULL, '岗位root权限', '2020-12-25 15:43:22', '2020-12-25 15:56:13', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (13, NULL, '角色管理', NULL, '角色root权限', '2020-12-25 15:43:22', '2020-12-25 15:56:13', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (14, NULL, '字典管理', NULL, '字典root权限', '2020-12-25 15:43:22', '2020-12-25 15:56:13', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (15, 11, '添加部门', 'dept:add', '-', '2020-12-25 15:55:25', '2020-12-25 15:55:47', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (16, 11, '编辑部门', 'dept:edit', '-', '2020-12-25 15:55:25', '2020-12-25 15:55:35', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (17, 11, '删除部门', 'dept:del', '-', '2020-12-25 15:55:25', '2020-12-25 15:55:35', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (18, 11, '查询部门', 'dept:list', '-', '2020-12-25 15:55:25', '2020-12-25 15:55:35', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (19, 12, '添加岗位', 'position:add', '-', '2020-12-25 15:57:44', '2021-01-04 04:10:12', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (20, 12, '编辑岗位', 'position:edit', '-', '2020-12-25 15:57:44', '2021-01-04 04:10:12', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (21, 12, '删除岗位', 'position:del', '-', '2020-12-25 15:58:42', '2021-01-04 04:10:12', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (22, 12, '查询岗位', 'position:list', '-', '2020-12-25 15:58:42', '2021-01-04 04:10:12', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (23, 13, '添加角色', 'role:add', '-', '2020-12-25 16:01:47', '2020-12-25 16:01:55', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (24, 13, '编辑角色', 'role:edit', '-', '2020-12-25 16:01:47', '2020-12-25 16:01:55', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (25, 13, '删除角色', 'role:del', '-', '2020-12-25 16:01:47', '2020-12-25 16:03:54', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (26, 13, '查询角色', 'role:list', '-', '2020-12-25 16:01:47', '2020-12-25 16:03:54', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (27, 14, '添加字典', 'dict:add', '-', '2020-12-25 16:03:54', '2020-12-25 16:04:08', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (28, 14, '编辑字典', 'dict:edit', '-', '2020-12-25 16:03:54', '2020-12-25 16:04:08', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (29, 14, '删除字典', 'dict:del', '-', '2020-12-25 16:03:54', '2020-12-25 16:04:08', 0, NULL, NULL);
-INSERT INTO `sys_permission` VALUES (30, 14, '查询字典', 'dict:list', '-', '2020-12-25 16:03:54', '2020-12-25 16:04:08', 0, NULL, NULL);
+INSERT INTO `sys_permission` VALUES (1, '添加用户', 'user:add', '-', '2020-12-25 05:33:48', '2020-12-25 15:41:18', 0, NULL, NULL);
+INSERT INTO `sys_permission` VALUES (2, '编辑用户', 'user:edit', '-', '2020-12-25 05:34:16', '2020-12-25 15:41:18', 0, NULL, NULL);
+INSERT INTO `sys_permission` VALUES (3, '删除用户', 'user:del', '-', '2020-12-25 05:34:48', '2020-12-25 15:41:18', 0, NULL, NULL);
+INSERT INTO `sys_permission` VALUES (4, '查询用户', 'user:list', '-', '2020-12-25 05:35:15', '2020-12-25 15:41:18', 0, NULL, NULL);
+INSERT INTO `sys_permission` VALUES (5, '添加菜单', 'menu:add', '-', '2020-12-25 15:32:31', '2020-12-25 15:41:53', 0, NULL, NULL);
+INSERT INTO `sys_permission` VALUES (6, '编辑菜单', 'menu:edit', '-', '2020-12-25 15:32:31', '2020-12-25 15:41:53', 0, NULL, NULL);
+INSERT INTO `sys_permission` VALUES (7, '删除菜单', 'menu:del', '-', '2020-12-25 15:32:31', '2020-12-25 15:41:53', 0, NULL, NULL);
+INSERT INTO `sys_permission` VALUES (8, '查询菜单', 'menu:list', '-', '2020-12-25 15:32:31', '2020-12-25 15:41:53', 0, NULL, NULL);
+INSERT INTO `sys_permission` VALUES (15, '添加部门', 'dept:add', '-', '2020-12-25 15:55:25', '2020-12-25 15:55:47', 0, NULL, NULL);
+INSERT INTO `sys_permission` VALUES (16, '编辑部门', 'dept:edit', '-', '2020-12-25 15:55:25', '2020-12-25 15:55:35', 0, NULL, NULL);
+INSERT INTO `sys_permission` VALUES (17, '删除部门', 'dept:del', '-', '2020-12-25 15:55:25', '2020-12-25 15:55:35', 0, NULL, NULL);
+INSERT INTO `sys_permission` VALUES (18, '查询部门', 'dept:list', '-', '2020-12-25 15:55:25', '2020-12-25 15:55:35', 0, NULL, NULL);
+INSERT INTO `sys_permission` VALUES (19, '添加岗位', 'position:add', '-', '2020-12-25 15:57:44', '2021-01-04 04:10:12', 0, NULL, NULL);
+INSERT INTO `sys_permission` VALUES (20, '编辑岗位', 'position:edit', '-', '2020-12-25 15:57:44', '2021-01-04 04:10:12', 0, NULL, NULL);
+INSERT INTO `sys_permission` VALUES (21, '删除岗位', 'position:del', '-', '2020-12-25 15:58:42', '2021-01-04 04:10:12', 0, NULL, NULL);
+INSERT INTO `sys_permission` VALUES (22, '查询岗位', 'position:list', '-', '2020-12-25 15:58:42', '2021-01-04 04:10:12', 0, NULL, NULL);
+INSERT INTO `sys_permission` VALUES (23, '添加角色', 'role:add', '-', '2020-12-25 16:01:47', '2020-12-25 16:01:55', 0, NULL, NULL);
+INSERT INTO `sys_permission` VALUES (24, '编辑角色', 'role:edit', '-', '2020-12-25 16:01:47', '2020-12-25 16:01:55', 0, NULL, NULL);
+INSERT INTO `sys_permission` VALUES (25, '删除角色', 'role:del', '-', '2020-12-25 16:01:47', '2020-12-25 16:03:54', 0, NULL, NULL);
+INSERT INTO `sys_permission` VALUES (26, '查询角色', 'role:list', '-', '2020-12-25 16:01:47', '2020-12-25 16:03:54', 0, NULL, NULL);
+INSERT INTO `sys_permission` VALUES (27, '添加字典', 'dict:add', '-', '2020-12-25 16:03:54', '2020-12-25 16:04:08', 0, NULL, NULL);
+INSERT INTO `sys_permission` VALUES (28, '编辑字典', 'dict:edit', '-', '2020-12-25 16:03:54', '2020-12-25 16:04:08', 0, NULL, NULL);
+INSERT INTO `sys_permission` VALUES (29, '删除字典', 'dict:del', '-', '2020-12-25 16:03:54', '2020-12-25 16:04:08', 0, NULL, NULL);
+INSERT INTO `sys_permission` VALUES (30, '查询字典', 'dict:list', '-', '2020-12-25 16:03:54', '2020-12-25 16:04:08', 0, NULL, NULL);
 COMMIT;
 
 -- ----------------------------
@@ -593,18 +587,18 @@ COMMIT;
 DROP TABLE IF EXISTS `sys_position`;
 CREATE TABLE `sys_position` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
-  `name` varchar(255) NOT NULL COMMENT '岗位名称',
+  `name` varchar(255) CHARACTER SET utf8 NOT NULL COMMENT '岗位名称',
   `enabled` bit(1) NOT NULL COMMENT '岗位状态',
   `job_sort` int(11) DEFAULT NULL COMMENT '排序',
-  `create_by` varchar(255) DEFAULT NULL COMMENT '创建者',
-  `update_by` varchar(255) DEFAULT NULL COMMENT '更新者',
+  `create_by` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '创建者',
+  `update_by` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '更新者',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建日期',
   `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `version` int(11) NOT NULL DEFAULT '0' COMMENT '版本号',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `uniq_name` (`name`),
   KEY `inx_enabled` (`enabled`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='岗位';
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT COMMENT='岗位';
 
 -- ----------------------------
 -- Records of sys_position
@@ -638,7 +632,7 @@ CREATE TABLE `sys_resource` (
   `leaf` bit(1) NOT NULL DEFAULT b'1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_name` (`name`) USING HASH COMMENT '名称唯一索引'
-) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='资源表';
 
 -- ----------------------------
 -- Records of sys_resource
@@ -698,7 +692,7 @@ CREATE TABLE `sys_resource_permission_relation` (
   `resource_id` bigint(20) NOT NULL COMMENT '资源id',
   `permission_id` bigint(20) NOT NULL COMMENT '权限id',
   PRIMARY KEY (`resource_id`,`permission_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='资源权限关联表';
 
 -- ----------------------------
 -- Records of sys_resource_permission_relation
@@ -750,20 +744,20 @@ COMMIT;
 DROP TABLE IF EXISTS `sys_role`;
 CREATE TABLE `sys_role` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
-  `name` varchar(255) NOT NULL COMMENT '名称',
+  `name` varchar(255) CHARACTER SET utf8 NOT NULL COMMENT '名称',
   `level` int(11) DEFAULT NULL COMMENT '角色级别',
-  `description` varchar(255) DEFAULT NULL COMMENT '描述',
+  `description` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '描述',
   `enabled` bit(1) NOT NULL DEFAULT b'1' COMMENT '角色状态',
   `data_scope` int(11) DEFAULT '0',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建日期',
-  `create_by` varchar(255) DEFAULT NULL COMMENT '创建者',
+  `create_by` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '创建者',
   `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `update_by` varchar(255) DEFAULT NULL COMMENT '更新者',
+  `update_by` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '更新者',
   `version` int(11) NOT NULL DEFAULT '0' COMMENT '版本号',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `uniq_name` (`name`),
   KEY `role_name_index` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='角色表';
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT COMMENT='角色表';
 
 -- ----------------------------
 -- Records of sys_role
@@ -791,7 +785,7 @@ CREATE TABLE `sys_role_department_relation` (
   `department_id` bigint(20) NOT NULL COMMENT '部门主键',
   PRIMARY KEY (`role_id`,`department_id`) USING BTREE,
   KEY `FK7qg6itn5ajdoa9h9o78v9ksur` (`department_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='角色部门关联';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT COMMENT='角色部门关联';
 
 -- ----------------------------
 -- Records of sys_role_department_relation
@@ -931,7 +925,7 @@ CREATE TABLE `sys_role_menu_relation` (
   `role_id` bigint(20) NOT NULL COMMENT '角色ID',
   PRIMARY KEY (`menu_id`,`role_id`) USING BTREE,
   KEY `FKcngg2qadojhi3a651a5adkvbq` (`role_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='角色菜单关联';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT COMMENT='角色菜单关联';
 
 -- ----------------------------
 -- Records of sys_role_menu_relation
@@ -972,7 +966,7 @@ CREATE TABLE `sys_role_permission_relation` (
   `role_id` bigint(20) NOT NULL COMMENT '角色主键',
   `permission_id` bigint(20) NOT NULL COMMENT '权限主键',
   PRIMARY KEY (`role_id`,`permission_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='角色关联权限表';
 
 -- ----------------------------
 -- Records of sys_role_permission_relation
@@ -988,7 +982,7 @@ CREATE TABLE `sys_role_resource_relation` (
   `role_id` bigint(20) NOT NULL COMMENT '角色id',
   `resource_id` bigint(20) NOT NULL COMMENT '资源id',
   PRIMARY KEY (`role_id`,`resource_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='角色关联资源表';
 
 -- ----------------------------
 -- Records of sys_role_resource_relation
@@ -1003,20 +997,20 @@ DROP TABLE IF EXISTS `sys_user`;
 CREATE TABLE `sys_user` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `department_id` bigint(20) DEFAULT NULL COMMENT '部门名称',
-  `username` varchar(255) DEFAULT NULL COMMENT '用户名',
-  `password` varchar(255) DEFAULT NULL COMMENT '密码',
-  `phone` varchar(255) DEFAULT NULL COMMENT '手机号码',
-  `email` varchar(255) DEFAULT NULL COMMENT '邮箱',
+  `username` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '用户名',
+  `password` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '密码',
+  `phone` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '手机号码',
+  `email` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '邮箱',
   `gender` int(11) DEFAULT '0' COMMENT '性别',
-  `avatar_name` varchar(255) DEFAULT NULL COMMENT '头像地址',
-  `avatar_path` varchar(255) DEFAULT NULL COMMENT '头像真实路径',
-  `nick_name` varchar(255) DEFAULT NULL COMMENT '昵称',
+  `avatar_name` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '头像地址',
+  `avatar_path` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '头像真实路径',
+  `nick_name` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '昵称',
   `version` int(11) NOT NULL DEFAULT '0' COMMENT '版本号',
   `enabled` bigint(20) DEFAULT NULL COMMENT '状态：1启用、0禁用',
   `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `update_by` varchar(255) DEFAULT NULL COMMENT '更新着',
+  `update_by` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '更新着',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建日期',
-  `create_by` varchar(255) DEFAULT NULL COMMENT '创建者',
+  `create_by` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '创建者',
   `pwd_reset_time` datetime DEFAULT NULL COMMENT '修改密码的时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `UK_kpubos9gc2cvtkb0thktkbkes` (`email`) USING BTREE,
@@ -1026,7 +1020,7 @@ CREATE TABLE `sys_user` (
   KEY `FK5rwmryny6jthaaxkogownknqp` (`department_id`) USING BTREE,
   KEY `FKpq2dhypk2qgt68nauh2by22jb` (`avatar_name`) USING BTREE,
   KEY `inx_enabled` (`enabled`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='系统用户';
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT COMMENT='系统用户';
 
 -- ----------------------------
 -- Records of sys_user
@@ -1035,7 +1029,6 @@ BEGIN;
 INSERT INTO `sys_user` VALUES (1, 33, 'admin', 'e10adc3949ba59abbe56e057f20f883e', '15277656083', '201507802@qq.com', 0, 'avatar-0ab67d5d-0f9f-d511-0c77-e1bf5824604c.png', '~/work/avatar/avatar-3df70e61-44d5-25b9-cef4-0e05b8c035ca.png', 'Ant', 209, 1, '2021-05-07 02:59:44', 'admin', '2018-08-23 09:11:56', NULL, '2020-05-03 16:38:31');
 INSERT INTO `sys_user` VALUES (2, 37, 'test', 'e10adc3949ba59abbe56e057f20f883e', '18888888888', '231@qq.com', 1, NULL, NULL, '测试', 48, 1, '2021-04-10 03:09:55', 'admin', '2020-05-05 11:15:49', 'admin', NULL);
 INSERT INTO `sys_user` VALUES (3, 37, 'super_admin', 'e10adc3949ba59abbe56e057f20f883e', '18776530219', '1596863112@qq.com', 0, NULL, NULL, 'ant', 46, 1, '2021-04-10 03:06:17', 'admin', '2020-08-24 16:14:52', 'admin', NULL);
-INSERT INTO `sys_user` VALUES (4, 33, 'zhangsan', 'e10adc3949ba59abbe56e057f20f883e', '13617856509', '942203377@qq.com', 0, NULL, NULL, 'ant', 48, 1, '2021-04-10 03:17:39', NULL, '2020-12-19 15:28:10', 'admin', NULL);
 INSERT INTO `sys_user` VALUES (5, 35, 'Zhangfeng123', NULL, '18776530218', '942203376@qq.com', 0, NULL, NULL, 'sadad', 3, 1, NULL, NULL, '2021-04-06 06:23:04', 'admin', NULL);
 COMMIT;
 
@@ -1047,7 +1040,7 @@ CREATE TABLE `sys_user_position_relation` (
   `user_id` bigint(20) NOT NULL COMMENT '用户ID',
   `position_id` bigint(20) NOT NULL COMMENT '岗位ID',
   PRIMARY KEY (`user_id`,`position_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------
 -- Records of sys_user_position_relation
@@ -1071,7 +1064,7 @@ CREATE TABLE `sys_user_role_relation` (
   `role_id` bigint(20) NOT NULL COMMENT '角色ID',
   PRIMARY KEY (`user_id`,`role_id`) USING BTREE,
   KEY `FKq4eq273l04bpu4efj0jd0jb98` (`role_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='用户角色关联';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT COMMENT='用户角色关联';
 
 -- ----------------------------
 -- Records of sys_user_role_relation
@@ -1079,7 +1072,6 @@ CREATE TABLE `sys_user_role_relation` (
 BEGIN;
 INSERT INTO `sys_user_role_relation` VALUES (2, 2);
 INSERT INTO `sys_user_role_relation` VALUES (3, 2);
-INSERT INTO `sys_user_role_relation` VALUES (4, 2);
 INSERT INTO `sys_user_role_relation` VALUES (1, 3);
 INSERT INTO `sys_user_role_relation` VALUES (5, 8);
 COMMIT;
@@ -1090,13 +1082,13 @@ COMMIT;
 DROP TABLE IF EXISTS `tool_email_config`;
 CREATE TABLE `tool_email_config` (
   `id` bigint(20) NOT NULL COMMENT 'ID',
-  `from_user` varchar(255) DEFAULT NULL COMMENT '收件人',
-  `host` varchar(255) DEFAULT NULL COMMENT '邮件服务器SMTP地址',
-  `pass` varchar(255) DEFAULT NULL COMMENT '密码',
-  `port` varchar(255) DEFAULT NULL COMMENT '端口',
-  `user` varchar(255) DEFAULT NULL COMMENT '发件者用户名',
+  `from_user` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '收件人',
+  `host` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '邮件服务器SMTP地址',
+  `pass` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '密码',
+  `port` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '端口',
+  `user` varchar(255) CHARACTER SET utf8 DEFAULT NULL COMMENT '发件者用户名',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='邮箱配置';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT COMMENT='邮箱配置';
 
 -- ----------------------------
 -- Records of tool_email_config
