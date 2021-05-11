@@ -5,7 +5,7 @@ import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.common.security.pojo.Details;
 import com.zf1976.ant.common.security.support.session.SessionManagement;
 import com.zf1976.ant.common.security.support.session.Session;
-import com.zf1976.ant.common.core.util.RequestUtils;
+import com.zf1976.ant.common.core.util.RequestUtil;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -56,7 +56,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
     public static Session generatedSession(String token) {
         // 获取用户认证登录细节
         // 当前请求
-        HttpServletRequest request = RequestUtils.getRequest();
+        HttpServletRequest request = RequestUtil.getRequest();
         Details userDetails = (Details) request.getAttribute(AuthConstants.DETAILS);
 
         Object expiredTime = request.getAttribute(AuthConstants.SESSION_EXPIRED);
@@ -70,10 +70,10 @@ public class SecurityContextHolder extends org.springframework.security.core.con
                .setExpiredTime(instance.getTime())
                .setUsername(userDetails.getUserInfo().getUsername())
                .setOwner(SessionManagement.isOwner(session.getUsername()))
-               .setIp(RequestUtils.getIpAddress())
-               .setIpRegion(RequestUtils.getIpRegion())
-               .setBrowser(RequestUtils.getUserAgent())
-               .setOperatingSystemType(RequestUtils.getOpsSystemType())
+               .setIp(RequestUtil.getIpAddress())
+               .setIpRegion(RequestUtil.getIpRegion())
+               .setBrowser(RequestUtil.getUserAgent())
+               .setOperatingSystemType(RequestUtil.getOpsSystemType())
                .setToken(token);
         return session;
     }

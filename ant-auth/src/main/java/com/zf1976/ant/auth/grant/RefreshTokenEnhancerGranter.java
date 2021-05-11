@@ -1,7 +1,7 @@
 package com.zf1976.ant.auth.grant;
 
 import com.zf1976.ant.auth.SecurityContextHolder;
-import com.zf1976.ant.common.core.util.RequestUtils;
+import com.zf1976.ant.common.core.util.RequestUtil;
 import com.zf1976.ant.common.security.support.session.SessionManagement;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -36,7 +36,7 @@ public class RefreshTokenEnhancerGranter extends AbstractTokenGranter {
         OAuth2AccessToken oAuth2AccessToken = this.getTokenServices().refreshAccessToken(refreshToken, tokenRequest);
         if (oAuth2AccessToken != null) {
             // 设置token 创建新会话用到
-            RequestUtils.getRequest().setAttribute(HttpHeaders.AUTHORIZATION, oldAccessToken.getValue());
+            RequestUtil.getRequest().setAttribute(HttpHeaders.AUTHORIZATION, oldAccessToken.getValue());
             // 清除当前会话
             SessionManagement.removeSession();
             return oAuth2AccessToken;

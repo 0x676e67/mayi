@@ -2,7 +2,7 @@ package com.zf1976.ant.common.component.load.impl;
 
 import com.zf1976.ant.common.component.load.ICache;
 import com.zf1976.ant.common.component.property.CaffeineProperties;
-import com.zf1976.ant.common.core.util.RedisUtils;
+import com.zf1976.ant.common.core.util.RedisUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -63,7 +63,7 @@ public class RedisCacheProvider<K, V> implements ICache<K, V> {
 
     @Override
     public void invalidateAll() {
-        final Set<String> keys = RedisUtils.scanKeys(this.formatNamespace("*"));
+        final Set<String> keys = RedisUtil.scanKeys(this.formatNamespace("*"));
         if (!CollectionUtils.isEmpty(keys)) {
             this.redisTemplate.delete(keys);
         }

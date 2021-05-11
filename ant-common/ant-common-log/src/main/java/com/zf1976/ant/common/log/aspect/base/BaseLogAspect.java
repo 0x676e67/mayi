@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.power.common.util.StringUtil;
 import com.zf1976.ant.common.security.support.session.Session;
 import com.zf1976.ant.common.security.support.session.SessionManagement;
-import com.zf1976.ant.common.core.util.RequestUtils;
+import com.zf1976.ant.common.core.util.RequestUtil;
 import com.zf1976.ant.common.log.pojo.SysLog;
 import com.zf1976.ant.common.log.pojo.enums.LogType;
 import org.aspectj.lang.JoinPoint;
@@ -32,7 +32,7 @@ public abstract class BaseLogAspect {
     protected SysLog logBuilder(JoinPoint joinPoint, String description, LogType logType) throws JsonProcessingException {
         long start = System.currentTimeMillis();
         // 获取当前请求对象
-        HttpServletRequest request = RequestUtils.getRequest();
+        HttpServletRequest request = RequestUtil.getRequest();
         // result
         Object proceed = joinPoint.getTarget();
         // 方法签名
@@ -59,10 +59,10 @@ public abstract class BaseLogAspect {
               .setMethodName(methodSignatureName)
               .setRequestMethod(request.getMethod())
               .setUri(request.getRequestURI())
-              .setIp(RequestUtils.getIpAddress())
-              .setIpRegion(RequestUtils.getIpRegion())
+              .setIp(RequestUtil.getIpAddress())
+              .setIpRegion(RequestUtil.getIpRegion())
               .setParameter(this.toJsonString(this.getParameters(method, joinPoint.getArgs())))
-              .setUserAgent(RequestUtils.getUserAgent())
+              .setUserAgent(RequestUtil.getUserAgent())
               .setSpendTime((int) (System.currentTimeMillis() - start))
               .setCreateTime(new Date(start));
         return sysLog;

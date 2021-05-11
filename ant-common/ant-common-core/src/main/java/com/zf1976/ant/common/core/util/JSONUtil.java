@@ -222,4 +222,13 @@ public class JSONUtil {
             e.printStackTrace();
         }
     }
+
+    public static <T> T readValue(String json, Class<T> tClass) {
+        try {
+            return JSON_MAPPER.readValue(json, tClass);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

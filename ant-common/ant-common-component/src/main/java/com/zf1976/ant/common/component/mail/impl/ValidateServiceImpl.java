@@ -7,7 +7,7 @@ import com.zf1976.ant.common.component.mail.ValidateService;
 import com.zf1976.ant.common.component.mail.pojo.ToolEmailConfig;
 import com.zf1976.ant.common.core.foundation.exception.BusinessException;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
-import com.zf1976.ant.common.core.util.RedisUtils;
+import com.zf1976.ant.common.core.util.RedisUtil;
 import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.component.property.EmailProperties;
 import org.slf4j.Logger;
@@ -82,7 +82,7 @@ public class ValidateServiceImpl implements ValidateService {
             throw new BusinessException(BusinessMsgState.OPT_ERROR);
         }
         // 保存验证码
-        RedisUtils.set(PROPERTIES.getKeyPrefix(), email, validateCode, PROPERTIES.getExpired(), TimeUnit.MILLISECONDS);
+        RedisUtil.set(PROPERTIES.getKeyPrefix(), email, validateCode, PROPERTIES.getExpired(), TimeUnit.MILLISECONDS);
         return null;
 
     }
@@ -93,7 +93,7 @@ public class ValidateServiceImpl implements ValidateService {
         if (StringUtils.isEmpty(email) ||StringUtils.isEmpty(code)) {
             throw new BusinessException(BusinessMsgState.CODE_NOT_FOUNT);
         }
-        final String rawCode = RedisUtils.get(PROPERTIES.getKeyPrefix(), email);
+        final String rawCode = RedisUtil.get(PROPERTIES.getKeyPrefix(), email);
         if (!StringUtils.isEmpty(rawCode)) {
             return ObjectUtils.nullSafeEquals(rawCode, code);
         }
@@ -102,7 +102,7 @@ public class ValidateServiceImpl implements ValidateService {
 
     @Override
     public void clear(String email) {
-        RedisUtils.delete(PROPERTIES.getKeyPrefix(), email);
+        RedisUtil.delete(PROPERTIES.getKeyPrefix(), email);
     }
 
 }

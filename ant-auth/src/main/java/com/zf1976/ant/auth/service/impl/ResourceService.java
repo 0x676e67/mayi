@@ -12,10 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Collectors;
 
 /**
@@ -71,7 +69,7 @@ public class ResourceService extends ServiceImpl<SysResourceDao, SysResource> {
                 }
             }
         }
-        //
+        // 树节点进行递归处理，从根节点到各叶子uri进行链接，并给叶子设置完整路径
         return treeList.stream()
                        .filter(resourceNode -> {
                            // 根据树构建完整uri
@@ -152,10 +150,10 @@ public class ResourceService extends ServiceImpl<SysResourceDao, SysResource> {
     }
 
     private String initResourceNodeFullUri(ResourceNode resourceNode) {
-        String fullUri = resourceNode.getFullUri();
-        if (StringUtils.isEmpty(fullUri)) {
-            resourceNode.setFullUri(resourceNode.getUri());
+        String parentUri = resourceNode.getFullUri();
+        if (StringUtils.isEmpty(parentUri)) {
+            parentUri = resourceNode.getUri();
         }
-        return resourceNode.getFullUri();
+        return parentUri;
     }
 }

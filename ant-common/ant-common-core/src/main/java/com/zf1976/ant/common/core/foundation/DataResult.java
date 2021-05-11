@@ -2,7 +2,7 @@ package com.zf1976.ant.common.core.foundation;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.power.common.util.DateTimeUtil;
-import com.zf1976.ant.common.core.util.RequestUtils;
+import com.zf1976.ant.common.core.util.RequestUtil;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
@@ -189,7 +189,7 @@ public class DataResult<T> implements Serializable {
      * @return uri
      */
     public static String getUri() {
-        return RequestUtils.getRequest().getRequestURI();
+        return RequestUtil.getRequest().getRequestURI();
     }
 
 }

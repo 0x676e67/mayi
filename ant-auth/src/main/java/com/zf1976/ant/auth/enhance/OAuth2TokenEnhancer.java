@@ -3,16 +3,12 @@ package com.zf1976.ant.auth.enhance;
 import com.zf1976.ant.auth.LoginUserDetails;
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.common.core.constants.AuthConstants;
-import com.zf1976.ant.common.core.util.RequestUtils;
-import okhttp3.Request;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
-import org.springframework.security.oauth2.provider.TokenRequest;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

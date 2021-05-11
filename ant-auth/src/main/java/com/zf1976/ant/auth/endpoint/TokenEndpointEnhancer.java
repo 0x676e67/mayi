@@ -8,7 +8,7 @@ import com.zf1976.ant.common.component.validate.service.CaptchaService;
 import com.zf1976.ant.common.component.validate.support.CaptchaGenerator;
 import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.common.core.foundation.DataResult;
-import com.zf1976.ant.common.core.util.RequestUtils;
+import com.zf1976.ant.common.core.util.RequestUtil;
 import com.zf1976.ant.common.security.pojo.Details;
 import com.zf1976.ant.common.security.pojo.vo.CaptchaVo;
 import org.slf4j.Logger;
@@ -62,8 +62,8 @@ public class TokenEndpointEnhancer {
             if (responseEntity.getStatusCode().is2xxSuccessful() && oAuth2AccessToken != null) {
                 String username = (String) oAuth2AccessToken.getAdditionalInformation().get(AuthConstants.USERNAME);
                 Details details = userDetailsService.selectUserDetails(username);
-                RequestUtils.getRequest().setAttribute(AuthConstants.DETAILS, userDetailsService.selectUserDetails(username));
-                RequestUtils.getRequest().setAttribute(AuthConstants.SESSION_EXPIRED, oAuth2AccessToken.getExpiresIn());
+                RequestUtil.getRequest().setAttribute(AuthConstants.DETAILS, userDetailsService.selectUserDetails(username));
+                RequestUtil.getRequest().setAttribute(AuthConstants.SESSION_EXPIRED, oAuth2AccessToken.getExpiresIn());
                 SecurityContextHolder.createSession(oAuth2AccessToken);
                 final LoginDetails loginDetails = LoginDetails.LoginDetailsBuilder.builder()
                                                                            .details(details)

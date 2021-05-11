@@ -45,6 +45,10 @@ public class ResourceNode {
      */
     private Boolean allow;
     /**
+     * 是否为叶子
+     */
+    private Boolean leaf;
+    /**
      * 子节点
      */
     private List<ResourceNode> children;
@@ -56,6 +60,7 @@ public class ResourceNode {
         this.uri = sysResource.getUri();
         this.method = sysResource.getMethod();
         this.enabled = sysResource.getEnabled();
+        this.leaf = sysResource.getLeaf();
         this.description = sysResource.getDescription();
         this.allow = sysResource.getAllow();
     }
@@ -74,6 +79,14 @@ public class ResourceNode {
 
     public void setPid(Long pid) {
         this.pid = pid;
+    }
+
+    public Boolean getLeaf() {
+        return leaf;
+    }
+
+    public void setLeaf(Boolean leaf) {
+        this.leaf = leaf;
     }
 
     public String getName() {

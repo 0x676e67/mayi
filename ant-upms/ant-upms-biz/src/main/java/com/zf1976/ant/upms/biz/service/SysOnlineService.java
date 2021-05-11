@@ -6,8 +6,8 @@ import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.security.support.session.Session;
 import com.zf1976.ant.common.security.support.session.SessionManagement;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
-import com.zf1976.ant.common.core.util.RedisUtils;
-import com.zf1976.ant.common.core.util.StringUtils;
+import com.zf1976.ant.common.core.util.RedisUtil;
+import com.zf1976.ant.common.core.util.StringUtil;
 import com.zf1976.ant.upms.biz.feign.SecurityClient;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import com.zf1976.ant.upms.biz.convert.SessionConvert;
@@ -81,19 +81,19 @@ public class SysOnlineService {
     }
 
     public Set<Long> getOnlinePageSessionIds() {
-        return RedisUtils.scanKeys(this.getPatternSessionId())
-                         .stream()
-                         .map(StringUtils::getNumber)
-                         .collect(Collectors.toSet());
+        return RedisUtil.scanKeys(this.getPatternSessionId())
+                        .stream()
+                        .map(StringUtil::getNumber)
+                        .collect(Collectors.toSet());
     }
 
     public Set<Long> getOnlinePageSessionIds(Query<SessionQueryParam> query) {
         final int page = query.getPage();
         final int size = query.getSize();
-        return RedisUtils.scanKeysForPage(this.getPatternSessionId(), page, size)
-                         .stream()
-                         .map(StringUtils::getNumber)
-                         .collect(Collectors.toSet());
+        return RedisUtil.scanKeysForPage(this.getPatternSessionId(), page, size)
+                        .stream()
+                        .map(StringUtil::getNumber)
+                        .collect(Collectors.toSet());
     }
 
     private String getKeyword(SessionVO vo) {

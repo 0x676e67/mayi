@@ -2,7 +2,7 @@ package com.zf1976.ant.common.security.support.session;
 
 import com.power.common.util.StringUtil;
 import com.zf1976.ant.common.core.constants.AuthConstants;
-import com.zf1976.ant.common.core.util.RequestUtils;
+import com.zf1976.ant.common.core.util.RequestUtil;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -237,11 +237,11 @@ public class SessionManagement {
     }
 
     private static String getAuthenticationForHeader(){
-        return RequestUtils.getRequest().getHeader(HttpHeaders.AUTHORIZATION);
+        return RequestUtil.getRequest().getHeader(HttpHeaders.AUTHORIZATION);
     }
 
     private static String getAuthenticationForAttribute() {
-        return (String) RequestUtils.getRequest().getAttribute(HttpHeaders.AUTHORIZATION);
+        return (String) RequestUtil.getRequest().getAttribute(HttpHeaders.AUTHORIZATION);
     }
 
     /**
@@ -262,6 +262,6 @@ public class SessionManagement {
         return properties.getPrefixSessionToken() + "[" + token + "]";
     }
 
-    private static long getExpiredIn() { return (Integer) RequestUtils.getRequest().getAttribute(AuthConstants.SESSION_EXPIRED); }
+    private static long getExpiredIn() { return (Integer) RequestUtil.getRequest().getAttribute(AuthConstants.SESSION_EXPIRED); }
 
 }

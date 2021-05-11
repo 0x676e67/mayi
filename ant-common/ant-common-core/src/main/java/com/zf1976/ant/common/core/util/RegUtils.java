@@ -171,7 +171,7 @@ public class RegUtils {
      * @return /
      */
     public static boolean isUpperCase(String str){
-        if(StringUtils.isEmpty(str)){
+        if(StringUtil.isEmpty(str)){
             return false;
         }
         String reg = "^[A-Z]$";
@@ -185,7 +185,7 @@ public class RegUtils {
      * @return /
      */
     public static boolean isLowercase(String str){
-        if(StringUtils.isEmpty(str)){
+        if(StringUtil.isEmpty(str)){
             return false;
         }
         String reg = "^[a-z]$";
@@ -199,7 +199,7 @@ public class RegUtils {
      * @return /
      */
     public static boolean isIP(String str){
-        if(StringUtils.isEmpty(str)){
+        if(StringUtil.isEmpty(str)){
             return false;
         }
         return isMatch(IP, str);
@@ -211,7 +211,7 @@ public class RegUtils {
      * @return /
      */
     public static boolean isDate(String str){
-        if(StringUtils.isEmpty(str)){
+        if(StringUtil.isEmpty(str)){
             return false;
         }
         return isMatch(DATE_COMPLEX_LEAP_YEAR, str);
@@ -224,7 +224,7 @@ public class RegUtils {
      * @return /
      */
     public static boolean isDateSimple(String str){
-        if(StringUtils.isEmpty(str)){
+        if(StringUtil.isEmpty(str)){
             return false;
         }
         return isMatch(DATE, str);
@@ -237,7 +237,7 @@ public class RegUtils {
      * @return /
      */
     public static boolean isDateComplex(String str){
-        if(StringUtils.isEmpty(str)){
+        if(StringUtil.isEmpty(str)){
             return false;
         }
         return isMatch(DATE_COMPLEX, str);
@@ -250,7 +250,7 @@ public class RegUtils {
      * @return /
      */
     public static boolean isNumberText(String str){
-        if(StringUtils.isEmpty(str)){
+        if(StringUtil.isEmpty(str)){
             return false;
         }
         return isMatch(NUMBER_TEXT, str);
@@ -263,7 +263,7 @@ public class RegUtils {
      * @return /
      */
     public static boolean isNumberAll(String str){
-        if(StringUtils.isEmpty(str)){
+        if(StringUtil.isEmpty(str)){
             return false;
         }
         return isMatch(NUMBER_ALL, str);
@@ -276,7 +276,7 @@ public class RegUtils {
      * @return /
      */
     public static boolean isIntegerWithZeroPos(String str){
-        if(StringUtils.isEmpty(str)){
+        if(StringUtil.isEmpty(str)){
             return false;
         }
         return isMatch(INTEGER_WITH_ZERO_POS, str);
@@ -289,7 +289,7 @@ public class RegUtils {
      * @return /
      */
     public static boolean isIntegerWithZero(String str){
-        if(StringUtils.isEmpty(str)){
+        if(StringUtil.isEmpty(str)){
             return false;
         }
         return isMatch(NUMBER_WITH_ZERO, str);
@@ -302,7 +302,7 @@ public class RegUtils {
      * @return /
      */
     public static boolean isQQ(String str){
-        if(StringUtils.isEmpty(str)){
+        if(StringUtil.isEmpty(str)){
             return false;
         }
         return isMatch(QQ, str);

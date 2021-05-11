@@ -1,6 +1,6 @@
 package com.zf1976.ant.upms.biz.controller;
 
-import com.zf1976.ant.common.core.util.RequestUtils;
+import com.zf1976.ant.common.core.util.RequestUtil;
 import com.zf1976.ant.common.log.annotation.Log;
 import com.zf1976.ant.common.log.dao.SysLogDao;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ public class TestController {
     @Log(description = "测试B接口")
     @GetMapping("/testB")
     public void testB(){
-        HttpServletRequest request = RequestUtils.getRequest();
+        HttpServletRequest request = RequestUtil.getRequest();
         System.out.println(request.getParameter("hanbi"));
     }
 }

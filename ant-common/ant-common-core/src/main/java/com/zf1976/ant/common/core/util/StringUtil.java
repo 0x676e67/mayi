@@ -1,13 +1,11 @@
 package com.zf1976.ant.common.core.util;
 
-import com.google.common.base.CharMatcher;
-import com.power.common.util.StringUtil;
 
 /**
  * @author mac
  * @date 2021/1/23
  **/
-public class StringUtils extends StringUtil {
+public class StringUtil extends com.power.common.util.StringUtil {
 
     /**
      * 把字符串数字类型的数字取出来（只取遇到非数字字符前，包括空格）
