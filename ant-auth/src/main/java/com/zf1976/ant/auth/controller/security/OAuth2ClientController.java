@@ -1,4 +1,4 @@
-package com.zf1976.ant.auth.controller;
+package com.zf1976.ant.auth.controller.security;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -18,33 +18,29 @@ import java.util.Optional;
  * @date 2021/4/10
  */
 @RestController
-@RequestMapping("/oauth/security")
-public class SecurityController {
+@RequestMapping(
+        value = "/oauth/security/client"
+)
+public class OAuth2ClientController {
 
     private final OAuth2ClientService oAuth2ClientService;
-    private final ResourceService resourceService;
 
-    public SecurityController(OAuth2ClientService oAuth2ClientService, ResourceService resourceService) {
+    public OAuth2ClientController(OAuth2ClientService oAuth2ClientService) {
         this.oAuth2ClientService = oAuth2ClientService;
-        this.resourceService = resourceService;
     }
 
-    @PostMapping("/client/page")
+    @PostMapping("/page")
     @PreAuthorize("hasAuthority('admin')")
-    public DataResult<IPage<ClientDetails>> clientDetailsPage(@RequestParam Integer page, @RequestParam Integer size) {
-        return DataResult.success(oAuth2ClientService.clientDetailsIPage(new Page<>(page, size)));
+    public DataResult<IPage<ClientDetails>> clientDetailsPage(@RequestBody Page<ClientDetails> page) {
+        return DataResult.success(oAuth2ClientService.clientDetailsIPage(page));
     }
 
-    @DeleteMapping("/client")
+    @DeleteMapping
     @PreAuthorize("hasAuthority('admin')")
     public DataResult<Optional<Void>> deleteClient(@RequestParam String clientId) {
         return DataResult.success(this.oAuth2ClientService.deleteClient(clientId));
     }
 
-    @PostMapping("/resource/page")
-    @PreAuthorize("hasAuthority('admin')")
-    public DataResult<IPage<ResourceNode>> selectResourceByPage(@RequestBody Page<SysResource> page) {
-        return DataResult.success(this.resourceService.selectResourceNodeByPage(page));
-    }
+
 
 }

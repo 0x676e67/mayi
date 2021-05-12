@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     DataResult validateExceptionHandler(MethodArgumentNotValidException e) {
         String messages = e.getBindingResult()
                            .getAllErrors()

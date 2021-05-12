@@ -4,5 +4,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-json:${springbootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-data-redis:${springbootVersion}")
     implementation("org.springframework.boot:spring-boot-configuration-processor:${springbootVersion}")
+    implementation ("org.springframework.boot:spring-boot-starter-validation:${springbootVersion}")
     implementation("eu.bitwalker:UserAgentUtils:1.21")
 }

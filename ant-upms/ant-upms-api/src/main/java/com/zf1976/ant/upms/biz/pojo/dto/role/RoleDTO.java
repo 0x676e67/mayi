@@ -1,8 +1,8 @@
 package com.zf1976.ant.upms.biz.pojo.dto.role;
 
 import com.zf1976.ant.upms.biz.pojo.enums.DataPermissionEnum;
-import com.zf1976.ant.upms.biz.pojo.validate.ValidationInsertGroup;
-import com.zf1976.ant.upms.biz.pojo.validate.ValidationUpdateGroup;
+import com.zf1976.ant.common.core.validate.ValidationInsertGroup;
+import com.zf1976.ant.common.core.validate.ValidationUpdateGroup;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;

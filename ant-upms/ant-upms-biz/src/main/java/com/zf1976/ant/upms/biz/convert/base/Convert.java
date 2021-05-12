@@ -49,12 +49,4 @@ public interface Convert<E,V,D> {
      */
     void copyProperties(D source, @MappingTarget E target);
 
-    /**
-     * 克隆
-     *
-     * @param source source
-     * @param target target
-     * @return new vo
-     */
-    void clone(V source, @MappingTarget V target);
 }

@@ -1,7 +1,7 @@
 package com.zf1976.ant.upms.biz.config;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
-import com.zf1976.ant.upms.biz.config.handle.MetaDataHandler;
+import com.zf1976.ant.common.mybatis.handle.MetaDataHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

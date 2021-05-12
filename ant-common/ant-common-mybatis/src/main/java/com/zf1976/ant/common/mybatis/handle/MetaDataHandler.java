@@ -1,4 +1,4 @@
-package com.zf1976.ant.upms.biz.config.handle;
+package com.zf1976.ant.common.mybatis.handle;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.zf1976.ant.common.security.support.session.SessionManagement;

@@ -2,7 +2,7 @@ package com.zf1976.ant.upms.biz.config;
 
 import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.power.common.util.FileUtil;
-import com.zf1976.ant.upms.biz.config.handle.MetaDataHandler;
+import com.zf1976.ant.common.mybatis.handle.MetaDataHandler;
 import com.zf1976.ant.upms.biz.interceptor.AuthenticationInterceptor;
 import com.zf1976.ant.upms.biz.property.FileProperties;
 import org.springframework.beans.factory.InitializingBean;

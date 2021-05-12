@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * MyBatis Plus 通用配置
  * @author ant
  * Create by Ant on 2020/10/15 4:43 下午
  */

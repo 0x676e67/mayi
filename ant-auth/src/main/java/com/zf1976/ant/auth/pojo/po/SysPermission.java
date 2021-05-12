@@ -18,11 +18,6 @@ public class SysPermission extends Model<SysPermission> {
     private Long id;
 
     /**
-     * 父节点id
-     */
-    private Long pid;
-
-    /**
      * 权限名称
      */
     private String name;

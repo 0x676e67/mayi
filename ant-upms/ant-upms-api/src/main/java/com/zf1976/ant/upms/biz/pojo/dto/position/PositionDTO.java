@@ -1,7 +1,7 @@
 package com.zf1976.ant.upms.biz.pojo.dto.position;
 
-import com.zf1976.ant.upms.biz.pojo.validate.ValidationInsertGroup;
-import com.zf1976.ant.upms.biz.pojo.validate.ValidationUpdateGroup;
+import com.zf1976.ant.common.core.validate.ValidationInsertGroup;
+import com.zf1976.ant.common.core.validate.ValidationUpdateGroup;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;

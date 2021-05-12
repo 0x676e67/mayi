@@ -129,21 +129,6 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
         return this.matcherMethodMap;
     }
 
-    private void collectPermissions(Long id, Supplier<Collection<ConfigAttribute>> collectionSupplier) {
-        Assert.notNull(id, "permission id cannot been null");
-        Assert.notNull(collectionSupplier, "supplier cannot been null");
-        super.lambdaQuery()
-             .select(SysPermission::getId, SysPermission::getValue)
-             .eq(SysPermission::getPid, id)
-             .list()
-             .forEach(sysPermission -> {
-                 if (sysPermission.getValue() != null) {
-                     collectionSupplier.get().add(sysPermission::getValue);
-                 }
-                 this.collectPermissions(sysPermission.getId(), collectionSupplier);
-             });
-    }
-
     /**
      * redis 反序化回来变成set
      * @return getAllowUri

@@ -84,7 +84,12 @@ public enum BusinessMsgState {
     /**
      * 下载失败
      */
-    DOWNLOAD_ERROR(400,"download error!");
+    DOWNLOAD_ERROR(400,"download error!"),
+
+    /**
+     * ID 为空
+     */
+    ID_NULL(400,"id is null");
 
     private final int value;
 
