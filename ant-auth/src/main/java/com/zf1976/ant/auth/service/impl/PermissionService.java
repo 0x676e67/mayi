@@ -14,9 +14,11 @@ import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
 import org.aspectj.weaver.ast.Var;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -145,5 +147,21 @@ public class PermissionService extends ServiceImpl<SysPermissionDao, SysPermissi
             return null;
         }
         throw new SecurityException("permission id cannot been null");
+    }
+
+    /**
+     * 根据id集合删除
+     *
+     * @date 2021-05-12 20:26:06
+     * @param ids id集合
+     * @return {@link Void}
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Void deletePermissionByIds(Set<Long> ids) {
+        //
+        if (!super.removeByIds(ids)) {
+            throw new SecurityException("permission ids is empty");
+        }
+        return null;
     }
 }

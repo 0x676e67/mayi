@@ -9,11 +9,13 @@ import com.zf1976.ant.auth.service.impl.PermissionService;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.core.validate.ValidationInsertGroup;
 import com.zf1976.ant.common.core.validate.ValidationUpdateGroup;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.executable.ValidateOnExecution;
+import java.util.Set;
 
 /**
  * @author mac
@@ -32,21 +34,31 @@ public class PermissionController {
     }
 
     @PostMapping("/page")
+    @PreAuthorize("hasAuthority('admin')")
     public DataResult<IPage<PermissionVO>> selectPermissionPage(@RequestBody Page<SysPermission> page) {
         return DataResult.success(this.service.selectPermissionByPage(page));
     }
 
+    @DeleteMapping("/patch")
+    @PreAuthorize("hasAuthority('admin')")
+    public DataResult<Void> deletePermission(@RequestBody Set<Long> ids) {
+        return DataResult.success(this.service.deletePermissionByIds(ids));
+    }
+
     @DeleteMapping
+    @PreAuthorize("hasAuthority('admin')")
     public DataResult<Void> deletePermission(@RequestParam Long id) {
         return DataResult.success(this.service.deletePermissionById(id));
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('admin')")
     DataResult<Void> savaPermission(@RequestBody @Validated(ValidationInsertGroup.class) PermissionDTO permissionDTO) {
         return DataResult.success(this.service.savePermission(permissionDTO));
     }
 
     @PutMapping
+    @PreAuthorize("hasAuthority('admin')")
     DataResult<Void> updatePermission(@RequestBody @Validated(ValidationUpdateGroup.class) PermissionDTO permissionDTO) {
         return DataResult.success(this.service.updatePermission(permissionDTO));
     }
