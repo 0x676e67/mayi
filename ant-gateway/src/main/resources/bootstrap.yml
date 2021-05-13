@@ -13,21 +13,23 @@ spring:
           enabled: true # 启用自动根据服务ID生成路由
           lower-case-service-id: true # 设置路由的路径为小写的服务ID
       routes:
+        # Vertx服务
         - id: vertx-service
           uri: lb://vertx-service
           predicates:
-            - Path=/**
+            - Path=/v1/**
+        # 认证服务器
         - id: ant-auth
           uri: lb://ant-auth
           predicates:
             - Path=/oauth/**
-
+        # 后台
         - id: ant-upms-bzi
           uri: lb://ant-upms-bzi
           predicates:
             - Path=/api/**, /avatar/**, /static/**, /druid/**
   #          filters:
-#            - PrefixPath=2
+  #         - PrefixPath=2
   security:
     oauth2:
       resourceserver:
