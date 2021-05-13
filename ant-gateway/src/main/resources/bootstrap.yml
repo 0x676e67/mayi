@@ -16,7 +16,7 @@ spring:
         - id: vertx-service
           uri: lb://vertx-service
           predicates:
-            - Path=/**/**
+            - Path=/**
         - id: ant-auth
           uri: lb://ant-auth
           predicates:
