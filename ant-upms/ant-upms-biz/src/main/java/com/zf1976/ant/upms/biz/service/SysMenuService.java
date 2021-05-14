@@ -1,6 +1,7 @@
 package com.zf1976.ant.upms.biz.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.zf1976.ant.common.component.load.annotation.CacheConfig;
 import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.core.constants.Namespace;
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
  * @since 2020-08-31 11:46:01
  */
 @Service
+@CacheConfig(namespace = Namespace.MENU, dependsOn = Namespace.ROLE)
 public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
 
     private static final String LAYOUT_NAME = "Layout";
@@ -166,7 +168,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
      * @param page request page
      * @return page
      */
-    @CachePut(namespace = Namespace.MENU, key = "#page")
+    @CachePut(key = "#page")
     public IPage<MenuVO> selectMenuPage(Query<MenuQueryParam> page) {
         final IPage<SysMenu> sourcePage = super.queryWrapper()
                                                .chainQuery(page)
@@ -222,7 +224,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
      * @param id id
      * @return 满足前提条件的菜单树
      */
-    @CachePut(namespace = Namespace.MENU, key = "#id")
+    @CachePut(key = "#id")
     public IPage<MenuVO> selectMenuVertex(Long id) {
         super.lambdaQuery()
              .eq(SysMenu::getId, id)
@@ -250,7 +252,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
      * @param dto dtp
      * @return /
      */
-    @CacheEvict(namespace = Namespace.MENU, dependsOn = Namespace.ROLE)
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> saveMenu(MenuDTO dto) {
         // 是否存在匹配菜单类型
@@ -286,7 +288,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
      * @param dto dto
      * @return /
      */
-    @CacheEvict(namespace = Namespace.MENU, dependsOn = Namespace.ROLE)
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateMenu(MenuDTO dto) {
         // 是否存在匹配菜单类型
@@ -363,7 +365,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
      * @param ids id collection
      * @return /
      */
-    @CacheEvict(namespace = Namespace.MENU, dependsOn = Namespace.ROLE)
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deleteMenuList(Set<Long> ids){
         final Set<Long> treeIds = this.collectCurrentMenuTreeIds(ids, new CopyOnWriteArraySet<>());

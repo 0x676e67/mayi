@@ -1,5 +1,6 @@
 package com.zf1976.ant.auth.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.zf1976.ant.auth.LoginUserDetails;
 import com.zf1976.ant.auth.convert.UserConvert;
@@ -9,8 +10,8 @@ import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.security.enums.AuthenticationState;
 import com.zf1976.ant.common.security.pojo.Details;
-import com.zf1976.ant.common.security.pojo.vo.RoleVo;
-import com.zf1976.ant.common.security.pojo.UserInfo;
+import com.zf1976.ant.common.security.pojo.User;
+import com.zf1976.ant.common.security.pojo.Role;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import com.zf1976.ant.common.security.support.session.SessionManagement;
 import com.zf1976.ant.upms.biz.dao.*;
@@ -55,18 +56,18 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
 
     @Override
     public UserDetails loadUserByUsername(String username) {
-        final UserInfo userInfo = this.getUserInfo(username);
-        if (!userInfo.getEnabled()) {
+        final User user = this.getUserInfo(username);
+        if (!user.getEnabled()) {
             throw new UserNotFountException(AuthenticationState.ACCOUNT_DISABLED);
         }
         // 权限值
-        List<GrantedAuthority> grantedAuthorities = this.grantedAuthorities(userInfo);
+        List<GrantedAuthority> grantedAuthorities = this.grantedAuthorities(user);
         // 数据权限
-        Set<Long> grantedDataPermission = this.grantedDataPermission(userInfo);
-        return new LoginUserDetails(userInfo, grantedAuthorities, grantedDataPermission);
+        Set<Long> grantedDataPermission = this.grantedDataPermission(user);
+        return new LoginUserDetails(user, grantedAuthorities, grantedDataPermission);
     }
 
-    private UserInfo getUserInfo(String username) {
+    private User getUserInfo(String username) {
         // 初步验证用户是否存在
         SysUser sysUser = ChainWrappers.lambdaQueryChain(this.sysUserDao)
                                        .eq(SysUser::getUsername, username)
@@ -106,25 +107,25 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
      * @param userInfo 用户信息
      * @return 数据权限
      */
-    private Set<Long> grantedDataPermission(UserInfo userInfo) {
+    private Set<Long> grantedDataPermission(User userInfo) {
 
         // 超级管理员
         if (ObjectUtils.nullSafeEquals(userInfo.getUsername(), this.securityProperties.getOwner())) {
-            return this.sysDepartmentDao.selectList(null)
+            return this.sysDepartmentDao.selectList(Wrappers.emptyWrapper())
                                         .stream()
                                         .map(SysDepartment::getId)
                                         .collect(Collectors.toSet());
         }
 
         // 用户级别角色排序
-        final Set<RoleVo> roles = userInfo.getRoleList()
-                                          .stream()
-                                          .sorted(Comparator.comparingInt(RoleVo::getLevel))
-                                          .collect(Collectors.toCollection(LinkedHashSet::new));
+        final Set<Role> roles = userInfo.getRoleList()
+                                        .stream()
+                                        .sorted(Comparator.comparingInt(Role::getLevel))
+                                        .collect(Collectors.toCollection(LinkedHashSet::new));
         // 数据权限范围
         final Set<Long> dataPermission = new HashSet<>();
-        for (RoleVo roleInfo : roles) {
-            switch (Objects.requireNonNull(roleInfo.getDataScope())) {
+        for (Role role : roles) {
+            switch (Objects.requireNonNull(role.getDataScope())) {
                 case LEVEL:
                     // 本级数据权限 用户部门
                     dataPermission.add(userInfo.getDepartment().getId());
@@ -132,7 +133,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
 
                 case CUSTOMIZE:
                     // 自定义用户/角色所在部门的数据权限
-                    sysDepartmentDao.selectListByRoleId(roleInfo.getId())
+                    sysDepartmentDao.selectListByRoleId(role.getId())
                                     .stream()
                                     .map(SysDepartment::getId)
                                     .forEach(id -> {
@@ -143,7 +144,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
 
                 default:
                     // 所有数据权限
-                    return this.sysDepartmentDao.selectList(null)
+                    return this.sysDepartmentDao.selectList(Wrappers.emptyWrapper())
                                                 .stream()
                                                 .map(SysDepartment::getId)
                                                 .collect(Collectors.toSet());
@@ -176,11 +177,12 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
      * @param userInfo info
      * @return 返回用户权限信息
      */
-    private List<GrantedAuthority> grantedAuthorities(UserInfo userInfo) {
+    private List<GrantedAuthority> grantedAuthorities(User userInfo) {
         Set<String> authorities = new HashSet<>();
         String markerAdmin = securityProperties.getOwner();
         if (userInfo.getUsername().equals(markerAdmin)) {
-            authorities.add(securityProperties.getOwner());
+            // 分配认证超级管理员角色
+            authorities.add("ROLE_" + markerAdmin);
             return authorities.stream()
                               .map(SimpleGrantedAuthority::new)
                               .collect(Collectors.toList());

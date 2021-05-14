@@ -3,6 +3,7 @@ package com.zf1976.ant.upms.biz.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
+import com.zf1976.ant.common.component.load.annotation.CacheConfig;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.core.constants.Namespace;
@@ -33,6 +34,7 @@ import java.util.Optional;
  * @since 2020-08-31 11:46:00
  */
 @Service
+@CacheConfig(namespace = Namespace.DICT)
 public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysDictDetail> {
 
     private final SysDictDao sysDictDao;
@@ -49,7 +51,7 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
      * @param query page param
      * @return dict details page
      */
-    @CachePut(namespace = Namespace.DICT_DETAIL, key = "#query")
+    @CachePut(key = "#query")
     public IPage<DictDetailVO> selectDictDetailPage(Query<DictDetailQueryParam> query) {
         DictDetailQueryParam param = query.getQuery();
         Assert.notNull(param, BusinessMsgState.PARAM_ILLEGAL::getReasonPhrase);
@@ -74,7 +76,7 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
      * @param dto dto
      * @return /
      */
-    @CacheEvict(namespace = Namespace.DICT_DETAIL)
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> saveDictDetail(DictDetailDTO dto) {
         SysDictDetail sysDictDetail = convert.toEntity(dto);
@@ -88,7 +90,7 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
      * @param dto dto
      * @return /
      */
-    @CacheEvict(namespace = Namespace.DICT_DETAIL)
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateDictDetail(DictDetailDTO dto) {
         SysDictDetail sysDictDetail = super.lambdaQuery()
@@ -107,7 +109,7 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
      * @param id id
      * @return /
      */
-    @CacheEvict(namespace = Namespace.DICT_DETAIL)
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deleteDictDetail(Long id) {
         if (!super.removeById(id)) {

@@ -7,6 +7,8 @@ import com.zf1976.ant.auth.dao.ClientDetailsDao;
 import com.zf1976.ant.auth.enhance.JdbcClientDetailsServiceEnhancer;
 import com.zf1976.ant.auth.pojo.ClientDetails;
 import com.zf1976.ant.auth.pojo.ClientDetailsDTO;
+import com.zf1976.ant.common.component.load.annotation.CacheConfig;
+import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.security.support.session.SessionManagement;
 import com.zf1976.ant.common.security.support.session.Session;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
@@ -23,12 +25,14 @@ import java.util.Optional;
  */
 @Service
 @SuppressWarnings("all")
+@CacheConfig(namespace = Namespace.CLIENT)
 public class OAuth2ClientService extends ServiceImpl<ClientDetailsDao, ClientDetails> {
 
     private final JdbcClientDetailsServiceEnhancer enhancer;
     private final ClientDetailsDao clientDetailsDao;
 
     public OAuth2ClientService(JdbcClientDetailsServiceEnhancer jdbcClientDetailsServiceEnhancer, ClientDetailsDao clientDetailsDao) {
+
         this.enhancer = jdbcClientDetailsServiceEnhancer;
         this.clientDetailsDao = clientDetailsDao;
     }

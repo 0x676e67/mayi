@@ -1,5 +1,6 @@
 package com.zf1976.ant.auth.enhance;
 
+import com.zf1976.ant.common.component.load.annotation.CacheConfig;
 import com.zf1976.ant.common.security.support.signature.datasource.ClientDataSourceProvider;
 import com.zf1976.ant.common.security.support.signature.datasource.domain.Client;
 import com.zf1976.ant.common.component.load.annotation.CacheEvict;
@@ -23,6 +24,7 @@ import java.util.List;
  * @date 2021/3/5
  **/
 @Service
+@CacheConfig(namespace = Namespace.CLIENT)
 public class JdbcClientDetailsServiceEnhancer extends JdbcClientDetailsService implements ClientDataSourceProvider {
 
     public JdbcClientDetailsServiceEnhancer(DataSource dataSource) {
@@ -30,95 +32,96 @@ public class JdbcClientDetailsServiceEnhancer extends JdbcClientDetailsService i
     }
 
     @Override
-    @CachePut(namespace = Namespace.CLIENT, key = "#clientId")
+    @CachePut(key = "#clientId")
     public ClientDetails loadClientByClientId(String clientId) throws InvalidClientException {
         return super.loadClientByClientId(clientId);
     }
 
     @Override
-    @CachePut(namespace = Namespace.CLIENT, key = "client_list")
+    @CachePut(key = "client_list")
     public List<ClientDetails> listClientDetails() {
         return super.listClientDetails();
     }
 
     @Override
+    @CacheEvict
     public void addClientDetails(ClientDetails clientDetails) throws ClientAlreadyExistsException {
         super.addClientDetails(clientDetails);
     }
 
     @Override
-    @CacheEvict(namespace = Namespace.CLIENT)
+    @CacheEvict
     public void removeClientDetails(String clientId) throws NoSuchClientException {
         super.removeClientDetails(clientId);
     }
 
     @Override
-    @CacheEvict(namespace = Namespace.CLIENT)
+    @CacheEvict
     public void updateClientDetails(ClientDetails clientDetails) throws NoSuchClientException {
         super.updateClientDetails(clientDetails);
     }
 
     @Override
-    @CacheEvict(namespace = Namespace.CLIENT)
+    @CacheEvict
     public void updateClientSecret(String clientId, String secret) throws NoSuchClientException {
         super.updateClientSecret(clientId, secret);
     }
 
     @Override
-    @CacheEvict(namespace = Namespace.CLIENT)
     public void setListFactory(JdbcListFactory listFactory) {
         super.setListFactory(listFactory);
     }
 
     @Override
-    @CacheEvict(namespace = Namespace.CLIENT)
+    @CacheEvict
     public void setUpdateClientDetailsSql(String updateClientDetailsSql) {
         super.setUpdateClientDetailsSql(updateClientDetailsSql);
     }
 
     @Override
-    @CacheEvict(namespace = Namespace.CLIENT)
+    @CacheEvict
     public void setUpdateClientSecretSql(String updateClientSecretSql) {
         super.setUpdateClientSecretSql(updateClientSecretSql);
     }
 
     @Override
-    @CacheEvict(namespace = Namespace.CLIENT)
+    @CacheEvict
     public void setInsertClientDetailsSql(String insertClientDetailsSql) {
         super.setInsertClientDetailsSql(insertClientDetailsSql);
     }
 
     @Override
-    @CacheEvict(namespace = Namespace.CLIENT)
+    @CacheEvict
     public void setFindClientDetailsSql(String findClientDetailsSql) {
         super.setFindClientDetailsSql(findClientDetailsSql);
     }
 
     @Override
-    @CacheEvict(namespace = Namespace.CLIENT)
+    @CacheEvict
     public void setDeleteClientDetailsSql(String deleteClientDetailsSql) {
         super.setDeleteClientDetailsSql(deleteClientDetailsSql);
     }
 
     @Override
-    @CacheEvict(namespace = Namespace.CLIENT)
+    @CacheEvict
     public void setSelectClientDetailsSql(String selectClientDetailsSql) {
         super.setSelectClientDetailsSql(selectClientDetailsSql);
     }
 
     @Override
-    @CacheEvict(namespace = Namespace.CLIENT)
+    @CacheEvict
     public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
         super.setPasswordEncoder(passwordEncoder);
     }
 
     @Override
-    @CacheEvict(namespace = Namespace.CLIENT)
+    @CacheEvict
     public void setRowMapper(RowMapper<ClientDetails> rowMapper) {
         super.setRowMapper(rowMapper);
     }
 
     @Override
+    @CachePut(key = "#clientId")
     public Client selectClientByClientId(String clientId) {
         // 查询客户端
         var clientDetails = this.loadClientByClientId(clientId);

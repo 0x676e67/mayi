@@ -1,6 +1,5 @@
 package com.zf1976.ant.auth.endpoint;
 
-import com.wf.captcha.base.Captcha;
 import com.zf1976.ant.auth.LoginDetails;
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.auth.service.UserDetailsServiceEnhancer;
@@ -10,7 +9,7 @@ import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.core.util.RequestUtil;
 import com.zf1976.ant.common.security.pojo.Details;
-import com.zf1976.ant.common.security.pojo.vo.CaptchaVo;
+import com.zf1976.ant.common.security.pojo.Captcha;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -81,9 +80,9 @@ public class TokenEndpointEnhancer {
     }
 
     @GetMapping("/code")
-    public ResponseEntity<CaptchaVo> getVerifyCode() {
+    public ResponseEntity<Captcha> getVerifyCode() {
         // 获取验证码
-        Captcha captcha = CaptchaGenerator.getCaptcha();
+        com.wf.captcha.base.Captcha captcha = CaptchaGenerator.getCaptcha();
         // 生成uuid
         UUID uuid = ALTERNATIVE_JDK_ID_GENERATOR.generateId();
         //将验证码保存在 redis 缓存中
@@ -97,10 +96,10 @@ public class TokenEndpointEnhancer {
                 logger.info("Captcha：{} not saved.", captcha.text());
             }
         }
-        final CaptchaVo captchaVo = CaptchaVo.builder()
-                                             .img(captcha.toBase64())
-                                             .uuid(uuid.toString())
-                                             .build();
+        final Captcha captchaVo = Captcha.builder()
+                                         .img(captcha.toBase64())
+                                         .uuid(uuid.toString())
+                                         .build();
         return ResponseEntity.ok(captchaVo);
     }
 

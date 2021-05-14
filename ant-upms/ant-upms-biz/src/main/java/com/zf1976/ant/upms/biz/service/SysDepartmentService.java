@@ -2,6 +2,7 @@ package com.zf1976.ant.upms.biz.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
+import com.zf1976.ant.common.component.load.annotation.CacheConfig;
 import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.core.constants.Namespace;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
  * @since 2020-08-31 11:45:57
  */
 @Service
+@CacheConfig(namespace = Namespace.DEPARTMENT, dependsOn = {Namespace.ROLE, Namespace.USER})
 public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysDepartment> {
 
     private final DepartmentConvert convert = DepartmentConvert.INSTANCE;
@@ -47,7 +49,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      * @param page page param
      * @return dept list page
      */
-    @CachePut(namespace = Namespace.DEPARTMENT, key = "#page")
+    @CachePut(key = "#page")
     public IPage<DepartmentVO> selectDeptPage(Query<DeptQueryParam> page) {
         IPage<SysDepartment> sourcePage = super.queryWrapper()
                                                .chainQuery(page)
@@ -61,7 +63,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      * @param id dept id
      * @return 满足前提条件的部门树
      */
-    @CachePut(namespace = Namespace.DEPARTMENT, key = "#id")
+    @CachePut(key = "#id")
     public IPage<DepartmentVO> selectDeptVertex(Long id) {
         // 记录是否存在
         super.lambdaQuery()
@@ -161,7 +163,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      * @param dto dto
      * @return /
      */
-    @CacheEvict(namespace = Namespace.DEPARTMENT, dependsOn = {Namespace.ROLE, Namespace.USER})
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> savaDept(DepartmentDTO dto) {
         // 确认部门是否存在
@@ -182,7 +184,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      * @param dto dto
      * @return /
      */
-    @CacheEvict(namespace = Namespace.DEPARTMENT, dependsOn = {Namespace.ROLE, Namespace.USER})
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateDept(DepartmentDTO dto) {
 
@@ -252,7 +254,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      * @param ids ids
      * @return /
      */
-    @CacheEvict(namespace = Namespace.DEPARTMENT,dependsOn = {Namespace.ROLE, Namespace.USER})
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deleteDeptList(Set<Long> ids) {
         final Set<Long> treeIds = this.collectCurrentDeptTreeIds(ids, HashSet::new);

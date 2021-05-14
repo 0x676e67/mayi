@@ -30,13 +30,13 @@ public class OAuth2ClientController {
     }
 
     @PostMapping("/page")
-    @PreAuthorize("hasAuthority('admin')")
+    @PreAuthorize("hasRole('admin')")
     public DataResult<IPage<ClientDetails>> clientDetailsPage(@RequestBody Page<ClientDetails> page) {
         return DataResult.success(oAuth2ClientService.clientDetailsIPage(page));
     }
 
     @DeleteMapping
-    @PreAuthorize("hasAuthority('admin')")
+    @PreAuthorize("hasRole('admin')")
     public DataResult<Optional<Void>> deleteClient(@RequestParam String clientId) {
         return DataResult.success(this.oAuth2ClientService.deleteClient(clientId));
     }

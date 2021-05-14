@@ -1,12 +1,7 @@
 package com.zf1976.ant.common.security.pojo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.zf1976.ant.common.security.pojo.vo.DepartmentVo;
-import com.zf1976.ant.common.security.pojo.vo.PositionVo;
-import com.zf1976.ant.common.security.pojo.vo.RoleVo;
 import com.zf1976.ant.upms.biz.pojo.enums.GenderEnum;
-import lombok.Data;
-import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -16,7 +11,7 @@ import java.util.Set;
  * @author ant
  * Create by Ant on 2020/9/8 12:32 下午
  */
-public class UserInfo implements Serializable {
+public class User implements Serializable {
 
     /**
      * 用户id
@@ -26,17 +21,17 @@ public class UserInfo implements Serializable {
     /**
      * 部门
      */
-    private DepartmentVo department;
+    private Department department;
 
     /**
      * 角色信息
      */
-    private Set<RoleVo> roleList;
+    private Set<Role> roleList;
 
     /**
      * 职位信息
      */
-    private Set<PositionVo> positionList;
+    private Set<Position> positionList;
 
     /**
      * 用户名
@@ -94,34 +89,34 @@ public class UserInfo implements Serializable {
         return id;
     }
 
-    public UserInfo setId(Long id) {
+    public User setId(Long id) {
         this.id = id;
         return this;
     }
 
-    public DepartmentVo getDepartment() {
+    public Department getDepartment() {
         return department;
     }
 
-    public UserInfo setDepartment(DepartmentVo department) {
+    public User setDepartment(Department department) {
         this.department = department;
         return this;
     }
 
-    public Set<RoleVo> getRoleList() {
+    public Set<Role> getRoleList() {
         return roleList;
     }
 
-    public UserInfo setRoleList(Set<RoleVo> roleList) {
+    public User setRoleList(Set<Role> roleList) {
         this.roleList = roleList;
         return this;
     }
 
-    public Set<PositionVo> getPositionList() {
+    public Set<Position> getPositionList() {
         return positionList;
     }
 
-    public UserInfo setPositionList(Set<PositionVo> positionList) {
+    public User setPositionList(Set<Position> positionList) {
         this.positionList = positionList;
         return this;
     }
@@ -130,7 +125,7 @@ public class UserInfo implements Serializable {
         return username;
     }
 
-    public UserInfo setUsername(String username) {
+    public User setUsername(String username) {
         this.username = username;
         return this;
     }
@@ -139,7 +134,7 @@ public class UserInfo implements Serializable {
         return nickName;
     }
 
-    public UserInfo setNickName(String nickName) {
+    public User setNickName(String nickName) {
         this.nickName = nickName;
         return this;
     }
@@ -148,7 +143,7 @@ public class UserInfo implements Serializable {
         return gender;
     }
 
-    public UserInfo setGender(GenderEnum gender) {
+    public User setGender(GenderEnum gender) {
         this.gender = gender;
         return this;
     }
@@ -157,7 +152,7 @@ public class UserInfo implements Serializable {
         return phone;
     }
 
-    public UserInfo setPhone(String phone) {
+    public User setPhone(String phone) {
         this.phone = phone;
         return this;
     }
@@ -166,7 +161,7 @@ public class UserInfo implements Serializable {
         return email;
     }
 
-    public UserInfo setEmail(String email) {
+    public User setEmail(String email) {
         this.email = email;
         return this;
     }
@@ -175,7 +170,7 @@ public class UserInfo implements Serializable {
         return avatarName;
     }
 
-    public UserInfo setAvatarName(String avatarName) {
+    public User setAvatarName(String avatarName) {
         this.avatarName = avatarName;
         return this;
     }
@@ -184,7 +179,7 @@ public class UserInfo implements Serializable {
         return avatarPath;
     }
 
-    public UserInfo setAvatarPath(String avatarPath) {
+    public User setAvatarPath(String avatarPath) {
         this.avatarPath = avatarPath;
         return this;
     }
@@ -193,7 +188,7 @@ public class UserInfo implements Serializable {
         return password;
     }
 
-    public UserInfo setPassword(String password) {
+    public User setPassword(String password) {
         this.password = password;
         return this;
     }
@@ -202,7 +197,7 @@ public class UserInfo implements Serializable {
         return enabled;
     }
 
-    public UserInfo setEnabled(Boolean enabled) {
+    public User setEnabled(Boolean enabled) {
         this.enabled = enabled;
         return this;
     }
@@ -211,7 +206,7 @@ public class UserInfo implements Serializable {
         return createTime;
     }
 
-    public UserInfo setCreateTime(Date createTime) {
+    public User setCreateTime(Date createTime) {
         this.createTime = createTime;
         return this;
     }

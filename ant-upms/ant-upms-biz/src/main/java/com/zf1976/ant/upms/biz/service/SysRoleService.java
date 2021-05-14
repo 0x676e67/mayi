@@ -2,6 +2,7 @@ package com.zf1976.ant.upms.biz.service;
 
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.zf1976.ant.common.component.load.annotation.CacheConfig;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.core.constants.Namespace;
@@ -36,6 +37,7 @@ import java.util.stream.Collectors;
  * @since 2020-08-31 11:45:58
  */
 @Service
+@CacheConfig(namespace = Namespace.ROLE, dependsOn = Namespace.USER)
 public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
 
     private final SysDepartmentDao sysDepartmentDao;
@@ -53,7 +55,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      *
      * @return /
      */
-    @CachePut(namespace = Namespace.ROLE, key = "selectAllRole")
+    @CachePut(key = "selectAllRole")
     public IPage<RoleVO> selectAll() {
         IPage<SysRole> page = super.lambdaQuery()
                                    .select(SysRole::getId, SysRole::getName)
@@ -67,7 +69,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      * @param query request page
      * @return /
      */
-    @CachePut(namespace = Namespace.ROLE, key = "#query")
+    @CachePut(key = "#query")
     public IPage<RoleVO> selectRolePage(Query<RoleQueryParam> query) {
         IPage<SysRole> sourcePage = this.queryWrapper()
                                         .chainQuery(query)
@@ -84,7 +86,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      *
      * @return math
      */
-    @CachePut(namespace = Namespace.ROLE, dynamics = true)
+    @CachePut(dynamics = true)
     public Integer selectRoleLevel() {
         if (SessionManagement.isOwner()) {
             return -1;
@@ -103,14 +105,18 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      * @param enabled 状态
      * @return /
      */
-    @CacheEvict(namespace = Namespace.ROLE, dependsOn = Namespace.USER)
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateRoleStatus(Long id, Boolean enabled) {
-        SysRole sysRole = super.lambdaQuery()
-                               .eq(SysRole::getId, id)
-                               .oneOpt().orElseThrow(() -> new RoleException(RoleState.ROLE_NOT_FOUND));
-        sysRole.setEnabled(enabled);
-        super.updateEntityById(sysRole);
+        if (super.baseMapper.selectUserDependsOnById(id) > 0) {
+            throw new RoleException(RoleState.ROLE_DEPENDS_ERROR);
+        }
+        boolean isUpdate = lambdaUpdate().set(SysRole::getEnabled, enabled)
+                                       .eq(SysRole::getId, id)
+                                       .update();
+        if (!isUpdate) {
+            throw new RoleException(RoleState.ROLE_NOT_FOUND);
+        }
         return Optional.empty();
     }
 
@@ -163,7 +169,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      * @param dto role dto
      * @return /
      */
-    @CacheEvict(namespace = Namespace.ROLE)
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> savaRole(RoleDTO dto) {
         // 范围消息
@@ -196,7 +202,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      * @param dto dto
      * @return /
      */
-    @CacheEvict(namespace = Namespace.ROLE, dependsOn = Namespace.USER)
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateRole(RoleDTO dto) {
         // 范围消息
@@ -257,7 +263,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      * @param ids id集合
      * @return /
      */
-    @CacheEvict(namespace = Namespace.ROLE, dependsOn = Namespace.USER)
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deleteRole(Set<Long> ids) {
         ids.forEach(id -> {

@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.google.common.collect.Lists;
 import com.zf1976.ant.common.component.action.ActionsScanner;
+import com.zf1976.ant.common.component.load.annotation.CacheConfig;
+import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.core.constants.KeyConstants;
 import com.zf1976.ant.common.core.constants.Namespace;
@@ -14,6 +16,7 @@ import com.zf1976.ant.auth.dao.SysPermissionDao;
 import com.zf1976.ant.auth.dao.SysResourceDao;
 import com.zf1976.ant.auth.pojo.po.SysPermission;
 import com.zf1976.ant.auth.pojo.po.SysResource;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -32,6 +35,7 @@ import java.util.stream.Collectors;
  * @date 2020/12/26
  **/
 @Service
+@CacheConfig(namespace = Namespace.DYNAMIC)
 public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysPermission> {
 
     private final ActionsScanner actionsScanner;
@@ -54,7 +58,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
      * @date 2021-05-05 19:53:43
      * @return {@link Map}
      */
-    @CachePut(namespace = Namespace.DYNAMIC, key = KeyConstants.RESOURCES)
+    @CachePut(key = KeyConstants.RESOURCES)
     public Map<String, Collection<String>> loadDynamicDataSource() {
         Map<String, Collection<String>> matcherResourceMap = new HashMap<>(16);
         //清空缓存
@@ -121,7 +125,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
         }
     }
 
-    @CachePut(namespace = Namespace.DYNAMIC, key = KeyConstants.MATCH_METHOD)
+    @CachePut(key = KeyConstants.MATCH_METHOD)
     public Map<String, String> getMatcherMethodMap() {
         if (CollectionUtils.isEmpty(this.matcherMethodMap)) {
             this.loadDynamicDataSource();
@@ -133,7 +137,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
      * redis 反序化回来变成set
      * @return getAllowUri
      */
-    @CachePut(namespace = Namespace.DYNAMIC, key = KeyConstants.ALLOW)
+    @CachePut(key = KeyConstants.ALLOW)
     public List<String> getAllowUri() {
         CollectionUtils.mergeArrayIntoCollection(securityProperties.getIgnoreUri(), this.allowMethodSet);
         return Lists.newArrayList(this.allowMethodSet);

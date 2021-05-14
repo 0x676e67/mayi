@@ -22,7 +22,7 @@ public class Details implements Serializable {
     /**
      * 用户信息
      */
-    private UserInfo userInfo;
+    private User userInfo;
 
     public Set<String> getPermission() {
         return permission;
@@ -33,11 +33,11 @@ public class Details implements Serializable {
         return this;
     }
 
-    public UserInfo getUserInfo() {
+    public User getUserInfo() {
         return userInfo;
     }
 
-    public Details setUserInfo(UserInfo userInfo) {
+    public Details setUserInfo(User userInfo) {
         this.userInfo = userInfo;
         return this;
     }
@@ -64,7 +64,7 @@ public class Details implements Serializable {
     public static final class UserDetailsBuilder {
         private Set<String> permission;
         private Set<Long> dataPermission;
-        private UserInfo userInfo;
+        private User userInfo;
 
         private UserDetailsBuilder() {
         }
@@ -83,7 +83,7 @@ public class Details implements Serializable {
             return this;
         }
 
-        public UserDetailsBuilder userInfo(UserInfo userInfo) {
+        public UserDetailsBuilder userInfo(User userInfo) {
             this.userInfo = userInfo;
             return this;
         }

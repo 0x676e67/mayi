@@ -1,6 +1,6 @@
 package com.zf1976.ant.auth.convert;
 
-import com.zf1976.ant.common.security.pojo.UserInfo;
+import com.zf1976.ant.common.security.pojo.User;
 import com.zf1976.ant.upms.biz.pojo.po.SysUser;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -21,5 +21,5 @@ public interface UserConvert {
      * @param sysUser 系统用户
      * @return /
      */
-    UserInfo convert(SysUser sysUser);
+    User convert(SysUser sysUser);
 }

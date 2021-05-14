@@ -8,6 +8,9 @@ import com.zf1976.ant.auth.pojo.ResourceLink;
 import com.zf1976.ant.auth.pojo.ResourceNode;
 import com.zf1976.ant.auth.dao.SysResourceDao;
 import com.zf1976.ant.auth.pojo.po.SysResource;
+import com.zf1976.ant.common.component.load.annotation.CacheConfig;
+import com.zf1976.ant.common.component.load.annotation.CachePut;
+import com.zf1976.ant.common.core.constants.Namespace;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -21,14 +24,22 @@ import java.util.stream.Collectors;
  * @date 2021/4/26
  */
 @Service
+@CacheConfig(namespace = Namespace.RESOURCE)
 public class ResourceService extends ServiceImpl<SysResourceDao, SysResource> {
 
 
-    public IPage<ResourceNode> selectResourceNodeByPage(Page<SysResource> resourcePage) {
+    public void test() {
+
+        List<ResourceNode> resourceNodes = this.buildResourceTree(super.list());
+        List<ResourceLink> resourceLinkList = this.buildResourceLinkList(resourceNodes);
+    }
+
+    @CachePut(key = "#page")
+    public IPage<ResourceNode> selectResourceNodeByPage(Page<SysResource> page) {
         // 独立根据根节点分页查询
         Page<SysResource> sourcePage = super.lambdaQuery()
                                       .isNull(SysResource::getPid)
-                                      .page(resourcePage);
+                                      .page(page);
 
         // 查询所有根节点的子节点
         List<SysResource> childResourceList = super.lambdaQuery()
@@ -83,14 +94,14 @@ public class ResourceService extends ServiceImpl<SysResourceDao, SysResource> {
     }
 
     /**
-     * 构建资源链接列表
+     * 根据资源树构建资源链接列表
      *
      * @date 2021-05-07 23:43:49
      * @return {@link List<ResourceLink>}
      */
-    private List<ResourceLink> buildResourceLinkList(List<ResourceNode> resourceNodeList) {
+    private List<ResourceLink> buildResourceLinkList(List<ResourceNode> resourceNodeTree) {
         List<ResourceLink> resourceLinkList = new LinkedList<>();
-        resourceNodeList.forEach(resourceNode -> {
+        resourceNodeTree.forEach(resourceNode -> {
             this.traverseNode(resourceNode, resourceLinkList);
         });
         return resourceLinkList;

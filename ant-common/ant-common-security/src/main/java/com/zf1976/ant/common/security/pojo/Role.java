@@ -1,4 +1,4 @@
-package com.zf1976.ant.common.security.pojo.vo;
+package com.zf1976.ant.common.security.pojo;
 
 import com.zf1976.ant.upms.biz.pojo.enums.DataPermissionEnum;
 import lombok.Data;
@@ -12,7 +12,7 @@ import java.io.Serializable;
  */
 @Data
 @Accessors
-public class RoleVo implements Serializable {
+public class Role implements Serializable {
 
     /**
      * 角色id

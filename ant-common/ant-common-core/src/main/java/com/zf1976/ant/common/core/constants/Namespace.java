@@ -6,23 +6,23 @@ package com.zf1976.ant.common.core.constants;
  **/
 public interface Namespace {
 
-    String DEPARTMENT = "department";
+    String DEPARTMENT = "department_namespace";
 
-    String DICT = "dict";
+    String DICT = "dict_namespace";
 
-    String DICT_DETAIL = "dictDetail";
+    String POSITION = "job_namespace";
 
-    String JOB = "job";
+    String MENU = "menu_namespace";
 
-    String MENU = "menu";
+    String ROLE = "role_namespace";
 
-    String ROLE = "role";
+    String USER = "user_namespace";
 
-    String USER = "user";
+    String CLIENT = "client_namespace";
 
-    String CLIENT = "client";
+    String RESOURCE = "resource_namespace";
 
-    String RESOURCE = "resource";
+    String DYNAMIC = "dynamic_namespace";
 
-    String DYNAMIC = "dynamic";
+    String AUTH_SERVICE = "oauth2_service_namespace";
 }

@@ -4,6 +4,7 @@ package com.zf1976.ant.upms.biz.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.power.common.util.ValidateUtil;
+import com.zf1976.ant.common.component.load.annotation.CacheConfig;
 import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.component.mail.ValidateFactory;
@@ -57,6 +58,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
+@CacheConfig(namespace =  Namespace.USER, dependsOn = {Namespace.DEPARTMENT, Namespace.POSITION, Namespace.ROLE})
 public class SysUserService extends AbstractService<SysUserDao, SysUser> {
 
     private final AlternativeJdkIdGenerator jdkIdGenerator = new AlternativeJdkIdGenerator();
@@ -82,7 +84,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param query request page
      * @return /
      */
-    @CachePut(namespace = Namespace.USER, key = "#query", dynamics = true)
+    @CachePut(key = "#query", dynamics = true)
     public IPage<UserVO> selectUserPage(Query<UserQueryParam> query) {
         IPage<SysUser> sourcePage;
         // 非super admin 过滤数据权限
@@ -172,7 +174,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param enabled enabled
      * @return /
      */
-    @CacheEvict(namespace =  Namespace.USER)
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> setUserStatus(Long id, Boolean enabled) {
         SysUser sysUser = super.lambdaQuery()
@@ -203,7 +205,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param multipartFile 上传头像
      * @return /
      */
-    @CacheEvict(namespace =  Namespace.USER)
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateAvatar(MultipartFile multipartFile) {
         final Long sessionId = SessionManagement.getSessionId();
@@ -232,7 +234,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param dto dto
      * @return /
      */
-    @CacheEvict(namespace =  Namespace.USER)
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updatePassword(UpdatePasswordDTO dto) {
         final Long sessionId = SessionManagement.getSessionId();
@@ -274,7 +276,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param dto dto
      * @return /
      */
-    @CacheEvict(namespace =  Namespace.USER)
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateEmail(String code, UpdateEmailDTO dto) {
 
@@ -319,7 +321,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param dto dto
      * @return /
      */
-    @CacheEvict(namespace =  Namespace.USER)
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateInfo(UpdateInfoDTO dto) {
         // 查询当前用户是否存在
@@ -355,7 +357,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param dto dto
      * @return /
      */
-    @CacheEvict(namespace =  Namespace.USER)
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> saveUser(UserDTO dto) {
         this.validateUsername(dto.getUsername());
@@ -394,7 +396,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param dto dto
      * @return /
      */
-    @CacheEvict(namespace =  Namespace.USER)
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateUser(UserDTO dto) {
         this.validatePhone(dto.getPhone());
@@ -483,7 +485,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param ids ids
      * @return /
      */
-    @CacheEvict(namespace =  Namespace.USER)
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deleteUser(Set<Long> ids) {
         if (SessionManagement.isOwner()) {

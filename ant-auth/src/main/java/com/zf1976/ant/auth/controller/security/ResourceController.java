@@ -29,7 +29,7 @@ public class ResourceController {
     }
 
     @PostMapping("/page")
-    @PreAuthorize("hasAuthority('admin')")
+    @PreAuthorize("hasRole('admin')")
     public DataResult<IPage<ResourceNode>> selectResourceByPage(@RequestBody Page<SysResource> page) {
         return DataResult.success(this.resourceService.selectResourceNodeByPage(page));
     }

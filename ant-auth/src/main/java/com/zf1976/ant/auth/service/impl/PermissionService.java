@@ -83,7 +83,7 @@ public class PermissionService extends ServiceImpl<SysPermissionDao, SysPermissi
             throw new SecurityException("permission value：" + permissionDTO.getValue() + "is exist");
         }
         SysPermission sysPermission = this.convert.toPermissionEntity(permissionDTO);
-        if (!super.save(sysPermission)) {
+        if (!super.saveOrUpdate(sysPermission)) {
             throw new SecurityException("Permission data insert failed");
         }
         return null;
@@ -111,7 +111,7 @@ public class PermissionService extends ServiceImpl<SysPermissionDao, SysPermissi
             }
         }
         this.convert.copyProperties(permissionDTO, sysPermission);
-        if (!super.updateById(sysPermission)) {
+        if (!super.saveOrUpdate(sysPermission)) {
             throw new SecurityException("Permission data update failed");
         }
         return null;

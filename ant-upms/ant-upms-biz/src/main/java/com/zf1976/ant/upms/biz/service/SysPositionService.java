@@ -3,6 +3,7 @@ package com.zf1976.ant.upms.biz.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
+import com.zf1976.ant.common.component.load.annotation.CacheConfig;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.core.constants.Namespace;
@@ -36,6 +37,7 @@ import java.util.stream.Collectors;
  * @since 2020-08-31 11:45:58
  */
 @Service
+@CacheConfig(namespace = Namespace.POSITION, dependsOn = Namespace.USER)
 public class SysPositionService extends AbstractService<SysPositionDao, SysPosition> {
 
     private final SysUserDao sysUserDao;
@@ -52,7 +54,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
      * @param query page param
      * @return job list
      */
-    @CachePut(namespace = Namespace.JOB, key = "#query")
+    @CachePut(key = "#query")
     public IPage<PositionVO> selectPositionPage(Query<PositionQueryParam> query) {
         IPage<SysPosition> sourcePage = this.queryWrapper()
                                             .chainQuery(query)
@@ -82,7 +84,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
      * @param dto dto
      * @return /
      */
-    @CacheEvict(namespace = Namespace.JOB)
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> savePosition(PositionDTO dto) {
         super.lambdaQuery()
@@ -102,7 +104,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
      * @param dto dto
      * @return /
      */
-    @CacheEvict(namespace = Namespace.JOB, dependsOn = Namespace.USER)
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updatePosition(PositionDTO dto) {
         // 查询更新岗位是否存在
@@ -130,7 +132,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
      * @param ids id collection
      * @return /
      */
-    @CacheEvict(namespace = Namespace.JOB, dependsOn = Namespace.USER)
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deletePositionList(Set<Long> ids) {
         super.deleteByIds(ids);

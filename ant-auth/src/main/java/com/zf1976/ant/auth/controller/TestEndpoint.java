@@ -3,6 +3,7 @@ package com.zf1976.ant.auth.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zf1976.ant.auth.service.impl.ResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,6 +25,7 @@ public class TestEndpoint {
     }
 
     @GetMapping("/resource")
+    @PreAuthorize("hasRole('admin')")
     public Object resource(){
         return this.service.selectResourceNodeByPage(new Page<>(1,2));
     }

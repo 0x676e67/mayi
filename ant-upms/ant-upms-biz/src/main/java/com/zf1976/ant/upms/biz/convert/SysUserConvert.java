@@ -1,7 +1,7 @@
 package com.zf1976.ant.upms.biz.convert;
 
 
-import com.zf1976.ant.common.security.pojo.UserInfo;
+import com.zf1976.ant.common.security.pojo.User;
 import com.zf1976.ant.upms.biz.convert.base.Convert;
 import com.zf1976.ant.upms.biz.pojo.dto.user.UpdateInfoDTO;
 import com.zf1976.ant.upms.biz.pojo.dto.user.UserDTO;
@@ -25,7 +25,7 @@ public interface SysUserConvert extends Convert<SysUser, UserVO, UserDTO> {
      * @param source source
      * @param target target
      */
-    void copyProperties(UserDTO source, @MappingTarget UserInfo target);
+    void copyProperties(UserDTO source, @MappingTarget User target);
 
     /**
      * 复制属性
@@ -33,5 +33,5 @@ public interface SysUserConvert extends Convert<SysUser, UserVO, UserDTO> {
      * @param dto source
      * @param userInfo target
      */
-    void copyProperties(UpdateInfoDTO dto,@MappingTarget UserInfo userInfo);
+    void copyProperties(UpdateInfoDTO dto,@MappingTarget User userInfo);
 }

@@ -1,4 +1,4 @@
-package com.zf1976.ant.common.security.pojo.vo;
+package com.zf1976.ant.common.security.pojo;
 
 import lombok.Builder;
 import lombok.Data;
@@ -9,7 +9,7 @@ import lombok.Data;
  */
 @Data
 @Builder
-public class CaptchaVo {
+public class Captcha {
 
     /**
      * 返回前端的uuid

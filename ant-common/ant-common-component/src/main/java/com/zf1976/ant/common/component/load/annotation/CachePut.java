@@ -7,9 +7,10 @@ import java.lang.annotation.*;
 /**
  * @author WINDOWS
  */
-@Documented
-@Target(ElementType.METHOD)
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
+@Inherited
+@Documented
 public @interface CachePut {
 
     /**
@@ -17,7 +18,7 @@ public @interface CachePut {
      *
      * @return namespace
      */
-    String namespace();
+    String namespace() default "";
 
     /**
      * key
@@ -38,7 +39,7 @@ public @interface CachePut {
      *
      * @return time
      */
-    long expired() default -1;
+    long expired() default 10;
 
     /**
      * 缓存实现

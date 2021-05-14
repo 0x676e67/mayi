@@ -1,4 +1,4 @@
-package com.zf1976.ant.common.security.pojo.vo;
+package com.zf1976.ant.common.security.pojo;
 
 import lombok.Data;
 
@@ -9,7 +9,7 @@ import java.io.Serializable;
  * Create by Ant on 2020/9/8 9:08 下午
  */
 @Data
-public class PositionVo implements Serializable {
+public class Position implements Serializable {
 
     /**
      * 岗位id

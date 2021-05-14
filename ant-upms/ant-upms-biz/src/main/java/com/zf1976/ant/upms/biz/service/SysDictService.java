@@ -3,6 +3,7 @@ package com.zf1976.ant.upms.biz.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
+import com.zf1976.ant.common.component.load.annotation.CacheConfig;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.core.constants.Namespace;
@@ -33,6 +34,7 @@ import java.util.*;
  * @since 2020-08-31 11:45:59
  */
 @Service
+@CacheConfig(namespace = Namespace.DICT)
 public class SysDictService extends AbstractService<SysDictDao, SysDict> {
 
     private final SysDictDetailDao sysDictDetailDao;
@@ -49,7 +51,7 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
      * @param query query param
      * @return dict list
      */
-    @CachePut(namespace = Namespace.DICT, key = "#query")
+    @CachePut(key = "#query")
     public IPage<DictVO> selectDictPage(Query<DictQueryParam> query) {
         IPage<SysDict> sourcePage = super.queryWrapper()
                                          .chainQuery(query)
@@ -63,7 +65,7 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
      * @param dto dto
      * @return /
      */
-    @CacheEvict(namespace = Namespace.DICT)
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> saveDict(DictDTO dto) {
         // 确认字典名是否存在
@@ -84,7 +86,7 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
      * @param dto dto
      * @return /
      */
-    @CacheEvict(namespace = Namespace.DICT)
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updateDict(DictDTO dto) {
 
@@ -112,7 +114,7 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
      * @param ids id collection
      * @return /
      */
-    @CacheEvict(namespace = Namespace.DICT)
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deleteDictList(Set<Long> ids) {
         super.deleteByIds(ids);

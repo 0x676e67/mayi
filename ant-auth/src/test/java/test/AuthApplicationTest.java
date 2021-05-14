@@ -1,6 +1,8 @@
 package test;
 
 import com.zf1976.ant.auth.AuthApplication;
+import com.zf1976.ant.auth.pojo.ResourceLink;
+import com.zf1976.ant.auth.pojo.ResourceNode;
 import com.zf1976.ant.auth.service.impl.OAuth2ClientService;
 import com.zf1976.ant.auth.service.impl.ResourceService;
 import com.zf1976.ant.upms.biz.dao.SysRoleDao;
@@ -8,6 +10,9 @@ import com.zf1976.ant.upms.biz.dao.SysUserDao;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -32,8 +37,7 @@ public class AuthApplicationTest {
 
     @Test
     public void sessionTest(){
-        System.out.println(roleDao.selectListByUserId(1L));
-
+        System.out.println(roleDao.selectListByUserId(2));
     }
 
 

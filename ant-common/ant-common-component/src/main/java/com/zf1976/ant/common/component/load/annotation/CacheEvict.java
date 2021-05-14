@@ -1,15 +1,18 @@
 package com.zf1976.ant.common.component.load.annotation;
 
 import com.zf1976.ant.common.component.load.enums.CacheImplement;
+import org.checkerframework.checker.interning.qual.Interned;
+import org.w3c.dom.Element;
 
 import java.lang.annotation.*;
 
 /**
  * @author WINDOWS
  */
-@Documented
-@Target(ElementType.METHOD)
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
+@Inherited
+@Documented
 public @interface CacheEvict {
 
     /**
@@ -17,7 +20,7 @@ public @interface CacheEvict {
      *
      * @return namespace
      */
-    String namespace();
+    String namespace() default "";
 
     /**
      * 缓存依赖
