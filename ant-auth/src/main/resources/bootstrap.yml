@@ -50,6 +50,9 @@ auth:
   enable-signature: true
   model: false
 
+sql-backup:
+  path: /work/backup
+
 ---
 #nacos配置
 spring:
