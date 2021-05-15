@@ -44,7 +44,12 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
     private final SysPositionDao positionDao;
     private final UserConvert convert;
 
-    public SecurityUserDetailsServiceImpl(SecurityProperties properties, SysDepartmentDao sysDepartmentDao, SysUserDao sysUserDao, SysRoleDao sysRoleDao, SysMenuDao sysMenuDao, SysPositionDao positionDao) {
+    public SecurityUserDetailsServiceImpl(SecurityProperties properties,
+                                          SysDepartmentDao sysDepartmentDao,
+                                          SysUserDao sysUserDao,
+                                          SysRoleDao sysRoleDao,
+                                          SysMenuDao sysMenuDao,
+                                          SysPositionDao positionDao) {
         this.sysUserDao = sysUserDao;
         this.sysDepartmentDao = sysDepartmentDao;
         this.sysRoleDao = sysRoleDao;
