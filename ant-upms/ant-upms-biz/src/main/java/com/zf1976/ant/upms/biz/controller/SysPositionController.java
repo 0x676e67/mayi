@@ -13,6 +13,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 import java.util.Optional;
 import java.util.Set;
 
@@ -31,30 +32,25 @@ public class SysPositionController {
     }
 
     @PostMapping("/page")
-//    @Authorize("positions:list")
     public DataResult<IPage<PositionVO>> selectPositionPage(@RequestBody Query<PositionQueryParam> requestPage) {
         return DataResult.success(service.selectPositionPage(requestPage));
     }
 
     @PostMapping("/save")
-//    @Authorize("positions:add")
     public DataResult<Optional<Void>> savePosition(@RequestBody @Validated(ValidationInsertGroup.class) PositionDTO dto) {
         return DataResult.success(service.savePosition(dto));
     }
 
     @PutMapping("/update")
-//    @Authorize("positions:edit")
     public DataResult<Optional<Void>> updatePosition(@RequestBody @Validated(ValidationUpdateGroup.class) PositionDTO dto) {
         return DataResult.success(service.updatePosition(dto));
     }
     @DeleteMapping("/delete")
-//    @Authorize("positions:del")
-    public DataResult<Optional<Void>> deletePositionList(@RequestBody Set<Long> ids) {
-        return DataResult.success(service.deletePositionList(ids));
+    public DataResult<Optional<Void>> deletePositionList(@RequestBody @NotNull Set<Long> ids) {
+        return DataResult.success(service.deletePosition(ids));
     }
 
     @PostMapping("/download")
-//    @Authorize("positions:list")
     public DataResult<Optional<Void>> downloadPositionExcel(@RequestBody Query<PositionQueryParam> requestPage, HttpServletResponse response) {
         return DataResult.success(service.downloadPositionExcel(requestPage, response));
     }

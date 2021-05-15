@@ -85,7 +85,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
         // 查询用户角色
         List<SysRole> roleList = this.sysRoleDao.selectListByUserId(sysUser.getId());
         // 查询用户职位
-        List<SysPosition> positionList = this.positionDao.selectListByUserId(sysUser.getId());
+        List<SysPosition> positionList = this.positionDao.selectBatchByUserId(sysUser.getId());
         sysUser.setDepartment(department);
         sysUser.setRoleList(roleList);
         sysUser.setPositionList(positionList);
@@ -99,8 +99,8 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
      * @return user
      */
     private SysUser findUsername(String username) {
-        SysUser sysUser = sysUserDao.findByUsername(username);
-        Optional.ofNullable(sysUserDao.findByUsername(username))
+        SysUser sysUser = sysUserDao.selectByUsername(username);
+        Optional.ofNullable(sysUserDao.selectByUsername(username))
                 .orElseThrow(() -> new UserNotFountException(AuthenticationState.USER_NOT_FOUNT));
         return sysUser;
     }

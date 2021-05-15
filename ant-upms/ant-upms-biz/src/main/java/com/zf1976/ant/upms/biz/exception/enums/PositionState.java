@@ -4,22 +4,22 @@ package com.zf1976.ant.upms.biz.exception.enums;
  * @author mac
  * @date 2020/12/17
  **/
-public enum JobState {
+public enum PositionState {
 
     /**
      * 数据不存在
      */
-    JOB_NOT_FOUND(400, "岗位不存在"),
+    POSITION_NOT_FOUND(400, "岗位不存在"),
 
     /**
      * 数据已存在
      */
-    JOB_EXISTING(400, "岗位：{}，已经存在"),
+    POSITION_EXISTING(400, "岗位：{}，已经存在"),
 
     /**
      * 操作异常
      */
-    JOB_OPT_ERROR(400, "操作错误");
+    POSITION_OPT_ERROR(400, "操作错误");
 
     /**
      * 状态值
@@ -31,7 +31,7 @@ public enum JobState {
      */
     private final String reasonPhrase;
 
-    JobState(int value, String reasonPhrase) {
+    PositionState(int value, String reasonPhrase) {
         this.value = value;
         this.reasonPhrase = reasonPhrase;
     }

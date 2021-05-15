@@ -20,29 +20,21 @@
     </insert>
 
     <!--删除user-role 依赖关系-->
-    <delete id="deleteRoleRelationByIds">
+    <delete id="deleteRoleRelationById">
         delete
         from sys_user_role_relation
-        where user_id
-        in
-        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
-            #{id}
-        </foreach>
+        where user_id =  #{id}
     </delete>
 
     <!--删除user-job 依赖关系-->
-    <delete id="deletePositionRelationByIds">
+    <delete id="deletePositionRelationById">
         delete
         from sys_user_position_relation
-        where user_id
-        in
-        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
-            #{id}
-        </foreach>
+        where user_id = #{id}
     </delete>
 
     <!--根据角色id集合查询关联用户id集合-->
-    <select id="selectByRoleIds" resultType="java.lang.Long">
+    <select id="selectIdsByRoleIds" resultType="java.lang.Long">
         select distinct user_id
         from sys_user_role_relation
         where role_id
@@ -53,7 +45,7 @@
     </select>
 
     <!--根据部门id集合查询关联用户id集合-->
-    <select id="selectByDepartmentIds" resultType="java.lang.Long">
+    <select id="selectIdsByDepartmentIds" resultType="java.lang.Long">
         select distinct user_id
         from sys_user_role_relation join sys_role_department_relation srd
             on sys_user_role_relation.role_id = srd.role_id

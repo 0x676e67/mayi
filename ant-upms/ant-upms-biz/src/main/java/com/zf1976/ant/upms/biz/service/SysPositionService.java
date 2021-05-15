@@ -2,25 +2,20 @@ package com.zf1976.ant.upms.biz.service;
 
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.zf1976.ant.common.component.load.annotation.CacheConfig;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.upms.biz.pojo.po.SysPosition;
-import com.zf1976.ant.upms.biz.pojo.po.SysUser;
 import com.zf1976.ant.upms.biz.convert.SysPositionConvert;
 import com.zf1976.ant.upms.biz.dao.SysPositionDao;
-import com.zf1976.ant.upms.biz.dao.SysUserDao;
 import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.dto.position.PositionDTO;
 import com.zf1976.ant.upms.biz.pojo.query.PositionQueryParam;
 import com.zf1976.ant.upms.biz.pojo.vo.job.JobExcelVO;
 import com.zf1976.ant.upms.biz.pojo.vo.job.PositionVO;
-import com.zf1976.ant.upms.biz.exception.enums.JobState;
-import com.zf1976.ant.upms.biz.exception.enums.UserState;
-import com.zf1976.ant.upms.biz.exception.JobException;
-import com.zf1976.ant.upms.biz.exception.UserException;
+import com.zf1976.ant.upms.biz.exception.enums.PositionState;
+import com.zf1976.ant.upms.biz.exception.PositionException;
 import com.zf1976.ant.upms.biz.service.base.AbstractService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +23,6 @@ import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 岗位(SysJob)表Service接口
@@ -40,13 +34,7 @@ import java.util.stream.Collectors;
 @CacheConfig(namespace = Namespace.POSITION, dependsOn = Namespace.USER)
 public class SysPositionService extends AbstractService<SysPositionDao, SysPosition> {
 
-    private final SysUserDao sysUserDao;
-    private final SysPositionConvert convert;
-
-    public SysPositionService(SysUserDao sysUserDao) {
-        this.sysUserDao = sysUserDao;
-        this.convert = SysPositionConvert.INSTANCE;
-    }
+    private final SysPositionConvert convert = SysPositionConvert.INSTANCE;
 
     /**
      * 按条件查询岗位
@@ -63,22 +51,6 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
     }
 
     /**
-     * 查询用户所有岗位
-     *
-     * @param id id
-     * @return job ids
-     */
-    public Set<Long> selectUserPosition(Long id) {
-        ChainWrappers.lambdaQueryChain(this.sysUserDao)
-                     .eq(SysUser::getId, id)
-                     .oneOpt().orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
-        return super.baseMapper.selectListByUserId(id)
-                               .stream()
-                               .map(SysPosition::getId)
-                               .collect(Collectors.toSet());
-    }
-
-    /**
      * 新增岗位
      *
      * @param dto dto
@@ -91,7 +63,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
              .eq(SysPosition::getName, dto.getName())
              .oneOpt()
              .ifPresent(sysJob -> {
-                 throw new JobException(JobState.JOB_EXISTING, sysJob.getName());
+                 throw new PositionException(PositionState.POSITION_EXISTING, sysJob.getName());
              });
         SysPosition sysJob = convert.toEntity(dto);
         super.savaEntity(sysJob);
@@ -108,21 +80,21 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> updatePosition(PositionDTO dto) {
         // 查询更新岗位是否存在
-        final SysPosition sysJob = super.lambdaQuery()
+        final SysPosition sysPosition = super.lambdaQuery()
                                         .eq(SysPosition::getId, dto.getId())
-                                        .oneOpt().orElseThrow(() -> new JobException(JobState.JOB_NOT_FOUND));
-        if (!ObjectUtils.nullSafeEquals(sysJob.getName(), dto.getName())) {
+                                        .oneOpt().orElseThrow(() -> new PositionException(PositionState.POSITION_NOT_FOUND));
+        if (!ObjectUtils.nullSafeEquals(sysPosition.getName(), dto.getName())) {
             // 确认岗位名是否存在
             super.lambdaQuery()
                  .eq(SysPosition::getName, dto.getName())
                  .oneOpt()
                  .ifPresent(var1 -> {
-                     throw new JobException(JobState.JOB_EXISTING, var1.getName());
+                     throw new PositionException(PositionState.POSITION_EXISTING, var1.getName());
                  });
         }
         // 复制属性
-        this.convert.copyProperties(dto, sysJob);
-        super.updateEntityById(sysJob);
+        this.convert.copyProperties(dto, sysPosition);
+        super.updateEntityById(sysPosition);
         return Optional.empty();
     }
 
@@ -134,9 +106,9 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> deletePositionList(Set<Long> ids) {
+    public Optional<Void> deletePosition(Set<Long> ids) {
         super.deleteByIds(ids);
-        super.baseMapper.deleteUserRelationById(ids);
+        super.baseMapper.deleteRelationByIds(ids);
         return Optional.empty();
     }
 

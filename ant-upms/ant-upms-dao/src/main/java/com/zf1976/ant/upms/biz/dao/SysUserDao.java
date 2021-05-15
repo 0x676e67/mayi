@@ -1,6 +1,7 @@
 package com.zf1976.ant.upms.biz.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.zf1976.ant.upms.biz.pojo.po.SysPosition;
 import com.zf1976.ant.upms.biz.pojo.po.SysUser;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
@@ -35,7 +36,7 @@ public interface SysUserDao extends BaseMapper<SysUser> {
                     many = @Many(select = "com.zf1976.upms.biz.dao.SysPositionDao.selectListByUserId"))
     })
     @Select(value = "select * from sys_user where username = #{username}")
-    SysUser findByUsername(@Param("username") String username);
+    SysUser selectByUsername(@Param("username") String username);
 
     /**
      * 添加岗位依赖关系
@@ -57,27 +58,27 @@ public interface SysUserDao extends BaseMapper<SysUser> {
      *
      * @param ids id collection
      */
-    void deleteRoleRelationByIds(@Param("ids") Collection<Long> ids);
+    void deleteRoleRelationById(@Param("id") Long id);
 
     /**
      * 删除岗位依赖关系
      * @param ids ids
      */
-    void deletePositionRelationByIds(@Param("ids") Collection<Long> ids);
+    void deletePositionRelationById(@Param("id") Long id);
 
     /**
-     * 根据角色id集合查询依赖用户id集合
+     * 根据角色id集合查询关联用户id集合
      *
      * @param roleIds ids
      * @return user ids
      */
-    List<Long> selectByRoleIds(@Param("roleIds") Collection<Long> roleIds);
+    List<Long> selectIdsByRoleIds(@Param("roleIds") Collection<Long> roleIds);
 
     /**
-     * 根据部门集合id查询关联用户id
+     * 根据部门集合id查询关联用户id集合
      *
      * @param departmentIds ids
      * @return user ids
      */
-    List<Long> selectByDepartmentIds(@Param("departmentIds") Collection<Long> departmentIds);
+    List<Long> selectIdsByDepartmentIds(@Param("departmentIds") Collection<Long> departmentIds);
 }

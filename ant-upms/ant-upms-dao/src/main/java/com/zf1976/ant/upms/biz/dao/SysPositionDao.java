@@ -19,17 +19,17 @@ import java.util.List;
 public interface SysPositionDao extends BaseMapper<SysPosition> {
 
     /**
+     * 根据id 删除user-job
+     * @param ids id
+     */
+    void deleteRelationByIds(@Param("ids") Collection<Long> ids);
+
+    /**
      * 查询用户岗位
      *
      * @param userId 用户id
      * @return 岗位collection
      */
-    List<SysPosition> selectListByUserId(@Param("userId") long userId);
-
-    /**
-     * 根据id 删除user-job
-     * @param ids id
-     */
-    void deleteUserRelationById(@Param("ids") Collection<Long> ids);
+    List<SysPosition> selectBatchByUserId(@Param("userId") Long userId);
 
 }

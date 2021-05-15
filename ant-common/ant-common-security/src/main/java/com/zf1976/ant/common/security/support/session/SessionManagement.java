@@ -236,10 +236,33 @@ public class SessionManagement {
         return extractToken(header);
     }
 
+    /**
+     * 根据session id获取token
+     *
+     * @date 2021-05-16 02:24:54
+     * @param sessionId 会话id
+     * @return {@link String}
+     */
+    private static String getToken(Long sessionId) {
+        return getSession(sessionId).getToken();
+    }
+
+    /**
+     * 获取Authentication请求头
+     *
+     * @date 2021-05-16 02:27:04
+     * @return {@link String}
+     */
     private static String getAuthenticationForHeader(){
         return RequestUtil.getRequest().getHeader(HttpHeaders.AUTHORIZATION);
     }
 
+    /**
+     * 获取Authentication键属性
+     *
+     * @date 2021-05-16 02:27:27
+     * @return {@link String}
+     */
     private static String getAuthenticationForAttribute() {
         return (String) RequestUtil.getRequest().getAttribute(HttpHeaders.AUTHORIZATION);
     }
@@ -254,14 +277,34 @@ public class SessionManagement {
         return header.replace("Bearer ", StringUtil.ENMPTY);
     }
 
+    /**
+     * 格式化id
+     *
+     * @date 2021-05-16 02:28:30
+     * @param id id
+     * @return {@link String}
+     */
     private static String formatId(Object id) {
         return properties.getPrefixSessionId() + "["+ id +"]";
     }
 
+    /**
+     * 格式化token
+     *
+     * @date 2021-05-16 02:28:44
+     * @param token token
+     * @return {@link String}
+     */
     private static String formatToken(Object token) {
         return properties.getPrefixSessionToken() + "[" + token + "]";
     }
 
+    /**
+     * 获取当前session 到期时间
+     *
+     * @date 2021-05-16 02:29:20
+     * @return {@link long}
+     */
     private static long getExpiredIn() { return (Integer) RequestUtil.getRequest().getAttribute(AuthConstants.SESSION_EXPIRED); }
 
 }

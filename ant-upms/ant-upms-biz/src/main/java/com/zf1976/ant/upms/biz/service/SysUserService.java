@@ -9,6 +9,7 @@ import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.component.mail.ValidateFactory;
 import com.zf1976.ant.common.component.mail.ValidateService;
+import com.zf1976.ant.common.security.support.session.Session;
 import com.zf1976.ant.common.security.support.session.SessionManagement;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.core.foundation.exception.BusinessException;
@@ -16,10 +17,10 @@ import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
 import com.zf1976.ant.common.encrypt.MD5Encoder;
 import com.zf1976.ant.common.encrypt.RsaUtil;
 import com.zf1976.ant.common.encrypt.property.RsaProperties;
+import com.zf1976.ant.upms.biz.dao.SysPositionDao;
 import com.zf1976.ant.upms.biz.property.FileProperties;
 import com.zf1976.ant.upms.biz.convert.SysUserConvert;
 import com.zf1976.ant.upms.biz.dao.SysDepartmentDao;
-import com.zf1976.ant.upms.biz.dao.SysPositionDao;
 import com.zf1976.ant.upms.biz.dao.SysRoleDao;
 import com.zf1976.ant.upms.biz.dao.SysUserDao;
 import com.zf1976.ant.upms.biz.exception.UserException;
@@ -38,6 +39,8 @@ import com.zf1976.ant.upms.biz.pojo.query.UserQueryParam;
 import com.zf1976.ant.upms.biz.pojo.vo.user.UserVO;
 import com.zf1976.ant.upms.biz.service.base.AbstractService;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.*;
@@ -56,24 +59,27 @@ import java.util.stream.Collectors;
  * @author makejava
  * @since 2020-08-31 11:46:01
  */
-@Slf4j
 @Service
 @CacheConfig(namespace =  Namespace.USER, dependsOn = {Namespace.DEPARTMENT, Namespace.POSITION, Namespace.ROLE})
 public class SysUserService extends AbstractService<SysUserDao, SysUser> {
 
     private final AlternativeJdkIdGenerator jdkIdGenerator = new AlternativeJdkIdGenerator();
+    private final Logger log = LoggerFactory.getLogger("[UserService]");
     private final byte[] DEFAULT_PASSWORD_BYTE = "123456".getBytes(StandardCharsets.UTF_8);
-    private final SysDepartmentDao sysDepartmentDao;
     private final SysPositionDao sysPositionDao;
+    private final SysDepartmentDao sysDepartmentDao;
     private final SysRoleDao sysRoleDao;
     private final SysUserConvert convert;
     private final SecurityClient securityClient;
     private final MD5Encoder encoder = new MD5Encoder();
 
-    public SysUserService(SysDepartmentDao sysDepartmentDao, SysPositionDao sysJobDao, SysRoleDao sysRoleDao, SecurityClient securityClient) {
+    public SysUserService(SysPositionDao sysPositionDao,
+                          SysDepartmentDao sysDepartmentDao,
+                          SysRoleDao sysRoleDao,
+                          SecurityClient securityClient) {
+        this.sysPositionDao = sysPositionDao;
         this.securityClient = securityClient;
         this.sysDepartmentDao = sysDepartmentDao;
-        this.sysPositionDao = sysJobDao;
         this.sysRoleDao = sysRoleDao;
         this.convert = SysUserConvert.INSTANCE;
     }
@@ -91,7 +97,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         if (!SessionManagement.isOwner()) {
             // 用户可观察数据范围
             Set<Long> dataPermission = securityClient.getUserDetails().getData().getDataPermission();
-            List<Long> userIds = super.baseMapper.selectByDepartmentIds(dataPermission);
+            List<Long> userIds = super.baseMapper.selectIdsByDepartmentIds(dataPermission);
             sourcePage = super.queryWrapper()
                               .chainQuery(query, () -> {
                                   // 自定义条件
@@ -192,7 +198,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @return position id
      */
     public Set<Long> selectUserPositionIds(Long id) {
-        return this.sysPositionDao.selectListByUserId(id)
+        return this.sysPositionDao.selectBatchByUserId(id)
                                   .stream()
                                   .filter(SysPosition::getEnabled)
                                   .map(SysPosition::getId)
@@ -446,21 +452,20 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param dto dto
      */
     private void updateDependents(UserDTO dto) {
-        Set<Long> relationId = Collections.singleton(dto.getId());
-        Optional.ofNullable(dto.getPositionIds())
-                .ifPresent(jobIds -> {
-                    if (!CollectionUtils.isEmpty(jobIds)) {
-                        super.baseMapper.deletePositionRelationByIds(relationId);
-                        super.baseMapper.savePositionRelationById(dto.getId(), dto.getPositionIds());
-                    }
-                });
-        Optional.ofNullable(dto.getRoleIds())
-                .ifPresent(roleIds -> {
-                    if (!CollectionUtils.isEmpty(roleIds)) {
-                        super.baseMapper.deleteRoleRelationByIds(relationId);
-                        super.baseMapper.savaRoleRelationById(dto.getId(), dto.getRoleIds());
-                    }
-                });
+        // 用户id
+        final Long userId = dto.getId();
+        // 用户岗位id集合
+        final Set<Long> positionIds = dto.getPositionIds();
+        if (!CollectionUtils.isEmpty(positionIds)) {
+            super.baseMapper.deletePositionRelationById(userId);
+            super.baseMapper.savePositionRelationById(userId, positionIds);
+        }
+        // 用户角色id集合
+        final Set<Long> roleIds = dto.getRoleIds();
+        if (!CollectionUtils.isEmpty(roleIds)) {
+            super.baseMapper.deleteRoleRelationById(userId);
+            super.baseMapper.savaRoleRelationById(dto.getId(), roleIds);
+        }
     }
 
     /**
@@ -488,23 +493,30 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Optional<Void> deleteUser(Set<Long> ids) {
+        // 超级管理员
         if (SessionManagement.isOwner()) {
             SysUser sysUser = super.lambdaQuery()
-                                   .eq(SysUser::getUsername, Objects.requireNonNull(SessionManagement.getSession())
-                                                                    .getUsername())
+                                   .eq(SysUser::getUsername, SessionManagement.getUsername())
                                    .oneOpt().orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
+            // 禁止删除超级管理员账号
             if (ids.contains(sysUser.getId())) {
                 throw new UserException(UserState.USER_OPT_ERROR);
             }
         }
-        super.deleteByIds(ids);
-        super.baseMapper.deleteRoleRelationByIds(ids);
-        this.sysPositionDao.deleteUserRelationById(ids);
-        long sessionId = SessionManagement.getSessionId();
-        // 相当于注销
-        if (ids.contains(sessionId)) {
-            SessionManagement.removeSession(sessionId);
+        // 删除用户关系依赖
+        for (Long id : ids) {
+            super.baseMapper.deleteRoleRelationById(id);
+            super.baseMapper.deletePositionRelationById(id);
+            try {
+                // 登出用户
+                final Session session = SessionManagement.getSession(id);
+                this.securityClient.logout(session.getToken());
+            } catch (Exception e) {
+                log.info(e.getMessage(), e.getCause());
+            }
         }
+        // 删除用户
+        super.deleteByIds(ids);
         return Optional.empty();
     }
 }

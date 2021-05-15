@@ -1,19 +1,19 @@
 package com.zf1976.ant.upms.biz.exception;
 
 import com.zf1976.ant.upms.biz.exception.base.SysBaseException;
-import com.zf1976.ant.upms.biz.exception.enums.JobState;
+import com.zf1976.ant.upms.biz.exception.enums.PositionState;
 
 /**
  * @author mac
  * @date 2020/12/17
  **/
-public class JobException extends SysBaseException {
+public class PositionException extends SysBaseException {
 
-    public JobException(JobState state) {
+    public PositionException(PositionState state) {
         super(state.getValue(), state.getReasonPhrase());
     }
 
-    public JobException(JobState state, String label) {
+    public PositionException(PositionState state, String label) {
         this(state);
         super.label = label;
     }
