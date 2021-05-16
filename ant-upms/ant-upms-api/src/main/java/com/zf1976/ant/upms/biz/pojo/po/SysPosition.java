@@ -2,7 +2,6 @@ package com.zf1976.ant.upms.biz.pojo.po;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
-import lombok.Data;
 
 import java.util.Date;
 
@@ -12,7 +11,6 @@ import java.util.Date;
  * @author makejava
  * @since 2020-08-31 11:35:24
  */
-@Data
 @TableName("sys_position")
 public class SysPosition extends Model<SysPosition> {
 
@@ -63,4 +61,90 @@ public class SysPosition extends Model<SysPosition> {
     @Version
     private Integer version;
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public Integer getJobSort() {
+        return jobSort;
+    }
+
+    public void setJobSort(Integer jobSort) {
+        this.jobSort = jobSort;
+    }
+
+    public String getCreateBy() {
+        return createBy;
+    }
+
+    public void setCreateBy(String createBy) {
+        this.createBy = createBy;
+    }
+
+    public String getUpdateBy() {
+        return updateBy;
+    }
+
+    public void setUpdateBy(String updateBy) {
+        this.updateBy = updateBy;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
+    @Override
+    public String toString() {
+        return "SysPosition{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", enabled=" + enabled +
+                ", jobSort=" + jobSort +
+                ", createBy='" + createBy + '\'' +
+                ", updateBy='" + updateBy + '\'' +
+                ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
+                ", version=" + version +
+                '}';
+    }
 }

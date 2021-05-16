@@ -4,24 +4,18 @@ import com.power.common.util.StringUtil;
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.common.core.util.JSONUtil;
 import com.zf1976.ant.common.security.property.SecurityProperties;
-import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.common.OAuth2RefreshToken;
-import org.springframework.security.oauth2.common.exceptions.InvalidGrantException;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.TokenRequest;
 import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
 import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
 import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -50,7 +44,6 @@ public class OAuth2TokenAuthenticationFilter extends OncePerRequestFilter {
         this.properties = properties;
     }
 
-    @SneakyThrows
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws IOException, ServletException {
         try {
@@ -74,7 +67,11 @@ public class OAuth2TokenAuthenticationFilter extends OncePerRequestFilter {
                 throw new ServletException("Authentication error at:" + this.getFilterName());
             }
         } catch (InvalidTokenException e) {
-            this.handleException(e, response);
+            try {
+                this.handleException(e, response);
+            } catch (Exception handleException) {
+                log.error(handleException.getMessage(), handleException.getCause());
+            }
             return;
         }
         filterChain.doFilter(request, response);

@@ -12,7 +12,7 @@ import com.zf1976.ant.upms.biz.dao.SysPositionDao;
 import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.dto.position.PositionDTO;
 import com.zf1976.ant.upms.biz.pojo.query.PositionQueryParam;
-import com.zf1976.ant.upms.biz.pojo.vo.job.JobExcelVO;
+import com.zf1976.ant.upms.biz.pojo.vo.job.PositionExcelVO;
 import com.zf1976.ant.upms.biz.pojo.vo.job.PositionVO;
 import com.zf1976.ant.upms.biz.exception.enums.PositionState;
 import com.zf1976.ant.upms.biz.exception.PositionException;
@@ -126,7 +126,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
         List<Map<String,Object>> mapList = new LinkedList<>();
         records.forEach(sysJob -> {
             Map<String, Object> map = new LinkedHashMap<>();
-            JobExcelVO downloadJobVo = new JobExcelVO();
+            PositionExcelVO downloadJobVo = new PositionExcelVO();
             downloadJobVo.setName(sysJob.getName());
             downloadJobVo.setEnabled(sysJob.getEnabled());
             downloadJobVo.setCreateBy(sysJob.getCreateBy());

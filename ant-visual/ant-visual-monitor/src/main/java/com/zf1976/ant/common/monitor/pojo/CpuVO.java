@@ -1,12 +1,10 @@
 package com.zf1976.ant.common.monitor.pojo;
 
-import lombok.Data;
 
 /**
  * @author mac
  * @date 2021/1/1
  **/
-@Data
 public class CpuVO {
 
     /**
@@ -39,4 +37,63 @@ public class CpuVO {
      */
     private String idle;
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getPhysicalPackage() {
+        return physicalPackage;
+    }
+
+    public void setPhysicalPackage(Integer physicalPackage) {
+        this.physicalPackage = physicalPackage;
+    }
+
+    public Integer getCore() {
+        return core;
+    }
+
+    public void setCore(Integer core) {
+        this.core = core;
+    }
+
+    public Integer getLogic() {
+        return logic;
+    }
+
+    public void setLogic(Integer logic) {
+        this.logic = logic;
+    }
+
+    public String getUsed() {
+        return used;
+    }
+
+    public void setUsed(String used) {
+        this.used = used;
+    }
+
+    public String getIdle() {
+        return idle;
+    }
+
+    public void setIdle(String idle) {
+        this.idle = idle;
+    }
+
+    @Override
+    public String toString() {
+        return "CpuVO{" +
+                "name='" + name + '\'' +
+                ", physicalPackage=" + physicalPackage +
+                ", core=" + core +
+                ", logic=" + logic +
+                ", used='" + used + '\'' +
+                ", idle='" + idle + '\'' +
+                '}';
+    }
 }

@@ -3,7 +3,6 @@ package com.zf1976.ant.common.core.foundation;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.power.common.util.DateTimeUtil;
 import com.zf1976.ant.common.core.util.RequestUtil;
-import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
 
@@ -15,7 +14,6 @@ import java.io.Serializable;
  * @author ant
  * @since 2020/5/19
  */
-@Data
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @SuppressWarnings("rawtypes")
 public class DataResult<T> implements Serializable {
@@ -189,7 +187,94 @@ public class DataResult<T> implements Serializable {
      * @return uri
      */
     public static String getUri() {
-        return RequestUtil.getRequest().getRequestURI();
+        return RequestUtil.getRequest()
+                          .getRequestURI();
     }
 
+    public Boolean getSuccess() {
+        return success;
+    }
+
+    public void setSuccess(Boolean success) {
+        this.success = success;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public int getErrCode() {
+        return errCode;
+    }
+
+    public void setErrCode(int errCode) {
+        this.errCode = errCode;
+    }
+
+    public String getErrMsg() {
+        return errMsg;
+    }
+
+    public void setErrMsg(String errMsg) {
+        this.errMsg = errMsg;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public String getErrDetail() {
+        return errDetail;
+    }
+
+    public void setErrDetail(String errDetail) {
+        this.errDetail = errDetail;
+    }
+
+    public T getData() {
+        return data;
+    }
+
+    public void setData(T data) {
+        this.data = data;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    @Override
+    public String toString() {
+        return "DataResult{" +
+                "success=" + success +
+                ", status=" + status +
+                ", errCode=" + errCode +
+                ", errMsg='" + errMsg + '\'' +
+                ", message='" + message + '\'' +
+                ", errDetail='" + errDetail + '\'' +
+                ", data=" + data +
+                ", timestamp='" + timestamp + '\'' +
+                ", path='" + path + '\'' +
+                '}';
+    }
 }

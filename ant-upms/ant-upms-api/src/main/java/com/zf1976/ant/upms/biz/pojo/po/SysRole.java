@@ -3,7 +3,6 @@ package com.zf1976.ant.upms.biz.pojo.po;
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.zf1976.ant.upms.biz.pojo.enums.DataPermissionEnum;
-import lombok.Data;
 
 import java.util.Date;
 import java.util.Set;
@@ -14,7 +13,6 @@ import java.util.Set;
  * @author makejava
  * @since 2020-08-31 11:35:25
  */
-@Data
 @TableName("sys_role")
 public class SysRole extends Model<SysRole> {
 
@@ -82,4 +80,126 @@ public class SysRole extends Model<SysRole> {
     @Version
     private Integer version;
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Set<Long> getDepartmentIds() {
+        return departmentIds;
+    }
+
+    public void setDepartmentIds(Set<Long> departmentIds) {
+        this.departmentIds = departmentIds;
+    }
+
+    public Set<Long> getMenuIds() {
+        return menuIds;
+    }
+
+    public void setMenuIds(Set<Long> menuIds) {
+        this.menuIds = menuIds;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(Integer level) {
+        this.level = level;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public DataPermissionEnum getDataScope() {
+        return dataScope;
+    }
+
+    public void setDataScope(DataPermissionEnum dataScope) {
+        this.dataScope = dataScope;
+    }
+
+    public String getCreateBy() {
+        return createBy;
+    }
+
+    public void setCreateBy(String createBy) {
+        this.createBy = createBy;
+    }
+
+    public String getUpdateBy() {
+        return updateBy;
+    }
+
+    public void setUpdateBy(String updateBy) {
+        this.updateBy = updateBy;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
+    @Override
+    public String toString() {
+        return "SysRole{" +
+                "id=" + id +
+                ", departmentIds=" + departmentIds +
+                ", menuIds=" + menuIds +
+                ", name='" + name + '\'' +
+                ", level=" + level +
+                ", description='" + description + '\'' +
+                ", enabled=" + enabled +
+                ", dataScope=" + dataScope +
+                ", createBy='" + createBy + '\'' +
+                ", updateBy='" + updateBy + '\'' +
+                ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
+                ", version=" + version +
+                '}';
+    }
 }

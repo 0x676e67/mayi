@@ -1,16 +1,21 @@
 package com.zf1976.ant.upms.biz.pojo.vo.menu;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Data;
 
 import java.util.List;
 
 /**
  * @author mac
  */
-@Data
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class MenuBuildVO {
+
+    public MenuBuildVO() {
+    }
+
+    public MenuBuildVO(MenuMetaVo menuMetaVo) {
+        this.meta = menuMetaVo;
+    }
 
     private String name;
 
@@ -28,6 +33,84 @@ public class MenuBuildVO {
 
     private List<MenuBuildVO> children;
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public Boolean getHidden() {
+        return hidden;
+    }
+
+    public void setHidden(Boolean hidden) {
+        this.hidden = hidden;
+    }
+
+    public String getRedirect() {
+        return redirect;
+    }
+
+    public void setRedirect(String redirect) {
+        this.redirect = redirect;
+    }
+
+    public String getComponent() {
+        return component;
+    }
+
+    public void setComponent(String component) {
+        this.component = component;
+    }
+
+    public Boolean getAlwaysShow() {
+        return alwaysShow;
+    }
+
+    public void setAlwaysShow(Boolean alwaysShow) {
+        this.alwaysShow = alwaysShow;
+    }
+
+    public MenuMetaVo getMeta() {
+        return meta;
+    }
+
+    public void setMeta(MenuMetaVo meta) {
+        this.meta = meta;
+    }
+
+    public List<MenuBuildVO> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<MenuBuildVO> children) {
+        this.children = children;
+    }
+
+    @Override
+    public String toString() {
+        return "MenuBuildVO{" +
+                "name='" + name + '\'' +
+                ", path='" + path + '\'' +
+                ", hidden=" + hidden +
+                ", redirect='" + redirect + '\'' +
+                ", component='" + component + '\'' +
+                ", alwaysShow=" + alwaysShow +
+                ", meta=" + meta +
+                ", children=" + children +
+                '}';
+    }
+
     public void intiMeta(String title, String icon, boolean noCache) {
         final MenuMetaVo menuMetaVo = new MenuMetaVo();
         menuMetaVo.setIcon(icon);
@@ -36,13 +119,6 @@ public class MenuBuildVO {
         this.meta = menuMetaVo;
     }
 
-    public MenuBuildVO(MenuMetaVo menuMetaVo) {
-        this.meta = menuMetaVo;
-    }
-
-    public MenuBuildVO() {}
-
-    @Data
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public static class MenuMetaVo {
 
@@ -52,6 +128,38 @@ public class MenuBuildVO {
 
         private Boolean noCache;
 
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public String getIcon() {
+            return icon;
+        }
+
+        public void setIcon(String icon) {
+            this.icon = icon;
+        }
+
+        public Boolean getNoCache() {
+            return noCache;
+        }
+
+        public void setNoCache(Boolean noCache) {
+            this.noCache = noCache;
+        }
+
+        @Override
+        public String toString() {
+            return "MenuMetaVo{" +
+                    "title='" + title + '\'' +
+                    ", icon='" + icon + '\'' +
+                    ", noCache=" + noCache +
+                    '}';
+        }
     }
 }
 

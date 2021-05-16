@@ -4,7 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.zf1976.ant.common.monitor.pojo.SystemInfoVo;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
@@ -18,19 +19,19 @@ import java.util.concurrent.*;
  **/
 @ServerEndpoint("/api/monitor")
 @Component
-@Slf4j
 public class MonitorWebSocket {
 
+    private final Logger log = LoggerFactory.getLogger("[MonitorWenSocket]");
     private static final Map<String, Session> CLIENT_SESSION = new ConcurrentHashMap<>();
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1,
             new ThreadFactoryBuilder().setNameFormat("monitor websocket thread").build());
 
 
-    static {
+    public MonitorWebSocket() {
         // 每秒进行群发一次
-        scheduledExecutorService.scheduleWithFixedDelay(MonitorWebSocket::sendSystemInfo,
-                0 ,
+        scheduledExecutorService.scheduleWithFixedDelay(this::sendSystemInfo,
+                0,
                 1,
                 TimeUnit.SECONDS);
     }
@@ -38,7 +39,7 @@ public class MonitorWebSocket {
     /**
      * 发送消息
      */
-    private static void sendSystemInfo() {
+    private void sendSystemInfo() {
         if (CLIENT_SESSION.size() > 0) {
             sendAll(MonitorUtils.getSystemInfo());
         }
@@ -94,11 +95,13 @@ public class MonitorWebSocket {
      *
      * @param systemInfoVo 消息内容
      */
-    private static void sendAll(SystemInfoVo systemInfoVo) {
+    private void sendAll(SystemInfoVo systemInfoVo) {
         for (Map.Entry<String, Session> entry : CLIENT_SESSION.entrySet()) {
             try {
                 final String result = MAPPER.writeValueAsString(systemInfoVo);
-                entry.getValue().getAsyncRemote().sendText(result);
+                entry.getValue()
+                     .getAsyncRemote()
+                     .sendText(result);
             } catch (JsonProcessingException e) {
                 log.error(e.getMessage(), e.getCause());
             }

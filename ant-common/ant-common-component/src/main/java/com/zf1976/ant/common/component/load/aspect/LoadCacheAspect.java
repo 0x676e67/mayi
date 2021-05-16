@@ -12,11 +12,12 @@ import com.zf1976.ant.common.component.load.impl.CaffeineCacheProvider;
 import com.zf1976.ant.common.component.load.impl.RedisCacheProvider;
 import com.zf1976.ant.common.component.property.CaffeineProperties;
 import com.zf1976.ant.common.security.support.session.SessionManagement;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -29,11 +30,11 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author WINDOWS
  */
-@Slf4j(topic = "[cache]")
 @Aspect
 @Component
 public class LoadCacheAspect {
 
+    private final Logger log = LoggerFactory.getLogger("[LoadCacheAspect]");
     private final SpringElExpressionHandler handler = new SpringElExpressionHandler();
     private Map<CacheImplement, ICache<Object, Object>> cacheProviderMap;
     public LoadCacheAspect(RedisTemplate<Object, Object> template, CaffeineProperties properties) {

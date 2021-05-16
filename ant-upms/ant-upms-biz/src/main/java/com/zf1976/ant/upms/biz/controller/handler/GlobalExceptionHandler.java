@@ -3,13 +3,13 @@ package com.zf1976.ant.upms.biz.controller.handler;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.core.foundation.exception.BusinessException;
 import com.zf1976.ant.upms.biz.exception.base.SysBaseException;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -19,10 +19,11 @@ import java.util.stream.Collectors;
 /**
  * @author ant
  */
-@Slf4j
 @RestControllerAdvice
 @SuppressWarnings("rawtypes")
 public class GlobalExceptionHandler {
+
+    private final Logger log = LoggerFactory.getLogger("[GlobalExceptionHandler]");
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

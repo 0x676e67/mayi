@@ -14,7 +14,8 @@ import com.zf1976.ant.upms.biz.convert.SessionConvert;
 import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.query.SessionQueryParam;
 import com.zf1976.ant.upms.biz.pojo.vo.SessionVO;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -37,10 +38,10 @@ import java.util.stream.Collectors;
  * @author mac
  * @date 2021/1/20
  **/
-@Slf4j(topic = "[online]-session")
 @Service
 public class SysOnlineService {
 
+    private final Logger log = LoggerFactory.getLogger("[SysOnlineService]");
     private final SecurityProperties securityProperties;
     private final RedisTemplate<Object, Object> redisTemplate;
     private final static String PATTERN_SUFFIX = "*";

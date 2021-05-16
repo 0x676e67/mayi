@@ -3,7 +3,6 @@ package com.zf1976.ant.upms.biz.controller;
 import com.zf1976.ant.common.core.util.RequestUtil;
 import com.zf1976.ant.common.log.annotation.Log;
 import com.zf1976.ant.common.log.dao.SysLogDao;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
  * @author mac
  * @date 2020/12/24
  **/
-@Slf4j
 @RestController
 @RequestMapping("/api/test")
 public class TestController {
@@ -24,7 +22,6 @@ public class TestController {
     @Log(description = "测试A接口")
     @RequestMapping(method = RequestMethod.GET, path = "/testA")
     public void testA(@RequestParam String description) {
-        log.info("{}", description);
         throw new RuntimeException(this.getClass().getName());
     }
 

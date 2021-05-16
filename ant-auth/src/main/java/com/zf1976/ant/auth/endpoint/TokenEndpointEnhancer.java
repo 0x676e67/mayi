@@ -96,11 +96,7 @@ public class TokenEndpointEnhancer {
                 logger.info("Captcha：{} not saved.", captcha.text());
             }
         }
-        final Captcha captchaVo = Captcha.builder()
-                                         .img(captcha.toBase64())
-                                         .uuid(uuid.toString())
-                                         .build();
-        return ResponseEntity.ok(captchaVo);
+        return ResponseEntity.ok(new Captcha(uuid.toString(), captcha.toBase64()));
     }
 
 }

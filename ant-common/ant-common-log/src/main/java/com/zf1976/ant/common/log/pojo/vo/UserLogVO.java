@@ -1,7 +1,6 @@
 package com.zf1976.ant.common.log.pojo.vo;
 
 import com.zf1976.ant.common.log.pojo.vo.base.AbstractLogVO;
-import lombok.Data;
 
 import java.util.Date;
 
@@ -9,7 +8,6 @@ import java.util.Date;
  * @author mac
  * @date 2021/2/2
  **/
-@Data
 public class UserLogVO extends AbstractLogVO {
 
     /**
@@ -42,4 +40,69 @@ public class UserLogVO extends AbstractLogVO {
      */
     private Date createTime;
 
+    public String getDescription() {
+        return description;
+    }
+
+    public UserLogVO setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public UserLogVO setIp(String ip) {
+        this.ip = ip;
+        return this;
+    }
+
+    public String getIpRegion() {
+        return ipRegion;
+    }
+
+    public UserLogVO setIpRegion(String ipRegion) {
+        this.ipRegion = ipRegion;
+        return this;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    public UserLogVO setUserAgent(String userAgent) {
+        this.userAgent = userAgent;
+        return this;
+    }
+
+    public Integer getSpendTime() {
+        return spendTime;
+    }
+
+    public UserLogVO setSpendTime(Integer spendTime) {
+        this.spendTime = spendTime;
+        return this;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public UserLogVO setCreateTime(Date createTime) {
+        this.createTime = createTime;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "UserLogVO{" +
+                "description='" + description + '\'' +
+                ", ip='" + ip + '\'' +
+                ", ipRegion='" + ipRegion + '\'' +
+                ", userAgent='" + userAgent + '\'' +
+                ", spendTime=" + spendTime +
+                ", createTime=" + createTime +
+                '}';
+    }
 }

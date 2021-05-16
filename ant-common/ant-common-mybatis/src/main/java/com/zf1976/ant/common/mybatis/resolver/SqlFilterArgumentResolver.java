@@ -2,7 +2,6 @@ package com.zf1976.ant.common.mybatis.resolver;
 
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
@@ -26,7 +25,6 @@ import java.util.stream.Collectors;
  * <p>
  * 解决Mybatis Plus Order By SQL注入问题
  */
-@Slf4j
 public class SqlFilterArgumentResolver implements HandlerMethodArgumentResolver {
 
 	private final static String[] KEYWORDS = { "master", "truncate", "insert", "select", "delete", "update", "declare",

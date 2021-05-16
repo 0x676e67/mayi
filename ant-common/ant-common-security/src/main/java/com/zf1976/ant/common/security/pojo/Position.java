@@ -1,6 +1,5 @@
 package com.zf1976.ant.common.security.pojo;
 
-import lombok.Data;
 
 import java.io.Serializable;
 
@@ -8,7 +7,6 @@ import java.io.Serializable;
  * @author ant
  * Create by Ant on 2020/9/8 9:08 下午
  */
-@Data
 public class Position implements Serializable {
 
     /**
@@ -21,4 +19,27 @@ public class Position implements Serializable {
      */
     private String name;
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "Position{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

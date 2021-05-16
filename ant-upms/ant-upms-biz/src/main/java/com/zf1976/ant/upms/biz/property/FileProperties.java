@@ -1,13 +1,11 @@
 package com.zf1976.ant.upms.biz.property;
 
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
  * @author mac
  */
-@Data
 @Component
 @ConfigurationProperties(prefix = "file.config")
 public class FileProperties {
@@ -41,6 +39,45 @@ public class FileProperties {
      */
     public static String fileRealPath;
 
+    public Relative getRelative() {
+        return relative;
+    }
+
+    public void setRelative(Relative relative) {
+        this.relative = relative;
+    }
+
+    public Real getReal() {
+        return real;
+    }
+
+    public void setReal(Real real) {
+        this.real = real;
+    }
+
+    public String getFileMaxSize() {
+        return fileMaxSize;
+    }
+
+    public void setFileMaxSize(String fileMaxSize) {
+        this.fileMaxSize = fileMaxSize;
+    }
+
+    public String getAvatarMaxSize() {
+        return avatarMaxSize;
+    }
+
+    public void setAvatarMaxSize(String avatarMaxSize) {
+        this.avatarMaxSize = avatarMaxSize;
+    }
+
+    public String getWorkFilePath() {
+        return workFilePath;
+    }
+
+    public void setWorkFilePath(String workFilePath) {
+        this.workFilePath = workFilePath;
+    }
 
     public static String getAvatarRealPath() {
         return avatarRealPath;
@@ -58,7 +95,6 @@ public class FileProperties {
         FileProperties.fileRealPath = fileRealPath;
     }
 
-    @Data
     public static class Relative{
 
         /**
@@ -70,9 +106,24 @@ public class FileProperties {
          * 文件url
          */
         private String fileUrl;
+
+        public String getAvatarUrl() {
+            return avatarUrl;
+        }
+
+        public void setAvatarUrl(String avatarUrl) {
+            this.avatarUrl = avatarUrl;
+        }
+
+        public String getFileUrl() {
+            return fileUrl;
+        }
+
+        public void setFileUrl(String fileUrl) {
+            this.fileUrl = fileUrl;
+        }
     }
 
-    @Data
     public static class Real{
 
         /**
@@ -84,5 +135,21 @@ public class FileProperties {
          * 文件相对路径
          */
         private String filePath;
+
+        public String getAvatarPath() {
+            return avatarPath;
+        }
+
+        public void setAvatarPath(String avatarPath) {
+            this.avatarPath = avatarPath;
+        }
+
+        public String getFilePath() {
+            return filePath;
+        }
+
+        public void setFilePath(String filePath) {
+            this.filePath = filePath;
+        }
     }
 }

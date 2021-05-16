@@ -1,13 +1,10 @@
 package com.zf1976.ant.upms.biz.pojo.dto.user;
 
-import lombok.Data;
-
 import javax.validation.constraints.NotBlank;
 
 /**
  * @author mac
  */
-@Data
 public class UpdateEmailDTO {
 
     @NotBlank
@@ -15,4 +12,28 @@ public class UpdateEmailDTO {
 
     @NotBlank
     private String email;
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    @Override
+    public String toString() {
+        return "UpdateEmailDTO{" +
+                "password='" + password + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
 }

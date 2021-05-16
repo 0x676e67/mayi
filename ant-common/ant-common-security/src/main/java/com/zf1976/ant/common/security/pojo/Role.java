@@ -1,8 +1,6 @@
 package com.zf1976.ant.common.security.pojo;
 
 import com.zf1976.ant.upms.biz.pojo.enums.DataPermissionEnum;
-import lombok.Data;
-import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 
@@ -10,8 +8,6 @@ import java.io.Serializable;
  * @author ant
  * Create by Ant on 2020/9/8 9:02 下午
  */
-@Data
-@Accessors
 public class Role implements Serializable {
 
     /**
@@ -34,4 +30,45 @@ public class Role implements Serializable {
      */
     private DataPermissionEnum dataScope;
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(Integer level) {
+        this.level = level;
+    }
+
+    public DataPermissionEnum getDataScope() {
+        return dataScope;
+    }
+
+    public void setDataScope(DataPermissionEnum dataScope) {
+        this.dataScope = dataScope;
+    }
+
+    @Override
+    public String toString() {
+        return "Role{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", level=" + level +
+                ", dataScope=" + dataScope +
+                '}';
+    }
 }

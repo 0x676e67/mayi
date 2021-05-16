@@ -1,6 +1,5 @@
 package com.zf1976.ant.auth.interceptor;
 
-import lombok.SneakyThrows;
 import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -15,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 
 public class EndpointReturnInterceptor implements HandlerInterceptor {
 
-    @SneakyThrows
     @Override
     public boolean preHandle(@NonNull HttpServletRequest request,
                              @NonNull HttpServletResponse response,

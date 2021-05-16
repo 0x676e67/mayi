@@ -2,7 +2,6 @@ package com.zf1976.ant.upms.biz.pojo.po;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
-import lombok.Data;
 
 import java.util.Date;
 import java.util.List;
@@ -13,7 +12,6 @@ import java.util.List;
  * @author makejava
  * @since 2020-08-31 11:35:25
  */
-@Data
 @TableName("sys_menu")
 public class SysMenu extends Model<SysMenu> {
 
@@ -111,4 +109,180 @@ public class SysMenu extends Model<SysMenu> {
     @Version
     private Integer version;
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public List<SysMenu> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<SysMenu> children) {
+        this.children = children;
+    }
+
+    public Long getPid() {
+        return pid;
+    }
+
+    public void setPid(Long pid) {
+        this.pid = pid;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getComponentName() {
+        return componentName;
+    }
+
+    public void setComponentName(String componentName) {
+        this.componentName = componentName;
+    }
+
+    public String getComponentPath() {
+        return componentPath;
+    }
+
+    public void setComponentPath(String componentPath) {
+        this.componentPath = componentPath;
+    }
+
+    public Integer getMenuSort() {
+        return menuSort;
+    }
+
+    public void setMenuSort(Integer menuSort) {
+        this.menuSort = menuSort;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
+    }
+
+    public String getRoutePath() {
+        return routePath;
+    }
+
+    public void setRoutePath(String routePath) {
+        this.routePath = routePath;
+    }
+
+    public Boolean getIframe() {
+        return iframe;
+    }
+
+    public void setIframe(Boolean iframe) {
+        this.iframe = iframe;
+    }
+
+    public Boolean getCache() {
+        return cache;
+    }
+
+    public void setCache(Boolean cache) {
+        this.cache = cache;
+    }
+
+    public Boolean getHidden() {
+        return hidden;
+    }
+
+    public void setHidden(Boolean hidden) {
+        this.hidden = hidden;
+    }
+
+    public String getPermission() {
+        return permission;
+    }
+
+    public void setPermission(String permission) {
+        this.permission = permission;
+    }
+
+    public String getCreateBy() {
+        return createBy;
+    }
+
+    public void setCreateBy(String createBy) {
+        this.createBy = createBy;
+    }
+
+    public String getUpdateBy() {
+        return updateBy;
+    }
+
+    public void setUpdateBy(String updateBy) {
+        this.updateBy = updateBy;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
+    @Override
+    public String toString() {
+        return "SysMenu{" +
+                "id=" + id +
+                ", children=" + children +
+                ", pid=" + pid +
+                ", type=" + type +
+                ", title='" + title + '\'' +
+                ", componentName='" + componentName + '\'' +
+                ", componentPath='" + componentPath + '\'' +
+                ", menuSort=" + menuSort +
+                ", icon='" + icon + '\'' +
+                ", routePath='" + routePath + '\'' +
+                ", iframe=" + iframe +
+                ", cache=" + cache +
+                ", hidden=" + hidden +
+                ", permission='" + permission + '\'' +
+                ", createBy='" + createBy + '\'' +
+                ", updateBy='" + updateBy + '\'' +
+                ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
+                ", version=" + version +
+                '}';
+    }
 }

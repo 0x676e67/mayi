@@ -6,7 +6,6 @@ import com.wf.captcha.base.Captcha;
 import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.component.property.CaptchaProperties;
 import com.zf1976.ant.common.component.property.CaptchaTypeEnum;
-import lombok.Data;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 

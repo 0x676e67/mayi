@@ -1,7 +1,5 @@
 package com.zf1976.ant.auth;
 
-import lombok.Data;
-import lombok.experimental.Accessors;
 import org.springframework.security.core.userdetails.UserDetails;
 
 
@@ -9,8 +7,6 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @author ant
  * Create by Ant on 2020/9/8 9:06 下午
  */
-@Data
-@Accessors(chain = true)
 @Deprecated
 public class LoginResponse {
 
@@ -24,4 +20,28 @@ public class LoginResponse {
      */
     private UserDetails user;
 
+    public String getToken() {
+        return token;
+    }
+
+    public LoginResponse setToken(String token) {
+        this.token = token;
+        return this;
+    }
+
+    public UserDetails getUser() {
+        return user;
+    }
+
+    public void setUser(UserDetails user) {
+        this.user = user;
+    }
+
+    @Override
+    public String toString() {
+        return "LoginResponse{" +
+                "token='" + token + '\'' +
+                ", user=" + user +
+                '}';
+    }
 }

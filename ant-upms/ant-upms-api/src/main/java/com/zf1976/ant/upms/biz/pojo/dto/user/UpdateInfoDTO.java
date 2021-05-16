@@ -1,7 +1,6 @@
 package com.zf1976.ant.upms.biz.pojo.dto.user;
 
 import com.zf1976.ant.upms.biz.pojo.enums.GenderEnum;
-import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -10,7 +9,6 @@ import javax.validation.constraints.NotNull;
  * @author mac
  * @date 2020/10/22 12:51 下午
  */
-@Data
 public class UpdateInfoDTO {
 
     /**
@@ -37,4 +35,45 @@ public class UpdateInfoDTO {
     @NotBlank
     private String phone;
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public GenderEnum getGender() {
+        return gender;
+    }
+
+    public void setGender(GenderEnum gender) {
+        this.gender = gender;
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    @Override
+    public String toString() {
+        return "UpdateInfoDTO{" +
+                "id=" + id +
+                ", gender=" + gender +
+                ", nickName='" + nickName + '\'' +
+                ", phone='" + phone + '\'' +
+                '}';
+    }
 }

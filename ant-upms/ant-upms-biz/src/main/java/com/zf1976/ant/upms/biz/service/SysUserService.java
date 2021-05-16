@@ -38,7 +38,6 @@ import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.query.UserQueryParam;
 import com.zf1976.ant.upms.biz.pojo.vo.user.UserVO;
 import com.zf1976.ant.upms.biz.service.base.AbstractService;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

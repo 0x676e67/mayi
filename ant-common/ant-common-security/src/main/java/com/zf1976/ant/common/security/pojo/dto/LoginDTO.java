@@ -1,6 +1,5 @@
 package com.zf1976.ant.common.security.pojo.dto;
 
-import lombok.Data;
 
 /**
  * @author ant

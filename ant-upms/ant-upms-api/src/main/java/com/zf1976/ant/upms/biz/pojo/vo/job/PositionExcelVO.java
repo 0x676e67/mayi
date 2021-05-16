@@ -5,14 +5,9 @@ import java.util.Date;
 
 /**
  * @author mac
- * @date 2020/10/25 5:08 下午
+ * @date 2020/10/26 5:12 下午
  */
-public class PositionVO {
-
-    /**
-     * id
-     */
-    private Long id;
+public class PositionExcelVO {
 
     /**
      * 岗位名称
@@ -25,22 +20,15 @@ public class PositionVO {
     private Boolean enabled;
 
     /**
-     * 排序
+     * 创建者
      */
-    private Integer jobSort;
+    private String createBy;
+
 
     /**
      * 创建日期
      */
     private Date createTime;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
@@ -58,12 +46,12 @@ public class PositionVO {
         this.enabled = enabled;
     }
 
-    public Integer getJobSort() {
-        return jobSort;
+    public String getCreateBy() {
+        return createBy;
     }
 
-    public void setJobSort(Integer jobSort) {
-        this.jobSort = jobSort;
+    public void setCreateBy(String createBy) {
+        this.createBy = createBy;
     }
 
     public Date getCreateTime() {
@@ -76,11 +64,10 @@ public class PositionVO {
 
     @Override
     public String toString() {
-        return "PositionVO{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
+        return "PositionExcelVO{" +
+                "name='" + name + '\'' +
                 ", enabled=" + enabled +
-                ", jobSort=" + jobSort +
+                ", createBy='" + createBy + '\'' +
                 ", createTime=" + createTime +
                 '}';
     }

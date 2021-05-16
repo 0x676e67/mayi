@@ -7,9 +7,10 @@ import com.baomidou.mybatisplus.extension.plugins.OptimisticLockerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.pagination.optimize.JsqlParserCountOptimize;
 import com.zf1976.ant.common.mybatis.resolver.SqlFilterArgumentResolver;
-import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.delete.Delete;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -20,12 +21,14 @@ import java.util.List;
 
 /**
  * MyBatis Plus 通用配置
+ *
  * @author ant
  * Create by Ant on 2020/10/15 4:43 下午
  */
-@Slf4j
 @Configuration(proxyBeanMethods = false)
 public class MybatisAutoConfiguration implements WebMvcConfigurer {
+
+    private final Logger log = LoggerFactory.getLogger("[MybatisAutoConfiguration]");
 
     /**
      * SQL 过滤器避免SQL 注入

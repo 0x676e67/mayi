@@ -8,25 +8,24 @@ import com.zf1976.ant.common.log.aspect.base.BaseLogAspect;
 import com.zf1976.ant.common.log.dao.SysLogDao;
 import com.zf1976.ant.common.log.pojo.SysLog;
 import com.zf1976.ant.common.log.pojo.enums.LogType;
-import com.zf1976.ant.common.security.support.session.Session;
-import com.zf1976.ant.common.security.support.session.SessionManagement;
-import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
 import java.lang.reflect.Method;
-import java.util.Arrays;
 /**
  * @author mac
  * @date 2020/12/24
  **/
 @Aspect
-@Slf4j(topic = "System-[Log]")
 @Component
 public class SysLogAspect extends BaseLogAspect {
 
+    private final Logger log = LoggerFactory.getLogger("[SysLogAspect-Log]");
     private final SysLogDao sysLogDao;
     private static final ThreadLocal<Boolean> RECORD = ThreadLocal.withInitial(() -> false);
     public SysLogAspect(SysLogDao sysLogDao) {

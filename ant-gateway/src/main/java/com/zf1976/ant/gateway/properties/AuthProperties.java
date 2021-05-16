@@ -1,6 +1,5 @@
 package com.zf1976.ant.gateway.properties;
 
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -8,7 +7,6 @@ import org.springframework.stereotype.Component;
  * @author mac
  * @date 2021/3/11
  **/
-@Data
 @Component
 @ConfigurationProperties(prefix = "spring.security.oauth2.resourceserver.jwt")
 public class AuthProperties {
@@ -23,4 +21,19 @@ public class AuthProperties {
      */
     private String jwtCheckUri;
 
+    public String getJwkSetUri() {
+        return jwkSetUri;
+    }
+
+    public void setJwkSetUri(String jwkSetUri) {
+        this.jwkSetUri = jwkSetUri;
+    }
+
+    public String getJwtCheckUri() {
+        return jwtCheckUri;
+    }
+
+    public void setJwtCheckUri(String jwtCheckUri) {
+        this.jwtCheckUri = jwtCheckUri;
+    }
 }

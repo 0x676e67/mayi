@@ -3,14 +3,12 @@ package com.zf1976.ant.upms.biz.pojo.vo.user;
 
 import com.zf1976.ant.upms.biz.pojo.enums.GenderEnum;
 import com.zf1976.ant.upms.biz.pojo.vo.dept.DepartmentVO;
-import lombok.Data;
 
 import java.util.Date;
 
 /**
  * @author Windows
  */
-@Data
 public class UserVO {
 
     /**
@@ -63,5 +61,100 @@ public class UserVO {
      */
     private Date createTime;
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public DepartmentVO getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(DepartmentVO department) {
+        this.department = department;
+    }
+
+    public String getAvatarName() {
+        return avatarName;
+    }
+
+    public void setAvatarName(String avatarName) {
+        this.avatarName = avatarName;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
+
+    public GenderEnum getGender() {
+        return gender;
+    }
+
+    public void setGender(GenderEnum gender) {
+        this.gender = gender;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    @Override
+    public String toString() {
+        return "UserVO{" +
+                "id=" + id +
+                ", department=" + department +
+                ", avatarName='" + avatarName + '\'' +
+                ", username='" + username + '\'' +
+                ", nickName='" + nickName + '\'' +
+                ", gender=" + gender +
+                ", phone='" + phone + '\'' +
+                ", email='" + email + '\'' +
+                ", enabled=" + enabled +
+                ", createTime=" + createTime +
+                '}';
+    }
 }
 

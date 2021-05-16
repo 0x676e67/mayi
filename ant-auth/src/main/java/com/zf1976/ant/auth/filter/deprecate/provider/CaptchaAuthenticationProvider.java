@@ -5,7 +5,6 @@ import com.zf1976.ant.common.component.validate.service.CaptchaService;
 import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.security.enums.AuthenticationState;
 import com.zf1976.ant.common.security.pojo.dto.LoginDTO;
-import lombok.SneakyThrows;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,7 +18,6 @@ public class CaptchaAuthenticationProvider implements AuthenticationProvider {
 
     private final CaptchaService verifyCodeService = SpringContextHolder.getBean(CaptchaService.class);
 
-    @SneakyThrows
     @Override
     public Authentication authenticate(Authentication authentication) throws CaptchaException {
         LoginDTO details = (LoginDTO) authentication.getDetails();

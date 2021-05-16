@@ -2,7 +2,6 @@ package com.zf1976.ant.common.log.query;
 
 import com.zf1976.ant.common.log.pojo.enums.LogType;
 import com.zf1976.ant.upms.biz.pojo.query.AbstractQueryParam;
-import lombok.Data;
 
 import java.util.Date;
 import java.util.List;
@@ -11,7 +10,6 @@ import java.util.List;
  * @author mac
  * @date 2021/1/26
  **/
-@Data
 public class LogQueryParam extends AbstractQueryParam {
 
     /**
@@ -29,4 +27,39 @@ public class LogQueryParam extends AbstractQueryParam {
      */
     LogType logType;
 
+    public String getBlurry() {
+        return blurry;
+    }
+
+    public LogQueryParam setBlurry(String blurry) {
+        this.blurry = blurry;
+        return this;
+    }
+
+    public List<Date> getCreateTime() {
+        return createTime;
+    }
+
+    public LogQueryParam setCreateTime(List<Date> createTime) {
+        this.createTime = createTime;
+        return this;
+    }
+
+    public LogType getLogType() {
+        return logType;
+    }
+
+    public LogQueryParam setLogType(LogType logType) {
+        this.logType = logType;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "LogQueryParam{" +
+                "blurry='" + blurry + '\'' +
+                ", createTime=" + createTime +
+                ", logType=" + logType +
+                '}';
+    }
 }

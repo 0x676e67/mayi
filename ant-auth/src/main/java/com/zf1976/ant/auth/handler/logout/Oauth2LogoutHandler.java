@@ -9,7 +9,6 @@ import com.zf1976.ant.auth.exception.IllegalJwtException;
 import com.zf1976.ant.common.security.support.session.SessionManagement;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.security.enums.AuthenticationState;
-import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -54,7 +53,6 @@ public class Oauth2LogoutHandler implements LogoutHandler {
         }
     }
 
-    @SneakyThrows
     @Override
     public void logout(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) {
         try {
@@ -83,7 +81,11 @@ public class Oauth2LogoutHandler implements LogoutHandler {
             // 删除会话
             SessionManagement.removeSession();
         } catch (AuthenticationException e) {
-            this.unSuccessLogoutHandler(httpServletRequest, httpServletResponse, e);
+            try {
+                this.unsuccessfulLogoutHandler(httpServletRequest, httpServletResponse, e);
+            } catch (IOException ioException) {
+                log.error(ioException.getMessage(), ioException.getCause());
+            }
             throw e;
         }
     }
@@ -91,17 +93,19 @@ public class Oauth2LogoutHandler implements LogoutHandler {
     /**
      * 登出失败处理
      *
-     * @param httpServletRequest request
-     * @param httpServletResponse  response
-     * @param e 异常
+     * @param httpServletRequest  request
+     * @param httpServletResponse response
+     * @param e                   异常
      * @throws IOException 向上抛异常
      */
-    private void unSuccessLogoutHandler(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException {
+    private void unsuccessfulLogoutHandler(HttpServletRequest httpServletRequest,
+                                           HttpServletResponse httpServletResponse,
+                                           AuthenticationException e) throws IOException {
         DataResult fail;
         if (e instanceof ExpiredJwtException) {
             ExpiredJwtException exception = (ExpiredJwtException) e;
             fail = DataResult.fail(exception.getValue(), exception.getReasonPhrase());
-        }else if (e instanceof IllegalAccessException) {
+        } else if (e instanceof IllegalAccessException) {
             IllegalAccessException exception = (IllegalAccessException) e;
             fail = DataResult.fail(exception.getValue(), exception.getReasonPhrase());
         } else if (e instanceof IllegalJwtException) {
