@@ -19,6 +19,7 @@ import com.zf1976.ant.auth.pojo.po.SysResource;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -59,6 +60,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
      * @return {@link Map}
      */
     @CachePut(key = KeyConstants.RESOURCES)
+    @Transactional(readOnly = true)
     public Map<String, Collection<String>> loadDynamicDataSource() {
         Map<String, Collection<String>> matcherResourceMap = new HashMap<>(16);
         //清空缓存

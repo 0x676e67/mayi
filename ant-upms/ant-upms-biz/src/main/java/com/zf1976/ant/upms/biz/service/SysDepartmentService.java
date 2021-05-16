@@ -64,6 +64,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      * @return 满足前提条件的部门树
      */
     @CachePut(key = "#id")
+    @Transactional(readOnly = true)
     public IPage<DepartmentVO> selectDeptVertex(Long id) {
         // 记录是否存在
         super.lambdaQuery()
@@ -165,7 +166,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> savaDept(DepartmentDTO dto) {
+    public Void savaDept(DepartmentDTO dto) {
         // 确认部门是否存在
         super.lambdaQuery()
              .eq(SysDepartment::getName, dto.getName())
@@ -175,7 +176,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
              });
         SysDepartment sysDept = this.convert.toEntity(dto);
         super.savaEntity(sysDept);
-        return Optional.empty();
+        return null;
     }
 
     /**
@@ -186,7 +187,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> updateDept(DepartmentDTO dto) {
+    public Void updateDept(DepartmentDTO dto) {
 
         // 确认部门是否存在
         SysDepartment sysDept = super.lambdaQuery()
@@ -240,7 +241,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
             throw new DepartmentException(DepartmentState.DEPARTMENT_BAN_CURRENT);
         }
         this.update(dto, sysDept);
-        return Optional.empty();
+        return null;
     }
 
     private void update(DepartmentDTO dto, SysDepartment currentDept) {
@@ -256,7 +257,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> deleteDeptList(Set<Long> ids) {
+    public Void deleteDeptList(Set<Long> ids) {
         final Set<Long> treeIds = this.collectCurrentDeptTreeIds(ids, HashSet::new);
         if (!CollectionUtils.isEmpty(treeIds)) {
             treeIds.forEach(id -> {
@@ -269,7 +270,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
         super.deleteByIds(treeIds);
         // 删除 role-department
         super.baseMapper.deleteRoleRelationByIds(ids);
-        return Optional.empty();
+        return null;
     }
 
     /**
@@ -385,16 +386,15 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      *
      * @param query request
      * @param response    response
-     * @return /
      */
-    public Optional<Void> downloadExcelDept(Query<DeptQueryParam> query, HttpServletResponse response) {
+    public Void downloadExcelDept(Query<DeptQueryParam> query, HttpServletResponse response) {
         List<SysDepartment> departmentList = super.queryWrapper()
                                                   .chainQuery(query)
                                                   .selectList();
         final List<DepartmentVO> deptTree = super.mapListToTarget(departmentList, this.convert::toVo);
         final Collection<Map<String, Object>> mapCollection = this.downloadDeptTreeBuilder(new LinkedList<>(), deptTree);
         super.downloadExcel(mapCollection, response);
-        return Optional.empty();
+        return null;
     }
 
     private Collection<Map<String, Object>> downloadDeptTreeBuilder(Collection<Map<String,Object>> mapCollection, Collection<DepartmentVO> deptTree) {

@@ -70,6 +70,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      * @return /
      */
     @CachePut(key = "#query")
+    @Transactional(readOnly = true)
     public IPage<RoleVO> selectRolePage(Query<RoleQueryParam> query) {
         IPage<SysRole> sourcePage = this.queryWrapper()
                                         .chainQuery(query)
@@ -91,7 +92,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
         if (SessionManagement.isOwner()) {
             return -1;
         }
-        return super.baseMapper.selectListByUsername(Objects.requireNonNull(SessionManagement.getSession()).getUsername())
+        return super.baseMapper.selectListByUsername(SessionManagement.getUsername())
                                .stream()
                                .map(SysRole::getLevel)
                                .min(Integer::compareTo)
@@ -107,7 +108,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> updateRoleStatus(Long id, Boolean enabled) {
+    public Void updateRoleStatus(Long id, Boolean enabled) {
         if (super.baseMapper.selectUserDependsOnById(id) > 0) {
             throw new RoleException(RoleState.ROLE_DEPENDS_ERROR);
         }
@@ -117,7 +118,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
         if (!isUpdate) {
             throw new RoleException(RoleState.ROLE_NOT_FOUND);
         }
-        return Optional.empty();
+        return null;
     }
 
     /**
@@ -126,6 +127,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      * @param id id
      * @return role
      */
+    @Transactional(readOnly = true)
     public RoleVO selectRole(Long id) {
         final SysRole sysRole = super.lambdaQuery()
                                      .eq(SysRole::getId, id)
@@ -171,7 +173,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> savaRole(RoleDTO dto) {
+    public Void savaRole(RoleDTO dto) {
         // 范围消息
         DataPermissionEnum permissionEnum = Optional.ofNullable(dto.getDataScope())
                                                     .orElseThrow(() -> new RoleException(RoleState.ROLE_OPT_ERROR));
@@ -193,7 +195,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
         }
         dto.setId(sysRole.getId());
         this.updateDependent(dto);
-        return Optional.empty();
+        return null;
     }
 
     /**
@@ -204,7 +206,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> updateRole(RoleDTO dto) {
+    public Void updateRole(RoleDTO dto) {
         // 范围消息
         DataPermissionEnum permissionEnum = Optional.ofNullable(dto.getDataScope())
                                                     .orElseThrow(() -> new RoleException(RoleState.ROLE_OPT_ERROR));
@@ -227,11 +229,10 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
             default:
                 break;
         }
-        // 复制属性
         this.convert.copyProperties(dto, sysRole);
-        this.updateDependent(dto);
         super.updateEntityById(sysRole);
-        return Optional.empty();
+        this.updateDependent(dto);
+        return null;
     }
 
     /**
@@ -239,22 +240,17 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      * @param dto  dto
      */
     private void updateDependent(RoleDTO dto) {
-        Set<Long> singletonId = Collections.singleton(dto.getId());
-
-        Optional.ofNullable(dto.getDepartmentIds())
-                .ifPresent(result -> {
-                    if (!CollectionUtils.isEmpty(result)) {
-                        super.baseMapper.deleteDepartmentRelationByIds(singletonId);
-                        super.baseMapper.saveDepartmentRelationById(dto.getId(), result);
-                    }
-                });
-        Optional.ofNullable(dto.getMenuIds())
-                .ifPresent(result -> {
-                    if (!CollectionUtils.isEmpty(result)) {
-                        super.baseMapper.deleteMenuRelationByIds(singletonId);
-                        super.baseMapper.saveMenuRelationById(dto.getId(), result);
-                    }
-                });
+        Set<Long> idList = Collections.singleton(dto.getId());
+        Set<Long> departmentIds = dto.getDepartmentIds();
+        if (!CollectionUtils.isEmpty(departmentIds)) {
+            super.baseMapper.deleteDepartmentRelationByIds(idList);
+            super.baseMapper.saveDepartmentRelationById(dto.getId(), departmentIds);
+        }
+        Set<Long> menuIds = dto.getMenuIds();
+        if (!CollectionUtils.isEmpty(menuIds)) {
+            super.baseMapper.deleteMenuRelationByIds(idList);
+            super.baseMapper.saveMenuRelationById(dto.getId(), menuIds);
+        }
     }
 
     /**
@@ -265,7 +261,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> deleteRole(Set<Long> ids) {
+    public Void deleteRole(Set<Long> ids) {
         ids.forEach(id -> {
             if (super.baseMapper.selectUserDependsOnById(id) > 0) {
                 throw new RoleException(RoleState.ROLE_DEPENDS_ERROR);
@@ -278,8 +274,8 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
         // 删除role-department
         super.baseMapper.deleteDepartmentRelationByIds(ids);
         // 删除user-role
-        super.baseMapper.deleteUserRelationById(ids);
-        return Optional.empty();
+        super.baseMapper.deleteUserRelationByIds(ids);
+        return null;
     }
 
 }

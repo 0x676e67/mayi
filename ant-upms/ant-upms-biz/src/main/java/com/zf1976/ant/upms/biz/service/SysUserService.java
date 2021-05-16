@@ -91,6 +91,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @return /
      */
     @CachePut(key = "#query", dynamics = true)
+    @Transactional(readOnly = true)
     public IPage<UserVO> selectUserPage(Query<UserQueryParam> query) {
         IPage<SysUser> sourcePage;
         // 非super admin 过滤数据权限
@@ -147,6 +148,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @param departmentId id
      * @param supplier supplier
      */
+    @Transactional(readOnly = true)
     public void selectDepartmentTreeIds(Long departmentId, Collection<Long> supplier){
         Assert.notNull(departmentId, "department id can not been null");
         supplier.add(departmentId);
@@ -182,13 +184,13 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> setUserStatus(Long id, Boolean enabled) {
+    public Void setUserStatus(Long id, Boolean enabled) {
         SysUser sysUser = super.lambdaQuery()
                                .eq(SysUser::getId, id)
                                .oneOpt().orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
         sysUser.setEnabled(enabled);
         super.updateEntityById(sysUser);
-        return Optional.empty();
+        return null;
     }
 
     /**
@@ -213,7 +215,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> updateAvatar(MultipartFile multipartFile) {
+    public Void updateAvatar(MultipartFile multipartFile) {
         final Long sessionId = SessionManagement.getSessionId();
         final SysUser sysUser = super.lambdaQuery()
                                  .eq(SysUser::getId, sessionId)
@@ -231,7 +233,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
             LOG.error(e.getMessage(), e);
             throw new BusinessException(BusinessMsgState.UPLOAD_ERROR);
         }
-        return Optional.empty();
+        return null;
     }
 
     /**
@@ -242,7 +244,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> updatePassword(UpdatePasswordDTO dto) {
+    public Void updatePassword(UpdatePasswordDTO dto) {
         final Long sessionId = SessionManagement.getSessionId();
         final SysUser sysUser = super.lambdaQuery()
                                      .eq(SysUser::getId, sessionId)
@@ -272,7 +274,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         }else {
             throw new BusinessException(BusinessMsgState.PASSWORD_LOW);
         }
-        return Optional.empty();
+        return null;
     }
 
     /**
@@ -284,7 +286,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> updateEmail(String code, UpdateEmailDTO dto) {
+    public Void updateEmail(String code, UpdateEmailDTO dto) {
 
         if (StringUtils.isEmpty(code) || ObjectUtils.isEmpty(dto)) {
             throw new BusinessException(BusinessMsgState.PARAM_ILLEGAL);
@@ -318,7 +320,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         if (!ObjectUtils.isEmpty(businessException)) {
             throw  businessException;
         }
-        return Optional.empty();
+        return null;
     }
 
     /**
@@ -329,7 +331,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> updateInfo(UpdateInfoDTO dto) {
+    public Void updateInfo(UpdateInfoDTO dto) {
         // 查询当前用户是否存在
         SysUser sysUser = super.lambdaQuery()
                                .eq(SysUser::getId, dto.getId())
@@ -354,7 +356,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         sysUser.setGender(dto.getGender());
         sysUser.setNickName(dto.getNickName());
         super.updateEntityById(sysUser);
-        return Optional.empty();
+        return null;
     }
 
     /**
@@ -365,7 +367,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> saveUser(UserDTO dto) {
+    public Void saveUser(UserDTO dto) {
         this.validateUsername(dto.getUsername());
         this.validatePhone(dto.getPhone());
         super.lambdaQuery()
@@ -391,9 +393,11 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         SysUser sysUser = this.convert.toEntity(dto);
         sysUser.setPassword(DigestUtils.md5DigestAsHex(DEFAULT_PASSWORD_BYTE));
         super.savaEntity(sysUser);
+        // 保存用户职位关联
         super.baseMapper.savePositionRelationById(sysUser.getId(), dto.getPositionIds());
+        // 保存用户角色关联
         super.baseMapper.savaRoleRelationById(sysUser.getId(), dto.getRoleIds());
-        return Optional.empty();
+        return null;
     }
 
     /**
@@ -404,7 +408,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> updateUser(UserDTO dto) {
+    public Void updateUser(UserDTO dto) {
         this.validatePhone(dto.getPhone());
         // 查询用户是否存在
         SysUser sysUser = super.lambdaQuery()
@@ -443,7 +447,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         this.convert.copyProperties(dto, sysUser);
         super.updateEntityById(sysUser);
         this.updateDependents(dto);
-        return Optional.empty();
+        return null;
     }
 
     /**
@@ -479,11 +483,18 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         }
     }
 
+    /**
+     * 验证用户名
+     *
+     * @date 2021-05-16 12:06:34
+     * @param username 用户名
+     */
     private void validateUsername(String username) {
         if (!ValidateUtil.isUserName(username)) {
             throw new BusinessException(BusinessMsgState.USERNAME_LOW);
         }
     }
+
     /**
      * 删除用户
      *
@@ -492,7 +503,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> deleteUser(Set<Long> ids) {
+    public Void deleteUser(Set<Long> ids) {
         // 超级管理员
         if (SessionManagement.isOwner()) {
             SysUser sysUser = super.lambdaQuery()
@@ -517,6 +528,6 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         }
         // 删除用户
         super.deleteByIds(ids);
-        return Optional.empty();
+        return null;
     }
 }

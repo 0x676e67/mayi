@@ -53,7 +53,7 @@ public interface SysRoleDao extends BaseMapper<SysRole> {
      *
      * @param ids ids
      */
-    void deleteUserRelationById(@Param("ids") Collection<Long> ids);
+    void deleteUserRelationByIds(@Param("ids") Collection<Long> ids);
 
     /**
      * 查询角色依赖关系

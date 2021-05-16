@@ -59,6 +59,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
      *
      * @return menu list
      */
+    @Transactional(readOnly = true)
     public Collection<MenuBuildVO> generatedMenu() {
         // 菜单
         List<SysMenu> menuList;
@@ -225,6 +226,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
      * @return 满足前提条件的菜单树
      */
     @CachePut(key = "#id")
+    @Transactional(readOnly = true)
     public IPage<MenuVO> selectMenuVertex(Long id) {
         super.lambdaQuery()
              .eq(SysMenu::getId, id)
@@ -254,7 +256,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> saveMenu(MenuDTO dto) {
+    public Void saveMenu(MenuDTO dto) {
         // 是否存在匹配菜单类型
         Optional.ofNullable(MenuTypeEnum.match(dto.getType()))
                 .orElseThrow(() -> new MenuException(MenuState.MENU_OPT_ERROR));
@@ -279,7 +281,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
         dto.setPid(id);
         SysMenu sysMenu = this.convert.toEntity(dto);
         super.savaEntity(sysMenu);
-        return Optional.empty();
+        return null;
     }
 
     /**
@@ -290,7 +292,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> updateMenu(MenuDTO dto) {
+    public Void updateMenu(MenuDTO dto) {
         // 是否存在匹配菜单类型
         Optional.ofNullable(MenuTypeEnum.match(dto.getType()))
                 .orElseThrow(() -> new MenuException(MenuState.MENU_OPT_ERROR));
@@ -313,7 +315,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
             throw new MenuException(MenuState.MENU_OPT_ERROR);
         }
         this.update(dto, sysMenu);
-        return Optional.empty();
+        return null;
     }
 
     /**
@@ -367,7 +369,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> deleteMenuList(Set<Long> ids){
+    public Void deleteMenuList(Set<Long> ids){
         final Set<Long> treeIds = this.collectCurrentMenuTreeIds(ids, new CopyOnWriteArraySet<>());
         if (!CollectionUtils.isEmpty(treeIds)) {
             // 删除menu
@@ -375,7 +377,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
             // 删除role-menu
             super.baseMapper.deleteRoleRelationByIds(treeIds);
         }
-        return Optional.empty();
+        return null;
     }
 
     /**

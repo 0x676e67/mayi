@@ -44,7 +44,7 @@
     </delete>
 
     <!--删除角色相关用户-->
-    <delete id="deleteUserRelationById">
+    <delete id="deleteUserRelationByIds">
         delete
         from sys_user_role_relation
         where role_id

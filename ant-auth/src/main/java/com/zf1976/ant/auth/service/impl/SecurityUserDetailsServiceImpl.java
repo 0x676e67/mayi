@@ -20,6 +20,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -60,6 +61,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) {
         final User user = this.getUserInfo(username);
         if (!user.getEnabled()) {
@@ -90,19 +92,6 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
         sysUser.setRoleList(roleList);
         sysUser.setPositionList(positionList);
         return this.convert.convert(sysUser);
-    }
-
-    /**
-     * 存在用户则返回用户
-     *
-     * @param username 用户名
-     * @return user
-     */
-    private SysUser findUsername(String username) {
-        SysUser sysUser = sysUserDao.selectByUsername(username);
-        Optional.ofNullable(sysUserDao.selectByUsername(username))
-                .orElseThrow(() -> new UserNotFountException(AuthenticationState.USER_NOT_FOUNT));
-        return sysUser;
     }
 
     /**

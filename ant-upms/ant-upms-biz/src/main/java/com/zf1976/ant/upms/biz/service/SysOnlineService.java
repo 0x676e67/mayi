@@ -144,7 +144,7 @@ public class SysOnlineService {
         return false;
     }
 
-    public Optional<Void> forceOffline(Set<Long> ids) {
+    public Void forceOffline(Set<Long> ids) {
         // 操作方
         Long sessionId = SessionManagement.getSessionId();
         ids.forEach(id -> {
@@ -159,7 +159,7 @@ public class SysOnlineService {
                 Assert.isTrue(logoutResult != null && logoutResult.getSuccess(),"this session not online");
             }
         });
-        return Optional.empty();
+        return null;
     }
 
     private String formatToken(String tokenValue) {

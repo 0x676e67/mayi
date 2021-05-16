@@ -14,6 +14,7 @@ import com.zf1976.ant.common.security.support.session.Session;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
@@ -41,6 +42,11 @@ public class OAuth2ClientService extends ServiceImpl<ClientDetailsDao, ClientDet
         return super.lambdaQuery().page(page);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public Optional<Void> addClient(ClientDetailsDTO dto) {
+        return Optional.empty();
+    }
+
     /**
      * 删除OAuth客户端
      *
@@ -60,7 +66,4 @@ public class OAuth2ClientService extends ServiceImpl<ClientDetailsDao, ClientDet
         return Optional.empty();
     }
 
-    public Optional<Void> addClient(ClientDetailsDTO dto) {
-        return Optional.empty();
-    }
 }

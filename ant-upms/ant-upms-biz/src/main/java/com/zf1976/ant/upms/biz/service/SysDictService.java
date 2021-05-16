@@ -3,6 +3,7 @@ package com.zf1976.ant.upms.biz.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
+import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.zf1976.ant.common.component.load.annotation.CacheConfig;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.component.load.annotation.CacheEvict;
@@ -67,7 +68,7 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> saveDict(DictDTO dto) {
+    public Void saveDict(DictDTO dto) {
         // 确认字典名是否存在
         super.lambdaQuery()
              .eq(SysDict::getDictName, dto.getDictName())
@@ -77,7 +78,7 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
              });
         SysDict sysDict = convert.toEntity(dto);
         super.savaEntity(sysDict);
-        return Optional.empty();
+        return null;
     }
 
     /**
@@ -88,7 +89,7 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> updateDict(DictDTO dto) {
+    public Void updateDict(DictDTO dto) {
 
         SysDict sysDict = super.lambdaQuery()
                                .eq(SysDict::getId, dto.getId())
@@ -106,7 +107,7 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
 
         this.convert.copyProperties(dto, sysDict);
         super.updateEntityById(sysDict);
-        return Optional.empty();
+        return null;
     }
 
     /**
@@ -127,13 +128,16 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
      * @param response response
      * @return /
      */
-    public Optional<Void> downloadDictExcel(Query<DictQueryParam> query, HttpServletResponse response) {
+    @Transactional(readOnly = true)
+    public Void downloadDictExcel(Query<DictQueryParam> query, HttpServletResponse response) {
         List<SysDict> records = super.queryWrapper()
                                      .chainQuery(query)
                                      .selectList();
         List<Map<String,Object>> mapList = new LinkedList<>();
         records.forEach(sysDict -> {
-            List<SysDictDetail> details = new LambdaQueryChainWrapper<>(sysDictDetailDao).eq(SysDictDetail::getDictId, sysDict.getId()).list();
+            List<SysDictDetail> details = ChainWrappers.lambdaQueryChain(sysDictDetailDao)
+                                                       .eq(SysDictDetail::getDictId, sysDict.getId())
+                                                       .list();
             details.forEach(sysDictDetail -> {
                 DictDownloadVO downloadDictVo = new DictDownloadVO();
                 LinkedHashMap<String, Object> map = new LinkedHashMap<>();
@@ -148,6 +152,6 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
             });
         });
         super.downloadExcel(mapList,response);
-        return Optional.empty();
+        return null;
     }
 }

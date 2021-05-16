@@ -58,7 +58,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> savePosition(PositionDTO dto) {
+    public Void savePosition(PositionDTO dto) {
         super.lambdaQuery()
              .eq(SysPosition::getName, dto.getName())
              .oneOpt()
@@ -67,7 +67,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
              });
         SysPosition sysJob = convert.toEntity(dto);
         super.savaEntity(sysJob);
-        return Optional.empty();
+        return null;
     }
 
     /**
@@ -78,7 +78,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> updatePosition(PositionDTO dto) {
+    public Void updatePosition(PositionDTO dto) {
         // 查询更新岗位是否存在
         final SysPosition sysPosition = super.lambdaQuery()
                                         .eq(SysPosition::getId, dto.getId())
@@ -95,7 +95,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
         // 复制属性
         this.convert.copyProperties(dto, sysPosition);
         super.updateEntityById(sysPosition);
-        return Optional.empty();
+        return null;
     }
 
     /**
@@ -119,7 +119,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
      * @param response response
      * @return /
      */
-    public Optional<Void> downloadPositionExcel(Query<PositionQueryParam> query, HttpServletResponse response) {
+    public Void downloadPositionExcel(Query<PositionQueryParam> query, HttpServletResponse response) {
         List<SysPosition> records = super.queryWrapper()
                                          .chainQuery(query)
                                          .selectList();
@@ -135,6 +135,6 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
             mapList.add(map);
         });
         super.downloadExcel(mapList, response);
-        return Optional.empty();
+        return null;
     }
 }

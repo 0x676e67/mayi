@@ -52,6 +52,7 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
      * @return dict details page
      */
     @CachePut(key = "#query")
+    @Transactional(readOnly = true)
     public IPage<DictDetailVO> selectDictDetailPage(Query<DictDetailQueryParam> query) {
         DictDetailQueryParam param = query.getQuery();
         Assert.notNull(param, BusinessMsgState.PARAM_ILLEGAL::getReasonPhrase);
@@ -78,10 +79,10 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> saveDictDetail(DictDetailDTO dto) {
+    public Void saveDictDetail(DictDetailDTO dto) {
         SysDictDetail sysDictDetail = convert.toEntity(dto);
         super.savaEntity(sysDictDetail);
-        return Optional.empty();
+        return null;
     }
 
     /**
@@ -92,7 +93,7 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> updateDictDetail(DictDetailDTO dto) {
+    public Void updateDictDetail(DictDetailDTO dto) {
         SysDictDetail sysDictDetail = super.lambdaQuery()
                                            .eq(SysDictDetail::getId, dto.getId())
                                            .eq(SysDictDetail::getDictId, dto.getDictId())
@@ -100,7 +101,7 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
                                            .orElseThrow(() -> new DictException(DictState.DICT_NOT_FOUND));
         this.convert.copyProperties(dto, sysDictDetail);
         super.updateEntityById(sysDictDetail);
-        return Optional.empty();
+        return null;
     }
 
     /**
@@ -111,10 +112,10 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> deleteDictDetail(Long id) {
+    public Void deleteDictDetail(Long id) {
         if (!super.removeById(id)) {
             throw new DictException(DictState.DICT_NOT_FOUND);
         }
-        return Optional.empty();
+        return null;
     }
 }

@@ -2,8 +2,7 @@ package com.zf1976.ant.auth.system;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.Assert;
-
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import javax.sql.DataSource;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -26,13 +25,14 @@ import java.util.regex.Pattern;
 public class MySqlStrategyBackup {
 
     private final Logger log = LoggerFactory.getLogger("[SQL-BACKUP]");
-    private static final String INDEX_END = ";";
-    private static final String BLANK = "";
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-    private static final int DEFAULT_BUFFER_SIZE = 16384;
+    private final static  String INDEX_END = ";";
+    private final static  String BLANK = "";
+    private final static  SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+    private final static  int DEFAULT_BUFFER_SIZE = 16384;
     private final String mysqlDump;
     private final String mysqlRecover;
     private final Pattern pattern = Pattern.compile("(/)([a-zA-Z]*?)(\\?)");
+    private final Pattern patternDefault = Pattern.compile("([/])([a-zA-Z]*)");
     private final DataSource dataSource;
     private final String database;
 
@@ -52,20 +52,33 @@ public class MySqlStrategyBackup {
      * @return {@link String}
      */
     private String extractDatabase(DataSource dataSource) {
-        Assert.notNull(dataSource, "数据源无效");
-        try (Connection connection = dataSource.getConnection()) {
+        try (Connection connection = DataSourceUtils.getConnection(dataSource)) {
             String url = connection.getMetaData().getURL();
-            final Matcher matcher = this.pattern.matcher(url);
             String database;
+            final Matcher matcher = this.pattern.matcher(url);
+            // 第一次匹配URL
             while (matcher.find()) {
                 database = matcher.group(2);
                 if (database != null)  {
                     return database;
                 }
             }
+            final Matcher matcherDefault = this.patternDefault.matcher(url);
+            byte startIndex = 0;
+            byte endIndex = 3;
+            // 第二次匹配URL
+            while (matcherDefault.find()) {
+                ++startIndex;
+                if (startIndex == endIndex) {
+                    database = matcherDefault.group(2);
+                    if (database != null) {
+                        return database;
+                    }
+                }
+            }
             return null;
         } catch (SQLException e) {
-            log.error("数据源无效", e.getCause());
+            log.error("Invalid data source", e.getCause());
             return null;
         }
     }
@@ -123,27 +136,27 @@ public class MySqlStrategyBackup {
      */
     public boolean backup(File fileDirectory) {
         if (!fileDirectory.exists() && !fileDirectory.mkdirs()) {
-            log.warn("创建目录：" + fileDirectory + " 失败");
+            log.warn("Create a directory：{} failure", fileDirectory);
         }
         if (fileDirectory.isDirectory() || fileDirectory.exists()) {
             try {
                 // 生成策略备份文件
                 File backupFile = generationStrategyFile(fileDirectory);
                 if (!backupFile.exists() || backupFile.isDirectory()) {
-                    log.warn("备份文件路径无效：" + fileDirectory.getAbsolutePath());
+                    log.warn("Invalid backup file path：{}", fileDirectory.getAbsolutePath());
                     return false;
                 }
                 // 执行备份文件命令
                 if (executeStrategyCommand(backupFile)) {
-                    log.info("备份数据库成功");
+                    log.info("Successfully backed up the database");
                 }
                 return true;
             } catch (IOException | InterruptedException exception) {
-                log.error("备份数据库失败 : {}" + exception.getMessage());
+                log.error("Failed to backup database : {}", exception.getMessage());
                 return false;
             }
         } else {
-            log.warn("目录：" + fileDirectory + " 不存在");
+            log.warn("Directory：{} does not exist", fileDirectory);
         }
         return false;
     }
@@ -172,10 +185,10 @@ public class MySqlStrategyBackup {
             try {
                 Process p = Runtime.getRuntime().exec(new String[]{"bash", "-c", mysqlRecover + absolutePath});
                 if(p.waitFor() == 0){
-                    log.info("数据库恢复成功，数据来源：" + absolutePath);
+                    log.info("The database is restored successfully, data source:{}", absolutePath);
                     return true;
                 } else {
-                    log.info("数据库恢复失败，数据来源：" + absolutePath);
+                    log.info("Database recovery failed, data source:{}", absolutePath);
                 }
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
@@ -197,14 +210,14 @@ public class MySqlStrategyBackup {
             if (sqlStatement.size() > 0) {
                 int num = batchSql(sqlStatement);
                 if (num > 0) {
-                    log.info("execute complete...");
+                    log.info("Execute complete...");
                     return false;
                 } else{
-                    log.info("no execute sqlStatement...");
+                    log.info("No execute sqlStatement...");
                     return true;
                 }
             } else {
-                log.info("no execute sqlStatement...");
+                log.info("No execute sqlStatement...");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -223,7 +236,7 @@ public class MySqlStrategyBackup {
         Process exec = Runtime.getRuntime().exec(mysqlDump);
         final BufferedInputStream bufferedInputStream = new BufferedInputStream(exec.getInputStream(), DEFAULT_BUFFER_SIZE);
         if (!this.writeBackupFile(bufferedInputStream, backupFile)) {
-            log.warn("写出备份文件失败");
+            log.warn("Failed to write backup file, file:{}", backupFile.getName());
             return false;
         }
         return exec.waitFor() == 0;
@@ -239,7 +252,7 @@ public class MySqlStrategyBackup {
      */
     private boolean writeBackupFile(BufferedInputStream bufferedReader, File backupFile)  {
         if (bufferedReader == null) {
-            log.warn("备份文件命令无效：" + mysqlDump);
+            log.warn("Invalid backup file command:" + mysqlDump);
             return false;
         }
         try (bufferedReader; BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(backupFile), DEFAULT_BUFFER_SIZE)) {
@@ -276,7 +289,7 @@ public class MySqlStrategyBackup {
             }
             return 1;
         } catch (Exception e) {
-            log.error("批处理SQl任务失败", e.getCause());
+            log.error("Batch SQL task failed", e.getCause());
             return 0;
         }
     }
@@ -290,10 +303,10 @@ public class MySqlStrategyBackup {
     private File generationStrategyFile(File directory) throws IOException {
         File file = Paths.get(directory.getAbsolutePath(), this.generatorFilename()).toFile();
         if (file.isFile()) {
-            throw new UnsupportedOperationException("file path is not supported");
+            throw new UnsupportedOperationException("File path is not supported");
         }
         if (!file.createNewFile()) {
-            throw new RuntimeException("failed to create file");
+            throw new RuntimeException("Failed to create file：" + directory.getName());
         }
         return file;
     }

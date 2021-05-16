@@ -12,6 +12,7 @@ import com.zf1976.ant.common.component.load.annotation.CacheConfig;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.core.constants.Namespace;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ public class ResourceService extends ServiceImpl<SysResourceDao, SysResource> {
     }
 
     @CachePut(key = "#page")
+    @Transactional(readOnly = true)
     public IPage<ResourceNode> selectResourceNodeByPage(Page<SysResource> page) {
         // 独立根据根节点分页查询
         Page<SysResource> sourcePage = super.lambdaQuery()
