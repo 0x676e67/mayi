@@ -1,4 +1,4 @@
-package com.zf1976.ant.common.security.pojo;
+package com.zf1976.ant.auth.pojo;
 
 
 /**

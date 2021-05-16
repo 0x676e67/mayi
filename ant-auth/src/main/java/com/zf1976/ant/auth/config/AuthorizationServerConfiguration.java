@@ -3,7 +3,7 @@ package com.zf1976.ant.auth.config;
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.auth.enhance.JdbcClientDetailsServiceEnhancer;
 import com.zf1976.ant.auth.enhance.OAuth2TokenEnhancer;
-import com.zf1976.ant.auth.enhance.RedisTokenStoreDelegate;
+import com.zf1976.ant.auth.enhance.RedisTokenStoreEnhancer;
 import com.zf1976.ant.auth.filter.provider.DaoAuthenticationEnhancerProvider;
 import com.zf1976.ant.auth.grant.RefreshTokenEnhancerGranter;
 import com.zf1976.ant.auth.grant.ResourceOwnerPasswordTokenEnhancerGranter;
@@ -113,7 +113,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
         RedisConnectionFactory redisConnectionFactory = this.template.getRequiredConnectionFactory();
-        TokenStore tokenStore = new RedisTokenStoreDelegate(redisConnectionFactory).enhance();
+        var tokenStore = new RedisTokenStoreEnhancer(redisConnectionFactory);
         SecurityContextHolder.setShareObject(TokenStore.class, tokenStore);
         endpoints.authenticationManager(authenticationManager)
                  .tokenStore(tokenStore)
@@ -178,10 +178,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     public void start() {
         Assert.notNull(this.authorizationServerSecurityConfigurer, "authorizationServerSecurityConfigurer cannot been null!");
         ClientDetailsUserDetailsService clientDetailsUserDetailsService = new ClientDetailsUserDetailsService(this.jdbcClientDetailsServiceEnhancer);
-        DaoAuthenticationEnhancerProvider daoClientAuthenticationEnhancerProvider = DaoAuthenticationEnhancerProvider.builder()
-                                                                                                                     .setPasswordEncoder(this.passwordEncoder)
-                                                                                                                     .setUserDetailsService(clientDetailsUserDetailsService)
-                                                                                                                     .build();
+        DaoAuthenticationEnhancerProvider daoClientAuthenticationEnhancerProvider = new DaoAuthenticationEnhancerProvider(this.passwordEncoder, clientDetailsUserDetailsService);
         this.authorizationServerSecurityConfigurer.and().authenticationProvider(daoClientAuthenticationEnhancerProvider);
         this.isRunning = true;
     }

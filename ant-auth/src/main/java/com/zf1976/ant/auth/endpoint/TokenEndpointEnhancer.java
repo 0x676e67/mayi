@@ -2,6 +2,7 @@ package com.zf1976.ant.auth.endpoint;
 
 import com.zf1976.ant.auth.LoginDetails;
 import com.zf1976.ant.auth.SecurityContextHolder;
+import com.zf1976.ant.auth.pojo.Captcha;
 import com.zf1976.ant.auth.service.UserDetailsServiceEnhancer;
 import com.zf1976.ant.common.component.validate.service.CaptchaService;
 import com.zf1976.ant.common.component.validate.support.CaptchaGenerator;
@@ -9,7 +10,6 @@ import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.core.util.RequestUtil;
 import com.zf1976.ant.common.security.pojo.Details;
-import com.zf1976.ant.common.security.pojo.Captcha;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -56,7 +56,6 @@ public class TokenEndpointEnhancer {
             throw new InsufficientAuthenticationException("There is no client authentication. Try adding an appropriate authentication filter.");
         } else {
             ResponseEntity<OAuth2AccessToken> responseEntity = this.tokenEndpoint.postAccessToken(principal, parameters);
-
             OAuth2AccessToken oAuth2AccessToken = responseEntity.getBody();
             if (responseEntity.getStatusCode().is2xxSuccessful() && oAuth2AccessToken != null) {
                 String username = (String) oAuth2AccessToken.getAdditionalInformation().get(AuthConstants.USERNAME);
@@ -64,11 +63,7 @@ public class TokenEndpointEnhancer {
                 RequestUtil.getRequest().setAttribute(AuthConstants.DETAILS, userDetailsService.selectUserDetails(username));
                 RequestUtil.getRequest().setAttribute(AuthConstants.SESSION_EXPIRED, oAuth2AccessToken.getExpiresIn());
                 SecurityContextHolder.createSession(oAuth2AccessToken);
-                final LoginDetails loginDetails = LoginDetails.LoginDetailsBuilder.builder()
-                                                                           .details(details)
-                                                                           .oAuth2AccessToken(oAuth2AccessToken)
-                                                                           .build();
-                return DataResult.success(loginDetails);
+                return DataResult.success(new LoginDetails(oAuth2AccessToken, details));
             }
             throw new InsufficientAuthenticationException("Client authentication failed.");
         }

@@ -90,11 +90,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(AuthenticationManagerBuilder auth) {
-        DaoAuthenticationEnhancerProvider authenticationEnhancerProvider = DaoAuthenticationEnhancerProvider.builder()
-                                                                                   .setPasswordEncoder(this.passwordEncoder)
-                                                                                   .setUserDetailsService(this.userDetailsService)
-                                                                                   .build();
-        auth.authenticationProvider(authenticationEnhancerProvider);
+        // 配置增强版DaoAuthenticationEnhancerProvider
+        auth.authenticationProvider(new DaoAuthenticationEnhancerProvider(passwordEncoder, userDetailsService));
     }
 
     /**

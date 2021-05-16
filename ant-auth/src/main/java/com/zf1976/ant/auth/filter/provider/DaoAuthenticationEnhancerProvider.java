@@ -8,15 +8,11 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
-
-import java.util.Locale;
 
 /**
  * 默认 {@link org.springframework.security.authentication.dao.DaoAuthenticationProvider} 不支持密码加密
@@ -29,9 +25,10 @@ public class DaoAuthenticationEnhancerProvider extends AbstractUserDetailsAuthen
     private UserDetailsService userDetailsService;
     private volatile String userNotFoundEncodedPassword;
 
-    private DaoAuthenticationEnhancerProvider(Builder builder) {
-        this.passwordEncoder = builder.passwordEncoder;
-        this.userDetailsService = builder.userDetailsService;
+    public DaoAuthenticationEnhancerProvider(PasswordEncoder passwordEncoder,
+                                              UserDetailsService userDetailsService) {
+        this.passwordEncoder = passwordEncoder;
+        this.userDetailsService = userDetailsService;
         // 设置英文消息源
         setMessageSource();
     }
@@ -121,33 +118,6 @@ public class DaoAuthenticationEnhancerProvider extends AbstractUserDetailsAuthen
 
     protected UserDetailsService getUserDetailsService() {
         return this.userDetailsService;
-    }
-
-    public static Builder builder(){
-        return new Builder();
-    }
-
-    public static final class Builder{
-        private PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-        private UserDetailsService userDetailsService;
-
-        public Builder(){
-
-        }
-
-        public Builder setPasswordEncoder(PasswordEncoder passwordEncoder) {
-            this.passwordEncoder = passwordEncoder;
-            return this;
-        }
-
-        public Builder setUserDetailsService(UserDetailsService userDetailsService) {
-            this.userDetailsService = userDetailsService;
-            return this;
-        }
-
-        public DaoAuthenticationEnhancerProvider build() {
-            return new DaoAuthenticationEnhancerProvider(this);
-        }
     }
 
 }

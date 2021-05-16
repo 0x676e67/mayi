@@ -3,31 +3,33 @@ package com.zf1976.ant.upms.biz.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.common.component.load.annotation.CacheConfig;
-import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.component.load.annotation.CacheEvict;
+import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.security.support.session.SessionManagement;
-import com.zf1976.ant.upms.biz.pojo.po.SysMenu;
 import com.zf1976.ant.upms.biz.convert.SysRoleConvert;
 import com.zf1976.ant.upms.biz.dao.SysDepartmentDao;
 import com.zf1976.ant.upms.biz.dao.SysMenuDao;
 import com.zf1976.ant.upms.biz.dao.SysRoleDao;
-import com.zf1976.ant.upms.biz.pojo.query.Query;
+import com.zf1976.ant.upms.biz.exception.RoleException;
+import com.zf1976.ant.upms.biz.exception.enums.RoleState;
 import com.zf1976.ant.upms.biz.pojo.dto.role.RoleDTO;
 import com.zf1976.ant.upms.biz.pojo.enums.DataPermissionEnum;
 import com.zf1976.ant.upms.biz.pojo.po.SysDepartment;
+import com.zf1976.ant.upms.biz.pojo.po.SysMenu;
 import com.zf1976.ant.upms.biz.pojo.po.SysRole;
+import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.query.RoleQueryParam;
 import com.zf1976.ant.upms.biz.pojo.vo.role.RoleVO;
-import com.zf1976.ant.upms.biz.exception.enums.RoleState;
-import com.zf1976.ant.upms.biz.exception.RoleException;
 import com.zf1976.ant.upms.biz.service.base.AbstractService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -109,12 +111,15 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Void updateRoleStatus(Long id, Boolean enabled) {
-        if (super.baseMapper.selectUserDependsOnById(id) > 0) {
-            throw new RoleException(RoleState.ROLE_DEPENDS_ERROR);
+        if (!enabled) {
+            // 存在用户关联不允许禁用当前角色
+            if (super.baseMapper.selectUserDependsOnById(id) > 0) {
+                throw new RoleException(RoleState.ROLE_DEPENDS_ERROR);
+            }
         }
         boolean isUpdate = lambdaUpdate().set(SysRole::getEnabled, enabled)
-                                       .eq(SysRole::getId, id)
-                                       .update();
+                                         .eq(SysRole::getId, id)
+                                         .update();
         if (!isUpdate) {
             throw new RoleException(RoleState.ROLE_NOT_FOUND);
         }
