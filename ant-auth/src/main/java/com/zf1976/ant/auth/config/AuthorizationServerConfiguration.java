@@ -2,7 +2,7 @@ package com.zf1976.ant.auth.config;
 
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.auth.enhance.JdbcClientDetailsServiceEnhancer;
-import com.zf1976.ant.auth.enhance.OAuth2TokenEnhancer;
+import com.zf1976.ant.auth.enhance.JwtTokenEnhancer;
 import com.zf1976.ant.auth.enhance.RedisTokenStoreEnhancer;
 import com.zf1976.ant.auth.filter.provider.DaoAuthenticationEnhancerProvider;
 import com.zf1976.ant.auth.grant.RefreshTokenEnhancerGranter;
@@ -165,7 +165,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
     private TokenEnhancerChain tokenEnhancerChain() {
         var enhancerChain = new TokenEnhancerChain();
-        List<TokenEnhancer> enhancerList = Arrays.asList(new OAuth2TokenEnhancer(), jwtAccessTokenConverter());
+        List<TokenEnhancer> enhancerList = Arrays.asList(new JwtTokenEnhancer(), jwtAccessTokenConverter());
         enhancerChain.setTokenEnhancers(enhancerList);
         return enhancerChain;
     }
