@@ -1,18 +1,16 @@
 package com.zf1976.ant.common.security.support.session.manager;
 
-import com.power.common.util.StringUtil;
-import com.zf1976.ant.common.core.constants.AuthConstants;
-import com.zf1976.ant.common.core.util.RequestUtil;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import com.zf1976.ant.common.security.support.session.Session;
+import com.zf1976.ant.common.security.support.session.exception.SessionException;
+import com.zf1976.ant.common.security.support.session.repository.AbstractSessionRepository;
+import com.zf1976.ant.common.security.support.session.repository.RedisSessionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisOperations;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SessionCallback;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -20,8 +18,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 在同一个操作中需要开启事务 或默认SessionCallable支持，在当前session完成所有操作
@@ -31,50 +29,26 @@ import java.util.concurrent.TimeUnit;
  * Create by Ant on 2020/10/4 14:11
  */
 @Component
-public class SessionManagement {
+public final class SessionManagement {
 
-    private static final Logger LOG = LoggerFactory.getLogger("[SessionManagement]");
+    private static final Logger log = LoggerFactory.getLogger("[SessionManagement]");
     private static SecurityProperties properties;
-    private static RedisTemplate<Object, Object> redisTemplate;
+    private static RedisConnectionFactory redisConnectionFactory;
+    private static AbstractSessionRepository repository;
 
-    public SessionManagement(RedisTemplate<Object, Object> template, SecurityProperties properties) {
-        SessionManagement.redisTemplate = template;
+    public SessionManagement(RedisConnectionFactory redisConnectionFactory, SecurityProperties properties) {
         SessionManagement.properties = properties;
+        SessionManagement.redisConnectionFactory = redisConnectionFactory;
+        this.checkStatus();
+        repository = new RedisSessionRepository(redisConnectionFactory, properties);
     }
 
     /**
-     * 存储当前请求会话
+     * 根据session ID集合查询Session列表
      *
-     * @param token              token
-     * @param session        用户会话details
+     * @param ids id集合
+     * @return {@link List<Session>}
      */
-    @SuppressWarnings("unchecked")
-    public static void storeSession(String token, Session session) {
-        redisTemplate.execute(new SessionCallback<>() {
-            @Override
-            public Object execute(@Nullable RedisOperations redisOperations) throws DataAccessException {
-                Assert.notNull(redisOperations,"redis connection nullable in:" + SessionManagement.class.getName());
-                try {
-                    // token指向id
-                    redisOperations.opsForValue()
-                                 .set(formatToken(token),
-                                         session.getId(),
-                                         getExpiredIn(),
-                                         TimeUnit.SECONDS);
-                    // id指向session
-                    redisOperations.opsForValue()
-                                 .set(formatId(session.getId()),
-                                         session,
-                                         getExpiredIn(),
-                                         TimeUnit.SECONDS);
-                } catch (Exception e) {
-                    LOG.error(e.getMessage(), e.getCause());
-                }
-                return null;
-            }
-        });
-    }
-
     public static List<Session> selectListByIds(Collection<Long> ids) {
         List<Session> sessions = new ArrayList<>();
         if (!CollectionUtils.isEmpty(ids)) {
@@ -86,31 +60,45 @@ public class SessionManagement {
         return sessions;
     }
 
-    public static String getUsername() {
-        return Objects.requireNonNull(getSession()).getUsername();
+    /**
+     * 获取当前用户名
+     *
+     * @return {@link String}
+     */
+    public static String getCurrentUsername() {
+        Session session = repository.getSession();
+        if (session == null) {
+            throw new SessionException("session expired");
+        }
+        return session.getUsername();
     }
 
     /**
      * 读取当前请求session
      *
+     * @return {@link Session}
      * @date 2021-03-23 12:19:55
+     */
+    public static Session getSession() {
+        Session session = repository.getSession();
+        if (session == null) {
+            throw new SessionException("session expired");
+        }
+        return session;
+    }
+
+    /**
+     * 根据token获取Session
+     *
+     * @param token 令牌
      * @return {@link Session}
      */
-    @NonNull
-    public static Session getSession(){
-        try {
-            final String token = getToken();
-            Object o = redisTemplate.opsForValue().get(formatToken(token));
-            if (ObjectUtils.isEmpty(o)) {
-                throw new UnsupportedOperationException("session expired");
-            }
-            // 抛出NumberFormatException
-            final long sessionId = Long.parseLong(o.toString());
-            return getSession(sessionId);
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e.getCause());
-            throw e;
+    public static Session getSession(String token) {
+        Session session = repository.getSession(token);
+        if (session == null) {
+            throw new SessionException("session expired");
         }
+        return session;
     }
 
     /**
@@ -119,17 +107,35 @@ public class SessionManagement {
      * @param sessionId session id
      * @return session
      */
-    @NonNull
     public static Session getSession(Long sessionId) {
+        Session session = repository.getSession(sessionId);
+        if (session == null) {
+            throw new SessionException("session expired");
+        }
+        return session;
+    }
+
+    /**
+     * 强制当前用户下限
+     */
+    public static void removeSession() {
         try {
-            final Object o = redisTemplate.opsForValue().get(formatId(sessionId));
-            if (o == null) {
-                throw new UnsupportedOperationException("session expired");
-            }
-            return (Session) o;
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e.getCause());
-            throw e;
+            repository.removeSession();
+        } catch (SessionException | IOException e) {
+            log.error(e.getMessage(), e.getCause());
+        }
+    }
+
+    /**
+     * 根据token强制下限
+     *
+     * @param token 令牌
+     */
+    public static void removeSession(String token) {
+        try {
+            repository.removeSession(token);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e.getCause());
         }
     }
 
@@ -138,59 +144,35 @@ public class SessionManagement {
      *
      * @param sessionId 用户id
      */
-    @SuppressWarnings("unchecked")
     public static void removeSession(Long sessionId) {
-        redisTemplate.execute(new SessionCallback<>() {
-            @Override
-            public  Object execute(@Nullable RedisOperations redisOperations) throws DataAccessException {
-                Assert.notNull(redisOperations,"redis connection nullable in:" + SessionManagement.class.getName());
-                try {
-                    Session session = getSession(sessionId);
-                    redisOperations.delete(formatId(sessionId));
-                    redisOperations.delete(formatToken(session.getToken()));
-                } catch (Exception e) {
-                    LOG.info("user not online", e);
-                }
-                return null;
+        if (sessionId != null) {
+            try {
+                repository.removeSession(sessionId);
+            } catch (SessionException | IOException e) {
+                log.error(e.getMessage(), e.getCause());
             }
-        });
-    }
-
-    /**
-     * 强制当前用户下限
-     */
-    @SuppressWarnings("unchecked")
-    public static void removeSession(){
-        final String token = getToken();
-        final Object obj = redisTemplate.opsForValue().get(formatToken(token));
-        if (ObjectUtils.isEmpty(obj)) {
-            return;
         }
-        // 抛出NumberFormatException
-        final long sessionId = Long.parseLong(obj.toString());
-        redisTemplate.execute(new SessionCallback<>() {
-            @Override
-            public  Object execute(@Nullable RedisOperations redisOperations) throws DataAccessException {
-                Assert.notNull(redisOperations,"redis connection nullable in:" + SessionManagement.class.getName());
-                try {
-                    redisOperations.delete(formatId(sessionId));
-                    redisOperations.delete(formatToken(token));
-                } catch (Exception e) {
-                    LOG.info("user not online", e);
-                }
-                return null;
-            }
-        });
     }
 
     /**
-     * 查询session过期时间
+     * 根据session ID查询session过期时间
      *
      * @param sessionId token
      * @return timestamp
      */
     public static Long getExpiredTime(Long sessionId) {
-        return Objects.requireNonNull(getSession(sessionId)).getExpiredTime().getTime();
+        return getSession(sessionId).getExpiredTime()
+                                    .getTime();
+    }
+
+    /**
+     * 获取当前会话有效期限
+     *
+     * @return {@link Long}
+     */
+    public static Long getExpiredTime() {
+        return getSession().getExpiredTime()
+                           .getTime();
     }
 
     /**
@@ -198,114 +180,22 @@ public class SessionManagement {
      *
      * @return session
      */
-    public static Long getSessionId(){
-        final Object o = redisTemplate.opsForValue().get(formatToken(getToken()));
-        Assert.isInstanceOf(Integer.class, o);
-        Assert.notNull(o,"session id cannot been null");
-        return Long.parseLong(o.toString());
-    }
-    /**
-     * owner
-     *
-     * @return boolean
-     */
-    public static boolean isOwner(){
-        return Objects.requireNonNull(getSession()).getOwner();
+    public static Long getSessionId() {
+        return getSession().getId();
     }
 
     /**
      * owner
      *
-     * @param username 用户名
      * @return boolean
      */
-    public static boolean isOwner(String username) {
-        return ObjectUtils.nullSafeEquals(properties.getOwner(), username);
+    public static boolean isOwner() {
+        return getSession().getOwner();
     }
 
-    /**
-     * 获取token
-     *
-     * @return token
-     */
-    private static String getToken(){
-        final String token = getAuthenticationForHeader();
-        var header = token == null ? getAuthenticationForAttribute() : token;
-        if (header == null) {
-            throw new UnsupportedOperationException(HttpStatus.UNAUTHORIZED.getReasonPhrase());
-        }
-        return extractToken(header);
+    private void checkStatus() {
+        Assert.notNull(properties, "security properties is null!");
+        Assert.notNull(redisConnectionFactory, "redis connection factory is null");
     }
-
-    /**
-     * 根据session id获取token
-     *
-     * @date 2021-05-16 02:24:54
-     * @param sessionId 会话id
-     * @return {@link String}
-     */
-    private static String getToken(Long sessionId) {
-        return getSession(sessionId).getToken();
-    }
-
-    /**
-     * 获取Authentication请求头
-     *
-     * @date 2021-05-16 02:27:04
-     * @return {@link String}
-     */
-    private static String getAuthenticationForHeader(){
-        return RequestUtil.getRequest().getHeader(HttpHeaders.AUTHORIZATION);
-    }
-
-    /**
-     * 获取Authentication键属性
-     *
-     * @date 2021-05-16 02:27:27
-     * @return {@link String}
-     */
-    private static String getAuthenticationForAttribute() {
-        return (String) RequestUtil.getRequest().getAttribute(HttpHeaders.AUTHORIZATION);
-    }
-
-    /**
-     * 提取token
-     *
-     * @param header request header
-     * @return token
-     */
-    private static String extractToken(String header) {
-        return header.replace("Bearer ", StringUtil.ENMPTY);
-    }
-
-    /**
-     * 格式化id
-     *
-     * @date 2021-05-16 02:28:30
-     * @param id id
-     * @return {@link String}
-     */
-    private static String formatId(Object id) {
-        return properties.getPrefixSessionId() + "["+ id +"]";
-    }
-
-    /**
-     * 格式化token
-     *
-     * @date 2021-05-16 02:28:44
-     * @param token token
-     * @return {@link String}
-     */
-    private static String formatToken(Object token) {
-        return properties.getPrefixSessionToken() + "[" + token + "]";
-    }
-
-    /**
-     * 获取当前session 到期时间
-     *
-     * @date 2021-05-16 02:29:20
-     * @return {@link long}
-     */
-    private static long getExpiredIn() { return (Integer) RequestUtil.getRequest().getAttribute(AuthConstants.SESSION_EXPIRED); }
 
 }

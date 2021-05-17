@@ -94,7 +94,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
         if (SessionManagement.isOwner()) {
             return -1;
         }
-        return super.baseMapper.selectListByUsername(SessionManagement.getUsername())
+        return super.baseMapper.selectListByUsername(SessionManagement.getCurrentUsername())
                                .stream()
                                .map(SysRole::getLevel)
                                .min(Integer::compareTo)

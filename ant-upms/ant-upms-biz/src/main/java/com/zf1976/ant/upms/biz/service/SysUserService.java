@@ -206,6 +206,12 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
                                   .collect(Collectors.toSet());
     }
 
+    public static void main(String[] args) {
+        AlternativeJdkIdGenerator alternativeJdkIdGenerator = new AlternativeJdkIdGenerator();
+        StringBuilder oldName = new StringBuilder("avatar-3df70e61-44d5-25b9-cef4-0e05b8c035ca.png");
+        System.out.println(oldName.insert(oldName.lastIndexOf("."), alternativeJdkIdGenerator.generateId()));
+    }
+
     /**
      * 修改头像
      *
@@ -217,19 +223,23 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     public Void updateAvatar(MultipartFile multipartFile) {
         final Long sessionId = SessionManagement.getSessionId();
         final SysUser sysUser = super.lambdaQuery()
-                                 .eq(SysUser::getId, sessionId)
-                                 .one();
+                                     .eq(SysUser::getId, sessionId)
+                                     .one();
         try {
-            final String oldFileName = sysUser.getAvatarName();
-            final StringBuilder oldName = new StringBuilder(Objects.requireNonNull(multipartFile.getOriginalFilename()));
-            final StringBuilder freshName = oldName.insert(oldName.lastIndexOf("."), "-" + jdkIdGenerator.generateId());
-            final Path path = Paths.get(FileProperties.getAvatarRealPath(), String.valueOf(freshName));
-            Files.deleteIfExists(Paths.get(FileProperties.getAvatarRealPath(), oldFileName));
+            // 原文件名
+            final String rawAvatarName = sysUser.getAvatarName();
+            // 上传文件名
+            String originalFilename = multipartFile.getOriginalFilename();
+            Assert.notNull(originalFilename, "filename cannot been null!");
+            final StringBuilder oldName = new StringBuilder(originalFilename);
+            final StringBuilder freshName = oldName.insert(oldName.lastIndexOf("."), jdkIdGenerator.generateId());
+            final Path path = Paths.get(FileProperties.getAvatarRealPath(), freshName.toString());
+            Files.deleteIfExists(Paths.get(FileProperties.getAvatarRealPath(), rawAvatarName));
             multipartFile.transferTo(path);
             sysUser.setAvatarName(String.valueOf(freshName));
             super.updateEntityById(sysUser);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            this.log.error(e.getMessage(), e.getCause());
             throw new BusinessException(BusinessMsgState.UPLOAD_ERROR);
         }
         return null;
@@ -416,7 +426,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         long sessionId = SessionManagement.getSessionId();
         if (!dto.getEnabled()) {
             // 禁止禁用管理员
-            if (SessionManagement.isOwner(sysUser.getUsername())) {
+            if (SessionManagement.isOwner()) {
                 throw new UserException(UserState.USER_OPT_ERROR);
             }
             // 禁止禁用当前操作用户
@@ -506,7 +516,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         // 超级管理员
         if (SessionManagement.isOwner()) {
             SysUser sysUser = super.lambdaQuery()
-                                   .eq(SysUser::getUsername, SessionManagement.getUsername())
+                                   .eq(SysUser::getUsername, SessionManagement.getCurrentUsername())
                                    .oneOpt().orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
             // 禁止删除超级管理员账号
             if (ids.contains(sysUser.getId())) {

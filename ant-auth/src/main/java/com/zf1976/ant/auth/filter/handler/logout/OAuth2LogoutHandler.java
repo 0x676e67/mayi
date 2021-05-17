@@ -3,7 +3,6 @@ package com.zf1976.ant.auth.filter.handler.logout;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zf1976.ant.auth.LoginUserDetails;
 import com.zf1976.ant.auth.SecurityContextHolder;
-import com.zf1976.ant.auth.enhance.RedisTokenStoreEnhancer;
 import com.zf1976.ant.auth.exception.ExpiredJwtException;
 import com.zf1976.ant.auth.exception.IllegalAccessException;
 import com.zf1976.ant.auth.exception.IllegalJwtException;
@@ -61,8 +60,6 @@ public class OAuth2LogoutHandler implements LogoutHandler {
             this.tokenStore.removeAccessToken(oAuth2AccessToken);
             // 删除refresh token
             this.tokenStore.removeRefreshToken(oAuth2RefreshToken);
-            // 删除会话
-            SessionManagement.removeSession();
         } catch (AuthenticationException e) {
             try {
                 this.unsuccessfulLogoutHandler(request, response, e);
@@ -91,6 +88,7 @@ public class OAuth2LogoutHandler implements LogoutHandler {
      * @param authentication 认证
      * @return {@link long}
      */
+    @Deprecated
     private long extractSessionId(Authentication authentication) {
         Assert.isInstanceOf(OAuth2Authentication.class, authentication);
         OAuth2Authentication oAuth2Authentication = (OAuth2Authentication) authentication;

@@ -41,11 +41,12 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractService<D extends BaseMapper<E>, E> extends ServiceImpl<D, E> {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractService.class);
-    protected static final AlternativeJdkIdGenerator JDK_ID_GENERATOR = new AlternativeJdkIdGenerator();
-    protected static final String SYS_TEM_DIR = System.getProperty("java.io.tmpdir") + File.separator;
-    protected final ThreadLocal<QueryChainWrapper<E>> queryChainWrapperThreadLocal = new ThreadLocal<>() ;
+    protected final static AlternativeJdkIdGenerator JDK_ID_GENERATOR = new AlternativeJdkIdGenerator();
+    protected final static String SYS_TEM_DIR = System.getProperty("java.io.tmpdir") + File.separator;
+    protected final Logger log = LoggerFactory.getLogger(AbstractService.class);
+    protected final ThreadLocal<QueryChainWrapper<E>> queryChainWrapperThreadLocal = new ThreadLocal<>();
     protected final ThreadLocal<Query<? extends AbstractQueryParam>> requestPageThreadLocal = new ThreadLocal<>();
+
     public AbstractService() {
         this.removeThreadLocalVariable();
     }
@@ -223,7 +224,7 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
             try {
                 map.put(field.getName(), field.get(obj));
             } catch (IllegalAccessException e) {
-                LOG.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
                 throw new BusinessException(BusinessMsgState.DOWNLOAD_ERROR);
             }
         }
@@ -333,7 +334,7 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
             file.deleteOnExit();
             writer.flush(out);
         } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             throw new BusinessException(BusinessMsgState.OPT_ERROR);
         }
     }

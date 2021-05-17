@@ -1,20 +1,12 @@
 package com.zf1976.ant.auth;
 
 import com.zf1976.ant.auth.service.impl.DynamicDataSourceService;
-import com.zf1976.ant.common.core.constants.AuthConstants;
-import com.zf1976.ant.common.security.pojo.Details;
-import com.zf1976.ant.common.security.support.session.manager.SessionManagement;
-import com.zf1976.ant.common.security.support.session.Session;
-import com.zf1976.ant.common.core.util.RequestUtil;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**

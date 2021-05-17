@@ -38,8 +38,8 @@ public class RedisTokenStoreEnhancer implements TokenStore {
     private AuthenticationKeyGenerator authenticationKeyGenerator = new DefaultAuthenticationKeyGenerator();
     private final SecurityProperties properties;
     private RedisTokenStoreSerializationStrategy jdkSerializationStrategy = new JdkSerializationStrategy();
-    private Method redisConnectionSet_2_0;
     private RedisTokenStoreSerializationStrategy jacksonSerializationStrategy = new JacksonSerializationStrategy();
+    private Method redisConnectionSet_2_0;
 
     public RedisTokenStoreEnhancer(RedisConnectionFactory connectionFactory, SecurityProperties properties) {
         this.properties = properties;

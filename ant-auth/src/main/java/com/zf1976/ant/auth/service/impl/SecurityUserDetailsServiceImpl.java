@@ -208,7 +208,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
     @Override
     @CachePut(namespace = Namespace.USER, dynamics = true)
     public Details selectUserDetails() {
-        final String username = SessionManagement.getUsername();
+        final String username = SessionManagement.getCurrentUsername();
         return this.selectUserDetails(username);
     }
 

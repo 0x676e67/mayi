@@ -22,6 +22,7 @@ public class JacksonSerializationStrategy extends StandardStringSerializationStr
     protected final static ObjectMapper MAPPER = new ObjectMapper();
 
     static {
+        MAPPER.configure(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS, false);
         // 忽略在json字符串中存在，但是在java对象中不存在对应属性的情况
         MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         // 忽略空Bean转json的错误

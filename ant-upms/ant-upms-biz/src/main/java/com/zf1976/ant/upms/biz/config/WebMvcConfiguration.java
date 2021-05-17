@@ -3,7 +3,6 @@ package com.zf1976.ant.upms.biz.config;
 import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.power.common.util.FileUtil;
 import com.zf1976.ant.common.mybatis.handle.MetaDataHandler;
-import com.zf1976.ant.upms.biz.interceptor.AuthenticationInterceptor;
 import com.zf1976.ant.upms.biz.property.FileProperties;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -11,7 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.ResourceUtils;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -49,21 +47,6 @@ public class WebMvcConfiguration implements WebMvcConfigurer, InitializingBean {
         FilterRegistrationBean registration = new FilterRegistrationBean<>(filter());
         registration.setOrder(1);
         return registration;
-    }
-
-    /**
-     * Add Spring MVC lifecycle interceptors for pre- and post-processing of
-     * controller method invocations and resource handler requests.
-     * Interceptors can be registered to apply to all requests or be limited
-     * to a subset of URL patterns.
-     *
-     * @param registry registry
-     */
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new AuthenticationInterceptor())
-                .excludePathPatterns("/avatar/**")
-                .addPathPatterns("/**");
     }
 
     @Bean

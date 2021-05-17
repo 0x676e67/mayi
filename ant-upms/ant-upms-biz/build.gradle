@@ -35,18 +35,19 @@ dependencyManagement {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
     }
 }
+
 test {
     useJUnitPlatform()
 }
 
-bootRun{
-    setMain("com.zf1976.ant.upms.biz.SystemApplication")
-}
+//bootRun{
+//    setMain("com.zf1976.ant.upms.biz.SystemApplication")
+//}
 
 jar.enabled = true
 
 
-bootJar {
-    mainClassName = "com.zf1976.ant.upms.biz.SystemApplication"
-    launchScript()
-}
+//bootJar {
+//    mainClassName = "com.zf1976.ant.upms.biz.SystemApplication"
+//    launchScript()
+//}

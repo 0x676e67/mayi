@@ -56,7 +56,7 @@ public class LoadCacheAspect {
         // 缓存Key
         String key = this.handler.parse(method, joinPoint.getArgs(), annotation.key(), String.class, annotation.key());
         if (annotation.dynamics()) {
-            key = key.concat(SessionManagement.getUsername());
+            key = key.concat(SessionManagement.getCurrentUsername());
         }
         return this.cacheProviderMap.get(annotation.implement())
                                     .getValueAndSupplier(namespace, key, annotation.expired(), () -> {

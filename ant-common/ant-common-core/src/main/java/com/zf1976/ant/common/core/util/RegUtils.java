@@ -106,12 +106,14 @@ public class RegUtils {
 
     /**
      * 校验手机号码
+     *
      * @param mobile mobile
      * @return /
      */
-    public static boolean isMoblie(String mobile){
+    public static boolean isMobile(String mobile) {
         boolean flag = false;
-        if (null != mobile && !"".equals(mobile.trim()) && mobile.trim().length() == 11) {
+        if (null != mobile && !"".equals(mobile.trim()) && mobile.trim()
+                                                                 .length() == 11) {
             Pattern pattern = Pattern.compile(PHONE);
             Matcher matcher = pattern.matcher(mobile.trim());
             flag = matcher.matches();

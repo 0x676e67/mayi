@@ -3,6 +3,7 @@ package com.zf1976.ant.upms.biz.controller;
 import com.zf1976.ant.common.core.util.RequestUtil;
 import com.zf1976.ant.common.log.annotation.Log;
 import com.zf1976.ant.common.log.dao.SysLogDao;
+import com.zf1976.ant.common.security.support.session.manager.SessionManagement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +29,6 @@ public class TestController {
     @Log(description = "测试B接口")
     @GetMapping("/testB")
     public void testB(){
-        HttpServletRequest request = RequestUtil.getRequest();
-        System.out.println(request.getParameter("hanbi"));
+        SessionManagement.removeSession(1L);
     }
 }

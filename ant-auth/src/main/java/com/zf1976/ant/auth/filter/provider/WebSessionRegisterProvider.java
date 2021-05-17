@@ -10,6 +10,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
+import java.io.IOException;
+
 /**
  * @author mac
  * Create by Ant on 2020/10/3 15:09

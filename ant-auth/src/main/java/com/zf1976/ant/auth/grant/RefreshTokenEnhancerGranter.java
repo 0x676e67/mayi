@@ -29,16 +29,9 @@ public class RefreshTokenEnhancerGranter extends AbstractTokenGranter {
     @Override
     protected OAuth2AccessToken getAccessToken(ClientDetails client, TokenRequest tokenRequest) {
         String refreshToken = tokenRequest.getRequestParameters().get("refresh_token");
-        final OAuth2Authentication oAuth2Authentication = this.getAuthentication(refreshToken);
-        // old access token
-        final OAuth2AccessToken oldAccessToken = this.tokenStore.getAccessToken(oAuth2Authentication);
         // 刷新token成功
         OAuth2AccessToken oAuth2AccessToken = this.getTokenServices().refreshAccessToken(refreshToken, tokenRequest);
         if (oAuth2AccessToken != null) {
-            // 设置token 创建新会话用到
-            RequestUtil.getRequest().setAttribute(HttpHeaders.AUTHORIZATION, oldAccessToken.getValue());
-            // 清除当前会话
-            SessionManagement.removeSession();
             return oAuth2AccessToken;
         }
         throw new InvalidGrantException("Wrong client for this refresh token: " + refreshToken);
