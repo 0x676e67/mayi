@@ -9,6 +9,7 @@ import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
 import com.zf1976.ant.common.component.mail.ValidateFactory;
 import com.zf1976.ant.common.component.mail.ValidateService;
+import com.zf1976.ant.common.core.util.UUIDUtil;
 import com.zf1976.ant.common.security.support.session.Session;
 import com.zf1976.ant.common.security.support.session.manager.SessionManagement;
 import com.zf1976.ant.common.core.constants.Namespace;
@@ -188,7 +189,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
                                .eq(SysUser::getId, id)
                                .oneOpt().orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
         sysUser.setEnabled(enabled);
-        super.updateEntityById(sysUser);
+        super.savaOrUpdate(sysUser);
         return null;
     }
 
@@ -221,23 +222,25 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Void updateAvatar(MultipartFile multipartFile) {
-        final Long sessionId = SessionManagement.getSessionId();
         final SysUser sysUser = super.lambdaQuery()
-                                     .eq(SysUser::getId, sessionId)
+                                     .select(SysUser::getAvatarName)
+                                     .eq(SysUser::getId, SessionManagement.getSessionId())
                                      .one();
         try {
             // 原文件名
-            final String rawAvatarName = sysUser.getAvatarName();
+            final String avatarName = sysUser.getAvatarName();
             // 上传文件名
             String originalFilename = multipartFile.getOriginalFilename();
             Assert.notNull(originalFilename, "filename cannot been null!");
-            final StringBuilder oldName = new StringBuilder(originalFilename);
-            final StringBuilder freshName = oldName.insert(oldName.lastIndexOf("."), jdkIdGenerator.generateId());
-            final Path path = Paths.get(FileProperties.getAvatarRealPath(), freshName.toString());
-            Files.deleteIfExists(Paths.get(FileProperties.getAvatarRealPath(), rawAvatarName));
+
+            // 新文件名
+            String filename = UUIDUtil.getUpperCaseUuid() + originalFilename.substring(originalFilename.lastIndexOf("."));
+            final Path path = Paths.get(FileProperties.getAvatarRealPath(), filename);
             multipartFile.transferTo(path);
-            sysUser.setAvatarName(String.valueOf(freshName));
-            super.updateEntityById(sysUser);
+            sysUser.setAvatarName(filename);
+            super.savaOrUpdate(sysUser);
+            // 删除旧头像文件
+            Files.deleteIfExists(Paths.get(FileProperties.getAvatarRealPath(), avatarName));
         } catch (Exception e) {
             this.log.error(e.getMessage(), e.getCause());
             throw new BusinessException(BusinessMsgState.UPLOAD_ERROR);
@@ -277,7 +280,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
 
         if (encoder.matches(rawPassword, sysUser.getPassword()) && !ValidateUtil.isPassword(freshPassword)) {
             sysUser.setPassword(encoder.encode(freshPassword));
-            super.updateEntityById(sysUser);
+            super.savaOrUpdate(sysUser);
             // 强制用户重新登陆
             SessionManagement.removeSession();
         }else {
@@ -316,7 +319,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
                         throw new BusinessException(BusinessMsgState.EMAIL_EXISTING);
                     }
                     sysUser.setEmail(dto.getEmail());
-                    super.updateEntityById(sysUser);
+                    super.savaOrUpdate(sysUser);
                 }
             } catch (BusinessException e) {
                 businessException = e;
@@ -364,7 +367,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         }
         sysUser.setGender(dto.getGender());
         sysUser.setNickName(dto.getNickName());
-        super.updateEntityById(sysUser);
+        super.savaOrUpdate(sysUser);
         return null;
     }
 
@@ -401,7 +404,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
              });
         SysUser sysUser = this.convert.toEntity(dto);
         sysUser.setPassword(DigestUtils.md5DigestAsHex(DEFAULT_PASSWORD_BYTE));
-        super.savaEntity(sysUser);
+        super.savaOrUpdate(sysUser);
         // 保存用户职位关联
         super.baseMapper.savePositionRelationById(sysUser.getId(), dto.getPositionIds());
         // 保存用户角色关联
@@ -454,7 +457,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
                  });
              });
         this.convert.copyProperties(dto, sysUser);
-        super.updateEntityById(sysUser);
+        super.savaOrUpdate(sysUser);
         this.updateDependents(dto);
         return null;
     }

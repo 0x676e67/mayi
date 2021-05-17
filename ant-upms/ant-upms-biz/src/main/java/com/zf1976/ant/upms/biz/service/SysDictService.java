@@ -2,7 +2,6 @@ package com.zf1976.ant.upms.biz.service;
 
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.zf1976.ant.common.component.load.annotation.CacheConfig;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
@@ -77,7 +76,7 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
                  throw new DictException(DictState.DICT_EXISTING, sysDict.getDictName());
              });
         SysDict sysDict = convert.toEntity(dto);
-        super.savaEntity(sysDict);
+        super.savaOrUpdate(sysDict);
         return null;
     }
 
@@ -106,7 +105,7 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
         }
 
         this.convert.copyProperties(dto, sysDict);
-        super.updateEntityById(sysDict);
+        super.savaOrUpdate(sysDict);
         return null;
     }
 

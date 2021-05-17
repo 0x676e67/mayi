@@ -26,9 +26,9 @@ public class StringUtil extends com.power.common.util.StringUtil {
 
         String[] strArray = str.split("");
         for (int i=1; i<strArray.length; i++) {
-            if(RegUtils.isNumberText(strArray[i])){
+            if (RegexUtil.isNumberText(strArray[i])) {
                 number.append(strArray[i]);
-            }else{
+            } else {
                 break;
             }
         }
@@ -56,9 +56,9 @@ public class StringUtil extends com.power.common.util.StringUtil {
         String[] strArray = str.split("");
         for (String string : strArray) {
             if(isNotEmpty(string)){
-                if(RegUtils.isNumberText(string)){
+                if (RegexUtil.isNumberText(string)) {
                     number.append(string);
-                }else{
+                } else {
                     break;
                 }
             }
@@ -84,7 +84,7 @@ public class StringUtil extends com.power.common.util.StringUtil {
 
         String[] strArray = str.split("");
         for (String string : strArray) {
-            if(isNotEmpty(str) && RegUtils.isNumberText(string)){
+            if (isNotEmpty(str) && RegexUtil.isNumberText(string)) {
                 number.append(string);
             }
         }

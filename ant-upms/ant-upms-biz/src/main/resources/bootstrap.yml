@@ -89,7 +89,7 @@ mybatis-plus:                                               #mybatis-plus 配置
 #文件路径配置
 file:
   config:
-    # 工作文件
+    # 工作文件根目录
     work-file-path: /work
     # 普通文件大小/M
     file-max-size: 50

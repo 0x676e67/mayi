@@ -25,8 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import java.util.Optional;
-
 /**
  * 数据字典详情(SysDictDetail)表Service接口
  *
@@ -81,7 +79,7 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
     @Transactional(rollbackFor = Exception.class)
     public Void saveDictDetail(DictDetailDTO dto) {
         SysDictDetail sysDictDetail = convert.toEntity(dto);
-        super.savaEntity(sysDictDetail);
+        super.savaOrUpdate(sysDictDetail);
         return null;
     }
 
@@ -100,7 +98,7 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
                                            .oneOpt()
                                            .orElseThrow(() -> new DictException(DictState.DICT_NOT_FOUND));
         this.convert.copyProperties(dto, sysDictDetail);
-        super.updateEntityById(sysDictDetail);
+        super.savaOrUpdate(sysDictDetail);
         return null;
     }
 

@@ -2,7 +2,7 @@ package com.zf1976.ant.common.security.support.signature;
 
 import com.power.common.util.StringUtil;
 import com.zf1976.ant.common.security.support.signature.datasource.ClientDataSourceProvider;
-import com.zf1976.ant.common.core.util.CaffeineCacheUtils;
+import com.zf1976.ant.common.core.util.CaffeineCacheUtil;
 import com.zf1976.ant.common.encrypt.EncryptUtil;
 import com.zf1976.ant.common.security.support.signature.exception.SignatureException;
 import org.springframework.util.Assert;
@@ -172,7 +172,7 @@ public abstract class AbstractSignatureAuthenticationStrategy implements Signatu
      * @param nonceStr 随机字符串
      */
     protected void validatePreventReplyAttack(String nonceStr) {
-        Object rawSignature = CaffeineCacheUtils.getFixedOneMinutes(nonceStr);
+        Object rawSignature = CaffeineCacheUtil.getFixedOneMinutes(nonceStr);
         if (rawSignature != null) {
             throw new SignatureException(SignatureState.ERROR_REPLY_ATTACK);
         }

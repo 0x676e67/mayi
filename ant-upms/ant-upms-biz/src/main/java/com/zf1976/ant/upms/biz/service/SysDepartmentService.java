@@ -175,7 +175,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
                  throw new DepartmentException(DepartmentState.DEPARTMENT_EXISTING, dto.getName());
              });
         SysDepartment sysDept = this.convert.toEntity(dto);
-        super.savaEntity(sysDept);
+        super.savaOrUpdate(sysDept);
         return null;
     }
 
@@ -211,7 +211,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
                  .list()
                  .forEach(dept -> {
                      dept.setEnabled(dto.getEnabled());
-                     super.updateEntityById(dept);
+                     super.savaOrUpdate(dept);
                      this.closeChildrenDept(dept.getId(), dto.getEnabled());
                  });
         }
@@ -246,7 +246,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
 
     private void update(DepartmentDTO dto, SysDepartment currentDept) {
         this.convert.copyProperties(dto, currentDept);
-        super.updateEntityById(currentDept);
+        super.savaOrUpdate(currentDept);
     }
 
     /**
@@ -349,7 +349,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
              .list()
              .forEach(var2 -> {
                  var2.setEnabled(closeValue);
-                 super.updateEntityById(var2);
+                 super.savaOrUpdate(var2);
                  this.closeChildrenDept(var2.getId(), closeValue);
              });
     }

@@ -386,29 +386,18 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
     }
 
     /**
-     * 更新检查
+     * 根据实体插入或更新
      *
      * @param entity entity
      */
-    protected void updateEntityById(E entity) {
-        if (!super.updateById(entity)) {
+    protected void savaOrUpdate(E entity) {
+        if (!super.saveOrUpdate(entity)) {
             throw new BusinessException(BusinessMsgState.VERSION_IS_UPDATE);
         }
     }
 
     /**
-     * 新增检查
-     *
-     * @param entity entity
-     */
-    protected void savaEntity(E entity) {
-        if (!super.save(entity)) {
-            throw new BusinessException(BusinessMsgState.OPT_ERROR);
-        }
-    }
-
-    /**
-     * 删除检查
+     * 根据ID集合删除
      *
      * @param ids ids
      */

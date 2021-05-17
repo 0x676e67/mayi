@@ -27,7 +27,7 @@ public final class RedisSessionRepository extends AbstractSessionRepository {
 
     private final Logger log = LoggerFactory.getLogger("[SessionManagement]");
     private final HttpClient httpClient = HttpClient.newBuilder()
-                                                    .connectTimeout(Duration.ofMillis(1000000))
+                                                    .connectTimeout(Duration.ofMillis(1000))
                                                     .version(HttpClient.Version.HTTP_1_1)
                                                     .build();
 
@@ -80,7 +80,7 @@ public final class RedisSessionRepository extends AbstractSessionRepository {
         if (token != null) {
             String logoutUrl = this.getLogoutUrl();
             HttpRequest request = HttpRequest.newBuilder()
-                                             .timeout(Duration.ofMillis(100000000))
+                                             .timeout(Duration.ofMillis(1000))
                                              .uri(URI.create(logoutUrl))
                                              .version(HttpClient.Version.HTTP_1_1)
                                              .POST(HttpRequest.BodyPublishers.noBody())

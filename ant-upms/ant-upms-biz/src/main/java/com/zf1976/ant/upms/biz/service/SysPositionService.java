@@ -66,7 +66,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
                  throw new PositionException(PositionState.POSITION_EXISTING, sysJob.getName());
              });
         SysPosition sysJob = convert.toEntity(dto);
-        super.savaEntity(sysJob);
+        super.savaOrUpdate(sysJob);
         return null;
     }
 
@@ -94,7 +94,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
         }
         // 复制属性
         this.convert.copyProperties(dto, sysPosition);
-        super.updateEntityById(sysPosition);
+        super.savaOrUpdate(sysPosition);
         return null;
     }
 

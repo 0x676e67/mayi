@@ -280,7 +280,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
         final Long id = (dto.getPid() != null)? (dto.getPid() > 0 ? dto.getPid() : null) : null;
         dto.setPid(id);
         SysMenu sysMenu = this.convert.toEntity(dto);
-        super.savaEntity(sysMenu);
+        super.savaOrUpdate(sysMenu);
         return null;
     }
 
@@ -358,7 +358,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
     private void update(MenuDTO dto, SysMenu sysMenu) {
         dto.setPid(dto.getPid() != null? dto.getPid() > 0? dto.getPid(): null : null);
         this.convert.copyProperties(dto, sysMenu);
-        super.updateEntityById(sysMenu);
+        super.savaOrUpdate(sysMenu);
     }
 
     /**

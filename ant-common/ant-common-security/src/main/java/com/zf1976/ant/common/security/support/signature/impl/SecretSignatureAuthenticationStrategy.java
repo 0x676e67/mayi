@@ -7,7 +7,7 @@ import com.zf1976.ant.common.security.support.signature.AbstractSignatureAuthent
 import com.zf1976.ant.common.security.support.signature.enums.SignaturePattern;
 import com.zf1976.ant.common.security.support.signature.StandardSignature;
 import com.zf1976.ant.common.security.support.signature.datasource.ClientDataSourceProvider;
-import com.zf1976.ant.common.core.util.CaffeineCacheUtils;
+import com.zf1976.ant.common.core.util.CaffeineCacheUtil;
 import com.zf1976.ant.common.encrypt.EncryptUtil;
 import com.zf1976.ant.common.security.support.signature.SignatureState;
 import com.zf1976.ant.common.security.support.signature.exception.SignatureException;
@@ -54,7 +54,7 @@ public class SecretSignatureAuthenticationStrategy extends AbstractSignatureAuth
         // 校验签名是否相同
         super.validateSignature(rawSignature, generateSignature);
         // 签名校验成功，缓存签名防止重放
-        CaffeineCacheUtils.setFixedOneMinutes(nonceStr, rawSignature);
+        CaffeineCacheUtil.setFixedOneMinutes(nonceStr, rawSignature);
     }
 
     @Override

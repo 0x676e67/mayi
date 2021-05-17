@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
  * @author mac
  * @date 2021/1/23
  **/
-public class RegUtils {
+public final class RegexUtil {
     /**
      * 邮箱
      */
@@ -92,23 +92,25 @@ public class RegUtils {
      */
     public static final String DATE_COMPLEX_LEAP_YEAR = "^(?:(?!0000)[0-9]{4}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-8])|(?:0[13-9]|1[0-2])-(?:29|30)|(?:0[13578]|1[02])-31)|(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26])|(?:0[48]|[2468][048]|[13579][26])00)-02-29)$";
 
+    private RegexUtil() {
+    }
 
     /**
      * 正则表达式校验,符合返回True
-     * @param regex 正则表达式
+     *
+     * @param regex   正则表达式
      * @param content 校验的内容
-     * @return
+     * @return {@link boolean}
      */
     public static boolean isMatch(String regex, CharSequence content){
         return Pattern.matches(regex, content);
     }
 
-
     /**
      * 校验手机号码
      *
      * @param mobile mobile
-     * @return /
+     * @return {@link boolean}
      */
     public static boolean isMobile(String mobile) {
         boolean flag = false;
@@ -125,7 +127,7 @@ public class RegUtils {
     /**
      * 校验邮箱
      * @param value value
-     * @return /
+     * @return {@link boolean}
      */
     public static boolean isEmail(String value){
         boolean flag = false;
@@ -141,7 +143,7 @@ public class RegUtils {
     /**
      * 校验密码
      * @param password password
-     * @return 长度符合返回true，否则为false
+     * @return {@link boolean}
      */
     public static boolean isPassword(String password){
         if (null != password && !"".equals(password.trim())) {
@@ -170,7 +172,7 @@ public class RegUtils {
     /**
      * 判断是否全部大写字母
      * @param str string
-     * @return /
+     * @return {@link boolean}
      */
     public static boolean isUpperCase(String str){
         if(StringUtil.isEmpty(str)){
@@ -184,7 +186,7 @@ public class RegUtils {
     /**
      * 判断是否全部小写字母
      * @param str string
-     * @return /
+     * @return {@link boolean}
      */
     public static boolean isLowercase(String str){
         if(StringUtil.isEmpty(str)){
@@ -198,7 +200,7 @@ public class RegUtils {
     /**
      * 是否ip地址
      * @param str string
-     * @return /
+     * @return {@link boolean}
      */
     public static boolean isIP(String str){
         if(StringUtil.isEmpty(str)){
@@ -210,7 +212,7 @@ public class RegUtils {
     /**
      * 符合返回true，区分30、31天和闰年的2月份（最严格的校验），格式为2017-10-19
      * @param str string
-     * @return /
+     * @return {@link boolean}
      */
     public static boolean isDate(String str){
         if(StringUtil.isEmpty(str)){
@@ -223,7 +225,7 @@ public class RegUtils {
     /**
      * 简单日期校验，不那么严格
      * @param str string
-     * @return /
+     * @return {@link boolean}
      */
     public static boolean isDateSimple(String str){
         if(StringUtil.isEmpty(str)){
@@ -236,7 +238,7 @@ public class RegUtils {
     /**
      * 区分30、31天，但没有区分闰年的2月份
      * @param str string
-     * @return /
+     * @return {@link boolean}
      */
     public static boolean isDateComplex(String str){
         if(StringUtil.isEmpty(str)){
@@ -249,7 +251,7 @@ public class RegUtils {
     /**
      * 判断是否为数字字符串，如0011，10101，01
      * @param str string
-     * @return /
+     * @return {@link boolean}
      */
     public static boolean isNumberText(String str){
         if(StringUtil.isEmpty(str)){
@@ -262,7 +264,7 @@ public class RegUtils {
     /**
      * 判断所有类型的数字，数字(整数、0、浮点数），可以判断是否金额，也可以是负数
      * @param str string
-     * @return /
+     * @return {@link boolean}
      */
     public static boolean isNumberAll(String str){
         if(StringUtil.isEmpty(str)){
@@ -275,7 +277,7 @@ public class RegUtils {
     /**
      * 是否为正整数数字，包括0（00，01非数字）
      * @param str string
-     * @return /
+     * @return {@link boolean}
      */
     public static boolean isIntegerWithZeroPos(String str){
         if(StringUtil.isEmpty(str)){
@@ -288,7 +290,7 @@ public class RegUtils {
     /**
      * 是否为整数，包括正、负整数，包括0（00，01非数字）
      * @param str string
-     * @return /
+     * @return {@link boolean}
      */
     public static boolean isIntegerWithZero(String str){
         if(StringUtil.isEmpty(str)){
@@ -301,7 +303,7 @@ public class RegUtils {
     /**
      * 符合返回true,QQ，5-14位
      * @param str string
-     * @return /
+     * @return {@link boolean}
      */
     public static boolean isQQ(String str){
         if(StringUtil.isEmpty(str)){

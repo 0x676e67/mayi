@@ -190,7 +190,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
                  throw new RoleException(RoleState.ROLE_EXISTING, sysRole.getName());
              });
         SysRole sysRole = this.convert.toEntity(dto);
-        super.savaEntity(sysRole);
+        super.savaOrUpdate(sysRole);
         if (permissionEnum == DataPermissionEnum.ALL) {
             Set<Long> result = this.sysDepartmentDao.selectList(null)
                                                     .stream()
@@ -235,7 +235,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
                 break;
         }
         this.convert.copyProperties(dto, sysRole);
-        super.updateEntityById(sysRole);
+        super.savaOrUpdate(sysRole);
         this.updateDependent(dto);
         return null;
     }
