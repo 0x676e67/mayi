@@ -3,7 +3,7 @@ package com.zf1976.ant.auth;
 import com.zf1976.ant.auth.service.impl.DynamicDataSourceService;
 import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.common.security.pojo.Details;
-import com.zf1976.ant.common.security.support.session.SessionManagement;
+import com.zf1976.ant.common.security.support.session.manager.SessionManagement;
 import com.zf1976.ant.common.security.support.session.Session;
 import com.zf1976.ant.common.core.util.RequestUtil;
 import com.zf1976.ant.common.security.property.SecurityProperties;
@@ -30,59 +30,6 @@ public class SecurityContextHolder extends org.springframework.security.core.con
     private static DynamicDataSourceService dynamicDataSourceService;
     private static SecurityProperties securityProperties;
 
-
-    public static void createSession(OAuth2AccessToken oAuth2AccessToken) {
-        // 获取token
-        String tokenValue = oAuth2AccessToken.getValue();
-        // 构建session
-        Session session = generatedSession(tokenValue);
-        // 保存会话
-        SessionManagement.storeSession(tokenValue, session);
-    }
-
-    @Deprecated
-    public static void createSession(String jwtToken) {
-        // 构建session
-        Session session = generatedSession(jwtToken);
-        SessionManagement.storeSession(jwtToken, session);
-    }
-
-    /**
-     * 构建会话
-     *
-     * @param token token
-     * @return /
-     */
-    public static Session generatedSession(String token) {
-        // 获取用户认证登录细节
-        // 当前请求
-        HttpServletRequest request = RequestUtil.getRequest();
-        Details userDetails = (Details) request.getAttribute(AuthConstants.DETAILS);
-
-        Object expiredTime = request.getAttribute(AuthConstants.SESSION_EXPIRED);
-        Calendar instance = Calendar.getInstance();
-        instance.add(Calendar.SECOND, (Integer) expiredTime);
-        Assert.isInstanceOf(Integer.class, expiredTime, "must be an Integer instance");
-        Session session = new Session();
-        session.setId(userDetails.getUserInfo().getId())
-               .setClientId(extractClientId())
-               .setLoginTime(new Date())
-               .setExpiredTime(instance.getTime())
-               .setUsername(userDetails.getUserInfo().getUsername())
-               .setOwner(SessionManagement.isOwner(session.getUsername()))
-               .setIp(RequestUtil.getIpAddress())
-               .setIpRegion(RequestUtil.getIpRegion())
-               .setBrowser(RequestUtil.getUserAgent())
-               .setOperatingSystemType(RequestUtil.getOpsSystemType())
-               .setToken(token);
-        return session;
-    }
-
-    private static String extractClientId() {
-        return ((UserDetails) getContext().getAuthentication()
-                                          .getPrincipal()).getUsername();
-    }
-
     public static void setShareObject(Class<?> clazz, Object object) {
         Assert.isInstanceOf(clazz, object, "must be an instance of class");
         CONTENTS_MAP.put(clazz, object);
@@ -90,19 +37,6 @@ public class SecurityContextHolder extends org.springframework.security.core.con
 
     public static <T> T getShareObject(Class<T> clazz){
         return clazz.cast(CONTENTS_MAP.get(clazz));
-    }
-
-    /**
-     * 验证uri
-     *
-     * @param request request
-     * @return /
-     */
-    public static boolean validateUri(HttpServletRequest request) {
-        String uri = request.getRequestURI();
-        Collection<String> allowedUri = dynamicDataSourceService.getAllowUri();
-        return allowedUri.stream()
-                         .anyMatch(var -> PATH_MATCHER.match(var, uri));
     }
 
     /**

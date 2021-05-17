@@ -2,7 +2,7 @@ package com.zf1976.ant.auth.grant;
 
 import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.common.core.util.RequestUtil;
-import com.zf1976.ant.common.security.support.session.SessionManagement;
+import com.zf1976.ant.common.security.support.session.manager.SessionManagement;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidGrantException;

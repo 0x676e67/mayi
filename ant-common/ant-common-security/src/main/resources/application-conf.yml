@@ -40,9 +40,9 @@ security:
   # 续期时间范围，默认1小时，单位毫秒
   token-restore: 3600000
   # 用户会话 id
-  prefix-session-id: session-id-
+  prefix-session-id: "id_to_session:"
   # 会话token
-  prefix-session-token: session-token-
+  prefix-session-token: "access_to_session:"
   # 开启续期 策略
   token-refresh: true
   # 剩下一小时内自动刷新

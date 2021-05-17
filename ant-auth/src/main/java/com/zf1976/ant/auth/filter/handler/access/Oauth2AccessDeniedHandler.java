@@ -1,4 +1,4 @@
-package com.zf1976.ant.auth.handler.access;
+package com.zf1976.ant.auth.filter.handler.access;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;

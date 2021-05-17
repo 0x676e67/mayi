@@ -1,9 +1,10 @@
-package com.zf1976.ant.common.security.support.session;
+package com.zf1976.ant.common.security.support.session.manager;
 
 import com.power.common.util.StringUtil;
 import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.common.core.util.RequestUtil;
 import com.zf1976.ant.common.security.property.SecurityProperties;
+import com.zf1976.ant.common.security.support.session.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -32,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class SessionManagement {
 
-    private static final Logger LOG = LoggerFactory.getLogger("DistributedSession-[Log]");
+    private static final Logger LOG = LoggerFactory.getLogger("[SessionManagement]");
     private static SecurityProperties properties;
     private static RedisTemplate<Object, Object> redisTemplate;
 

@@ -7,10 +7,11 @@ import com.zf1976.ant.auth.enhance.RedisTokenStoreEnhancer;
 import com.zf1976.ant.auth.filter.provider.DaoAuthenticationEnhancerProvider;
 import com.zf1976.ant.auth.grant.RefreshTokenEnhancerGranter;
 import com.zf1976.ant.auth.grant.ResourceOwnerPasswordTokenEnhancerGranter;
-import com.zf1976.ant.auth.handler.access.Oauth2AccessDeniedHandler;
-import com.zf1976.ant.auth.handler.access.Oauth2AuthenticationEntryPoint;
+import com.zf1976.ant.auth.filter.handler.access.Oauth2AccessDeniedHandler;
+import com.zf1976.ant.auth.filter.handler.access.Oauth2AuthenticationEntryPoint;
 import com.zf1976.ant.auth.interceptor.EndpointReturnInterceptor;
 import com.zf1976.ant.common.component.validate.service.CaptchaService;
+import com.zf1976.ant.common.security.property.SecurityProperties;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -59,15 +60,24 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     private final AuthenticationManager authenticationManager;
     private final JdbcClientDetailsServiceEnhancer jdbcClientDetailsServiceEnhancer;
     private final CaptchaService captchaService;
+    private final SecurityProperties securityProperties;
     private AuthorizationServerSecurityConfigurer authorizationServerSecurityConfigurer;
-    private final RedisTemplate<Object,Object> template;
+    private final RedisTemplate<Object, Object> template;
     private final KeyPair keyPair;
     private boolean isRunning = false;
 
-    public AuthorizationServerConfiguration(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, RedisTemplate<Object, Object> template, JdbcClientDetailsServiceEnhancer jdbcClientDetailsServiceEnhancer, CaptchaService captchaService, KeyPair keyPair) {
-        this.userDetailsService =  userDetailsService;
+    public AuthorizationServerConfiguration(UserDetailsService userDetailsService,
+                                            PasswordEncoder passwordEncoder,
+                                            AuthenticationManager authenticationManager,
+                                            SecurityProperties securityProperties,
+                                            RedisTemplate<Object, Object> template,
+                                            JdbcClientDetailsServiceEnhancer jdbcClientDetailsServiceEnhancer,
+                                            CaptchaService captchaService,
+                                            KeyPair keyPair) {
+        this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
+        this.securityProperties = securityProperties;
         this.template = template;
         this.jdbcClientDetailsServiceEnhancer = jdbcClientDetailsServiceEnhancer;
         this.captchaService = captchaService;
@@ -113,7 +123,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
         RedisConnectionFactory redisConnectionFactory = this.template.getRequiredConnectionFactory();
-        var tokenStore = new RedisTokenStoreEnhancer(redisConnectionFactory);
+        var tokenStore = new RedisTokenStoreEnhancer(redisConnectionFactory, securityProperties);
         SecurityContextHolder.setShareObject(TokenStore.class, tokenStore);
         endpoints.authenticationManager(authenticationManager)
                  .tokenStore(tokenStore)

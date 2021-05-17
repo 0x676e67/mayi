@@ -1,5 +1,12 @@
 package com.zf1976.ant.auth.enhance;
 
+import com.zf1976.ant.auth.LoginUserDetails;
+import com.zf1976.ant.auth.serialize.JacksonSerializationStrategy;
+import com.zf1976.ant.common.core.constants.AuthConstants;
+import com.zf1976.ant.common.core.util.RequestUtil;
+import com.zf1976.ant.common.security.property.SecurityProperties;
+import com.zf1976.ant.common.security.support.session.Session;
+import com.zf1976.ant.common.security.support.session.SessionStore;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.Cursor;
@@ -21,19 +28,23 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 /**
+ * 自带Session状态
+ *
  * @author mac
  * @date 2021/2/16
  **/
-public class RedisTokenStoreEnhancer implements TokenStore{
+public class RedisTokenStoreEnhancer implements TokenStore {
 
     private static final boolean springDataRedis_2_0 = ClassUtils.isPresent("org.springframework.data.redis.connection.RedisStandaloneConfiguration", RedisTokenStore.class.getClassLoader());
     private final RedisConnectionFactory connectionFactory;
     private AuthenticationKeyGenerator authenticationKeyGenerator = new DefaultAuthenticationKeyGenerator();
-    private RedisTokenStoreSerializationStrategy serializationStrategy = new JdkSerializationStrategy();
-    private String prefix = "";
+    private final SecurityProperties properties;
+    private RedisTokenStoreSerializationStrategy jdkSerializationStrategy = new JdkSerializationStrategy();
     private Method redisConnectionSet_2_0;
+    private RedisTokenStoreSerializationStrategy jacksonSerializationStrategy = new JacksonSerializationStrategy();
 
-    public RedisTokenStoreEnhancer(RedisConnectionFactory connectionFactory) {
+    public RedisTokenStoreEnhancer(RedisConnectionFactory connectionFactory, SecurityProperties properties) {
+        this.properties = properties;
         this.connectionFactory = connectionFactory;
         if (springDataRedis_2_0) {
             this.loadRedisConnectionMethods_2_0();
@@ -45,13 +56,14 @@ public class RedisTokenStoreEnhancer implements TokenStore{
         this.authenticationKeyGenerator = authenticationKeyGenerator;
     }
 
-    public void setSerializationStrategy(RedisTokenStoreSerializationStrategy serializationStrategy) {
-        this.serializationStrategy = serializationStrategy;
+    public void setJdkSerializationStrategy(RedisTokenStoreSerializationStrategy jdkSerializationStrategy) {
+        this.jdkSerializationStrategy = jdkSerializationStrategy;
     }
 
-    public void setPrefix(String prefix) {
-        this.prefix = prefix;
+    public void setJacksonSerializationStrategy(RedisTokenStoreSerializationStrategy jacksonSerializationStrategy) {
+        this.jacksonSerializationStrategy = jacksonSerializationStrategy;
     }
+
 
     private void loadRedisConnectionMethods_2_0() {
         this.redisConnectionSet_2_0 = ReflectionUtils.findMethod(RedisConnection.class, "set", byte[].class, byte[].class);
@@ -61,44 +73,122 @@ public class RedisTokenStoreEnhancer implements TokenStore{
         return this.connectionFactory.getConnection();
     }
 
-    private byte[] serialize(Object object) {
-        return this.serializationStrategy.serialize(object);
+    /**
+     * 序列化对象
+     *
+     * @param object object
+     * @return {@link byte[]}
+     * @date 2021-05-16 22:57:03
+     */
+    private byte[] jdkSerialize(Object object) {
+        return this.jdkSerializationStrategy.serialize(object);
     }
 
-    private byte[] serializeKey(String object) {
-        return this.serialize(this.prefix + object);
+    /**
+     * 序列化对象
+     *
+     * @param object object
+     * @return {@link byte[]}
+     */
+    private byte[] jacksonSerialize(Object object) {
+        return this.jacksonSerializationStrategy.serialize(object);
     }
 
-    private OAuth2AccessToken deserializeAccessToken(byte[] bytes) {
-        return this.serializationStrategy.deserialize(bytes, OAuth2AccessToken.class);
+    /**
+     * 序列化key
+     *
+     * @param object key
+     * @return {@link byte[]}
+     */
+    private byte[] jdkSerializeKey(String object) {
+        return this.jdkSerialize(object);
     }
 
-    private OAuth2Authentication deserializeAuthentication(byte[] bytes) {
-        return this.serializationStrategy.deserialize(bytes, OAuth2Authentication.class);
+    /**
+     * 序列化key
+     *
+     * @param object key
+     * @return {@link byte[]}
+     */
+    private byte[] jacksonSerializeKey(String object) {
+        return this.jacksonSerializationStrategy.serialize(object);
     }
 
-    private OAuth2RefreshToken deserializeRefreshToken(byte[] bytes) {
-        return this.serializationStrategy.deserialize(bytes, OAuth2RefreshToken.class);
+    /**
+     * 反序列化Session
+     *
+     * @param bytes 字节数组key
+     * @return {@link Session}
+     */
+    private Session jacksonDeserializeSession(byte[] bytes) {
+        return this.jacksonSerializationStrategy.deserialize(bytes, Session.class);
     }
 
-    private byte[] serialize(String string) {
-        return this.serializationStrategy.serialize(string);
+    /**
+     * 反序列化Access Token
+     *
+     * @param bytes 字节数组key
+     * @return {@link OAuth2AccessToken}
+     */
+    private OAuth2AccessToken jdkDeserializeAccessToken(byte[] bytes) {
+        return this.jdkSerializationStrategy.deserialize(bytes, OAuth2AccessToken.class);
     }
 
-    private String deserializeString(byte[] bytes) {
-        return this.serializationStrategy.deserializeString(bytes);
+    /**
+     * 反序列化OAuth2 认证信息
+     *
+     * @param bytes 字节数组key
+     */
+    private OAuth2Authentication jdkDeserializeAuthentication(byte[] bytes) {
+        return this.jdkSerializationStrategy.deserialize(bytes, OAuth2Authentication.class);
     }
 
+    /**
+     * 反序列化Refresh Token
+     *
+     * @param bytes 字节数组
+     * @return {@link OAuth2RefreshToken}
+     */
+    private OAuth2RefreshToken jdkDeserializeRefreshToken(byte[] bytes) {
+        return this.jdkSerializationStrategy.deserialize(bytes, OAuth2RefreshToken.class);
+    }
+
+    /**
+     * 序列户String
+     *
+     * @param string string
+     * @return {@link byte[]}
+     */
+    private byte[] jdkSerialize(String string) {
+        return this.jdkSerializationStrategy.serialize(string);
+    }
+
+    /**
+     * 反序列化String
+     *
+     * @param bytes 字节数组key
+     * @return {@link String}
+     */
+    private String jdkDeserializeString(byte[] bytes) {
+        return this.jdkSerializationStrategy.deserializeString(bytes);
+    }
+
+    /**
+     * 根据OAuth2认证信息获取AccessToken
+     *
+     * @param authentication 认证信息
+     * @return {@link OAuth2AccessToken}
+     */
     public OAuth2AccessToken getAccessToken(OAuth2Authentication authentication) {
         String key = this.authenticationKeyGenerator.extractKey(authentication);
-        byte[] serializedKey = this.serializeKey("auth_to_access:" + key);
+        byte[] serializedKey = this.jdkSerializeKey("auth_to_access:" + key);
         byte[] bytes;
 
         try (RedisConnection conn = this.getConnection()) {
             bytes = conn.get(serializedKey);
         }
 
-        OAuth2AccessToken accessToken = this.deserializeAccessToken(bytes);
+        OAuth2AccessToken accessToken = this.jdkDeserializeAccessToken(bytes);
         if (accessToken != null) {
             OAuth2Authentication storedAuthentication = this.readAuthentication(accessToken.getValue());
             if (storedAuthentication == null || !key.equals(this.authenticationKeyGenerator.extractKey(storedAuthentication))) {
@@ -109,34 +199,55 @@ public class RedisTokenStoreEnhancer implements TokenStore{
         return accessToken;
     }
 
+    /**
+     * 读取Authentication
+     *
+     * @param token Access token
+     * @return {@link OAuth2Authentication}
+     */
     public OAuth2Authentication readAuthentication(OAuth2AccessToken token) {
         return this.readAuthentication(token.getValue());
     }
 
+    /**
+     * 读取Authentication
+     *
+     * @param token token
+     * @return {@link OAuth2Authentication}
+     */
     public OAuth2Authentication readAuthentication(String token) {
-        RedisConnection conn = this.getConnection();
 
         byte[] bytes;
-        try {
-            bytes = conn.get(this.serializeKey("auth:" + token));
-        } finally {
-            conn.close();
+        try (RedisConnection conn = this.getConnection()) {
+            bytes = conn.get(this.jdkSerializeKey("auth:" + token));
         }
 
-        return this.deserializeAuthentication(bytes);
+        return this.jdkDeserializeAuthentication(bytes);
     }
 
+    /**
+     * 根据Refresh Token 读取Authentication
+     *
+     * @param token OAuth2RefreshToken
+     * @return {@link OAuth2Authentication}
+     */
     public OAuth2Authentication readAuthenticationForRefreshToken(OAuth2RefreshToken token) {
         return this.readAuthenticationForRefreshToken(token.getValue());
     }
 
+    /**
+     * 根据Refresh Token 读取Authentication
+     *
+     * @param token refresh token
+     * @return {@link OAuth2Authentication}
+     */
     public OAuth2Authentication readAuthenticationForRefreshToken(String token) {
         RedisConnection conn = this.getConnection();
 
         OAuth2Authentication var5;
         try {
-            byte[] bytes = conn.get(this.serializeKey("refresh_auth:" + token));
-            var5 = this.deserializeAuthentication(bytes);
+            byte[] bytes = conn.get(this.jdkSerializeKey("refresh_auth:" + token));
+            var5 = this.jdkDeserializeAuthentication(bytes);
         } finally {
             conn.close();
         }
@@ -144,19 +255,42 @@ public class RedisTokenStoreEnhancer implements TokenStore{
         return var5;
     }
 
+    /**
+     * 存储AccessToken
+     *
+     * @param token          {@link OAuth2AccessToken}
+     * @param authentication {@link OAuth2Authentication}
+     */
     public void storeAccessToken(OAuth2AccessToken token, OAuth2Authentication authentication) {
-        byte[] serializedAccessToken = this.serialize(token);
-        byte[] serializedAuth = this.serialize(authentication);
-        byte[] accessKey = this.serializeKey("access:" + token.getValue());
-        byte[] authKey = this.serializeKey("auth:" + token.getValue());
-        byte[] authToAccessKey = this.serializeKey("auth_to_access:" + this.authenticationKeyGenerator.extractKey(authentication));
-        byte[] approvalKey = this.serializeKey("uname_to_access:" + getApprovalKey(authentication));
-        byte[] clientId = this.serializeKey("client_id_to_access:" + authentication.getOAuth2Request().getClientId());
-
+        LoginUserDetails details = (LoginUserDetails) authentication.getPrincipal();
+        // 序列化Session
+        byte[] serializeSession = this.jacksonSerialize(this.generationSession(token, authentication));
+        // 序列化AccessToken
+        byte[] serializedAccessToken = this.jdkSerialize(token);
+        // 序列化Authentication
+        byte[] serializedAuth = this.jdkSerialize(authentication);
+        // 序列化id-token键
+        byte[] idToSessionKey = this.jacksonSerializeKey(properties.getPrefixSessionId() + details.getId());
+        // 序列化session-token键
+        byte[] accessToSessionKey = this.jacksonSerializeKey(properties.getPrefixSessionToken() + token.getValue());
+        // 序列化access-token键
+        byte[] accessKey = this.jdkSerializeKey("access:" + token.getValue());
+        // 序列化auth-token键
+        byte[] authKey = this.jdkSerializeKey("auth:" + token.getValue());
+        // 序列化auth-to-access键
+        byte[] authToAccessKey = this.jdkSerializeKey("auth_to_access:" + this.authenticationKeyGenerator.extractKey(authentication));
+        // 序列化批准键
+        byte[] approvalKey = this.jdkSerializeKey("uname_to_access:" + getApprovalKey(authentication));
+        // 序列化client-id-to-access键
+        byte[] clientId = this.jdkSerializeKey("client_id_to_access:" + authentication.getOAuth2Request()
+                                                                                      .getClientId());
         try (RedisConnection conn = this.getConnection()) {
             conn.openPipeline();
+            // Spring boot 2.0版本
             if (springDataRedis_2_0) {
                 try {
+                    this.redisConnectionSet_2_0.invoke(conn, idToSessionKey, serializeSession);
+                    this.redisConnectionSet_2_0.invoke(conn, accessToSessionKey, serializeSession);
                     this.redisConnectionSet_2_0.invoke(conn, accessKey, serializedAccessToken);
                     this.redisConnectionSet_2_0.invoke(conn, authKey, serializedAuth);
                     this.redisConnectionSet_2_0.invoke(conn, authToAccessKey, serializedAccessToken);
@@ -164,8 +298,17 @@ public class RedisTokenStoreEnhancer implements TokenStore{
                     throw new RuntimeException(var24);
                 }
             } else {
+                // 只要是拥有token/authentication都可序列化对方
+
+                // 以id_to_session:前缀id指向Session
+                conn.set(idToSessionKey, serializeSession);
+                // 以token_to_session:前缀token指向Session
+                conn.set(accessToSessionKey, serializeSession);
+                // 以access:前缀token指向OAuth2AccessToken
                 conn.set(accessKey, serializedAccessToken);
+                // 以auth:前缀token指向OAuth2Authentication
                 conn.set(authKey, serializedAuth);
+                // 以auth_to_access:前缀authentication指向OAuth2AccessToken
                 conn.set(authToAccessKey, serializedAccessToken);
             }
 
@@ -176,6 +319,8 @@ public class RedisTokenStoreEnhancer implements TokenStore{
             conn.sAdd(clientId, new byte[][]{serializedAccessToken});
             if (token.getExpiration() != null) {
                 int seconds = token.getExpiresIn();
+                conn.expire(idToSessionKey, seconds);
+                conn.expire(accessToSessionKey, seconds);
                 conn.expire(accessKey, seconds);
                 conn.expire(authKey, seconds);
                 conn.expire(authToAccessKey, seconds);
@@ -185,12 +330,12 @@ public class RedisTokenStoreEnhancer implements TokenStore{
 
             OAuth2RefreshToken refreshToken = token.getRefreshToken();
             if (refreshToken != null && refreshToken.getValue() != null) {
-                byte[] refresh = this.serialize(token.getRefreshToken()
-                                                     .getValue());
-                byte[] auth = this.serialize(token.getValue());
-                byte[] refreshToAccessKey = this.serializeKey("refresh_to_access:" + token.getRefreshToken()
-                                                                                          .getValue());
-                byte[] accessToRefreshKey = this.serializeKey("access_to_refresh:" + token.getValue());
+                byte[] refresh = this.jdkSerialize(token.getRefreshToken()
+                                                        .getValue());
+                byte[] auth = this.jdkSerialize(token.getValue());
+                byte[] refreshToAccessKey = this.jdkSerializeKey("refresh_to_access:" + token.getRefreshToken()
+                                                                                             .getValue());
+                byte[] accessToRefreshKey = this.jdkSerializeKey("access_to_refresh:" + token.getValue());
                 if (springDataRedis_2_0) {
                     try {
                         this.redisConnectionSet_2_0.invoke(conn, refreshToAccessKey, auth);
@@ -240,20 +385,31 @@ public class RedisTokenStoreEnhancer implements TokenStore{
     }
 
     public OAuth2AccessToken readAccessToken(String tokenValue) {
-        byte[] key = this.serializeKey("access:" + tokenValue);
+        byte[] key = this.jdkSerializeKey("access:" + tokenValue);
         byte[] bytes;
 
         try (RedisConnection conn = this.getConnection()) {
             bytes = conn.get(key);
         }
 
-        return this.deserializeAccessToken(bytes);
+        return this.jdkDeserializeAccessToken(bytes);
     }
 
     public void removeAccessToken(String tokenValue) {
-        byte[] accessKey = this.serializeKey("access:" + tokenValue);
-        byte[] authKey = this.serializeKey("auth:" + tokenValue);
-        byte[] accessToRefreshKey = this.serializeKey("access_to_refresh:" + tokenValue);
+        byte[] accessKey = this.jdkSerializeKey("access:" + tokenValue);
+        byte[] authKey = this.jdkSerializeKey("auth:" + tokenValue);
+        byte[] accessToRefreshKey = this.jdkSerializeKey("access_to_refresh:" + tokenValue);
+        byte[] accessToSessionKey = this.jacksonSerializeKey(this.properties.getPrefixSessionToken() + tokenValue);
+        // 删除Session
+        try (RedisConnection conn = this.getConnection()) {
+            byte[] sessionBytes = conn.get(accessToSessionKey);
+            Session session = this.jacksonDeserializeSession(sessionBytes);
+            byte[] idToSessionKey = this.jacksonSerializeKey(this.properties.getPrefixSessionId() + session.getId());
+            conn.openPipeline();
+            conn.del(idToSessionKey);
+            conn.del(accessToSessionKey);
+            conn.closePipeline();
+        }
 
         try (RedisConnection conn = this.getConnection()) {
             conn.openPipeline();
@@ -263,20 +419,22 @@ public class RedisTokenStoreEnhancer implements TokenStore{
             conn.del(new byte[][]{accessToRefreshKey});
             conn.del(new byte[][]{authKey});
             List<Object> results = conn.closePipeline();
+            // 获取OAuthAccessToken
             byte[] access = (byte[]) results.get(0);
+            // 获取OAuthAuthentication
             byte[] auth = (byte[]) results.get(1);
-            OAuth2Authentication authentication = this.deserializeAuthentication(auth);
+            OAuth2Authentication authentication = this.jdkDeserializeAuthentication(auth);
             if (authentication != null) {
                 String key = this.authenticationKeyGenerator.extractKey(authentication);
-                byte[] authToAccessKey = this.serializeKey("auth_to_access:" + key);
-                byte[] unameKey = this.serializeKey("uname_to_access:" + getApprovalKey(authentication));
-                byte[] clientId = this.serializeKey("client_id_to_access:" + authentication.getOAuth2Request()
-                                                                                           .getClientId());
+                byte[] authToAccessKey = this.jdkSerializeKey("auth_to_access:" + key);
+                byte[] unameKey = this.jdkSerializeKey("uname_to_access:" + getApprovalKey(authentication));
+                byte[] clientId = this.jdkSerializeKey("client_id_to_access:" + authentication.getOAuth2Request()
+                                                                                              .getClientId());
                 conn.openPipeline();
                 conn.del(new byte[][]{authToAccessKey});
                 conn.sRem(unameKey, new byte[][]{access});
                 conn.sRem(clientId, new byte[][]{access});
-                conn.del(new byte[][]{this.serialize("access:" + key)});
+                conn.del(new byte[][]{this.jdkSerialize("access:" + key)});
                 conn.closePipeline();
             }
         }
@@ -284,22 +442,22 @@ public class RedisTokenStoreEnhancer implements TokenStore{
     }
 
     public void storeRefreshToken(OAuth2RefreshToken refreshToken, OAuth2Authentication authentication) {
-        byte[] refreshKey = this.serializeKey("refresh:" + refreshToken.getValue());
-        byte[] refreshAuthKey = this.serializeKey("refresh_auth:" + refreshToken.getValue());
-        byte[] serializedRefreshToken = this.serialize(refreshToken);
+        byte[] refreshKey = this.jdkSerializeKey("refresh:" + refreshToken.getValue());
+        byte[] refreshAuthKey = this.jdkSerializeKey("refresh_auth:" + refreshToken.getValue());
+        byte[] serializedRefreshToken = this.jdkSerialize(refreshToken);
 
         try (RedisConnection conn = this.getConnection()) {
             conn.openPipeline();
             if (springDataRedis_2_0) {
                 try {
                     this.redisConnectionSet_2_0.invoke(conn, refreshKey, serializedRefreshToken);
-                    this.redisConnectionSet_2_0.invoke(conn, refreshAuthKey, this.serialize(authentication));
+                    this.redisConnectionSet_2_0.invoke(conn, refreshAuthKey, this.jdkSerialize(authentication));
                 } catch (Exception var13) {
                     throw new RuntimeException(var13);
                 }
             } else {
                 conn.set(refreshKey, serializedRefreshToken);
-                conn.set(refreshAuthKey, this.serialize(authentication));
+                conn.set(refreshAuthKey, this.jdkSerialize(authentication));
             }
 
             refreshTokenInstanceofCheck(conn, refreshToken, refreshKey, refreshAuthKey);
@@ -310,7 +468,7 @@ public class RedisTokenStoreEnhancer implements TokenStore{
     }
 
     public OAuth2RefreshToken readRefreshToken(String tokenValue) {
-        byte[] key = this.serializeKey("refresh:" + tokenValue);
+        byte[] key = this.jdkSerializeKey("refresh:" + tokenValue);
         byte[] bytes;
 
 
@@ -318,7 +476,7 @@ public class RedisTokenStoreEnhancer implements TokenStore{
             bytes = conn.get(key);
         }
 
-        return this.deserializeRefreshToken(bytes);
+        return this.jdkDeserializeRefreshToken(bytes);
     }
 
     public void removeRefreshToken(OAuth2RefreshToken refreshToken) {
@@ -326,10 +484,10 @@ public class RedisTokenStoreEnhancer implements TokenStore{
     }
 
     public void removeRefreshToken(String tokenValue) {
-        byte[] refreshKey = this.serializeKey("refresh:" + tokenValue);
-        byte[] refreshAuthKey = this.serializeKey("refresh_auth:" + tokenValue);
-        byte[] refresh2AccessKey = this.serializeKey("refresh_to_access:" + tokenValue);
-        byte[] access2RefreshKey = this.serializeKey("access_to_refresh:" + tokenValue);
+        byte[] refreshKey = this.jdkSerializeKey("refresh:" + tokenValue);
+        byte[] refreshAuthKey = this.jdkSerializeKey("refresh_auth:" + tokenValue);
+        byte[] refresh2AccessKey = this.jdkSerializeKey("refresh_to_access:" + tokenValue);
+        byte[] access2RefreshKey = this.jdkSerializeKey("access_to_refresh:" + tokenValue);
 
         try (RedisConnection conn = this.getConnection()) {
             conn.openPipeline();
@@ -347,7 +505,7 @@ public class RedisTokenStoreEnhancer implements TokenStore{
     }
 
     private void removeAccessTokenUsingRefreshToken(String refreshToken) {
-        byte[] key = this.serializeKey("refresh_to_access:" + refreshToken);
+        byte[] key = this.jdkSerializeKey("refresh_to_access:" + refreshToken);
         List<Object> results;
 
         try (RedisConnection conn = this.getConnection()) {
@@ -358,7 +516,7 @@ public class RedisTokenStoreEnhancer implements TokenStore{
         }
 
         byte[] bytes = (byte[]) results.get(0);
-        String accessToken = this.deserializeString(bytes);
+        String accessToken = this.jdkDeserializeString(bytes);
         if (accessToken != null) {
             this.removeAccessToken(accessToken);
         }
@@ -379,7 +537,7 @@ public class RedisTokenStoreEnhancer implements TokenStore{
     }
 
     public Collection<OAuth2AccessToken> findTokensByClientIdAndUserName(String clientId, String userName) {
-        byte[] approvalKey = this.serializeKey("uname_to_access:" + getApprovalKey(clientId, userName));
+        byte[] approvalKey = this.jdkSerializeKey("uname_to_access:" + getApprovalKey(clientId, userName));
         return getOAuth2AccessTokenList(approvalKey);
     }
 
@@ -394,7 +552,7 @@ public class RedisTokenStoreEnhancer implements TokenStore{
             List<OAuth2AccessToken> accessTokens = new ArrayList<>(byteList.size());
 
             for (byte[] bytes : byteList) {
-                OAuth2AccessToken accessToken = this.deserializeAccessToken(bytes);
+                OAuth2AccessToken accessToken = this.jdkDeserializeAccessToken(bytes);
                 accessTokens.add(accessToken);
             }
 
@@ -405,7 +563,30 @@ public class RedisTokenStoreEnhancer implements TokenStore{
     }
 
     public Collection<OAuth2AccessToken> findTokensByClientId(String clientId) {
-        byte[] key = this.serializeKey("client_id_to_access:" + clientId);
+        byte[] key = this.jdkSerializeKey("client_id_to_access:" + clientId);
         return getOAuth2AccessTokenList(key);
     }
+
+    private Session generationSession(OAuth2AccessToken token, OAuth2Authentication authentication) {
+        Object principal = authentication.getUserAuthentication()
+                                         .getPrincipal();
+        LoginUserDetails details = (LoginUserDetails) principal;
+        String clientId = authentication.getOAuth2Request()
+                                        .getClientId();
+        return new Session()
+                .setId(details.getId())
+                .setUsername(details.getUsername())
+                .setClientId(clientId)
+                .setIp(RequestUtil.getIpAddress())
+                .setIpRegion(RequestUtil.getIpRegion())
+                .setToken(token.getValue())
+                .setBrowser(RequestUtil.getUserAgent())
+                .setExpiredTime(token.getExpiration())
+                .setLoginTime(new Date())
+                .setOperatingSystemType(RequestUtil.getOpsSystemType())
+                .setOwner(this.properties.getOwner()
+                                         .equals(details.getUsername()));
+
+    }
+
 }

@@ -1,12 +1,13 @@
-package com.zf1976.ant.auth.handler.logout;
+package com.zf1976.ant.auth.filter.handler.logout;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zf1976.ant.auth.LoginUserDetails;
 import com.zf1976.ant.auth.SecurityContextHolder;
+import com.zf1976.ant.auth.enhance.RedisTokenStoreEnhancer;
 import com.zf1976.ant.auth.exception.ExpiredJwtException;
 import com.zf1976.ant.auth.exception.IllegalAccessException;
 import com.zf1976.ant.auth.exception.IllegalJwtException;
-import com.zf1976.ant.common.security.support.session.SessionManagement;
+import com.zf1976.ant.common.security.support.session.manager.SessionManagement;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.security.enums.AuthenticationState;
 import org.slf4j.Logger;
@@ -35,11 +36,42 @@ import java.io.IOException;
  * Create by Ant on 2020/10/4 01:03
  */
 @SuppressWarnings("rawtypes")
-public class Oauth2LogoutHandler implements LogoutHandler {
+public class OAuth2LogoutHandler implements LogoutHandler {
 
-    public final Logger log = LoggerFactory.getLogger(this.getClass());
-    private final TokenStore tokenStore = SecurityContextHolder.getShareObject(TokenStore.class);
-    private final TokenExtractor tokenExtractor = new BearerTokenExtractor();
+    public final Logger log = LoggerFactory.getLogger("[Oauth2LogoutHandler]");
+    private final TokenStore tokenStore;
+    private final TokenExtractor tokenExtractor;
+
+    public OAuth2LogoutHandler() {
+        TokenStore shareObject = SecurityContextHolder.getShareObject(TokenStore.class);
+        Assert.notNull(shareObject, "share object RedisStore is cannot been null!");
+        this.tokenStore = shareObject;
+        this.tokenExtractor = new BearerTokenExtractor();
+    }
+
+    @Override
+    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+        try {
+            this.support(request);
+
+            String accessToken = this.extractAccessToken(request);
+            final OAuth2AccessToken oAuth2AccessToken = this.tokenStore.readAccessToken(accessToken);
+            final OAuth2RefreshToken oAuth2RefreshToken = oAuth2AccessToken.getRefreshToken();
+            // 删除access token
+            this.tokenStore.removeAccessToken(oAuth2AccessToken);
+            // 删除refresh token
+            this.tokenStore.removeRefreshToken(oAuth2RefreshToken);
+            // 删除会话
+            SessionManagement.removeSession();
+        } catch (AuthenticationException e) {
+            try {
+                this.unsuccessfulLogoutHandler(request, response, e);
+            } catch (IOException ioException) {
+                log.error(ioException.getMessage(), ioException.getCause());
+            }
+            throw e;
+        }
+    }
 
     /**
      * 校验请求方法
@@ -53,41 +85,37 @@ public class Oauth2LogoutHandler implements LogoutHandler {
         }
     }
 
-    @Override
-    public void logout(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) {
-        try {
-            this.support(httpServletRequest);
-            Assert.isInstanceOf(OAuth2Authentication.class, authentication);
-            OAuth2Authentication oAuth2Authentication = (OAuth2Authentication) authentication;
-            final LoginUserDetails antUserDetails = (LoginUserDetails) oAuth2Authentication.getUserAuthentication().getPrincipal();
-            if (!oAuth2Authentication.isAuthenticated()) {
-                throw new ExpiredJwtException(AuthenticationState.ILLEGAL_ACCESS);
-            }
-            if (antUserDetails == null) {
-                throw new ExpiredJwtException(AuthenticationState.EXPIRED_JWT);
-            }
-            Assert.notNull(antUserDetails.getId(), "id cannot been null");
-            final Object principal = this.tokenExtractor.extract(httpServletRequest).getPrincipal();
-            if (!(principal instanceof String)) {
-                throw new ExpiredJwtException(AuthenticationState.EXPIRED_JWT);
-            }
-            String accessToken = (String) principal;
-            final OAuth2AccessToken oAuth2AccessToken = this.tokenStore.readAccessToken(accessToken);
-            final OAuth2RefreshToken oAuth2RefreshToken = oAuth2AccessToken.getRefreshToken();
-            // 删除access token
-            this.tokenStore.removeAccessToken(oAuth2AccessToken);
-            // 删除refresh token
-            this.tokenStore.removeRefreshToken(oAuth2RefreshToken);
-            // 删除会话
-            SessionManagement.removeSession();
-        } catch (AuthenticationException e) {
-            try {
-                this.unsuccessfulLogoutHandler(httpServletRequest, httpServletResponse, e);
-            } catch (IOException ioException) {
-                log.error(ioException.getMessage(), ioException.getCause());
-            }
-            throw e;
+    /**
+     * 提取Session ID
+     *
+     * @param authentication 认证
+     * @return {@link long}
+     */
+    private long extractSessionId(Authentication authentication) {
+        Assert.isInstanceOf(OAuth2Authentication.class, authentication);
+        OAuth2Authentication oAuth2Authentication = (OAuth2Authentication) authentication;
+        LoginUserDetails details = (LoginUserDetails) oAuth2Authentication.getUserAuthentication()
+                                                                          .getPrincipal();
+        if (!oAuth2Authentication.isAuthenticated() || details == null) {
+            throw new ExpiredJwtException(AuthenticationState.ILLEGAL_ACCESS);
         }
+        Assert.notNull(details.getId(), "id cannot been null");
+        return details.getId();
+    }
+
+    /**
+     * 提取token
+     *
+     * @param request 请求
+     * @return {@link String}
+     */
+    private String extractAccessToken(HttpServletRequest request) {
+        final Object principal = this.tokenExtractor.extract(request)
+                                                    .getPrincipal();
+        if (!(principal instanceof String)) {
+            throw new ExpiredJwtException(AuthenticationState.EXPIRED_JWT);
+        }
+        return ((String) principal);
     }
 
     /**

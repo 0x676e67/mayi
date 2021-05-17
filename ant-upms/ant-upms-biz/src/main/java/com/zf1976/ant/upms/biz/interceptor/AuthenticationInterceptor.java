@@ -1,6 +1,6 @@
 package com.zf1976.ant.upms.biz.interceptor;
 
-import com.zf1976.ant.common.security.support.session.SessionManagement;
+import com.zf1976.ant.common.security.support.session.manager.SessionManagement;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.core.util.JSONUtil;
 import org.slf4j.Logger;

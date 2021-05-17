@@ -42,8 +42,4 @@ public class JwtTokenEnhancer implements TokenEnhancer {
         return oAuth2AccessToken;
     }
 
-    public Long getId(OAuth2Authentication oAuth2Authentication) {
-        LoginUserDetails antUserDetails = (LoginUserDetails) oAuth2Authentication.getPrincipal();
-        return antUserDetails.getId();
-    }
 }

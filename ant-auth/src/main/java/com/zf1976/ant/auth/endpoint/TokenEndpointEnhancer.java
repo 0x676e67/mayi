@@ -21,6 +21,7 @@ import org.springframework.util.AlternativeJdkIdGenerator;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.Map;
 import java.util.UUID;
@@ -59,11 +60,7 @@ public class TokenEndpointEnhancer {
             OAuth2AccessToken oAuth2AccessToken = responseEntity.getBody();
             if (responseEntity.getStatusCode().is2xxSuccessful() && oAuth2AccessToken != null) {
                 String username = (String) oAuth2AccessToken.getAdditionalInformation().get(AuthConstants.USERNAME);
-                Details details = userDetailsService.selectUserDetails(username);
-                RequestUtil.getRequest().setAttribute(AuthConstants.DETAILS, userDetailsService.selectUserDetails(username));
-                RequestUtil.getRequest().setAttribute(AuthConstants.SESSION_EXPIRED, oAuth2AccessToken.getExpiresIn());
-                SecurityContextHolder.createSession(oAuth2AccessToken);
-                return DataResult.success(new LoginDetails(oAuth2AccessToken, details));
+                return DataResult.success(new LoginDetails(oAuth2AccessToken, userDetailsService.selectUserDetails(username)));
             }
             throw new InsufficientAuthenticationException("Client authentication failed.");
         }

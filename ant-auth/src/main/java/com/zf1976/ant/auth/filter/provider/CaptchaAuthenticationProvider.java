@@ -1,4 +1,4 @@
-package com.zf1976.ant.auth.filter.deprecate.provider;
+package com.zf1976.ant.auth.filter.provider;
 
 import com.zf1976.ant.auth.exception.CaptchaException;
 import com.zf1976.ant.common.component.validate.service.CaptchaService;

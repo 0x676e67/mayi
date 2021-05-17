@@ -7,8 +7,8 @@ import com.zf1976.ant.auth.filter.DynamicSecurityFilter;
 import com.zf1976.ant.auth.filter.OAuth2TokenAuthenticationFilter;
 import com.zf1976.ant.auth.filter.SignatureAuthenticationFilter;
 import com.zf1976.ant.auth.filter.provider.DaoAuthenticationEnhancerProvider;
-import com.zf1976.ant.auth.handler.logout.Oauth2LogoutHandler;
-import com.zf1976.ant.auth.handler.logout.Oauth2LogoutSuccessHandler;
+import com.zf1976.ant.auth.filter.handler.logout.OAuth2LogoutHandler;
+import com.zf1976.ant.auth.filter.handler.logout.Oauth2LogoutSuccessHandler;
 import com.zf1976.ant.common.security.property.AuthProperties;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
@@ -103,13 +103,15 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         //关闭CSRF
-        http.csrf().disable()
+        http.csrf()
+            .disable()
             // 允许跨域
             .cors()
             .and()
             // 登出处理
-            .logout().logoutUrl("/oauth/logout")
-            .addLogoutHandler(new Oauth2LogoutHandler())
+            .logout()
+            .logoutUrl("/oauth/logout")
+            .addLogoutHandler(new OAuth2LogoutHandler())
             .logoutSuccessHandler(new Oauth2LogoutSuccessHandler())
             .and()
             // 防止iframe跨域

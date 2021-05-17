@@ -15,29 +15,36 @@ import java.util.regex.Pattern;
  */
 public class IpUtil {
 
+    private static final String REGEX = "(10|172|192)\\.([0-1][0-9]{0,2}|[2][0-5]{0,2}|[3-9][0-9]{0,1})\\.([0-1][0-9]{0,2}|[2][0-5]{0,2}|[3-9][0-9]{0,1})\\.([0-1][0-9]{0,2}|[2][0-5]{0,2}|[3-9][0-9]{0,1})";
+    private static final Pattern PATTERN = Pattern.compile(REGEX);
+
     public static void main(String[] args) throws Exception {
-        System.out.println(IpUtil.getInterIP1());
-        System.out.println(IpUtil.getInterIP2());
-        System.out.println(IpUtil.getOutIPV4());
+        String ipAddress = RequestUtil.getIpAddress();
+        String ipRegion = RequestUtil.getIpRegion();
+        Matcher matcher = PATTERN.matcher(ipAddress);
+        if (matcher.find()) {
+            System.out.println(matcher.group(0));
+        }
     }
 
     /**
      * 获取本地ip地址
      *
-     * @date 2021-05-11 13:38:10
      * @return {@link String}
+     * @date 2021-05-11 13:38:10
      */
-    public static String getInterIP1() throws Exception {
-        return InetAddress.getLocalHost().getHostAddress();
+    public static String getInterLocalIP() throws Exception {
+        return InetAddress.getLocalHost()
+                          .getHostAddress();
     }
 
     /**
      * 获取内网ip地址
      *
-     * @date 2021-05-11 13:37:51
      * @return {@link String}
+     * @date 2021-05-11 13:37:51
      */
-    public static String getInterIP2() {
+    public static String getInterIP() {
         // 本地IP，如果没有配置外网IP则返回它
         String localIp = null;
         // 外网IP
@@ -74,6 +81,12 @@ public class IpUtil {
         }
     }
 
+    /**
+     * 获取请求ip地址
+     *
+     * @return {@link String}
+     * @date 2021-05-17 10:29:28
+     */
     public static String getOutIPV4() {
         String ip = "";
         String api = "https://ip.chinaz.com";

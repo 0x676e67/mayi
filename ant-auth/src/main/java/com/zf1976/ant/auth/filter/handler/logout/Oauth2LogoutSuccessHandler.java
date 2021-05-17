@@ -1,4 +1,4 @@
-package com.zf1976.ant.auth.handler.logout;
+package com.zf1976.ant.auth.filter.handler.logout;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zf1976.ant.auth.LoginUserDetails;

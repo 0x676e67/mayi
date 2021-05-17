@@ -1,12 +1,10 @@
 package com.zf1976.ant.common.core.util;
 
 
-import com.power.common.util.StringUtil;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.request.RequestAttributes;
@@ -132,7 +130,7 @@ public final class RequestUtil extends RequestContextHolder {
      */
     public static String getIpRegion() {
         try {
-            String ipRegion = IpUtil.getInterIP2();
+            String ipRegion = IpUtil.getInterIP();
             return getIpRegion(ipRegion);
         } catch (Exception e) {
             LOG.error("get ip region error", e.getCause());

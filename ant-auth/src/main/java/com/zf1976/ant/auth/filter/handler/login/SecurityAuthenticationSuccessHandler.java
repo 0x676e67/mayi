@@ -1,4 +1,4 @@
-package com.zf1976.ant.auth.handler.login;
+package com.zf1976.ant.auth.filter.handler.login;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.power.common.util.Base64Util;
@@ -43,8 +43,6 @@ public class SecurityAuthenticationSuccessHandler implements AuthenticationSucce
         final String token = (String) authentication.getCredentials();
         final LoginResponse loginResponse = new LoginResponse();
         loginResponse.setToken(token).setUser(userDetails);
-        // 创建session
-        SecurityContextHolder.createSession(token);
         // 原始content
         String rawContent = jsonMapper.writeValueAsString(DataResult.success(loginResponse));
         // 加密后内容

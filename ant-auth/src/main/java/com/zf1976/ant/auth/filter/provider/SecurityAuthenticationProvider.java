@@ -1,4 +1,4 @@
-package com.zf1976.ant.auth.filter.deprecate.provider;
+package com.zf1976.ant.auth.filter.provider;
 
 import com.zf1976.ant.auth.exception.PasswordException;
 import com.zf1976.ant.auth.exception.RsaDecryptException;

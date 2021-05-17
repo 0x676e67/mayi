@@ -13,7 +13,7 @@ import com.zf1976.ant.common.security.pojo.Details;
 import com.zf1976.ant.common.security.pojo.User;
 import com.zf1976.ant.common.security.pojo.Role;
 import com.zf1976.ant.common.security.property.SecurityProperties;
-import com.zf1976.ant.common.security.support.session.SessionManagement;
+import com.zf1976.ant.common.security.support.session.manager.SessionManagement;
 import com.zf1976.ant.upms.biz.dao.*;
 import com.zf1976.ant.upms.biz.pojo.po.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -198,13 +198,11 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
     }
 
     @Override
-    public Details selectUserDetails(String username){
+    public Details selectUserDetails(String username) {
         LoginUserDetails userDetails = (LoginUserDetails) this.loadUserByUsername(username);
-        return Details.UserDetailsBuilder.builder()
-                                         .userInfo(userDetails.getUserInfo())
-                                         .permission(userDetails.getPermission())
-                                         .dataPermission(userDetails.getDataPermission())
-                                         .build();
+        return new Details(userDetails.getPermission(),
+                userDetails.getDataPermission(),
+                userDetails.getUserInfo());
     }
 
     @Override

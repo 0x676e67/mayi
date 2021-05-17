@@ -1,7 +1,6 @@
 package com.zf1976.ant.common.monitor.sokcet;
 
 import com.zf1976.ant.common.core.util.IpUtil;
-import com.zf1976.ant.common.core.util.RequestUtil;
 import com.zf1976.ant.common.monitor.pojo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -154,7 +153,7 @@ public class MonitorUtils {
         Date date = new Date(startTime);
         String formatBetween = DATE_FORMAT_THREAD_LOCAL.get().format(date);
         operatingSystemVo.setOs(operatingSystem.toString());
-        operatingSystemVo.setIp(IpUtil.getInterIP2());
+        operatingSystemVo.setIp(IpUtil.getInterIP());
         operatingSystemVo.setRunningDay(formatBetween);
         return operatingSystemVo;
     }
