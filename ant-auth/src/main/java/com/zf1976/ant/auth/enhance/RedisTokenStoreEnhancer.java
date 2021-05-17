@@ -1,12 +1,10 @@
 package com.zf1976.ant.auth.enhance;
 
 import com.zf1976.ant.auth.LoginUserDetails;
-import com.zf1976.ant.auth.serialize.JacksonSerializationStrategy;
-import com.zf1976.ant.common.core.constants.AuthConstants;
+import com.zf1976.ant.auth.enhance.serialize.JacksonSerializationStrategy;
 import com.zf1976.ant.common.core.util.RequestUtil;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import com.zf1976.ant.common.security.support.session.Session;
-import com.zf1976.ant.common.security.support.session.SessionStore;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.Cursor;

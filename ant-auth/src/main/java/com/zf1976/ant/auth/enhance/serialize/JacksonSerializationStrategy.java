@@ -1,4 +1,4 @@
-package com.zf1976.ant.auth.serialize;
+package com.zf1976.ant.auth.enhance.serialize;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;

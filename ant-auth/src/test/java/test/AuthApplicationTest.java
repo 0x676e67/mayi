@@ -1,7 +1,7 @@
 package test;
 
 import com.zf1976.ant.auth.AuthApplication;
-import com.zf1976.ant.auth.serialize.JacksonSerializationStrategy;
+import com.zf1976.ant.auth.enhance.serialize.JacksonSerializationStrategy;
 import com.zf1976.ant.auth.service.impl.OAuth2ClientService;
 import com.zf1976.ant.auth.service.impl.ResourceService;
 import com.zf1976.ant.auth.system.MySqlStrategyBackup;
@@ -16,9 +16,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 import javax.sql.DataSource;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Properties;
 
 
 /**
