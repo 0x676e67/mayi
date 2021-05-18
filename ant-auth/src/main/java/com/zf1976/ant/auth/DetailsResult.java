@@ -7,12 +7,12 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
  * @author mac
  * @date 2021/4/9
  */
-public class LoginDetails {
+public class DetailsResult {
 
     private final OAuth2AccessToken oAuth2AccessToken;
     private final Details details;
 
-    public LoginDetails(OAuth2AccessToken oAuth2AccessToken, Details details) {
+    public DetailsResult(OAuth2AccessToken oAuth2AccessToken, Details details) {
         this.oAuth2AccessToken = oAuth2AccessToken;
         this.details = details;
     }

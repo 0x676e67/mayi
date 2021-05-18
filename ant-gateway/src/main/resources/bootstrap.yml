@@ -36,3 +36,15 @@ spring:
         jwt:
           jwk-set-uri: http://127.0.0.1:9000/oauth/token_key
           jwt-check-uri: http://127.0.0.1:9000/oauth/check_token
+  #redis
+  redis:
+    host: 127.0.0.1
+    password:
+    port: 6379
+    database: 0
+    timeout: 5000
+    jedis:
+      pool:
+        max-wait: 10
+        max-active: 32
+        min-idle: 2

@@ -1,0 +1,39 @@
+clusterServersConfig:
+  idleConnectionTimeout: 10000
+  pingTimeout: 1000
+  connectTimeout: 10000
+  timeout: 3000
+  retryAttempts: 3
+  retryInterval: 1500
+  subscriptionsPerConnection: 5
+  sslEnableEndpointIdentification: true
+  sslProvider: "JDK"
+  pingConnectionInterval: 0
+  keepAlive: false
+  tcpNoDelay: false
+  loadBalancer: !<org.redisson.connection.balancer.RoundRobinLoadBalancer> { }
+  slaveConnectionMinimumIdleSize: 32
+  slaveConnectionPoolSize: 64
+  failedSlaveReconnectionInterval: 3000
+  failedSlaveCheckInterval: 180000
+  masterConnectionMinimumIdleSize: 32
+  masterConnectionPoolSize: 64
+  readMode: "SLAVE"
+  subscriptionMode: "MASTER"
+  subscriptionConnectionMinimumIdleSize: 1
+  subscriptionConnectionPoolSize: 50
+  dnsMonitoringInterval: 5000
+  nodeAddresses:
+    - "redis://127.0.0.1:6379"
+  scanInterval: 5000
+  slaveSubscriptionConnectionPoolSize: 50
+  slaveSubscriptionConnectionMinimumIdleSize: 1
+threads: 0
+nettyThreads: 0
+referenceCodecProvider: !<org.redisson.codec.DefaultReferenceCodecProvider> { }
+referenceEnabled: true
+transportMode: "EPOLL"
+lockWatchdogTimeout: 30000
+keepPubSubOrder: true
+addressResolverGroupFactory: !<org.redisson.connection.DnsAddressResolverGroupFactory> { }
+useLinuxNativeEpoll: true

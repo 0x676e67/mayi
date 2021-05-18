@@ -1,14 +1,12 @@
 package com.zf1976.ant.auth.endpoint;
 
-import com.zf1976.ant.auth.LoginDetails;
-import com.zf1976.ant.auth.SecurityContextHolder;
+import com.zf1976.ant.auth.DetailsResult;
 import com.zf1976.ant.auth.pojo.Captcha;
 import com.zf1976.ant.auth.service.UserDetailsServiceEnhancer;
 import com.zf1976.ant.common.component.validate.service.CaptchaService;
 import com.zf1976.ant.common.component.validate.support.CaptchaGenerator;
 import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.common.core.foundation.DataResult;
-import com.zf1976.ant.common.core.util.RequestUtil;
 import com.zf1976.ant.common.security.pojo.Details;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +19,6 @@ import org.springframework.util.AlternativeJdkIdGenerator;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.Map;
 import java.util.UUID;
@@ -52,15 +49,18 @@ public class TokenEndpointEnhancer {
     }
 
     @PostMapping("/token")
-    public DataResult<LoginDetails> postAccessToken(Principal principal, @RequestParam Map<String, String> parameters) throws HttpRequestMethodNotSupportedException {
+    public DataResult<DetailsResult> postAccessToken(Principal principal,
+                                                     @RequestParam Map<String, String> parameters) throws HttpRequestMethodNotSupportedException {
         if (!(principal instanceof Authentication)) {
             throw new InsufficientAuthenticationException("There is no client authentication. Try adding an appropriate authentication filter.");
         } else {
             ResponseEntity<OAuth2AccessToken> responseEntity = this.tokenEndpoint.postAccessToken(principal, parameters);
             OAuth2AccessToken oAuth2AccessToken = responseEntity.getBody();
-            if (responseEntity.getStatusCode().is2xxSuccessful() && oAuth2AccessToken != null) {
-                String username = (String) oAuth2AccessToken.getAdditionalInformation().get(AuthConstants.USERNAME);
-                return DataResult.success(new LoginDetails(oAuth2AccessToken, userDetailsService.selectUserDetails(username)));
+            if (responseEntity.getStatusCode()
+                              .is2xxSuccessful() && oAuth2AccessToken != null) {
+                String username = (String) oAuth2AccessToken.getAdditionalInformation()
+                                                            .get(AuthConstants.USERNAME);
+                return DataResult.success(new DetailsResult(oAuth2AccessToken, userDetailsService.selectUserDetails(username)));
             }
             throw new InsufficientAuthenticationException("Client authentication failed.");
         }

@@ -13,9 +13,7 @@ import org.springframework.http.*;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.lang.NonNull;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
@@ -42,7 +40,7 @@ import java.util.regex.Pattern;
  * @author ant
  * Create by Ant on 2021/3/6 8:52 AM
  */
-@SuppressWarnings("all")
+
 public class OAuth2TokenAuthenticationFilter implements WebFilter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Pattern authorizationPattern = Pattern.compile(
@@ -53,7 +51,7 @@ public class OAuth2TokenAuthenticationFilter implements WebFilter {
 
 
     public OAuth2TokenAuthenticationFilter(String checkTokenUrl) {
-        this.jwtCheckUrl = checkTokenUrl + "?token={value}";
+        this.jwtCheckUrl = checkTokenUrl.concat("?token={value}");
     }
 
     /**
@@ -89,7 +87,6 @@ public class OAuth2TokenAuthenticationFilter implements WebFilter {
         return webFilterChain.filter(serverWebExchange);
     }
 
-
     private Boolean isOwner(String token) {
         try {
             Assert.hasText(token, "token cannot be empty");
@@ -114,10 +111,8 @@ public class OAuth2TokenAuthenticationFilter implements WebFilter {
             Assert.hasText(token, "token cannot be empty");
             // 向服务端校验token 有效性
             ResponseEntity<Map> responseEntity = this.restTemplate.getForEntity(this.jwtCheckUrl, Map.class, token);
-            if (responseEntity.getStatusCode().is2xxSuccessful()) {
-                return true;
-            }
-            return false;
+            return responseEntity.getStatusCode()
+                                 .is2xxSuccessful();
         } catch (Exception ignored) {
             return false;
         }

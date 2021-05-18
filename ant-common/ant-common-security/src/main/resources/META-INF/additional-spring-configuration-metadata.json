@@ -90,4 +90,5 @@
       "type": "java.lang.String",
       "description": "Description for security.ignore-uri."
     }
-  ] }
+  ]
+}

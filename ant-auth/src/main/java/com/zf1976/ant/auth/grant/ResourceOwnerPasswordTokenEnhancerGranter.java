@@ -27,7 +27,6 @@ public class ResourceOwnerPasswordTokenEnhancerGranter extends AbstractTokenGran
     }
 
     @Override
-    @SuppressWarnings("all")
     protected OAuth2Authentication getOAuth2Authentication(ClientDetails client, TokenRequest tokenRequest) {
         var parameters = new LinkedHashMap<>(tokenRequest.getRequestParameters());
         var username = parameters.get("username");

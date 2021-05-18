@@ -50,37 +50,39 @@ public class GatewayReactiveAuthorizationManager implements ReactiveAuthorizatio
     public Mono<AuthorizationDecision> check(Mono<Authentication> mono, AuthorizationContext authorizationContext) {
         ServerWebExchange exchange = authorizationContext.getExchange();
         ServerHttpRequest request = exchange.getRequest();
-        final Object o = authorizationContext.getExchange()
-                                             .getAttributes()
-                                             .get(AuthConstants.OWNER);
+        // 校验是否为owner
+        final Object owner = authorizationContext.getExchange()
+                                                 .getAttributes()
+                                                 .get(AuthConstants.OWNER);
         // options请求放行
-        if (Objects.requireNonNull(request.getMethod()).matches(HttpMethod.OPTIONS.name())) {
+        if (Objects.requireNonNull(request.getMethod())
+                   .matches(HttpMethod.OPTIONS.name())) {
             return Mono.just(new AuthorizationDecision(true));
         }
         // 资源所有者放行所有
-        if (o instanceof Boolean && (Boolean) o) {
-            return Mono.just(new AuthorizationDecision((Boolean) o));
+        if (owner instanceof Boolean && (Boolean) owner) {
+            return Mono.just(new AuthorizationDecision(true));
         }
-        // 白名单放行
         String requestUri = this.getRequestUri(request);
-        for (String ignored : this.ignoreUri()) {
-            if (this.pathMatcher.match(ignored, requestUri)) {
-                return Mono.just(new AuthorizationDecision(true));
-            }
-        }
         // 确保未配置情况下 认证中心放行
         if (this.pathMatcher.match(GatewayRouteConstants.AUTH_ROUTE, requestUri)) {
             return Mono.just(new AuthorizationDecision(true));
         }
         // 非后台路径放行
-        if (!ObjectUtils.nullSafeEquals(GatewayRouteConstants.ADMIN_ROUTE, this.getRequestUri(request))) {
+        if (!ObjectUtils.nullSafeEquals(GatewayRouteConstants.ADMIN_ROUTE, requestUri)) {
             return Mono.just(new AuthorizationDecision(true));
+        }
+        // 白名单放行
+        for (String ignored : this.ignoreUri()) {
+            if (this.pathMatcher.match(ignored, requestUri)) {
+                return Mono.just(new AuthorizationDecision(true));
+            }
         }
         // 提取系统资源权限
         Set<String> permissions = this.extractPermission(request)
-                                        .stream()
-                                        .map(GrantedAuthority::getAuthority)
-                                        .collect(Collectors.toSet());
+                                      .stream()
+                                      .map(GrantedAuthority::getAuthority)
+                                      .collect(Collectors.toSet());
         return mono.filter(Authentication::isAuthenticated)
                    .flatMapIterable(Authentication::getAuthorities)
                    .map(GrantedAuthority::getAuthority)

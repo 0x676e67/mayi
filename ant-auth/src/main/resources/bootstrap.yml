@@ -18,6 +18,18 @@ spring:
       max-lifetime: 1800000
       minimum-idle: 5
 
+  redis:
+    host: 127.0.0.1
+    password:
+    port: 6379
+    database: 0
+    timeout: 5000
+    jedis:
+      pool:
+        max-wait: 10
+        max-active: 32
+        min-idle: 2
+
   #json序列化配置
   jackson:
     time-zone: GMT+8

@@ -37,8 +37,20 @@ spring:
           config:
             multi-statement-allow: true
       aop-patterns: com.zf1976.ant.*.endpoint.*
+  #redis
+  redis:
+    host: 127.0.0.1
+    password:
+    port: 6379
+    database: 0
+    timeout: 5000
+    jedis:
+      pool:
+        max-wait: 10
+        max-active: 32
+        min-idle: 2
 
-  profiles:                                                 #加载配置文件
+  profiles: #加载配置文件
     active: conf,prod
   cloud:
     nacos:

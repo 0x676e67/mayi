@@ -15,16 +15,23 @@ import java.util.regex.Pattern;
  */
 public class IpUtil {
 
-    private static final String REGEX = "(10|172|192)\\.([0-1][0-9]{0,2}|[2][0-5]{0,2}|[3-9][0-9]{0,1})\\.([0-1][0-9]{0,2}|[2][0-5]{0,2}|[3-9][0-9]{0,1})\\.([0-1][0-9]{0,2}|[2][0-5]{0,2}|[3-9][0-9]{0,1})";
-    private static final Pattern PATTERN = Pattern.compile(REGEX);
+    private static final Pattern INNER_IP_PATTERN = Pattern.compile("^(127\\.0\\.0\\.1)|(localhost)|(10\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})|(172\\.((1[6-9])|(2\\d)|(3[01]))\\.\\d{1,3}\\.\\d{1,3})|(192\\.168\\.\\d{1,3}\\.\\d{1,3})$");
 
-    public static void main(String[] args) throws Exception {
-        String ipAddress = RequestUtil.getIpAddress();
-        String ipRegion = RequestUtil.getIpRegion();
-        Matcher matcher = PATTERN.matcher(ipAddress);
-        if (matcher.find()) {
-            System.out.println(matcher.group(0));
-        }
+    public static void main(String[] args) {
+        Matcher matcher = INNER_IP_PATTERN.matcher("139.224.81.120");
+        System.out.println(matcher.find());
+    }
+
+
+    /**
+     * 判断是否为内网ip
+     *
+     * @param ip IP
+     * @return {@link boolean}
+     */
+    public static boolean isInnerIp(String ip) {
+        return INNER_IP_PATTERN.matcher(ip)
+                               .find();
     }
 
     /**

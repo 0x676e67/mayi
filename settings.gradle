@@ -4,7 +4,6 @@
 
 rootProject.name = 'ant'
 include(':ant-common:ant-common-core')
-include(':ant-common:ant-common-cache')
 include(':ant-common:ant-common-component')
 include(':ant-common:ant-common-datasource')
 include(':ant-common:ant-common-mybatis')
@@ -27,7 +26,6 @@ project(':ant-common:ant-common-datasource').projectDir = file('ant-common/ant-c
 project(':ant-common:ant-common-mybatis').projectDir = file('ant-common/ant-common-mybatis')
 project(':ant-common:ant-common-log').projectDir = file('ant-common/ant-common-log')
 project(':ant-common:ant-common-encrypt').projectDir = file('ant-common/ant-common-encrypt')
-project(':ant-common:ant-common-cache').projectDir = file('ant-common/ant-common-cache')
 project(':ant-common:ant-common-security').projectDir = file('ant-common/ant-common-security')
 project(':ant-common:ant-common-feign').projectDir = file('ant-common/ant-common-feign')
 project(':ant-upms:ant-upms-biz').projectDir = file('ant-upms/ant-upms-biz')
