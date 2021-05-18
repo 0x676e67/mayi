@@ -257,7 +257,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Void deleteDeptList(Set<Long> ids) {
+    public Void deleteDepartmentList(Set<Long> ids) {
         final Set<Long> treeIds = this.collectCurrentDeptTreeIds(ids, HashSet::new);
         if (!CollectionUtils.isEmpty(treeIds)) {
             treeIds.forEach(id -> {

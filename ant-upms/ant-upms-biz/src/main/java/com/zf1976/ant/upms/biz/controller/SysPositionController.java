@@ -37,21 +37,23 @@ public class SysPositionController {
     }
 
     @PostMapping("/save")
-    public DataResult<Optional<Void>> savePosition(@RequestBody @Validated(ValidationInsertGroup.class) PositionDTO dto) {
+    public DataResult<Void> savePosition(@RequestBody @Validated(ValidationInsertGroup.class) PositionDTO dto) {
         return DataResult.success(service.savePosition(dto));
     }
 
     @PutMapping("/update")
-    public DataResult<Optional<Void>> updatePosition(@RequestBody @Validated(ValidationUpdateGroup.class) PositionDTO dto) {
+    public DataResult<Void> updatePosition(@RequestBody @Validated(ValidationUpdateGroup.class) PositionDTO dto) {
         return DataResult.success(service.updatePosition(dto));
     }
+
     @DeleteMapping("/delete")
-    public DataResult<Optional<Void>> deletePositionList(@RequestBody @NotNull Set<Long> ids) {
+    public DataResult<Void> deletePositionList(@RequestBody @NotNull Set<Long> ids) {
         return DataResult.success(service.deletePosition(ids));
     }
 
     @PostMapping("/download")
-    public DataResult<Optional<Void>> downloadPositionExcel(@RequestBody Query<PositionQueryParam> requestPage, HttpServletResponse response) {
+    public DataResult<Void> downloadPositionExcel(@RequestBody Query<PositionQueryParam> requestPage,
+                                                  HttpServletResponse response) {
         return DataResult.success(service.downloadPositionExcel(requestPage, response));
     }
 }

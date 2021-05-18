@@ -113,14 +113,15 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
 
     /**
      * 删除字典
+     *
      * @param ids id collection
      * @return /
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> deleteDictList(Set<Long> ids) {
+    public Void deleteDictList(Set<Long> ids) {
         super.deleteByIds(ids);
-        return Optional.empty();
+        return null;
     }
 
     /**

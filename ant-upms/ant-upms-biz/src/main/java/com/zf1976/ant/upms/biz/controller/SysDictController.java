@@ -36,22 +36,23 @@ public class SysDictController {
     }
 
     @PostMapping("/save")
-    public DataResult<Optional<Void>> saveDict(@RequestBody @Validated({ValidationInsertGroup.class}) DictDTO dto) {
+    public DataResult<Void> saveDict(@RequestBody @Validated({ValidationInsertGroup.class}) DictDTO dto) {
         return DataResult.success(service.saveDict(dto));
     }
 
     @PutMapping("/update")
-    public DataResult<Optional<Void>> updateDict(@RequestBody @Validated(ValidationUpdateGroup.class) DictDTO dto) {
+    public DataResult<Void> updateDict(@RequestBody @Validated(ValidationUpdateGroup.class) DictDTO dto) {
         return DataResult.success(service.updateDict(dto));
     }
 
     @DeleteMapping("/delete")
-    public DataResult<Optional<Void>> deleteDictList(@RequestBody Set<Long> ids) {
+    public DataResult<Void> deleteDictList(@RequestBody Set<Long> ids) {
         return DataResult.success(service.deleteDictList(ids));
     }
 
     @PostMapping("/download")
-    public DataResult<Optional<Void>> downloadDictExcel(@RequestBody Query<DictQueryParam> requestPage, HttpServletResponse response) {
+    public DataResult<Void> downloadDictExcel(@RequestBody Query<DictQueryParam> requestPage,
+                                              HttpServletResponse response) {
         return DataResult.success(service.downloadDictExcel(requestPage, response));
     }
 

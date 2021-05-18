@@ -34,17 +34,17 @@ public class SysDictDetailController {
     }
 
     @PostMapping("/save")
-    public DataResult<Optional<Void>> saveDictDetail(@RequestBody @Validated(ValidationInsertGroup.class) DictDetailDTO dto) {
+    public DataResult<Void> saveDictDetail(@RequestBody @Validated(ValidationInsertGroup.class) DictDetailDTO dto) {
         return DataResult.success(service.saveDictDetail(dto));
     }
 
     @PutMapping("/update")
-    public DataResult<Optional<Void>> updateDictDetail(@RequestBody @Validated(ValidationUpdateGroup.class) DictDetailDTO dto) {
+    public DataResult<Void> updateDictDetail(@RequestBody @Validated(ValidationUpdateGroup.class) DictDetailDTO dto) {
         return DataResult.success(service.updateDictDetail(dto));
     }
 
     @DeleteMapping("/delete/{id}")
-    public DataResult<Optional<Void>> deleteDictDetail(@PathVariable Long id) {
+    public DataResult<Void> deleteDictDetail(@PathVariable Long id) {
         return DataResult.success(service.deleteDictDetail(id));
     }
 

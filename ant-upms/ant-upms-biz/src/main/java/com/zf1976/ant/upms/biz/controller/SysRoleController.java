@@ -54,25 +54,25 @@ public class SysRoleController {
 
     @Log(description = "修改角色状态")
     @PatchMapping("/status")
-    public DataResult<Optional<Void>> setRoleStatus(@RequestParam @NotNull Long id, @RequestParam @NotNull Boolean enabled) {
+    public DataResult<Void> setRoleStatus(@RequestParam @NotNull Long id, @RequestParam @NotNull Boolean enabled) {
         return DataResult.success(service.updateRoleStatus(id, enabled));
     }
 
     @Log(description = "新增角色")
     @PostMapping("/save")
-    public DataResult<Optional<Void>> saveRole(@RequestBody @Validated(ValidationInsertGroup.class) RoleDTO dto) {
+    public DataResult<Void> saveRole(@RequestBody @Validated(ValidationInsertGroup.class) RoleDTO dto) {
         return DataResult.success(service.savaRole(dto));
     }
 
     @Log(description = "更新角色")
     @PutMapping("/update")
-    public DataResult<Optional<Void>> updateRole(@RequestBody @Validated(ValidationUpdateGroup.class) RoleDTO dto) {
+    public DataResult<Void> updateRole(@RequestBody @Validated(ValidationUpdateGroup.class) RoleDTO dto) {
         return DataResult.success(service.updateRole(dto));
     }
 
     @Log(description = "删除角色")
     @DeleteMapping("/delete")
-    public DataResult<Optional<Void>> deleteRole(@RequestBody Set<Long> ids) {
+    public DataResult<Void> deleteRole(@RequestBody Set<Long> ids) {
         return DataResult.success(service.deleteRole(ids));
     }
 }

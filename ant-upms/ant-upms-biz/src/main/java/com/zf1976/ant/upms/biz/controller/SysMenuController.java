@@ -47,17 +47,17 @@ public class SysMenuController {
     }
 
     @PostMapping("/save")
-    public DataResult<Optional<Void>> saveMenu(@RequestBody @Validated(ValidationInsertGroup.class) MenuDTO dto) {
+    public DataResult<Void> saveMenu(@RequestBody @Validated(ValidationInsertGroup.class) MenuDTO dto) {
         return DataResult.success(service.saveMenu(dto));
     }
 
     @PutMapping("/update")
-    public DataResult<Optional<Void>> updateMenu(@RequestBody @Validated(ValidationUpdateGroup.class) MenuDTO dto) {
+    public DataResult<Void> updateMenu(@RequestBody @Validated(ValidationUpdateGroup.class) MenuDTO dto) {
         return DataResult.success(service.updateMenu(dto));
     }
 
     @DeleteMapping("/delete")
-    public DataResult<Optional<Void>> deleteMenu(@RequestBody Set<Long> ids) {
+    public DataResult<Void> deleteMenu(@RequestBody Set<Long> ids) {
         return DataResult.success(service.deleteMenuList(ids));
     }
 }

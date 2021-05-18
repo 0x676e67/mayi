@@ -82,13 +82,13 @@ public class ValidateServiceImpl implements ValidateEmailService, ValidateMobile
                                               helper.setText(process, true);
                                               helper.setSubject(properties.getSubject());
                                               helper.setValidateAddresses(true);
-                mailSender.send(mimeMessage);
-            } catch (MessagingException e) {
+                                              mailSender.send(mimeMessage);
+                                          } catch (MessagingException e) {
                                               log.error("send error:", e);
-                return false;
-            }
-            return true;
-        });
+                                              return false;
+                                          }
+                                          return true;
+                                      });
         if (!isSend) {
             throw new BusinessException(BusinessMsgState.OPT_ERROR);
         }

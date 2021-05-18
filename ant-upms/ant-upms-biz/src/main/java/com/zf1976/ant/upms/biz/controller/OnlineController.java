@@ -31,7 +31,7 @@ public class OnlineController {
     }
 
     @DeleteMapping("/delete")
-    public DataResult<Optional<Void>> deleteSession(@RequestBody Set<Long> ids) {
+    public DataResult<Void> deleteSession(@RequestBody Set<Long> ids) {
         return DataResult.success(this.service.forceOffline(ids));
     }
 }

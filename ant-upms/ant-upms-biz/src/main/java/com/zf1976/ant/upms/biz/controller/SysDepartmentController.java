@@ -41,22 +41,23 @@ public class SysDepartmentController {
     }
 
     @PostMapping("/save")
-    public DataResult<Optional<Void>> saveDept(@RequestBody @Validated({ValidationInsertGroup.class}) DepartmentDTO dto) {
+    public DataResult<Void> saveDept(@RequestBody @Validated({ValidationInsertGroup.class}) DepartmentDTO dto) {
         return DataResult.success(service.savaDept(dto));
     }
 
     @PutMapping("/update")
-    public DataResult<Optional<Void>> updateDept(@RequestBody @Validated(ValidationUpdateGroup.class) DepartmentDTO dto) {
+    public DataResult<Void> updateDept(@RequestBody @Validated(ValidationUpdateGroup.class) DepartmentDTO dto) {
         return DataResult.success(service.updateDept(dto));
     }
 
     @DeleteMapping("/delete")
-    public DataResult<Optional<Void>> deleteDeptList(@RequestBody Set<Long> ids) {
-        return DataResult.success(service.deleteDeptList(ids));
+    public DataResult<Void> deleteDeptList(@RequestBody Set<Long> ids) {
+        return DataResult.success(service.deleteDepartmentList(ids));
     }
 
     @PostMapping("/download")
-    public DataResult<Optional<Void>> downloadDeptExcel(@RequestBody Query<DeptQueryParam> requestPage, HttpServletResponse response) {
+    public DataResult<Void> downloadDeptExcel(@RequestBody Query<DeptQueryParam> requestPage,
+                                              HttpServletResponse response) {
         return DataResult.success(service.downloadExcelDept(requestPage, response));
     }
 }

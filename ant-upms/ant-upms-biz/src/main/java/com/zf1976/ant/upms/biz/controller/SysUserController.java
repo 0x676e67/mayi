@@ -48,19 +48,19 @@ public class SysUserController {
 
     @Log(description = "添加用户")
     @PostMapping("/save")
-    public DataResult<Optional<Void>> saveUser(@RequestBody @Validated(ValidationInsertGroup.class) UserDTO dto) {
+    public DataResult<Void> saveUser(@RequestBody @Validated(ValidationInsertGroup.class) UserDTO dto) {
         return DataResult.success(service.saveUser(dto));
     }
 
     @Log(description = "更新用户")
     @PutMapping("/update")
-    public DataResult<Optional<Void>> updateUser(@RequestBody @Validated(ValidationUpdateGroup.class) UserDTO dto) {
+    public DataResult<Void> updateUser(@RequestBody @Validated(ValidationUpdateGroup.class) UserDTO dto) {
         return DataResult.success(service.updateUser(dto));
     }
 
     @Log(description = "删除用户")
     @DeleteMapping("/delete")
-    public DataResult<Optional<Void>> deleteUser(@RequestBody Set<Long> ids) {
+    public DataResult<Void> deleteUser(@RequestBody Set<Long> ids) {
         return DataResult.success(service.deleteUser(ids));
     }
 
@@ -76,32 +76,32 @@ public class SysUserController {
 
     @Log(description = "修改用户状态")
     @PatchMapping("/status")
-    public DataResult<Optional<Void>> setUserStatus(@RequestParam @NotNull Long id, @RequestParam @NotNull Boolean enabled) {
+    public DataResult<Void> setUserStatus(@RequestParam @NotNull Long id, @RequestParam @NotNull Boolean enabled) {
         return DataResult.success(service.setUserStatus(id, enabled));
     }
 
     @PostMapping("/update/avatar")
-    public DataResult<Optional<Void>> updateAvatar(@RequestParam("avatar") MultipartFile multipartFile) {
+    public DataResult<Void> updateAvatar(@RequestParam("avatar") MultipartFile multipartFile) {
         return DataResult.success(service.updateAvatar(multipartFile));
     }
 
     @PatchMapping("/update/password")
-    public DataResult<Optional<Void>> updatePass(@RequestBody @Validated UpdatePasswordDTO dto) {
+    public DataResult<Void> updatePass(@RequestBody @Validated UpdatePasswordDTO dto) {
         return DataResult.success(service.updatePassword(dto));
     }
 
     @PatchMapping("/update/email/{code}")
-    public DataResult<Optional<Void>> updateEmail(@PathVariable String code, @RequestBody @Validated UpdateEmailDTO dto) {
+    public DataResult<Void> updateEmail(@PathVariable String code, @RequestBody @Validated UpdateEmailDTO dto) {
         return DataResult.success(service.updateEmail(code, dto));
     }
 
     @GetMapping("/email/reset")
-    public DataResult<Optional<Void>> getEmailVerifyCode(@RequestParam String email) {
+    public DataResult<Void> getEmailVerifyCode(@RequestParam String email) {
         return DataResult.success(this.validateService.sendVerifyCode(email));
     }
 
     @PatchMapping("/update/info")
-    public DataResult<Optional<Void>> updateInfo(@RequestBody @Validated UpdateInfoDTO dto) {
+    public DataResult<Void> updateInfo(@RequestBody @Validated UpdateInfoDTO dto) {
         return DataResult.success(service.updateInformation(dto));
     }
 }
