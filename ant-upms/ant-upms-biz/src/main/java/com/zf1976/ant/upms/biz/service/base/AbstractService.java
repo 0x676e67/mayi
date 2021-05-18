@@ -386,7 +386,7 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
     }
 
     /**
-     * 根据实体插入或更新
+     * 根据实体插入或更新,只有存在id情况才会执行更新，否则执行插入
      *
      * @param entity entity
      */

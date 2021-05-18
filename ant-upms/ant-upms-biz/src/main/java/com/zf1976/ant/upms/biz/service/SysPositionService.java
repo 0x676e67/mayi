@@ -62,11 +62,11 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
         super.lambdaQuery()
              .eq(SysPosition::getName, dto.getName())
              .oneOpt()
-             .ifPresent(sysJob -> {
-                 throw new PositionException(PositionState.POSITION_EXISTING, sysJob.getName());
+             .ifPresent(position -> {
+                 throw new PositionException(PositionState.POSITION_EXISTING, position.getName());
              });
-        SysPosition sysJob = convert.toEntity(dto);
-        super.savaOrUpdate(sysJob);
+        SysPosition sysPosition = convert.toEntity(dto);
+        super.savaOrUpdate(sysPosition);
         return null;
     }
 
@@ -81,8 +81,9 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
     public Void updatePosition(PositionDTO dto) {
         // 查询更新岗位是否存在
         final SysPosition sysPosition = super.lambdaQuery()
-                                        .eq(SysPosition::getId, dto.getId())
-                                        .oneOpt().orElseThrow(() -> new PositionException(PositionState.POSITION_NOT_FOUND));
+                                             .eq(SysPosition::getId, dto.getId())
+                                             .oneOpt()
+                                             .orElseThrow(() -> new PositionException(PositionState.POSITION_NOT_FOUND));
         if (!ObjectUtils.nullSafeEquals(sysPosition.getName(), dto.getName())) {
             // 确认岗位名是否存在
             super.lambdaQuery()
@@ -94,6 +95,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
         }
         // 复制属性
         this.convert.copyProperties(dto, sysPosition);
+        // 更新实体
         super.savaOrUpdate(sysPosition);
         return null;
     }
@@ -106,10 +108,10 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> deletePosition(Set<Long> ids) {
+    public Void deletePosition(Set<Long> ids) {
         super.deleteByIds(ids);
         super.baseMapper.deleteRelationByIds(ids);
-        return Optional.empty();
+        return null;
     }
 
     /**

@@ -21,6 +21,8 @@ public enum BusinessMsgState {
      */
     PASSWORD_REPEAT(400, "password is not repeat!"),
 
+    PASSWORD_NOT_MATCHING(400, "password is not matching raw password"),
+
     /**
      * 邮箱不合格
      */

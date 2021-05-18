@@ -46,6 +46,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -175,22 +176,8 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
                               .collect(Collectors.toSet());
     }
 
-    /**
-     * 设置用户状态
-     *
-     * @param id      id
-     * @param enabled enabled
-     * @return /
-     */
-    @CacheEvict
-    @Transactional(rollbackFor = Exception.class)
-    public Void setUserStatus(Long id, Boolean enabled) {
-        SysUser sysUser = super.lambdaQuery()
-                               .eq(SysUser::getId, id)
-                               .oneOpt().orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
-        sysUser.setEnabled(enabled);
-        super.savaOrUpdate(sysUser);
-        return null;
+    public static void main(String[] args) {
+        System.out.println(ValidateUtil.isPassword("fengge123"));
     }
 
     /**
@@ -207,10 +194,23 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
                                   .collect(Collectors.toSet());
     }
 
-    public static void main(String[] args) {
-        AlternativeJdkIdGenerator alternativeJdkIdGenerator = new AlternativeJdkIdGenerator();
-        StringBuilder oldName = new StringBuilder("avatar-3df70e61-44d5-25b9-cef4-0e05b8c035ca.png");
-        System.out.println(oldName.insert(oldName.lastIndexOf("."), alternativeJdkIdGenerator.generateId()));
+    /**
+     * 设置用户状态
+     *
+     * @param id      id
+     * @param enabled enabled
+     * @return /
+     */
+    @CacheEvict
+    @Transactional(rollbackFor = Exception.class)
+    public Void setUserStatus(Long id, Boolean enabled) {
+        SysUser sysUser = super.lambdaQuery()
+                               .select(SysUser::getId, SysUser::getEnabled)
+                               .eq(SysUser::getId, id)
+                               .oneOpt().orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
+        sysUser.setEnabled(enabled);
+        super.savaOrUpdate(sysUser);
+        return null;
     }
 
     /**
@@ -223,26 +223,36 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     @Transactional(rollbackFor = Exception.class)
     public Void updateAvatar(MultipartFile multipartFile) {
         final SysUser sysUser = super.lambdaQuery()
-                                     .select(SysUser::getAvatarName)
+                                     .select(SysUser::getId, SysUser::getAvatarName)
                                      .eq(SysUser::getId, SessionManagement.getSessionId())
                                      .one();
+        String filename = null;
         try {
             // 原文件名
             final String avatarName = sysUser.getAvatarName();
             // 上传文件名
             String originalFilename = multipartFile.getOriginalFilename();
             Assert.notNull(originalFilename, "filename cannot been null!");
-
             // 新文件名
-            String filename = UUIDUtil.getUpperCaseUuid() + originalFilename.substring(originalFilename.lastIndexOf("."));
-            final Path path = Paths.get(FileProperties.getAvatarRealPath(), filename);
-            multipartFile.transferTo(path);
+            filename = UUIDUtil.getUpperCaseUuid() + originalFilename.substring(originalFilename.lastIndexOf("."));
+            // 写入新头像文件
+            multipartFile.transferTo(Paths.get(FileProperties.getAvatarRealPath(), filename));
+            // 实体保存新文件名
             sysUser.setAvatarName(filename);
+            // 进行更新
             super.savaOrUpdate(sysUser);
             // 删除旧头像文件
             Files.deleteIfExists(Paths.get(FileProperties.getAvatarRealPath(), avatarName));
         } catch (Exception e) {
             this.log.error(e.getMessage(), e.getCause());
+            // 防止文件已经创建，但写入不完全，进行删除处理
+            if (filename != null) {
+                try {
+                    Files.deleteIfExists(Paths.get(FileProperties.getAvatarRealPath(), filename));
+                } catch (IOException ioException) {
+                    log.error(ioException.getMessage(), ioException.getCause());
+                }
+            }
             throw new BusinessException(BusinessMsgState.UPLOAD_ERROR);
         }
         return null;
@@ -257,36 +267,41 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Void updatePassword(UpdatePasswordDTO dto) {
-        final Long sessionId = SessionManagement.getSessionId();
         final SysUser sysUser = super.lambdaQuery()
-                                     .eq(SysUser::getId, sessionId)
-                                     .oneOpt().orElseThrow(() -> new BusinessException(BusinessMsgState.CODE_NOT_FOUNT));
-        String rawPassword;
-        String freshPassword;
+                                     .select(SysUser::getId, SysUser::getPassword)
+                                     .eq(SysUser::getId, SessionManagement.getSessionId())
+                                     .oneOpt()
+                                     .orElseThrow(() -> new BusinessException(BusinessMsgState.CODE_NOT_FOUNT));
+        String rawPassword = null;
+        String freshPassword = null;
         try {
             rawPassword = RsaUtil.decryptByPrivateKey(RsaProperties.PRIVATE_KEY, dto.getOldPass());
             freshPassword = RsaUtil.decryptByPrivateKey(RsaProperties.PRIVATE_KEY, dto.getNewPass());
         } catch (Exception e) {
             throw new BusinessException(BusinessMsgState.OPT_ERROR);
         }
-
-        if (StringUtils.isEmpty(rawPassword) || StringUtils.isEmpty(freshPassword)){
+        // 校验密码是否为空
+        if (StringUtils.isEmpty(rawPassword) || StringUtils.isEmpty(freshPassword)) {
             throw new BusinessException(BusinessMsgState.NULL_PASSWORD);
         }
-
+        // 校验密码是否重复
         if (rawPassword.equals(freshPassword)) {
             throw new BusinessException(BusinessMsgState.PASSWORD_REPEAT);
         }
-
-        if (encoder.matches(rawPassword, sysUser.getPassword()) && !ValidateUtil.isPassword(freshPassword)) {
+        //校验密码合格性
+        if (!ValidateUtil.isPassword(freshPassword)) {
+            throw new BusinessException(BusinessMsgState.PASSWORD_LOW);
+        }
+        // 密码匹配
+        if (encoder.matches(rawPassword, sysUser.getPassword())) {
+            // 设置新密码
             sysUser.setPassword(encoder.encode(freshPassword));
+            // 更新实体
             super.savaOrUpdate(sysUser);
             // 强制用户重新登陆
             SessionManagement.removeSession();
-        }else {
-            throw new BusinessException(BusinessMsgState.PASSWORD_LOW);
         }
-        return null;
+        throw new BusinessException(BusinessMsgState.PASSWORD_REPEAT);
     }
 
     /**
@@ -300,37 +315,38 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     @Transactional(rollbackFor = Exception.class)
     public Void updateEmail(String code, UpdateEmailDTO dto) {
 
+        // 校验验证码是否为空
         if (StringUtils.isEmpty(code) || ObjectUtils.isEmpty(dto)) {
             throw new BusinessException(BusinessMsgState.PARAM_ILLEGAL);
         }
 
         ValidateService validateService = ValidateFactory.getInstance();
+        // 查询用户
         var sysUser = super.lambdaQuery()
-                            .select(SysUser::getPassword)
-                            .eq(SysUser::getId, SessionManagement.getSessionId())
-                            .oneOpt()
-                            .orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
-        BusinessException businessException = null;
+                           .select(SysUser::getId, SysUser::getPassword, SysUser::getEmail)
+                           .eq(SysUser::getId, SessionManagement.getSessionId())
+                           .oneOpt()
+                           .orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
         if (validateService.validate(dto.getEmail(), code)) {
             try {
                 String rawPassword = RsaUtil.decryptByPrivateKey(RsaProperties.PRIVATE_KEY, dto.getPassword());
                 if (encoder.matches(rawPassword, sysUser.getPassword())) {
+                    // 验证邮箱是否重复
                     if (ObjectUtils.nullSafeEquals(sysUser.getEmail(), dto.getEmail())) {
                         throw new BusinessException(BusinessMsgState.EMAIL_EXISTING);
                     }
+                    // 设置新邮箱
                     sysUser.setEmail(dto.getEmail());
+                    // 更新实体
                     super.savaOrUpdate(sysUser);
                 }
             } catch (BusinessException e) {
-                businessException = e;
+                throw e;
             } catch (Exception e) {
                 throw new BusinessException(BusinessMsgState.OPT_ERROR);
             }finally {
                 validateService.clear(dto.getEmail());
             }
-        }
-        if (!ObjectUtils.isEmpty(businessException)) {
-            throw  businessException;
         }
         return null;
     }
@@ -343,20 +359,20 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Void updateInfo(UpdateInfoDTO dto) {
+    public Void updateInformation(UpdateInfoDTO dto) {
         // 查询当前用户是否存在
         SysUser sysUser = super.lambdaQuery()
                                .eq(SysUser::getId, dto.getId())
                                .oneOpt()
                                .orElseThrow(() -> new BusinessException(BusinessMsgState.DATA_NOT_FOUNT));
         // 不允许非手机号
-        if (!ValidateUtil.isPhone(dto.getPhone())){
+        if (!ValidateUtil.isPhone(dto.getPhone())) {
             throw new BusinessException(BusinessMsgState.NOT_PHONE);
         }
 
         // 校验手机号是否变化
         if (dto.getPhone() != null && !ObjectUtils.nullSafeEquals(dto.getPhone(), sysUser.getPhone())) {
-            // 手机号已存在
+            // 校验手机号是否已存在
             super.lambdaQuery()
                  .eq(SysUser::getPhone, dto.getPhone())
                  .oneOpt()
@@ -428,12 +444,8 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
                                 .oneOpt().orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
         long sessionId = SessionManagement.getSessionId();
         if (!dto.getEnabled()) {
-            // 禁止禁用管理员
-            if (SessionManagement.isOwner()) {
-                throw new UserException(UserState.USER_OPT_ERROR);
-            }
-            // 禁止禁用当前操作用户
-            if (ObjectUtils.nullSafeEquals(sessionId, sysUser.getId())) {
+            // 禁止操作管理员，禁止操作当前登录的用户
+            if (SessionManagement.isOwner() || ObjectUtils.nullSafeEquals(sessionId, sysUser.getId())) {
                 throw new UserException(UserState.USER_OPT_ERROR);
             }
         }

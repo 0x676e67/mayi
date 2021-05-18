@@ -2,6 +2,7 @@ package com.zf1976.ant.upms.biz.service;
 
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.zf1976.ant.common.component.load.annotation.CacheConfig;
 import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
@@ -191,14 +192,14 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
              });
         SysRole sysRole = this.convert.toEntity(dto);
         super.savaOrUpdate(sysRole);
+        dto.setId(sysRole.getId());
         if (permissionEnum == DataPermissionEnum.ALL) {
-            Set<Long> result = this.sysDepartmentDao.selectList(null)
+            Set<Long> result = this.sysDepartmentDao.selectList(Wrappers.emptyWrapper())
                                                     .stream()
                                                     .map(SysDepartment::getId)
                                                     .collect(Collectors.toSet());
             dto.setDepartmentIds(result);
         }
-        dto.setId(sysRole.getId());
         this.updateDependent(dto);
         return null;
     }

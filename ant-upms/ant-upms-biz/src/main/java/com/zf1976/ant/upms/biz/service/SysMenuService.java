@@ -314,7 +314,11 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
         if (ObjectUtils.nullSafeEquals(dto.getPid(), sysMenu.getId())) {
             throw new MenuException(MenuState.MENU_OPT_ERROR);
         }
-        this.update(dto, sysMenu);
+        // 设置节点关系，是子节点还是根节点
+        dto.setPid(dto.getPid() != null ? dto.getPid() > 0 ? dto.getPid() : null : null);
+        // 复制属性
+        this.convert.copyProperties(dto, sysMenu);
+        super.savaOrUpdate(sysMenu);
         return null;
     }
 
@@ -355,11 +359,6 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
              }));
     }
 
-    private void update(MenuDTO dto, SysMenu sysMenu) {
-        dto.setPid(dto.getPid() != null? dto.getPid() > 0? dto.getPid(): null : null);
-        this.convert.copyProperties(dto, sysMenu);
-        super.savaOrUpdate(sysMenu);
-    }
 
     /**
      * 删除菜单包括所有子菜单

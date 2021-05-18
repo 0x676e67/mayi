@@ -92,12 +92,15 @@ public class SysDictDetailService extends AbstractService<SysDictDetailDao, SysD
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Void updateDictDetail(DictDetailDTO dto) {
+        // 查询字典细节实体
         SysDictDetail sysDictDetail = super.lambdaQuery()
                                            .eq(SysDictDetail::getId, dto.getId())
                                            .eq(SysDictDetail::getDictId, dto.getDictId())
                                            .oneOpt()
                                            .orElseThrow(() -> new DictException(DictState.DICT_NOT_FOUND));
+        // 复制属性
         this.convert.copyProperties(dto, sysDictDetail);
+        // 更新实体
         super.savaOrUpdate(sysDictDetail);
         return null;
     }

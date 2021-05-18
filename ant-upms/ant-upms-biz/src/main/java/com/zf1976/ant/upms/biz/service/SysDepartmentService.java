@@ -189,14 +189,15 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
     @Transactional(rollbackFor = Exception.class)
     public Void updateDept(DepartmentDTO dto) {
 
-        // 确认部门是否存在
-        SysDepartment sysDept = super.lambdaQuery()
-                                     .eq(SysDepartment::getId, dto.getId())
-                                     .oneOpt().orElseThrow(() -> new DepartmentException(DepartmentState.DEPARTMENT_NOT_FOUND));
+        // 查询部门
+        SysDepartment sysDepartment = super.lambdaQuery()
+                                           .eq(SysDepartment::getId, dto.getId())
+                                           .oneOpt()
+                                           .orElseThrow(() -> new DepartmentException(DepartmentState.DEPARTMENT_NOT_FOUND));
         // 确认部门是否已存在
-        if (!ObjectUtils.nullSafeEquals(dto.getName(), sysDept.getName())) {
+        if (!ObjectUtils.nullSafeEquals(dto.getName(), sysDepartment.getName())) {
             super.lambdaQuery()
-                 .ne(SysDepartment::getId, sysDept.getId())
+                 .ne(SysDepartment::getId, sysDepartment.getId())
                  .eq(SysDepartment::getName, dto.getName())
                  .oneOpt()
                  .ifPresent(var1 -> {
@@ -229,7 +230,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
          * 禁止设置本级部门成为子部门的部门
          * 获取所有子部门id集合
          */
-        final Set<Long> childrenDeptIds = this.collectCurrentChildrenDeptIds(sysDept.getId(), null, HashSet::new);
+        final Set<Long> childrenDeptIds = this.collectCurrentChildrenDeptIds(sysDepartment.getId(), null, HashSet::new);
         // 确认预设置pid 是否为子部门id
         if (!CollectionUtils.isEmpty(childrenDeptIds) && !ObjectUtils.isEmpty(dto.getPid())) {
             if (childrenDeptIds.contains(dto.getPid())) {
@@ -237,17 +238,16 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
             }
         }
         // 禁止设置上级部门为本级部门
-        if (ObjectUtils.nullSafeEquals(dto.getPid(), sysDept.getId())) {
+        if (ObjectUtils.nullSafeEquals(dto.getPid(), sysDepartment.getId())) {
             throw new DepartmentException(DepartmentState.DEPARTMENT_BAN_CURRENT);
         }
-        this.update(dto, sysDept);
+        // 复制属性
+        this.convert.copyProperties(dto, sysDepartment);
+        // 更新实体
+        super.savaOrUpdate(sysDepartment);
         return null;
     }
 
-    private void update(DepartmentDTO dto, SysDepartment currentDept) {
-        this.convert.copyProperties(dto, currentDept);
-        super.savaOrUpdate(currentDept);
-    }
 
     /**
      * 删除 部门包含所有子部门

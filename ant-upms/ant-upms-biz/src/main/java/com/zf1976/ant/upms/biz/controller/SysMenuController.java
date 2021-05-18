@@ -37,31 +37,26 @@ public class SysMenuController {
     }
 
     @PostMapping("/page")
-//    @Authorize("menu:list")
     public DataResult<IPage<MenuVO>> selectMenuPage(@RequestBody Query<MenuQueryParam> requestPage) {
         return DataResult.success(service.selectMenuPage(requestPage));
     }
 
     @PostMapping("/vertex/{id}")
-//    @Authorize("menu:list")
     public DataResult<IPage<MenuVO>> menuVertex(@PathVariable @NotNull Long id) {
         return DataResult.success(service.selectMenuVertex(id));
     }
 
     @PostMapping("/save")
-//    @Authorize("menu:add")
     public DataResult<Optional<Void>> saveMenu(@RequestBody @Validated(ValidationInsertGroup.class) MenuDTO dto) {
         return DataResult.success(service.saveMenu(dto));
     }
 
     @PutMapping("/update")
-//    @Authorize("menu:edit")
     public DataResult<Optional<Void>> updateMenu(@RequestBody @Validated(ValidationUpdateGroup.class) MenuDTO dto) {
         return DataResult.success(service.updateMenu(dto));
     }
 
     @DeleteMapping("/delete")
-//    @Authorize("menu:del")
     public DataResult<Optional<Void>> deleteMenu(@RequestBody Set<Long> ids) {
         return DataResult.success(service.deleteMenuList(ids));
     }

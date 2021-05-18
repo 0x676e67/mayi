@@ -31,48 +31,40 @@ import java.util.Set;
 public class SysUserController {
 
     private final SysUserService service;
-    private final SecurityClient securityClient;
 
-    public SysUserController(SysUserService service, SecurityClient securityClient) {
+    public SysUserController(SysUserService service) {
         this.service = service;
-        this.securityClient = securityClient;
     }
 
     @PostMapping("/page")
-//    @Authorize("user:list")
     public DataResult<IPage<UserVO>> selectUserPage(@RequestBody Query<UserQueryParam> requestPage) {
         return DataResult.success(service.selectUserPage(requestPage));
     }
 
     @Log(description = "添加用户")
     @PostMapping("/save")
-//    @Authorize("user:add")
     public DataResult<Optional<Void>> saveUser(@RequestBody @Validated(ValidationInsertGroup.class) UserDTO dto) {
         return DataResult.success(service.saveUser(dto));
     }
 
     @Log(description = "更新用户")
     @PutMapping("/update")
-//    @Authorize("user:edit")
     public DataResult<Optional<Void>> updateUser(@RequestBody @Validated(ValidationUpdateGroup.class) UserDTO dto) {
         return DataResult.success(service.updateUser(dto));
     }
 
     @Log(description = "删除用户")
     @DeleteMapping("/delete")
-//    @Authorize("user:del")
     public DataResult<Optional<Void>> deleteUser(@RequestBody Set<Long> ids) {
         return DataResult.success(service.deleteUser(ids));
     }
 
     @PostMapping("/position/{id}")
-////    @Authorize("user:list")
     public DataResult<Set<Long>> getUserPositionIds(@PathVariable Long id) {
         return DataResult.success(service.selectUserPositionIds(id));
     }
 
     @PostMapping("/role/{id}")
-//    @Authorize("user:list")
     public DataResult<Set<Long>> getUserRoleIds(@PathVariable Long id) {
         return DataResult.success(service.selectUserRoleIds(id));
     }
@@ -105,6 +97,6 @@ public class SysUserController {
 
     @PatchMapping("/update/info")
     public DataResult<Optional<Void>> updateInfo(@RequestBody @Validated UpdateInfoDTO dto) {
-        return DataResult.success(service.updateInfo(dto));
+        return DataResult.success(service.updateInformation(dto));
     }
 }

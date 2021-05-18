@@ -90,6 +90,7 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
     @Transactional(rollbackFor = Exception.class)
     public Void updateDict(DictDTO dto) {
 
+        // 查询字典实体
         SysDict sysDict = super.lambdaQuery()
                                .eq(SysDict::getId, dto.getId())
                                .oneOpt().orElseThrow(() -> new DictException(DictState.DICT_NOT_FOUND));
@@ -103,8 +104,9 @@ public class SysDictService extends AbstractService<SysDictDao, SysDict> {
                      throw new DictException(DictState.DICT_EXISTING, var1.getDictName());
                  });
         }
-
+        // 复制属性
         this.convert.copyProperties(dto, sysDict);
+        // 更新实体
         super.savaOrUpdate(sysDict);
         return null;
     }

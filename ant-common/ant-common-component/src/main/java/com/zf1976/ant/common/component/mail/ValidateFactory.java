@@ -15,7 +15,7 @@ public class ValidateFactory {
         if (validateService == null) {
             synchronized (ValidateFactory.class) {
                 if (validateService == null) {
-                    validateService = ValidateServiceImpl.getInterface();
+                    validateService = ValidateServiceImpl.getInstance();
                 }
             }
         }

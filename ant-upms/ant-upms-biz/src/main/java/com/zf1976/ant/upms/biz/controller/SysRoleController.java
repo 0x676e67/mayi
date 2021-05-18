@@ -37,48 +37,41 @@ public class SysRoleController {
     }
 
     @PostMapping("/page")
-//    @Authorize("role:list")
     public DataResult<IPage<RoleVO>> selectRolePage(@RequestBody Query<RoleQueryParam> requestPage) {
         return DataResult.success(service.selectRolePage(requestPage));
     }
 
     @Log(description = "根据id查询角色")
     @PostMapping("/{id}")
-//    @Authorize("role:list")
     public DataResult<RoleVO> selectRole(@PathVariable("id") @NotNull Long id) {
         return DataResult.success(service.selectRole(id));
     }
 
     @GetMapping("/level")
-//    @Authorize("role:list")
     public DataResult<Integer> getRoleLevel() {
         return DataResult.success(service.selectRoleLevel());
     }
 
     @Log(description = "修改角色状态")
     @PatchMapping("/status")
-//    @Authorize("role:edit")
     public DataResult<Optional<Void>> setRoleStatus(@RequestParam @NotNull Long id, @RequestParam @NotNull Boolean enabled) {
         return DataResult.success(service.updateRoleStatus(id, enabled));
     }
 
     @Log(description = "新增角色")
     @PostMapping("/save")
-//    @Authorize("role:add")
     public DataResult<Optional<Void>> saveRole(@RequestBody @Validated(ValidationInsertGroup.class) RoleDTO dto) {
         return DataResult.success(service.savaRole(dto));
     }
 
     @Log(description = "更新角色")
     @PutMapping("/update")
-//    @Authorize("role:edit")
     public DataResult<Optional<Void>> updateRole(@RequestBody @Validated(ValidationUpdateGroup.class) RoleDTO dto) {
         return DataResult.success(service.updateRole(dto));
     }
 
     @Log(description = "删除角色")
     @DeleteMapping("/delete")
-//    @Authorize("role:del")
     public DataResult<Optional<Void>> deleteRole(@RequestBody Set<Long> ids) {
         return DataResult.success(service.deleteRole(ids));
     }
