@@ -1,6 +1,6 @@
-package com.zf1976.ant.common.component.load.impl;
+package com.zf1976.ant.common.component.cache.impl;
 
-import com.zf1976.ant.common.component.load.ICache;
+import com.zf1976.ant.common.component.cache.ICache;
 import com.zf1976.ant.common.component.property.CaffeineProperties;
 import com.zf1976.ant.common.core.util.RedisUtil;
 import org.slf4j.Logger;

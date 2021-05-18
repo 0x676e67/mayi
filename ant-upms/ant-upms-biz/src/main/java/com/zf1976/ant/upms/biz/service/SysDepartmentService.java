@@ -2,9 +2,9 @@ package com.zf1976.ant.upms.biz.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
-import com.zf1976.ant.common.component.load.annotation.CacheConfig;
-import com.zf1976.ant.common.component.load.annotation.CacheEvict;
-import com.zf1976.ant.common.component.load.annotation.CachePut;
+import com.zf1976.ant.common.component.cache.annotation.CacheConfig;
+import com.zf1976.ant.common.component.cache.annotation.CacheEvict;
+import com.zf1976.ant.common.component.cache.annotation.CachePut;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.core.foundation.exception.BusinessException;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;

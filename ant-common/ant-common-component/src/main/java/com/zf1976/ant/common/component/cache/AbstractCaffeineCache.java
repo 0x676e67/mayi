@@ -1,4 +1,4 @@
-package com.zf1976.ant.common.component.load;
+package com.zf1976.ant.common.component.cache;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;

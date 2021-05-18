@@ -1,8 +1,6 @@
-package com.zf1976.ant.common.component.load.annotation;
+package com.zf1976.ant.common.component.cache.annotation;
 
-import com.zf1976.ant.common.component.load.enums.CacheImplement;
-import org.checkerframework.checker.interning.qual.Interned;
-import org.w3c.dom.Element;
+import com.zf1976.ant.common.component.cache.enums.CacheImplement;
 
 import java.lang.annotation.*;
 
@@ -13,7 +11,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-public @interface CacheEvict {
+public @interface CachePut {
 
     /**
      * 缓存命名空间
@@ -23,12 +21,6 @@ public @interface CacheEvict {
     String namespace() default "";
 
     /**
-     * 缓存依赖
-     * @return /
-     */
-    String[] dependsOn() default {};
-
-    /**
      * key
      *
      * @return key
@@ -36,9 +28,18 @@ public @interface CacheEvict {
     String key() default "";
 
     /**
-     * 默认,当清除缓存时候默认清除所有（REDIS,CAFFEINE）缓存
+     * 动态命名空间缓存 根据用户分组
+     *
+     * @return /
      */
-    boolean strategy() default true;
+    boolean dynamics() default false;
+
+    /**
+     * 命名空间超时时间 - 单位:分钟
+     *
+     * @return time
+     */
+    long expired() default 10;
 
     /**
      * 缓存实现
@@ -46,3 +47,5 @@ public @interface CacheEvict {
      */
     CacheImplement implement() default CacheImplement.REDIS;
 }
+
+

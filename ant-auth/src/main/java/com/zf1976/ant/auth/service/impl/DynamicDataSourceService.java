@@ -5,9 +5,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.google.common.collect.Lists;
 import com.zf1976.ant.common.component.action.ActionsScanner;
-import com.zf1976.ant.common.component.load.annotation.CacheConfig;
-import com.zf1976.ant.common.component.load.annotation.CacheEvict;
-import com.zf1976.ant.common.component.load.annotation.CachePut;
+import com.zf1976.ant.common.component.cache.annotation.CacheConfig;
+import com.zf1976.ant.common.component.cache.annotation.CachePut;
 import com.zf1976.ant.common.core.constants.KeyConstants;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.security.annotation.Authorize;
@@ -16,18 +15,14 @@ import com.zf1976.ant.auth.dao.SysPermissionDao;
 import com.zf1976.ant.auth.dao.SysResourceDao;
 import com.zf1976.ant.auth.pojo.po.SysPermission;
 import com.zf1976.ant.auth.pojo.po.SysResource;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.access.ConfigAttribute;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 

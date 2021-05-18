@@ -1,15 +1,15 @@
-package com.zf1976.ant.common.component.load.aspect;
+package com.zf1976.ant.common.component.cache.aspect;
 
 
 import com.power.common.util.StringUtil;
-import com.zf1976.ant.common.component.load.ICache;
-import com.zf1976.ant.common.component.load.annotation.CacheConfig;
-import com.zf1976.ant.common.component.load.annotation.CacheEvict;
-import com.zf1976.ant.common.component.load.annotation.CachePut;
-import com.zf1976.ant.common.component.load.aspect.handler.SpringElExpressionHandler;
-import com.zf1976.ant.common.component.load.enums.CacheImplement;
-import com.zf1976.ant.common.component.load.impl.CaffeineCacheProvider;
-import com.zf1976.ant.common.component.load.impl.RedisCacheProvider;
+import com.zf1976.ant.common.component.cache.ICache;
+import com.zf1976.ant.common.component.cache.annotation.CacheConfig;
+import com.zf1976.ant.common.component.cache.annotation.CacheEvict;
+import com.zf1976.ant.common.component.cache.annotation.CachePut;
+import com.zf1976.ant.common.component.cache.aspect.handler.SpringElExpressionHandler;
+import com.zf1976.ant.common.component.cache.enums.CacheImplement;
+import com.zf1976.ant.common.component.cache.impl.CaffeineCacheProvider;
+import com.zf1976.ant.common.component.cache.impl.RedisCacheProvider;
 import com.zf1976.ant.common.component.property.CaffeineProperties;
 import com.zf1976.ant.common.security.support.session.manager.SessionManagement;
 import org.apache.commons.lang3.ArrayUtils;
@@ -43,7 +43,7 @@ public class LoadCacheAspect {
         this.checkStatus();
     }
 
-    @Around("@annotation(com.zf1976.ant.common.component.load.annotation.CachePut) && @annotation(annotation))")
+    @Around("@annotation(com.zf1976.ant.common.component.cache.annotation.CachePut) && @annotation(annotation))")
     public Object put(ProceedingJoinPoint joinPoint, CachePut annotation) {
         // 获取被代理类
         Class<?> targetClass = this.extractTargetClass(joinPoint.getThis());
@@ -71,7 +71,7 @@ public class LoadCacheAspect {
                                     });
     }
 
-    @Around("@annotation(com.zf1976.ant.common.component.load.annotation.CacheEvict) && @annotation(annotation)")
+    @Around("@annotation(com.zf1976.ant.common.component.cache.annotation.CacheEvict) && @annotation(annotation)")
     public Object remove(ProceedingJoinPoint joinPoint, CacheEvict annotation) throws Throwable {
         // 获取被代理类
         Class<?> targetClass = this.extractTargetClass(joinPoint.getThis());

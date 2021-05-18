@@ -6,7 +6,7 @@ import com.zf1976.ant.auth.LoginUserDetails;
 import com.zf1976.ant.auth.convert.UserConvert;
 import com.zf1976.ant.auth.exception.UserNotFountException;
 import com.zf1976.ant.auth.service.UserDetailsServiceEnhancer;
-import com.zf1976.ant.common.component.load.annotation.CachePut;
+import com.zf1976.ant.common.component.cache.annotation.CachePut;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.security.enums.AuthenticationState;
 import com.zf1976.ant.common.security.pojo.Details;

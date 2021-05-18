@@ -7,7 +7,7 @@ import com.zf1976.ant.auth.dao.ClientDetailsDao;
 import com.zf1976.ant.auth.enhance.JdbcClientDetailsServiceEnhancer;
 import com.zf1976.ant.auth.pojo.ClientDetails;
 import com.zf1976.ant.auth.pojo.ClientDetailsDTO;
-import com.zf1976.ant.common.component.load.annotation.CacheConfig;
+import com.zf1976.ant.common.component.cache.annotation.CacheConfig;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.security.support.session.manager.SessionManagement;
 import com.zf1976.ant.common.security.support.session.Session;

@@ -1,4 +1,4 @@
-package com.zf1976.ant.common.component.load;
+package com.zf1976.ant.common.component.cache;
 
 
 import java.util.function.Supplier;

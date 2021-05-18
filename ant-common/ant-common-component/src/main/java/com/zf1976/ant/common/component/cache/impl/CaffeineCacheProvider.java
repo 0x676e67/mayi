@@ -1,8 +1,8 @@
-package com.zf1976.ant.common.component.load.impl;
+package com.zf1976.ant.common.component.cache.impl;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.zf1976.ant.common.component.load.AbstractCaffeineCache;
+import com.zf1976.ant.common.component.cache.AbstractCaffeineCache;
 import com.zf1976.ant.common.component.property.CaffeineProperties;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;

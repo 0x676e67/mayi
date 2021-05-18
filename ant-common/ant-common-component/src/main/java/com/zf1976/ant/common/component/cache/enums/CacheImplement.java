@@ -1,4 +1,4 @@
-package com.zf1976.ant.common.component.load.enums;
+package com.zf1976.ant.common.component.cache.enums;
 
 /**
  * mac
@@ -15,5 +15,5 @@ public enum CacheImplement {
     /**
      * caffeine缓存实现
      */
-    CAFFEINE;
+    CAFFEINE
 }

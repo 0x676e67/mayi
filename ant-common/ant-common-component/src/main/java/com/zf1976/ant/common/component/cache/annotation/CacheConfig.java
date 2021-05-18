@@ -1,4 +1,4 @@
-package com.zf1976.ant.common.component.load.annotation;
+package com.zf1976.ant.common.component.cache.annotation;
 
 import java.lang.annotation.*;
 

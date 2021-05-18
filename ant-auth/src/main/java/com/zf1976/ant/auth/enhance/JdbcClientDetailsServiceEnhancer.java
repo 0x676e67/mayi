@@ -1,10 +1,10 @@
 package com.zf1976.ant.auth.enhance;
 
-import com.zf1976.ant.common.component.load.annotation.CacheConfig;
+import com.zf1976.ant.common.component.cache.annotation.CacheConfig;
 import com.zf1976.ant.common.security.support.signature.datasource.ClientDataSourceProvider;
 import com.zf1976.ant.common.security.support.signature.datasource.domain.Client;
-import com.zf1976.ant.common.component.load.annotation.CacheEvict;
-import com.zf1976.ant.common.component.load.annotation.CachePut;
+import com.zf1976.ant.common.component.cache.annotation.CacheEvict;
+import com.zf1976.ant.common.component.cache.annotation.CachePut;
 import com.zf1976.ant.common.core.constants.Namespace;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
