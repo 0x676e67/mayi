@@ -4,13 +4,12 @@ package com.zf1976.ant.auth.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.zf1976.ant.auth.pojo.ResourceLink;
 import com.zf1976.ant.auth.pojo.ResourceNode;
-import com.zf1976.ant.auth.pojo.po.SysPermission;
 import com.zf1976.ant.common.component.cache.annotation.CacheConfig;
+import com.zf1976.ant.common.component.cache.annotation.CacheEvict;
 import com.zf1976.ant.common.component.cache.annotation.CachePut;
 import com.zf1976.ant.common.core.constants.KeyConstants;
 import com.zf1976.ant.common.core.constants.Namespace;
@@ -36,7 +35,7 @@ import java.util.stream.Collectors;
 @CacheConfig(namespace = Namespace.RESOURCE)
 public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysResource> {
 
-    private final Map<String, String> matcherMethodMap = new HashMap<>(16);
+    private final Map<String, String> resourceMethodMap = new HashMap<>(16);
     private final Set<String> allowMethodSet = new HashSet<>(16);
     private final SysPermissionDao permissionDao;
     private final SecurityProperties securityProperties;
@@ -176,6 +175,12 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
         }
     }
 
+    /**
+     * 初始化节点fullUri属性
+     *
+     * @param resourceNode 资源节点
+     * @return {@link String}
+     */
     private String initResourceNodeFullUri(ResourceNode resourceNode) {
         String parentUri = resourceNode.getFullUri();
         if (StringUtils.isEmpty(parentUri)) {
@@ -185,6 +190,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
     }
 
     @Transactional(readOnly = true)
+    @CacheEvict(postInvoke = {"loadDynamicDataSource", "loadAllowUri"})
     public String demo() {
         throw new RuntimeException("测试删除后调用接口");
     }
@@ -198,42 +204,40 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
     @CachePut(key = KeyConstants.RESOURCES)
     @Transactional(readOnly = true)
     public Map<String, Collection<String>> loadDynamicDataSource() {
-        Map<String, Collection<String>> matcherResourceMap = new HashMap<>(16);
         //清空缓存
-        if (!CollectionUtils.isEmpty(this.matcherMethodMap) || !CollectionUtils.isEmpty(allowMethodSet)) {
-            this.matcherMethodMap.clear();
+        if (!CollectionUtils.isEmpty(this.resourceMethodMap) || !CollectionUtils.isEmpty(allowMethodSet)) {
+            this.resourceMethodMap.clear();
             this.allowMethodSet.clear();
         }
+        Map<String, Collection<String>> resourcePermissionMap = new HashMap<>(16);
         // 所有资源
         List<SysResource> resourceList = super.lambdaQuery()
                                               .list();
-
         // 根节点资源
         List<SysResource> root = resourceList.stream()
                                              .filter(sysResource -> sysResource.getPid() == null)
                                              .collect(Collectors.toList());
-        // 所有权限
-        List<SysPermission> permissionList = ChainWrappers.lambdaQueryChain(this.permissionDao)
-                                                          .list();
-
         // 构造完整url 资源路径
         for (SysResource resource : root) {
-            // 资源
+            // 资源id-link
             Map<Long, String> resourceLink = new HashMap<>(16);
-            Map<Long, String> methodMap = new HashMap<>(16);
-            this.makeResourceLink(resource, resourceLink, methodMap, resourceList);
+            // 资源id-method
+            Map<Long, String> resourceMethod = new HashMap<>(16);
+            this.buildResourceLink(resource, resourceLink, resourceMethod, resourceList);
             resourceLink.forEach((id, path) -> {
                 // 权限值
                 List<String> permissions = this.permissionDao.selectListByResourceId(id)
                                                              .stream()
                                                              .distinct()
                                                              .collect(Collectors.toList());
-                matcherResourceMap.put(path, permissions);
-                this.matcherMethodMap.put(path, methodMap.get(id));
+                // 方法
+                String method = resourceMethod.get(id);
+                resourcePermissionMap.put(path, permissions);
+                this.resourceMethodMap.put(path, method);
             });
 
         }
-        return matcherResourceMap;
+        return resourcePermissionMap;
     }
 
     /**
@@ -244,10 +248,10 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
      * @param methodMap       id-method映射
      * @date 2021-05-05 19:56:08
      */
-    private void makeResourceLink(SysResource parent,
-                                  Map<Long, String> resourceLinkMap,
-                                  Map<Long, String> methodMap,
-                                  List<SysResource> resourceList) {
+    private void buildResourceLink(SysResource parent,
+                                   Map<Long, String> resourceLinkMap,
+                                   Map<Long, String> methodMap,
+                                   List<SysResource> resourceList) {
         var parentId = parent.getId();
         var parentUri = parent.getUri();
         var parentMethod = parent.getMethod();
@@ -260,7 +264,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
             // 路径深搜
             child.setUri(parentUri.concat(child.getUri()));
             // 继续make
-            this.makeResourceLink(child, resourceLinkMap, methodMap, resourceList);
+            this.buildResourceLink(child, resourceLinkMap, methodMap, resourceList);
             // make完成
             condition = false;
         }
@@ -275,11 +279,11 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
     }
 
     @CachePut(key = KeyConstants.MATCH_METHOD)
-    public Map<String, String> getMatcherMethodMap() {
-        if (CollectionUtils.isEmpty(this.matcherMethodMap)) {
+    public Map<String, String> getResourceMethodMap() {
+        if (CollectionUtils.isEmpty(this.resourceMethodMap)) {
             this.loadDynamicDataSource();
         }
-        return this.matcherMethodMap;
+        return this.resourceMethodMap;
     }
 
     /**

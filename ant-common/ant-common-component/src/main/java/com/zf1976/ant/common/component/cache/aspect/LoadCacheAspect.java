@@ -75,8 +75,8 @@ public class LoadCacheAspect {
                                             return joinPoint.proceed();
                                         } catch (Throwable throwable) {
                                             log.error(throwable.getMessage(), throwable);
-                                            return null;
                                         }
+                                        return null;
                                     });
     }
 
@@ -128,13 +128,7 @@ public class LoadCacheAspect {
                 cacheProvider.invalidate(namespace, key);
             }
         }
-        Object proceed = null;
-        try {
-            proceed = joinPoint.proceed();
-        } catch (Throwable throwable) {
-            log.error(throwable.getMessage(), throwable);
-            throw throwable;
-        }
+        Object proceed = joinPoint.proceed();
         // 清除缓存后执行调用方法
         if (ArrayUtils.isNotEmpty(annotation.postInvoke())) {
             for (String methodName : annotation.postInvoke()) {

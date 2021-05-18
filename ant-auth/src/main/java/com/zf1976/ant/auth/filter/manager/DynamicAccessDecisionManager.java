@@ -48,7 +48,7 @@ public class DynamicAccessDecisionManager implements AccessDecisionManager {
         // 请求方法
         String method = request.getMethod();
         // URI-Method
-        Map<String, String> methodMap = this.dynamicDataSourceService.getMatcherMethodMap();
+        Map<String, String> methodMap = this.dynamicDataSourceService.getResourceMethodMap();
         // 条件
         boolean condition = false;
         for (Map.Entry<String, String> entry : methodMap.entrySet()) {
