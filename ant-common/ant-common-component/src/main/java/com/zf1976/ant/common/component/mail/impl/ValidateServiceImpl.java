@@ -3,12 +3,12 @@ package com.zf1976.ant.common.component.mail.impl;
 import com.power.common.util.RandomUtil;
 import com.power.common.util.ValidateUtil;
 import com.zf1976.ant.common.component.mail.MailSenderProvider;
-import com.zf1976.ant.common.component.mail.ValidateService;
+import com.zf1976.ant.common.component.mail.ValidateEmailService;
+import com.zf1976.ant.common.component.mail.ValidateMobileService;
 import com.zf1976.ant.common.component.mail.pojo.ToolEmailConfig;
 import com.zf1976.ant.common.core.foundation.exception.BusinessException;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
 import com.zf1976.ant.common.core.util.RedisUtil;
-import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.component.property.EmailProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,13 +31,15 @@ import java.util.concurrent.TimeUnit;
  *
  * @author mac
  */
-@Service
-public class ValidateServiceImpl implements ValidateService {
+@Service("ValidateServiceImpl")
+public class ValidateServiceImpl implements ValidateEmailService, ValidateMobileService {
 
-    private static ValidateService validateService;
+    private final static String EMAIL_KEY_PREFIX = "email:";
     private final Logger log = LoggerFactory.getLogger("[ValidateService]");
     private final EmailProperties properties;
     private final TemplateEngine engine;
+    private final static String MOBILE_KEY_PREFIX = "mobile:";
+    private static ValidateServiceImpl validateService;
 
     public ValidateServiceImpl(EmailProperties properties, TemplateEngine engine) {
         this.properties = properties;
@@ -49,16 +51,16 @@ public class ValidateServiceImpl implements ValidateService {
     /**
      * 获取单实例
      *
-     * @return {@link ValidateService}
+     * @return {@link ValidateServiceImpl}
      */
-    public static ValidateService getInstance() {
+    public static ValidateServiceImpl getInstance() {
         Assert.notNull(validateService, "init validateService is null!");
         return validateService;
     }
 
     @Override
-    public Void sendMailValidate(String email) {
-        if (StringUtils.isEmpty(email) || !ValidateUtil.isEmail(email)) {
+    public Void sendVerifyCode(String key) {
+        if (StringUtils.isEmpty(key) || !ValidateUtil.isEmail(key)) {
             throw new BusinessException(BusinessMsgState.EMAIL_LOW);
         }
         final String validateCode = RandomUtil.randomString(properties.getLength())
@@ -76,7 +78,7 @@ public class ValidateServiceImpl implements ValidateService {
                                           MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
                                           try {
                                               helper.setFrom(config.getFromUser());
-                                              helper.setTo(email);
+                                              helper.setTo(key);
                                               helper.setText(process, true);
                                               helper.setSubject(properties.getSubject());
                                               helper.setValidateAddresses(true);
@@ -91,18 +93,18 @@ public class ValidateServiceImpl implements ValidateService {
             throw new BusinessException(BusinessMsgState.OPT_ERROR);
         }
         // 保存验证码
-        RedisUtil.set(properties.getKeyPrefix(), email, validateCode, properties.getExpired(), TimeUnit.MILLISECONDS);
+        RedisUtil.set(properties.getKeyPrefix(), key, validateCode, properties.getExpired(), TimeUnit.MILLISECONDS);
         return null;
 
     }
 
 
     @Override
-    public Boolean validate(String email, String code) {
-        if (StringUtils.isEmpty(email) ||StringUtils.isEmpty(code)) {
+    public Boolean validateVerifyCode(String key, String code) {
+        if (StringUtils.isEmpty(key) || StringUtils.isEmpty(code)) {
             throw new BusinessException(BusinessMsgState.CODE_NOT_FOUNT);
         }
-        final String rawCode = RedisUtil.get(properties.getKeyPrefix(), email);
+        final String rawCode = RedisUtil.get(properties.getKeyPrefix(), key);
         if (!StringUtils.isEmpty(rawCode)) {
             return ObjectUtils.nullSafeEquals(rawCode, code);
         }
@@ -110,8 +112,37 @@ public class ValidateServiceImpl implements ValidateService {
     }
 
     @Override
-    public void clear(String email) {
-        RedisUtil.delete(properties.getKeyPrefix(), email);
+    public void clearVerifyCode(String key) {
+        RedisUtil.delete(properties.getKeyPrefix(), key);
     }
 
+    @Override
+    public Void sendEmailVerifyCode(String key) {
+        return this.sendVerifyCode(EMAIL_KEY_PREFIX.concat(key));
+    }
+
+    @Override
+    public Boolean validateEmailVerifyCode(String key, String code) {
+        return this.validateVerifyCode(EMAIL_KEY_PREFIX.concat(key), code);
+    }
+
+    @Override
+    public void clearEmailVerifyCode(String key) {
+        this.clearVerifyCode(EMAIL_KEY_PREFIX.concat(key));
+    }
+
+    @Override
+    public Void sendMobileVerifyCode(String mobile) {
+        return this.sendVerifyCode(MOBILE_KEY_PREFIX.concat(mobile));
+    }
+
+    @Override
+    public boolean validateMobileVerifyCode(String mobile, String code) {
+        return this.validateVerifyCode(MOBILE_KEY_PREFIX.concat(mobile), code);
+    }
+
+    @Override
+    public void clearMobileVerifyCode(String mobile) {
+        this.clearVerifyCode(MOBILE_KEY_PREFIX.concat(mobile));
+    }
 }

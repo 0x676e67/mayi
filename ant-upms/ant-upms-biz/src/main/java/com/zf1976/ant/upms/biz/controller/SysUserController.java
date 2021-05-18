@@ -1,7 +1,10 @@
 package com.zf1976.ant.upms.biz.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.zf1976.ant.common.component.mail.ValidateFactory;
+import com.zf1976.ant.common.component.mail.ValidateEmailService;
+import com.zf1976.ant.common.component.mail.ValidateMobileService;
+import com.zf1976.ant.common.component.mail.ValidateService;
+import com.zf1976.ant.common.component.mail.impl.ValidateServiceImpl;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.log.annotation.Log;
 import com.zf1976.ant.upms.biz.pojo.dto.user.UpdateEmailDTO;
@@ -13,8 +16,8 @@ import com.zf1976.ant.upms.biz.pojo.query.UserQueryParam;
 import com.zf1976.ant.common.core.validate.ValidationInsertGroup;
 import com.zf1976.ant.common.core.validate.ValidationUpdateGroup;
 import com.zf1976.ant.upms.biz.pojo.vo.user.UserVO;
-import com.zf1976.ant.upms.biz.feign.SecurityClient;
 import com.zf1976.ant.upms.biz.service.SysUserService;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,17 +31,19 @@ import java.util.Set;
  */
 @RestController
 @RequestMapping("/api/users")
+@DependsOn("ValidateServiceImpl")
 public class SysUserController {
 
     private final SysUserService service;
-
+    private final ValidateEmailService validateService;
     public SysUserController(SysUserService service) {
         this.service = service;
+        this.validateService = ValidateEmailService.validateEmailService();
     }
 
     @PostMapping("/page")
-    public DataResult<IPage<UserVO>> selectUserPage(@RequestBody Query<UserQueryParam> requestPage) {
-        return DataResult.success(service.selectUserPage(requestPage));
+    public DataResult<IPage<UserVO>> selectUserPage(@RequestBody Query<UserQueryParam> query) {
+        return DataResult.success(service.selectUserPage(query));
     }
 
     @Log(description = "添加用户")
@@ -92,7 +97,7 @@ public class SysUserController {
 
     @GetMapping("/email/reset")
     public DataResult<Optional<Void>> getEmailVerifyCode(@RequestParam String email) {
-        return DataResult.success(ValidateFactory.getInstance().sendMailValidate(email));
+        return DataResult.success(this.validateService.sendVerifyCode(email));
     }
 
     @PatchMapping("/update/info")

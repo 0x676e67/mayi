@@ -31,8 +31,8 @@ public class SysDepartmentController {
     }
 
     @PostMapping("/page")
-    public DataResult<IPage<DepartmentVO>> selectDeptPage(@RequestBody Query<DeptQueryParam> requestPage) {
-        return DataResult.success(service.selectDeptPage(requestPage));
+    public DataResult<IPage<DepartmentVO>> selectDeptPage(@RequestBody Query<DeptQueryParam> query) {
+        return DataResult.success(service.selectDeptPage(query));
     }
 
     @PostMapping("/vertex/{id}")

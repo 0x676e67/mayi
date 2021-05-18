@@ -2,12 +2,14 @@ package com.zf1976.ant.common.core.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisConnectionUtils;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -17,39 +19,92 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author mac
  */
+@Component
 public class RedisUtil {
 
     private final static Logger LOG = LoggerFactory.getLogger(RedisUtil.class);
 
-    private final static StringRedisTemplate REDIS_TEMPLATE = SpringContextHolder.getBean(StringRedisTemplate.class);
+    private static StringRedisTemplate redisTemplate;
 
-
+    /**
+     * get操作
+     *
+     * @param key 键
+     * @return {@link String}
+     */
     public static String get(String key) {
-        return REDIS_TEMPLATE.opsForValue().get(key);
+        return redisTemplate.opsForValue()
+                            .get(key);
     }
 
-    public static void set(String key, String value,long expired, TimeUnit timeUnit) {
-        REDIS_TEMPLATE.opsForValue().set(key, value, expired, timeUnit);
+    /**
+     * set操作
+     *
+     * @param key      键
+     * @param value    值
+     * @param expired  过期时间
+     * @param timeUnit 时间单位
+     */
+    public static void set(String key, String value, long expired, TimeUnit timeUnit) {
+        redisTemplate.opsForValue()
+                     .set(key, value, expired, timeUnit);
     }
 
+    /**
+     * delete操作
+     *
+     * @param key 键
+     * @return {@link Boolean}
+     */
     public static Boolean delete(String key) {
-        return REDIS_TEMPLATE.delete(key);
+        return redisTemplate.delete(key);
     }
 
+    /**
+     * set操作
+     *
+     * @param prefix   前缀
+     * @param key      键
+     * @param value    值
+     * @param expired  过期时间
+     * @param timeUnit 时间单位
+     */
     public static void set(String prefix, String key, String value, long expired, TimeUnit timeUnit) {
-        REDIS_TEMPLATE.opsForValue().set(prefix + key, value, expired , timeUnit);
+        redisTemplate.opsForValue()
+                     .set(prefix + key, value, expired, timeUnit);
     }
 
+    /**
+     * get操作
+     *
+     * @param prefix 前缀
+     * @param key    键
+     * @return {@link String}
+     */
     public static String get(String prefix, String key) {
-        return REDIS_TEMPLATE.opsForValue().get(prefix + key);
+        return redisTemplate.opsForValue()
+                            .get(prefix + key);
     }
 
+    /**
+     * delete操作
+     *
+     * @param prefix 前缀
+     * @param key    键
+     * @return {@link Boolean}
+     */
     public static Boolean delete(String prefix, String key) {
-        return REDIS_TEMPLATE.delete(prefix + key);
+        return redisTemplate.delete(prefix + key);
     }
 
+    /**
+     * delete操作
+     *
+     * @param keys 键集合
+     * @return {@link Long}
+     */
     public static Long delete(Collection<String> keys) {
-        return REDIS_TEMPLATE.delete(keys);
+        return redisTemplate.delete(keys);
     }
 
     /**
@@ -60,10 +115,10 @@ public class RedisUtil {
      */
     public static Set<String> scanKeys(String pattern) {
         final ScanOptions scanOptions = ScanOptions.scanOptions()
-                                             .match(pattern)
-                                             .build();
+                                                   .match(pattern)
+                                                   .build();
         Set<String> keys = new HashSet<>();
-        final RedisConnectionFactory connectionFactory = REDIS_TEMPLATE.getRequiredConnectionFactory();
+        final RedisConnectionFactory connectionFactory = redisTemplate.getRequiredConnectionFactory();
         RedisConnection connection = null;
         try {
             connection = connectionFactory.getConnection();
@@ -90,10 +145,10 @@ public class RedisUtil {
      */
     public static Set<String> scanKeysForPage(String pattern, int page, int pageSize) {
         final ScanOptions scanOptions = ScanOptions.scanOptions()
-                                             .match(pattern)
-                                             .build();
+                                                   .match(pattern)
+                                                   .build();
         Set<String> keys = new HashSet<>();
-        final RedisConnectionFactory connectionFactory = REDIS_TEMPLATE.getRequiredConnectionFactory();
+        final RedisConnectionFactory connectionFactory = redisTemplate.getRequiredConnectionFactory();
         RedisConnection connection = null;
         try {
             connection = connectionFactory.getConnection();
@@ -119,6 +174,11 @@ public class RedisUtil {
             RedisConnectionUtils.releaseConnection(connection, connectionFactory, true);
         }
         return keys;
+    }
+
+    @Autowired
+    public void setRedisTemplate(StringRedisTemplate stringRedisTemplate) {
+        RedisUtil.redisTemplate = stringRedisTemplate;
     }
 
 }

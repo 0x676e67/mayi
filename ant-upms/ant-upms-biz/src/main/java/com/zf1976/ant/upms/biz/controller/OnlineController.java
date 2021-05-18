@@ -26,8 +26,8 @@ public class OnlineController {
     }
 
     @PostMapping("/page")
-    public DataResult<IPage<SessionVO>> selectSessionList(@RequestBody Query<SessionQueryParam> requestPage) {
-        return DataResult.success(this.service.selectSessionPage(requestPage));
+    public DataResult<IPage<SessionVO>> selectSessionList(@RequestBody Query<SessionQueryParam> query) {
+        return DataResult.success(this.service.selectSessionPage(query));
     }
 
     @DeleteMapping("/delete")

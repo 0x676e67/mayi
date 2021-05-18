@@ -29,8 +29,8 @@ public class SysDictDetailController {
     }
 
     @PostMapping("/page")
-    public DataResult<IPage<DictDetailVO>> selectDictDetailPage(@RequestBody Query<DictDetailQueryParam> requestPage) {
-        return DataResult.success(service.selectDictDetailPage(requestPage));
+    public DataResult<IPage<DictDetailVO>> selectDictDetailPage(@RequestBody Query<DictDetailQueryParam> query) {
+        return DataResult.success(service.selectDictDetailPage(query));
     }
 
     @PostMapping("/save")

@@ -3,13 +3,12 @@ package com.zf1976.ant.common.component.mail;
 import com.zf1976.ant.common.component.mail.impl.ValidateServiceImpl;
 
 /**
- * 验证接口
- *
  * @author mac
+ * @date 2021/5/18
  */
-public interface ValidateService {
+public interface ValidateEmailService extends ValidateService {
 
-    static ValidateService validateService() {
+    static ValidateEmailService validateEmailService() {
         return ValidateServiceImpl.getInstance();
     }
 
@@ -19,21 +18,21 @@ public interface ValidateService {
      * @param key 键
      * @return null
      */
-    Void sendVerifyCode(String key);
+    Void sendEmailVerifyCode(String key);
 
     /**
      * 校验
      *
      * @param code 验证码
-     * @param key 键
+     * @param key  键
      * @return ture false
      */
-    Boolean validateVerifyCode(String key, String code);
+    Boolean validateEmailVerifyCode(String key, String code);
 
     /**
      * 清除验证码
      *
      * @param key 键
      */
-    void clearVerifyCode(String key);
+    void clearEmailVerifyCode(String key);
 }

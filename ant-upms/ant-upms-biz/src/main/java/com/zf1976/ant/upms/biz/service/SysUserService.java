@@ -7,7 +7,7 @@ import com.power.common.util.ValidateUtil;
 import com.zf1976.ant.common.component.load.annotation.CacheConfig;
 import com.zf1976.ant.common.component.load.annotation.CacheEvict;
 import com.zf1976.ant.common.component.load.annotation.CachePut;
-import com.zf1976.ant.common.component.mail.ValidateFactory;
+import com.zf1976.ant.common.component.mail.ValidateEmailService;
 import com.zf1976.ant.common.component.mail.ValidateService;
 import com.zf1976.ant.common.core.util.UUIDUtil;
 import com.zf1976.ant.common.security.support.session.Session;
@@ -49,7 +49,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -320,14 +319,14 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
             throw new BusinessException(BusinessMsgState.PARAM_ILLEGAL);
         }
 
-        ValidateService validateService = ValidateFactory.getInstance();
+        ValidateEmailService validateService = ValidateEmailService.validateEmailService();
         // 查询用户
         var sysUser = super.lambdaQuery()
                            .select(SysUser::getId, SysUser::getPassword, SysUser::getEmail)
                            .eq(SysUser::getId, SessionManagement.getSessionId())
                            .oneOpt()
                            .orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
-        if (validateService.validate(dto.getEmail(), code)) {
+        if (validateService.validateVerifyCode(dto.getEmail(), code)) {
             try {
                 String rawPassword = RsaUtil.decryptByPrivateKey(RsaProperties.PRIVATE_KEY, dto.getPassword());
                 if (encoder.matches(rawPassword, sysUser.getPassword())) {
@@ -345,7 +344,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
             } catch (Exception e) {
                 throw new BusinessException(BusinessMsgState.OPT_ERROR);
             }finally {
-                validateService.clear(dto.getEmail());
+                validateService.clearVerifyCode(dto.getEmail());
             }
         }
         return null;

@@ -37,8 +37,8 @@ public class SysMenuController {
     }
 
     @PostMapping("/page")
-    public DataResult<IPage<MenuVO>> selectMenuPage(@RequestBody Query<MenuQueryParam> requestPage) {
-        return DataResult.success(service.selectMenuPage(requestPage));
+    public DataResult<IPage<MenuVO>> selectMenuPage(@RequestBody Query<MenuQueryParam> query) {
+        return DataResult.success(service.selectMenuPage(query));
     }
 
     @PostMapping("/vertex/{id}")

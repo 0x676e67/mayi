@@ -37,8 +37,8 @@ public class SysRoleController {
     }
 
     @PostMapping("/page")
-    public DataResult<IPage<RoleVO>> selectRolePage(@RequestBody Query<RoleQueryParam> requestPage) {
-        return DataResult.success(service.selectRolePage(requestPage));
+    public DataResult<IPage<RoleVO>> selectRolePage(@RequestBody Query<RoleQueryParam> query) {
+        return DataResult.success(service.selectRolePage(query));
     }
 
     @Log(description = "根据id查询角色")

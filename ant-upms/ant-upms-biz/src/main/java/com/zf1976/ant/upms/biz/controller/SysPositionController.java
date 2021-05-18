@@ -32,8 +32,8 @@ public class SysPositionController {
     }
 
     @PostMapping("/page")
-    public DataResult<IPage<PositionVO>> selectPositionPage(@RequestBody Query<PositionQueryParam> requestPage) {
-        return DataResult.success(service.selectPositionPage(requestPage));
+    public DataResult<IPage<PositionVO>> selectPositionPage(@RequestBody Query<PositionQueryParam> query) {
+        return DataResult.success(service.selectPositionPage(query));
     }
 
     @PostMapping("/save")
