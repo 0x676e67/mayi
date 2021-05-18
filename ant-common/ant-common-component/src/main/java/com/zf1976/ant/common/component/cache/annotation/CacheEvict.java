@@ -34,12 +34,20 @@ public @interface CacheEvict {
     String key() default "";
 
     /**
+     * 支持清除后调用方法,只支持无参方法
+     *
+     * @return {@link String}
+     */
+    String[] postInvoke() default {};
+
+    /**
      * 默认,当清除缓存时候默认清除所有（REDIS,CAFFEINE）缓存
      */
     boolean strategy() default true;
 
     /**
      * 缓存实现
+     *
      * @return relation
      */
     CacheImplement implement() default CacheImplement.REDIS;

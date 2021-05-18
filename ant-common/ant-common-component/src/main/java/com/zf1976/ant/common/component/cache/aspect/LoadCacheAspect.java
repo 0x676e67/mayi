@@ -22,7 +22,10 @@ import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ReflectionUtils;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,14 +40,22 @@ public class LoadCacheAspect {
     private final Logger log = LoggerFactory.getLogger("[LoadCacheAspect]");
     private final SpringElExpressionHandler handler = new SpringElExpressionHandler();
     private Map<CacheImplement, ICache<Object, Object>> cacheProviderMap;
+
     public LoadCacheAspect(RedisTemplate<Object, Object> template, CaffeineProperties properties) {
         this.addProvider(CacheImplement.CAFFEINE, new CaffeineCacheProvider<>(properties));
         this.addProvider(CacheImplement.REDIS, new RedisCacheProvider<>(properties, template));
         this.checkStatus();
     }
 
+    /**
+     * 查询调用
+     *
+     * @param joinPoint  切点
+     * @param annotation 注解
+     * @return {@link Object}
+     */
     @Around("@annotation(com.zf1976.ant.common.component.cache.annotation.CachePut) && @annotation(annotation))")
-    public Object put(ProceedingJoinPoint joinPoint, CachePut annotation) {
+    public Object put(ProceedingJoinPoint joinPoint, CachePut annotation) throws Throwable {
         // 获取被代理类
         Class<?> targetClass = this.extractTargetClass(joinPoint.getThis());
         // 代理方法
@@ -52,7 +63,7 @@ public class LoadCacheAspect {
         // 缓存配置
         CacheConfig classAnnotation = targetClass.getAnnotation(CacheConfig.class);
         // 命名空间
-        String namespace = classAnnotation == null? annotation.namespace() : classAnnotation.namespace();
+        String namespace = classAnnotation == null ? annotation.namespace() : classAnnotation.namespace();
         // 缓存Key
         String key = this.handler.parse(method, joinPoint.getArgs(), annotation.key(), String.class, annotation.key());
         if (annotation.dynamics()) {
@@ -63,14 +74,19 @@ public class LoadCacheAspect {
                                         try {
                                             return joinPoint.proceed();
                                         } catch (Throwable throwable) {
-                                            if (log.isWarnEnabled()) {
-                                                log.warn(throwable.getMessage(), throwable);
-                                            }
+                                            log.error(throwable.getMessage(), throwable);
                                             return null;
                                         }
                                     });
     }
 
+    /**
+     * 更新调用
+     *
+     * @param joinPoint  切点
+     * @param annotation 注解
+     * @return {@link Object}
+     */
     @Around("@annotation(com.zf1976.ant.common.component.cache.annotation.CacheEvict) && @annotation(annotation)")
     public Object remove(ProceedingJoinPoint joinPoint, CacheEvict annotation) throws Throwable {
         // 获取被代理类
@@ -80,11 +96,14 @@ public class LoadCacheAspect {
         // 缓存配置
         CacheConfig classAnnotation = targetClass.getAnnotation(CacheConfig.class);
         // 命名空间
-        String namespace = classAnnotation == null? annotation.namespace() : classAnnotation.namespace();
+        String namespace = classAnnotation == null ? annotation.namespace() : classAnnotation.namespace();
         // 依赖的缓存空间
-        String[] dependOnNamespace = this.concatArray(classAnnotation == null? null : classAnnotation.dependsOn(), annotation.dependsOn());
+        String[] dependOnNamespace = ArrayUtils.addAll(classAnnotation == null ? null : classAnnotation.dependsOn(), annotation.dependsOn());
         // 缓存Key
         String key = annotation.key();
+        // 根据缓存实现清除命名空间
+        ICache<Object, Object> cacheProvider = this.cacheProviderMap.get(annotation.implement());
+
         // 默认策略清除所有缓存实现的命名空间
         if (annotation.strategy()) {
             this.cacheProviderMap.forEach((relation, cache) -> {
@@ -96,9 +115,6 @@ public class LoadCacheAspect {
                 }
             });
         } else {
-            // 根据缓存实现清除命名空间
-            ICache<Object, Object> cacheProvider = this.cacheProviderMap.get(annotation.implement())
-                    ;
             // 不存在key，清除缓存空间
             if (StringUtil.isEmpty(key)) {
                 // 清除缓存空间
@@ -112,7 +128,23 @@ public class LoadCacheAspect {
                 cacheProvider.invalidate(namespace, key);
             }
         }
-        return joinPoint.proceed();
+        Object proceed = null;
+        try {
+            proceed = joinPoint.proceed();
+        } catch (Throwable throwable) {
+            log.error(throwable.getMessage(), throwable);
+            throw throwable;
+        }
+        // 清除缓存后执行调用方法
+        if (ArrayUtils.isNotEmpty(annotation.postInvoke())) {
+            for (String methodName : annotation.postInvoke()) {
+                Method postInvokeMethod = ReflectionUtils.findMethod(targetClass, methodName);
+                if (postInvokeMethod != null) {
+                    ReflectionUtils.invokeMethod(postInvokeMethod, joinPoint.getThis());
+                }
+            }
+        }
+        return proceed;
     }
 
     private void checkStatus() {
@@ -127,13 +159,14 @@ public class LoadCacheAspect {
         this.cacheProviderMap.put(relation, cacheProvider);
     }
 
+    /**
+     * 获取被代理真实Class
+     *
+     * @param proxyObj 代理对象
+     * @return {@link Class<>}
+     */
     private Class<?> extractTargetClass(Object proxyObj) {
         return AopProxyUtils.ultimateTargetClass(proxyObj);
-    }
-
-    @SuppressWarnings("all")
-    private String[] concatArray(String[] array1, String[] array2) {
-        return ArrayUtils.addAll(array1, array2);
     }
 
 }

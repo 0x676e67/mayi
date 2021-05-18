@@ -3,9 +3,11 @@
 <mapper namespace="com.zf1976.ant.auth.dao.SysPermissionDao">
 
 <!--  获取接口权限值-->
-    <select id="getPermission" resultType="java.lang.String">
+    <select id="selectListByResourceId" resultType="java.lang.String">
         select distinct value
-        from sys_permission join sys_resource_permission_relation srpr on sys_permission.id = srpr.permission_id
-        where id in (select permission_id from sys_resource_permission_relation where sys_resource_permission_relation.resource_id = #{resourceId})
+        from sys_permission
+                 join sys_resource_permission_relation srpr on sys_permission.id = srpr.permission_id
+        where srpr.resource_id = #{resourceId}
     </select>
+
 </mapper>

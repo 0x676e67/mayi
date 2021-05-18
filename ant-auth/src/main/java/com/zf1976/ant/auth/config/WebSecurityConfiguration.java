@@ -9,6 +9,7 @@ import com.zf1976.ant.auth.filter.SignatureAuthenticationFilter;
 import com.zf1976.ant.auth.filter.provider.DaoAuthenticationEnhancerProvider;
 import com.zf1976.ant.auth.filter.handler.logout.OAuth2LogoutHandler;
 import com.zf1976.ant.auth.filter.handler.logout.Oauth2LogoutSuccessHandler;
+import com.zf1976.ant.auth.service.impl.DynamicDataSourceService;
 import com.zf1976.ant.common.security.property.AuthProperties;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
@@ -47,13 +48,16 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final PasswordEncoder passwordEncoder;
     private final UserDetailsService userDetailsService;
     private final AuthProperties authProperties;
+    private final DynamicDataSourceService dynamicDataSourceService;
 
     public WebSecurityConfiguration(SecurityProperties securityProperties,
                                     UserDetailsService userDetailsService,
-                                    AuthProperties authProperties) {
+                                    AuthProperties authProperties,
+                                    DynamicDataSourceService dynamicDataSourceService) {
         this.properties = securityProperties;
         this.userDetailsService = userDetailsService;
         this.authProperties = authProperties;
+        this.dynamicDataSourceService = dynamicDataSourceService;
         this.passwordEncoder = new MD5PasswordEncoder();
     }
 
@@ -123,16 +127,21 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
-            .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
+            .requestMatchers(EndpointRequest.toAnyEndpoint())
+            .permitAll()
             // 放行OPTIONS请求
-            .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+            .antMatchers(HttpMethod.OPTIONS, "/**")
+            .permitAll()
             // 白名单
-            .antMatchers(properties.getIgnoreUri()).permitAll()
+            .antMatchers(properties.getIgnoreUri())
+            .permitAll()
             // 认证OAuth路径放行
-            .antMatchers("/oauth/**").permitAll()
-            .anyRequest().authenticated()
+            .antMatchers("/oauth/**")
+            .permitAll()
+            .anyRequest()
+            .authenticated()
             .and()
-            .addFilterAt(new DynamicSecurityFilter(), FilterSecurityInterceptor.class)
+            .addFilterAt(new DynamicSecurityFilter(this.properties, this.dynamicDataSourceService), FilterSecurityInterceptor.class)
             .addFilterBefore(new OAuth2TokenAuthenticationFilter(properties), LogoutFilter.class);
         var jdbcClientDetailsServiceEnhancer = SecurityContextHolder.getShareObject(JdbcClientDetailsServiceEnhancer.class);
         if (this.authProperties.getEnableSignature()) {

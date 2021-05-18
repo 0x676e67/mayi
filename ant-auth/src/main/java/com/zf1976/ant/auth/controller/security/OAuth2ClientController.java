@@ -3,11 +3,8 @@ package com.zf1976.ant.auth.controller.security;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zf1976.ant.auth.pojo.ClientDetails;
-import com.zf1976.ant.auth.pojo.ResourceNode;
 import com.zf1976.ant.auth.service.impl.OAuth2ClientService;
-import com.zf1976.ant.auth.service.impl.ResourceService;
 import com.zf1976.ant.common.core.foundation.DataResult;
-import com.zf1976.ant.auth.pojo.po.SysResource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 

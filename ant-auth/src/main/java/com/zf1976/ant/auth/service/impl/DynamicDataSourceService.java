@@ -1,27 +1,29 @@
 package com.zf1976.ant.auth.service.impl;
 
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
-import com.zf1976.ant.common.component.action.ActionsScanner;
+import com.zf1976.ant.auth.pojo.ResourceLink;
+import com.zf1976.ant.auth.pojo.ResourceNode;
+import com.zf1976.ant.auth.pojo.po.SysPermission;
 import com.zf1976.ant.common.component.cache.annotation.CacheConfig;
 import com.zf1976.ant.common.component.cache.annotation.CachePut;
 import com.zf1976.ant.common.core.constants.KeyConstants;
 import com.zf1976.ant.common.core.constants.Namespace;
-import com.zf1976.ant.common.security.annotation.Authorize;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import com.zf1976.ant.auth.dao.SysPermissionDao;
 import com.zf1976.ant.auth.dao.SysResourceDao;
-import com.zf1976.ant.auth.pojo.po.SysPermission;
 import com.zf1976.ant.auth.pojo.po.SysResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,28 +33,167 @@ import java.util.stream.Collectors;
  * @date 2020/12/26
  **/
 @Service
-@CacheConfig(namespace = Namespace.DYNAMIC)
-public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysPermission> {
+@CacheConfig(namespace = Namespace.RESOURCE)
+public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysResource> {
 
-    private final ActionsScanner actionsScanner;
-    private final SysResourceDao sysResourceDao;
-    private final Map<String, String> matcherMethodMap;
-    private final Set<String> allowMethodSet;
+    private final Map<String, String> matcherMethodMap = new HashMap<>(16);
+    private final Set<String> allowMethodSet = new HashSet<>(16);
+    private final SysPermissionDao permissionDao;
     private final SecurityProperties securityProperties;
 
-    public DynamicDataSourceService(SysResourceDao sysResourceDao, ActionsScanner actionsScanner, SecurityProperties securityProperties) {
-        this.actionsScanner = actionsScanner;
-        this.sysResourceDao = sysResourceDao;
+    public DynamicDataSourceService(SysPermissionDao sysPermissionDao,
+                                    SecurityProperties securityProperties) {
+        this.permissionDao = sysPermissionDao;
         this.securityProperties = securityProperties;
-        this.matcherMethodMap = new HashMap<>(16);
-        this.allowMethodSet = new HashSet<>(16);
+    }
+
+    @CachePut(key = "#page")
+    @Transactional(readOnly = true)
+    public IPage<ResourceNode> selectResourceNodeByPage(Page<SysResource> page) {
+        // 独立根据根节点分页查询
+        Page<SysResource> sourcePage = super.lambdaQuery()
+                                            .isNull(SysResource::getPid)
+                                            .page(page);
+
+        // 查询所有根节点的子节点
+        List<SysResource> childResourceList = super.lambdaQuery()
+                                                   .isNotNull(SysResource::getPid)
+                                                   .list();
+        // 合并所有节点
+        @SuppressWarnings("all")
+        FluentIterable<SysResource> allResourceList = FluentIterable.concat(childResourceList, sourcePage.getRecords());
+        // 根据分页出来的根节点构建资源树
+        List<ResourceNode> resourceTreeList = this.buildResourceTree(allResourceList.toList());
+        return new Page<ResourceNode>(sourcePage.getCurrent(),
+                sourcePage.getSize(),
+                sourcePage.getTotal(),
+                sourcePage.isSearchCount()).setRecords(resourceTreeList);
+    }
+
+    /**
+     * 构建资源树
+     *
+     * @param resourceList 资源列表
+     * @return {@link List<ResourceNode>}
+     * @date 2021-05-07 08:42:41
+     */
+    private List<ResourceNode> buildResourceTree(List<SysResource> resourceList) {
+        List<ResourceNode> treeList = resourceList.stream()
+                                                  .map(ResourceNode::new)
+                                                  .collect(Collectors.toList());
+        // 遍历所有根节点进行构造树
+        for (ResourceNode var1 : treeList) {
+            // 循环构造子节点
+            for (ResourceNode var2 : treeList) {
+                if (var1.getId()
+                        .equals(var2.getPid())) {
+                    if (var1.getChildren() == null) {
+                        var1.setChildren(new ArrayList<>());
+                    }
+                    // 添加子节点
+                    var1.getChildren()
+                        .add(var2);
+                }
+            }
+        }
+        // 树节点进行递归处理，从根节点到各叶子uri进行链接，并给叶子设置完整路径
+        return treeList.stream()
+                       .filter(resourceNode -> {
+                           // 根据树构建完整uri
+                           if (resourceNode.getPid() == null) {
+                               this.traverseNode(resourceNode);
+                               return true;
+                           }
+                           return false;
+                       })
+                       .collect(Collectors.toList());
+    }
+
+    /**
+     * 根据资源树构建资源链接列表
+     *
+     * @return {@link List< ResourceLink >}
+     * @date 2021-05-07 23:43:49
+     */
+    private List<ResourceLink> buildResourceLinkList(List<ResourceNode> resourceNodeTree) {
+        List<ResourceLink> resourceLinkList = new LinkedList<>();
+        resourceNodeTree.forEach(resourceNode -> {
+            this.traverseNode(resourceNode, resourceLinkList);
+        });
+        return resourceLinkList;
+    }
+
+    /**
+     * 遍历节点构造完整URI
+     *
+     * @param parentNode       父节点
+     * @param resourceLinkList 资源链接列表
+     * @date 2021-05-07 23:40:54
+     */
+    private void traverseNode(ResourceNode parentNode, List<ResourceLink> resourceLinkList) {
+        // 递归到叶子节点
+        if (parentNode.getChildren() == null) {
+            if (resourceLinkList != null) {
+                // 构造完整资源链接
+                ResourceLink resourceLink = new ResourceLink();
+                resourceLink.setId(parentNode.getId())
+                            .setName(parentNode.getName())
+                            .setUri(parentNode.getUri())
+                            .setMethod(parentNode.getMethod())
+                            .setEnabled(parentNode.getEnabled())
+                            .setAllow(parentNode.getAllow())
+                            .setDescription(parentNode.getDescription());
+                resourceLinkList.add(resourceLink);
+            }
+        } else {
+            String parentUri = parentNode.getUri();
+            for (ResourceNode childNode : parentNode.getChildren()) {
+                // 构造uri
+                childNode.setUri(parentUri.concat(childNode.getUri()));
+                // 递归
+                this.traverseNode(childNode, resourceLinkList);
+            }
+        }
+    }
+
+    /**
+     * 遍历节点构造完整URI
+     *
+     * @param parentNode 父节点
+     * @date 2021-05-07 23:40:54
+     */
+    private void traverseNode(ResourceNode parentNode) {
+        // 递归到叶子节点
+        if (parentNode.getChildren() != null) {
+            String parentUri = this.initResourceNodeFullUri(parentNode);
+            for (ResourceNode childNode : parentNode.getChildren()) {
+                String childUri = this.initResourceNodeFullUri(childNode);
+                // 构造uri
+                childNode.setFullUri(parentUri.concat(childUri));
+                // 递归
+                this.traverseNode(childNode);
+            }
+        }
+    }
+
+    private String initResourceNodeFullUri(ResourceNode resourceNode) {
+        String parentUri = resourceNode.getFullUri();
+        if (StringUtils.isEmpty(parentUri)) {
+            parentUri = resourceNode.getUri();
+        }
+        return parentUri;
+    }
+
+    @Transactional(readOnly = true)
+    public String demo() {
+        throw new RuntimeException("测试删除后调用接口");
     }
 
     /**
      * 加载动态数据源资源 （URI--Permissions）
      *
-     * @date 2021-05-05 19:53:43
      * @return {@link Map}
+     * @date 2021-05-05 19:53:43
      */
     @CachePut(key = KeyConstants.RESOURCES)
     @Transactional(readOnly = true)
@@ -63,54 +204,65 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
             this.matcherMethodMap.clear();
             this.allowMethodSet.clear();
         }
+        // 所有资源
+        List<SysResource> resourceList = super.lambdaQuery()
+                                              .list();
+
+        // 根节点资源
+        List<SysResource> root = resourceList.stream()
+                                             .filter(sysResource -> sysResource.getPid() == null)
+                                             .collect(Collectors.toList());
+        // 所有权限
+        List<SysPermission> permissionList = ChainWrappers.lambdaQueryChain(this.permissionDao)
+                                                          .list();
+
         // 构造完整url 资源路径
-        ChainWrappers.lambdaQueryChain(this.sysResourceDao)
-                     .isNull(SysResource::getPid)
-                     .list()
-                     .forEach(resource -> {
-                         // 资源
-                         Map<Long, String> resourceLink = new HashMap<>(16);
-                         Map<Long, String> methodMap = new HashMap<>(16);
-                         this.makeResourceLink(resource, resourceLink, methodMap);
-                         resourceLink.forEach((id, path) -> {
-                             // 权限值
-                             List<String> permissions = this.baseMapper.getPermission(id)
-                                                                       .stream()
-                                                                       .distinct()
-                                                                       .collect(Collectors.toList());
-                             matcherResourceMap.put(path, permissions);
-                             this.matcherMethodMap.put(path, methodMap.get(id));
-                         });
-                     });
+        for (SysResource resource : root) {
+            // 资源
+            Map<Long, String> resourceLink = new HashMap<>(16);
+            Map<Long, String> methodMap = new HashMap<>(16);
+            this.makeResourceLink(resource, resourceLink, methodMap, resourceList);
+            resourceLink.forEach((id, path) -> {
+                // 权限值
+                List<String> permissions = this.permissionDao.selectListByResourceId(id)
+                                                             .stream()
+                                                             .distinct()
+                                                             .collect(Collectors.toList());
+                matcherResourceMap.put(path, permissions);
+                this.matcherMethodMap.put(path, methodMap.get(id));
+            });
+
+        }
         return matcherResourceMap;
     }
 
     /**
      * 构造资源路径
      *
-     * @date 2021-05-05 19:56:08
-     * @param parent 节点资源
+     * @param parent          节点资源
      * @param resourceLinkMap id-path映射
-     * @param methodMap id-method映射
+     * @param methodMap       id-method映射
+     * @date 2021-05-05 19:56:08
      */
-    private void makeResourceLink(SysResource parent, Map<Long, String> resourceLinkMap, Map<Long, String> methodMap) {
+    private void makeResourceLink(SysResource parent,
+                                  Map<Long, String> resourceLinkMap,
+                                  Map<Long, String> methodMap,
+                                  List<SysResource> resourceList) {
         var parentId = parent.getId();
         var parentUri = parent.getUri();
         var parentMethod = parent.getMethod();
         // 判断是否make
         var condition = true;
-        List<SysResource> resources = ChainWrappers.lambdaQueryChain(this.sysResourceDao)
-                                                   .eq(SysResource::getPid, parentId)
-                                                   .list();
-        if (resources != null) {
-            for (SysResource child : resources) {
-                // 路径深搜
-                child.setUri(parentUri.concat(child.getUri()));
-                // 继续make
-                this.makeResourceLink(child, resourceLinkMap, methodMap);
-                // make完成
-                condition = false;
-            }
+        List<SysResource> childResourceList = resourceList.stream()
+                                                          .filter(sysResource -> ObjectUtils.nullSafeEquals(parentId, sysResource.getPid()))
+                                                          .collect(Collectors.toList());
+        for (SysResource child : childResourceList) {
+            // 路径深搜
+            child.setUri(parentUri.concat(child.getUri()));
+            // 继续make
+            this.makeResourceLink(child, resourceLinkMap, methodMap, resourceList);
+            // make完成
+            condition = false;
         }
         if (condition) {
             resourceLinkMap.put(parentId, parentUri);
@@ -132,73 +284,14 @@ public class DynamicDataSourceService extends ServiceImpl<SysPermissionDao, SysP
 
     /**
      * redis 反序化回来变成set
+     *
      * @return getAllowUri
      */
     @CachePut(key = KeyConstants.ALLOW)
-    public List<String> getAllowUri() {
+    public List<String> loadAllowUri() {
         CollectionUtils.mergeArrayIntoCollection(securityProperties.getIgnoreUri(), this.allowMethodSet);
         return Lists.newArrayList(this.allowMethodSet);
     }
 
-    public void test() {
-        Map<Class<?>, String> classStringMap = this.actionsScanner.doScan("com.zf1976.*.endpoint");
-        for (Map.Entry<Class<?>, String> classStringEntry : classStringMap.entrySet()) {
-            Class<?> aClass = classStringEntry.getKey();
-            RequestMapping requestMapping = aClass.getAnnotation(RequestMapping.class);
-            if (requestMapping != null) {
-                StringBuilder baseUri = new StringBuilder();
-                for (String var1 : requestMapping.value()) {
-                    baseUri.append(var1);
-                }
-                for (Method method : aClass.getDeclaredMethods()) {
-                    StringBuilder builder = new StringBuilder(baseUri);
-                    Authorize authorize = null;
-                    for (Annotation methodAnnotation : method.getAnnotations()) {
-                        if (methodAnnotation instanceof Authorize) {
-                            authorize = (Authorize) methodAnnotation;
-                        }
-                        if (methodAnnotation instanceof GetMapping) {
-                            GetMapping getMapping = (GetMapping) methodAnnotation;
-                            for (String var2 : getMapping.value()) {
-                                builder.append(var2);
-                            }
-                        }
-                        if (methodAnnotation instanceof PostMapping) {
-                            PostMapping postMapping = (PostMapping) methodAnnotation;
-                            for (String var3 : postMapping.value()) {
-                                builder.append(var3);
-                            }
-                        }
-
-                        if (methodAnnotation instanceof PutMapping) {
-                            PutMapping putMapping = (PutMapping) methodAnnotation;
-                            for (String var4 : putMapping.value()) {
-                                builder.append(var4);
-                            }
-                        }
-
-                        if (methodAnnotation instanceof DeleteMapping) {
-                            DeleteMapping deleteMapping = (DeleteMapping) methodAnnotation;
-                            for (String var5 : deleteMapping.value()) {
-                                builder.append(var5);
-                            }
-                        }
-
-                        if (methodAnnotation instanceof PatchMapping) {
-                            PatchMapping patchMapping = (PatchMapping) methodAnnotation;
-                            for (String var6 : patchMapping.value()) {
-                                builder.append(var6);
-                            }
-                        }
-                    }
-                    if (authorize != null) {
-                        System.out.println(builder + "---" + Arrays.toString(authorize.value()));
-                    } else {
-                        System.out.println(builder);
-                    }
-                }
-            }
-        }
-    }
 
 }

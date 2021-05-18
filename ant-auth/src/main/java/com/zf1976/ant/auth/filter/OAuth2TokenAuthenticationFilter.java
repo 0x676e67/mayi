@@ -48,7 +48,7 @@ public class OAuth2TokenAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws IOException, ServletException {
         try {
             final String accessToken = this.extractAccessToken(request);
-            // token为空放行 放行url
+            // token为空、存在放行url，放行
             if (StringUtils.isEmpty(accessToken) || validateAllowUri(request)) {
                 filterChain.doFilter(request, response);
                 return;

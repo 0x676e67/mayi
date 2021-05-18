@@ -1,6 +1,5 @@
 package com.zf1976.ant.auth.filter.datasource;
 
-import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.auth.service.impl.DynamicDataSourceService;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
@@ -27,28 +26,28 @@ import java.util.stream.Collectors;
  **/
 public class DynamicSecurityMetadataSource implements FilterInvocationSecurityMetadataSource {
 
-    private Map<String, Collection<String>> requestMap;
+    private final DynamicDataSourceService dynamicDataSourceService;
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
-    public DynamicSecurityMetadataSource() {
-        this.initialize();
+    public DynamicSecurityMetadataSource(DynamicDataSourceService dynamicDataSourceService) {
+        this.dynamicDataSourceService = dynamicDataSourceService;
         this.checkState();
     }
 
     private void checkState() {
-        Assert.notNull(this.requestMap, "request map cannot been null");
+        Assert.notNull(this.dynamicDataSourceService, "dynamicDataSourceService cannot been null");
     }
 
     @Override
     public Collection<ConfigAttribute> getAttributes(Object o) throws IllegalArgumentException {
         Assert.isInstanceOf(FilterInvocation.class, o, "target not is instance of FilterInvocation");
-        if (CollectionUtils.isEmpty(requestMap)) {
-            this.initialize();
-        }
         HttpServletRequest request = ((FilterInvocation) o).getRequest();
+        // 请求uri
         String uri = request.getRequestURI();
-        AntPathMatcher pathMatcher = new AntPathMatcher();
+        // 动态数据源
+        Map<String, Collection<String>> dynamicDataSource = this.getDynamicDataSourceMap();
         // 资源URI--Permissions
-        for (Map.Entry<String, Collection<String>> entry : requestMap.entrySet()) {
+        for (Map.Entry<String, Collection<String>> entry : dynamicDataSource.entrySet()) {
             boolean condition = false;
             // eq匹配
             if (ObjectUtils.nullSafeEquals(entry.getKey(), uri)) {
@@ -77,7 +76,8 @@ public class DynamicSecurityMetadataSource implements FilterInvocationSecurityMe
     @Override
     public Collection<ConfigAttribute> getAllConfigAttributes() {
         Collection<ConfigAttribute> configAttributes = new CopyOnWriteArraySet<>();
-        for (Map.Entry<String, Collection<String>> collectionEntry : this.requestMap.entrySet()) {
+        for (Map.Entry<String, Collection<String>> collectionEntry : this.getDynamicDataSourceMap()
+                                                                         .entrySet()) {
             final Set<SecurityConfig> securityConfigs = collectionEntry.getValue()
                                                                        .stream()
                                                                        .map(SecurityConfig::new)
@@ -92,11 +92,7 @@ public class DynamicSecurityMetadataSource implements FilterInvocationSecurityMe
         return DynamicSecurityMetadataSource.class.isAssignableFrom(aClass);
     }
 
-    private void initialize() {
-        DynamicDataSourceService dynamicDataSourceService = SpringContextHolder.getBean(DynamicDataSourceService.class);
-        Assert.notNull(dynamicDataSourceService, "dynamic datasource cannot been null");
-        if (this.requestMap == null) {
-            this.requestMap = dynamicDataSourceService.loadDynamicDataSource();
-        }
+    private Map<String, Collection<String>> getDynamicDataSourceMap() {
+        return this.dynamicDataSourceService.loadDynamicDataSource();
     }
 }

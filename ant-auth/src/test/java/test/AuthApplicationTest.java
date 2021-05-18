@@ -1,8 +1,8 @@
 package test;
 
 import com.zf1976.ant.auth.AuthApplication;
+import com.zf1976.ant.auth.dao.SysPermissionDao;
 import com.zf1976.ant.auth.service.impl.OAuth2ClientService;
-import com.zf1976.ant.auth.service.impl.ResourceService;
 import com.zf1976.ant.auth.system.MySqlStrategyBackup;
 import com.zf1976.ant.common.security.support.session.manager.SessionManagement;
 import com.zf1976.ant.upms.biz.dao.SysRoleDao;
@@ -31,8 +31,6 @@ public class AuthApplicationTest {
     @Autowired
     SysRoleDao roleDao;
 
-    @Autowired
-    ResourceService service;
 
     @Autowired
     DataSource dataSource;
@@ -43,7 +41,7 @@ public class AuthApplicationTest {
 
     @Test
     public void sessionTest() {
-        SessionManagement.removeSession(1L);
+
     }
 
     @Test

@@ -6,7 +6,6 @@ import com.google.common.collect.Sets;
 import com.zf1976.ant.auth.filter.datasource.DynamicSecurityMetadataSource;
 import com.zf1976.ant.auth.filter.manager.DynamicAccessDecisionManager;
 import com.zf1976.ant.auth.service.impl.DynamicDataSourceService;
-import com.zf1976.ant.common.core.util.SpringContextHolder;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +14,6 @@ import org.springframework.security.access.SecurityMetadataSource;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
 import org.springframework.security.access.intercept.InterceptorStatusToken;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.PathMatcher;
@@ -24,7 +22,6 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -35,27 +32,23 @@ import java.util.Set;
  **/
 public class DynamicSecurityFilter extends AbstractSecurityInterceptor implements Filter {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final SecurityProperties properties;
     private final DynamicDataSourceService dynamicDataSourceService;
+    private final DynamicSecurityMetadataSource dynamicSecurityMetadataSource;
 
-    public DynamicSecurityFilter() {
-        this.properties = SpringContextHolder.getBean(SecurityProperties.class);
-        this.dynamicDataSourceService = SpringContextHolder.getBean(DynamicDataSourceService.class);
-        super.setAccessDecisionManager(new DynamicAccessDecisionManager(dynamicDataSourceService));
+    public DynamicSecurityFilter(SecurityProperties properties, DynamicDataSourceService dynamicDataSourceService) {
+        this.properties = properties;
+        this.dynamicDataSourceService = dynamicDataSourceService;
+        this.dynamicSecurityMetadataSource = new DynamicSecurityMetadataSource(dynamicDataSourceService);
+        super.setAccessDecisionManager(new DynamicAccessDecisionManager(this.dynamicDataSourceService));
         this.checkState();
     }
 
     public void checkState() {
         Assert.notNull(this.properties, "security config cannot been null");
         Assert.notNull(this.dynamicDataSourceService, "dynamicDataSourceService cannot been null");
-        this.init();
-    }
-
-    private void init(){
-        this.dynamicDataSourceService.getAllowUri();
-        this.dynamicDataSourceService.loadDynamicDataSource();
-        logger.info("Dynamic data sources rely on initialization！");
+        Assert.notNull(this.dynamicSecurityMetadataSource, "dynamicSecurityMetadataSource cannot been null");
     }
 
     @Override
@@ -83,6 +76,7 @@ public class DynamicSecurityFilter extends AbstractSecurityInterceptor implement
             filterInvocation.getChain()
                             .doFilter(filterInvocation.getRequest(), filterInvocation.getResponse());
         } finally {
+            // 直接到控制器-servlet底层上来
             super.afterInvocation(token, null);
         }
     }
@@ -90,7 +84,7 @@ public class DynamicSecurityFilter extends AbstractSecurityInterceptor implement
     private Collection<String> loadAllowUrl() {
         // 配置文件白名单
         Set<String> defaultAllow = Sets.newHashSet(this.properties.getIgnoreUri());
-        return Lists.newArrayList(Iterables.concat(this.dynamicDataSourceService.getAllowUri(), defaultAllow));
+        return Lists.newArrayList(Iterables.concat(this.dynamicDataSourceService.loadAllowUri(), defaultAllow));
     }
 
     @Override
@@ -100,13 +94,7 @@ public class DynamicSecurityFilter extends AbstractSecurityInterceptor implement
 
     @Override
     public SecurityMetadataSource obtainSecurityMetadataSource() {
-        return new DynamicSecurityMetadataSource();
+        return this.dynamicSecurityMetadataSource;
     }
 
-    public static void main(String[] args) {
-        final AntPathMatcher antPathMatcher = new AntPathMatcher();
-        final Map<String, String> withinPattern = antPathMatcher.extractUriTemplateVariables("/api/{[a-z]}", "/api/7897");
-        System.out.println(withinPattern);
-        System.out.println(antPathMatcher.match("/api/{api}", "/api/111"));
-    }
 }
