@@ -50,8 +50,8 @@ spring:
         enabled: true
   mail:                                                     #邮件默认配置
     default-encoding: UTF-8
-    host: smtp.qq.com
-    password: mwkvuwzspcvjibab
+    host: smtp.mxhichina.com
+    password: Fengge123
     port: 465
     properties:
       mail:
@@ -59,7 +59,7 @@ spring:
         smtp:
           socketFactory:
             class: javax.net.ssl.SSLSocketFactory
-    username: 1596863112@qq.com
+    username: antemain@innas.cn
 
   jackson:                                                  #json序列化配置
     time-zone: GMT+8

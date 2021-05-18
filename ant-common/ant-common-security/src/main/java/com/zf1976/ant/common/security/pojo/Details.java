@@ -14,15 +14,18 @@ public class Details implements Serializable {
     /**
      * 权限
      */
-    private final Set<String> permission;
+    private Set<String> permission;
     /**
      * 数据权限
      */
-    private final Set<Long> dataPermission;
+    private Set<Long> dataPermission;
     /**
      * 用户信息
      */
-    private final User userInfo;
+    private User userInfo;
+
+    public Details() {
+    }
 
     public Details(Set<String> permission, Set<Long> dataPermission, User userInfo) {
         this.permission = permission;
@@ -34,16 +37,25 @@ public class Details implements Serializable {
         return permission;
     }
 
-
-    public User getUserInfo() {
-        return userInfo;
+    public void setPermission(Set<String> permission) {
+        this.permission = permission;
     }
-
 
     public Set<Long> getDataPermission() {
         return dataPermission;
     }
 
+    public void setDataPermission(Set<Long> dataPermission) {
+        this.dataPermission = dataPermission;
+    }
+
+    public User getUserInfo() {
+        return userInfo;
+    }
+
+    public void setUserInfo(User userInfo) {
+        this.userInfo = userInfo;
+    }
 
     @Override
     public String toString() {

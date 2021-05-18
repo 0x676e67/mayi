@@ -90,7 +90,7 @@ public class SysUserController {
         return DataResult.success(service.updateEmail(code, dto));
     }
 
-    @GetMapping("/email/verify-code")
+    @GetMapping("/email/reset")
     public DataResult<Optional<Void>> getEmailVerifyCode(@RequestParam String email) {
         return DataResult.success(ValidateFactory.getInstance().sendMailValidate(email));
     }
