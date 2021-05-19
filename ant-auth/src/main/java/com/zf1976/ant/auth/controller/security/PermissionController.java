@@ -55,7 +55,7 @@ public class PermissionController {
         return DataResult.success(this.service.deletePermissionById(id));
     }
 
-    @DeleteMapping("/del/patch")
+    @DeleteMapping("/del/batch")
     @PreAuthorize("hasRole('admin')")
     public DataResult<Void> deletePermission(@RequestBody Set<Long> ids) {
         return DataResult.success(this.service.deletePermissionByIds(ids));
