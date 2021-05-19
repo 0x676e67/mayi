@@ -8,6 +8,7 @@ import com.zf1976.ant.auth.enhance.JdbcClientDetailsServiceEnhancer;
 import com.zf1976.ant.auth.pojo.ClientDetails;
 import com.zf1976.ant.auth.pojo.ClientDetailsDTO;
 import com.zf1976.ant.common.component.cache.annotation.CacheConfig;
+import com.zf1976.ant.common.component.cache.annotation.CacheEvict;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.security.support.session.manager.SessionManagement;
 import com.zf1976.ant.common.security.support.session.Session;
@@ -42,19 +43,22 @@ public class OAuth2ClientService extends ServiceImpl<ClientDetailsDao, ClientDet
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> addClient(ClientDetailsDTO dto) {
-        return Optional.empty();
+    @CacheEvict
+    public Void addClient(ClientDetailsDTO dto) {
+
+        return null;
     }
 
     /**
      * 删除OAuth客户端
      *
-     * @date 2021-05-05 19:48:08
      * @param clientId 客户端id
      * @return {@link Optional< Void>}
+     * @date 2021-05-05 19:48:08
      */
     @Transactional(rollbackFor = Exception.class)
-    public Optional<Void> deleteClient(String clientId) {
+    @CacheEvict
+    public Void deleteClient(String clientId) {
         final Session session = SessionManagement.getSession();
         if (ObjectUtils.nullSafeEquals(clientId, session.getClientId())) {
             throw new OAuth2Exception("Prohibit deleting the currently logged in client");
@@ -62,7 +66,7 @@ public class OAuth2ClientService extends ServiceImpl<ClientDetailsDao, ClientDet
         if (!super.removeById(clientId)) {
             throw new OAuth2Exception(OAuth2ErrorCodes.INVALID_CLIENT);
         }
-        return Optional.empty();
+        return null;
     }
 
 }

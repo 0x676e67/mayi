@@ -2,7 +2,9 @@ package com.zf1976.ant.auth.pojo;
 
 
 import com.power.common.util.RandomUtil;
+import com.zf1976.ant.common.core.validate.ValidationUpdateGroup;
 
+import javax.validation.constraints.*;
 import java.util.Random;
 
 /**
@@ -12,23 +14,34 @@ import java.util.Random;
 public class ClientDetailsDTO {
 
     /**
+     * 客户端ID
+     */
+    @NotNull(message = "新增/更新，客户端ID不允许为空")
+    @Size(min = 10, max = 10)
+    private String clientId;
+
+    /**
+     * 客户端访问密匙
+     */
+    @NotBlank(message = "新增/更新，客户端密钥不允许为空")
+    @Size(min = 10, max = 32)
+    private String clientSecret;
+
+    /**
      * 客户端所能访问的资源id集合，多个资源时用逗号(,)分隔
      */
     private String resourceIds;
 
     /**
-     * 客户端访问密匙
-     */
-    private String clientSecret;
-
-    /**
      * 客户端申请的权限范围，可选值包括read,write,trust;若有多个权限范围用逗号(,)分隔
      */
+    @NotBlank(message = "新增/更新，权限范围不允许为空,必须为all字段")
     private String scope;
 
     /**
      * authorization_code,password,refresh_token,implicit,client_credentials
      */
+    @NotBlank(message = "新增/更新，认证方式不允许为空")
     private String authorizedGrantTypes;
 
     /**
@@ -44,11 +57,13 @@ public class ClientDetailsDTO {
     /**
      * 设定客户端的access_token的有效时间值(单位:秒)，若不设定值则使用默认的有效时间值(60 * 60 * 12, 12小时)
      */
+    @NotNull(message = "新增/更新，有效时间值不能为空")
     private Integer accessTokenValidity;
 
     /**
      * 设定客户端的refresh_token的有效时间值(单位:秒)，若不设定值则使用默认的有效时间值(60 * 60 * 24 * 30, 30天)
      */
+    @NotNull(message = "新增/更新，有效时间值不能为空")
     private Integer refreshTokenValidity;
 
     /**
@@ -59,6 +74,7 @@ public class ClientDetailsDTO {
     /**
      * 设置用户是否自动批准授予权限操作, 默认值为 ‘false’, 可选值包括 ‘true’,‘false’, ‘read’,‘write’.
      */
+    @NotBlank(message = "新增/更新，自动批准授权不允许为空")
     private String autoApprove;
 
     public String getResourceIds() {
@@ -141,10 +157,19 @@ public class ClientDetailsDTO {
         this.autoApprove = autoApprove;
     }
 
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
     @Override
     public String toString() {
         return "ClientDetailsDTO{" +
-                "resourceIds='" + resourceIds + '\'' +
+                "clientId='" + clientId + '\'' +
+                ", resourceIds='" + resourceIds + '\'' +
                 ", clientSecret='" + clientSecret + '\'' +
                 ", scope='" + scope + '\'' +
                 ", authorizedGrantTypes='" + authorizedGrantTypes + '\'' +

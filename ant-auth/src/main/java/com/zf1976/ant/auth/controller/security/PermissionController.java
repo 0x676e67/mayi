@@ -37,27 +37,27 @@ public class PermissionController {
         return DataResult.success(this.service.selectPermissionByPage(page));
     }
 
-    @DeleteMapping("/patch")
-    @PreAuthorize("hasRole('admin')")
-    public DataResult<Void> deletePermission(@RequestBody Set<Long> ids) {
-        return DataResult.success(this.service.deletePermissionByIds(ids));
-    }
-
-    @DeleteMapping
-    @PreAuthorize("hasRole('admin')")
-    public DataResult<Void> deletePermission(@RequestParam Long id) {
-        return DataResult.success(this.service.deletePermissionById(id));
-    }
-
-    @PostMapping
+    @PostMapping("/add")
     @PreAuthorize("hasRole('admin')")
     DataResult<Void> savaPermission(@RequestBody @Validated(ValidationInsertGroup.class) PermissionDTO permissionDTO) {
         return DataResult.success(this.service.savePermission(permissionDTO));
     }
 
-    @PutMapping
+    @PutMapping("/edit")
     @PreAuthorize("hasRole('admin')")
-    DataResult<Void> updatePermission(@RequestBody @Validated(ValidationUpdateGroup.class) PermissionDTO permissionDTO) {
+    DataResult<Void> editPermission(@RequestBody @Validated(ValidationUpdateGroup.class) PermissionDTO permissionDTO) {
         return DataResult.success(this.service.updatePermission(permissionDTO));
+    }
+
+    @DeleteMapping("/del")
+    @PreAuthorize("hasRole('admin')")
+    public DataResult<Void> deletePermission(@RequestParam Long id) {
+        return DataResult.success(this.service.deletePermissionById(id));
+    }
+
+    @DeleteMapping("/del/patch")
+    @PreAuthorize("hasRole('admin')")
+    public DataResult<Void> deletePermission(@RequestBody Set<Long> ids) {
+        return DataResult.success(this.service.deletePermissionByIds(ids));
     }
 }
