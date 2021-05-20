@@ -8,19 +8,20 @@ import com.zf1976.ant.common.component.cache.annotation.CacheConfig;
 import com.zf1976.ant.common.component.cache.annotation.CacheEvict;
 import com.zf1976.ant.common.component.cache.annotation.CachePut;
 import com.zf1976.ant.common.component.mail.ValidateEmailService;
-import com.zf1976.ant.common.core.util.UUIDUtil;
-import com.zf1976.ant.common.security.support.session.Session;
-import com.zf1976.ant.common.security.support.session.manager.SessionManagement;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.core.foundation.exception.BusinessException;
 import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
+import com.zf1976.ant.common.core.util.UUIDUtil;
+import com.zf1976.ant.common.core.validate.Validator;
 import com.zf1976.ant.common.encrypt.MD5Encoder;
 import com.zf1976.ant.common.encrypt.RsaUtil;
 import com.zf1976.ant.common.encrypt.property.RsaProperties;
-import com.zf1976.ant.upms.biz.dao.SysPositionDao;
-import com.zf1976.ant.upms.biz.property.FileProperties;
+import com.zf1976.ant.common.security.property.SecurityProperties;
+import com.zf1976.ant.common.security.support.session.Session;
+import com.zf1976.ant.common.security.support.session.manager.SessionManagement;
 import com.zf1976.ant.upms.biz.convert.SysUserConvert;
 import com.zf1976.ant.upms.biz.dao.SysDepartmentDao;
+import com.zf1976.ant.upms.biz.dao.SysPositionDao;
 import com.zf1976.ant.upms.biz.dao.SysRoleDao;
 import com.zf1976.ant.upms.biz.dao.SysUserDao;
 import com.zf1976.ant.upms.biz.exception.UserException;
@@ -37,6 +38,7 @@ import com.zf1976.ant.upms.biz.pojo.po.SysUser;
 import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.query.UserQueryParam;
 import com.zf1976.ant.upms.biz.pojo.vo.user.UserVO;
+import com.zf1976.ant.upms.biz.property.FileProperties;
 import com.zf1976.ant.upms.biz.service.base.AbstractService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,10 +61,9 @@ import java.util.stream.Collectors;
  * @since 2020-08-31 11:46:01
  */
 @Service
-@CacheConfig(namespace =  Namespace.USER, dependsOn = {Namespace.DEPARTMENT, Namespace.POSITION, Namespace.ROLE})
+@CacheConfig(namespace = Namespace.USER, dependsOn = {Namespace.DEPARTMENT, Namespace.POSITION, Namespace.ROLE})
 public class SysUserService extends AbstractService<SysUserDao, SysUser> {
 
-    private final AlternativeJdkIdGenerator jdkIdGenerator = new AlternativeJdkIdGenerator();
     private final Logger log = LoggerFactory.getLogger("[UserService]");
     private final byte[] DEFAULT_PASSWORD_BYTE = "123456".getBytes(StandardCharsets.UTF_8);
     private final SysPositionDao sysPositionDao;
@@ -70,16 +71,19 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     private final SysRoleDao sysRoleDao;
     private final SysUserConvert convert;
     private final SecurityClient securityClient;
-    private final MD5Encoder encoder = new MD5Encoder();
+    private final SecurityProperties securityProperties;
+    private final MD5Encoder md5Encoder = new MD5Encoder();
 
     public SysUserService(SysPositionDao sysPositionDao,
                           SysDepartmentDao sysDepartmentDao,
                           SysRoleDao sysRoleDao,
-                          SecurityClient securityClient) {
+                          SecurityClient securityClient,
+                          SecurityProperties securityProperties) {
         this.sysPositionDao = sysPositionDao;
         this.securityClient = securityClient;
         this.sysDepartmentDao = sysDepartmentDao;
         this.sysRoleDao = sysRoleDao;
+        this.securityProperties = securityProperties;
         this.convert = SysUserConvert.INSTANCE;
     }
 
@@ -120,9 +124,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
                         this.sysDepartmentDao.selectChildrenById(departmentId)
                                              .stream()
                                              .map(SysDepartment::getId)
-                                             .forEach(id -> {
-                                                 this.selectDepartmentTreeIds(id, collectIds);
-                                             });
+                                             .forEach(id -> this.selectDepartmentTreeIds(id, collectIds));
                         collectIds.add(departmentId);
                         List<SysUser> collectUser = finalSourcePage.getRecords()
                                                                    .stream()
@@ -172,10 +174,6 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
                               .filter(SysRole::getEnabled)
                               .map(SysRole::getId)
                               .collect(Collectors.toSet());
-    }
-
-    public static void main(String[] args) {
-        System.out.println(ValidateUtil.isPassword("fengge123"));
     }
 
     /**
@@ -270,36 +268,40 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
                                      .eq(SysUser::getId, SessionManagement.getSessionId())
                                      .oneOpt()
                                      .orElseThrow(() -> new BusinessException(BusinessMsgState.CODE_NOT_FOUNT));
-        String rawPassword = null;
-        String freshPassword = null;
+        String rawPassword;
+        String freshPassword;
         try {
             rawPassword = RsaUtil.decryptByPrivateKey(RsaProperties.PRIVATE_KEY, dto.getOldPass());
             freshPassword = RsaUtil.decryptByPrivateKey(RsaProperties.PRIVATE_KEY, dto.getNewPass());
         } catch (Exception e) {
             throw new BusinessException(BusinessMsgState.OPT_ERROR);
         }
-        // 校验密码是否为空
+
+        // 校验原密码，新密码是否为空
         if (StringUtils.isEmpty(rawPassword) || StringUtils.isEmpty(freshPassword)) {
             throw new BusinessException(BusinessMsgState.NULL_PASSWORD);
         }
-        // 校验密码是否重复
-        if (rawPassword.equals(freshPassword)) {
-            throw new BusinessException(BusinessMsgState.PASSWORD_REPEAT);
-        }
-        //校验密码合格性
-        if (!ValidateUtil.isPassword(freshPassword)) {
-            throw new BusinessException(BusinessMsgState.PASSWORD_LOW);
-        }
-        // 密码匹配
-        if (encoder.matches(rawPassword, sysUser.getPassword())) {
-            // 设置新密码
-            sysUser.setPassword(encoder.encode(freshPassword));
-            // 更新实体
-            super.savaOrUpdate(sysUser);
-            // 强制用户重新登陆
-            SessionManagement.removeSession();
-        }
-        throw new BusinessException(BusinessMsgState.PASSWORD_REPEAT);
+
+        Validator.of(freshPassword)
+                 // 校验密码是否重复
+                 .withValidated(value -> ObjectUtils.nullSafeEquals(value, rawPassword),
+                         () -> new BusinessException(BusinessMsgState.PASSWORD_REPEAT))
+                 //校验密码合格性
+                 .withValidated(ValidateUtil::isPassword,
+                         () -> new BusinessException(BusinessMsgState.PASSWORD_LOW));
+
+        // 密码匹配校验
+        Validator.of(rawPassword)
+                 .withValidated(value -> md5Encoder.matches(value, sysUser.getPassword()),
+                         () -> new BusinessException(BusinessMsgState.PASSWORD_REPEAT));
+
+        // 设置新密码
+        sysUser.setPassword(md5Encoder.encode(freshPassword));
+        // 更新实体
+        super.savaOrUpdate(sysUser);
+        // 强制用户重新登陆
+        SessionManagement.removeSession();
+        return null;
     }
 
     /**
@@ -328,7 +330,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         if (validateService.validateVerifyCode(dto.getEmail(), code)) {
             try {
                 String rawPassword = RsaUtil.decryptByPrivateKey(RsaProperties.PRIVATE_KEY, dto.getPassword());
-                if (encoder.matches(rawPassword, sysUser.getPassword())) {
+                if (md5Encoder.matches(rawPassword, sysUser.getPassword())) {
                     // 验证邮箱是否重复
                     if (ObjectUtils.nullSafeEquals(sysUser.getEmail(), dto.getEmail())) {
                         throw new BusinessException(BusinessMsgState.EMAIL_EXISTING);
@@ -409,13 +411,11 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
                                           .eq(SysUser::getPhone, dto.getPhone());
              })
              .list()
-             .forEach(sysUser -> {
-                super.validateFields(sysUser, dto, collection -> {
-                    if (!CollectionUtils.isEmpty(collection)) {
-                        throw new UserException(UserState.USER_INFO_EXISTING, collection.toString());
-                    }
-                });
-             });
+             .forEach(sysUser -> super.validateFields(sysUser, dto, collection -> {
+                 if (!CollectionUtils.isEmpty(collection)) {
+                     throw new UserException(UserState.USER_INFO_EXISTING, collection.toString());
+                 }
+             }));
         SysUser sysUser = this.convert.toEntity(dto);
         sysUser.setPassword(DigestUtils.md5DigestAsHex(DEFAULT_PASSWORD_BYTE));
         super.savaOrUpdate(sysUser);
@@ -440,35 +440,40 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         SysUser sysUser = super.lambdaQuery()
                                 .eq(SysUser::getId, dto.getId())
                                 .oneOpt().orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
-        long sessionId = SessionManagement.getSessionId();
         if (!dto.getEnabled()) {
-            // 禁止操作管理员，禁止操作当前登录的用户
-            if (SessionManagement.isOwner() || ObjectUtils.nullSafeEquals(sessionId, sysUser.getId())) {
-                throw new UserException(UserState.USER_OPT_ERROR);
-            }
+            Long sessionId = SessionManagement.getSessionId();
+            // 禁止禁用oneself,禁止操作当前登录的用户
+            Validator.of(sessionId)
+                     .withValidated(id -> !id.equals(sysUser.getId()),
+                             () -> new UserException(UserState.USER_OPT_DISABLE_ONESELF_ERROR));
+            // 禁止禁用管理员
+            Validator.of(dto.getUsername())
+                     .withValidated(username -> username.equals(this.securityProperties.getOwner()),
+                             () -> new UserException(UserState.USER_OPT_ERROR));
         }
         // 验证用户名，邮箱，手机是否已存在
         super.lambdaQuery()
              .select(SysUser::getUsername, SysUser::getEmail, SysUser::getPhone)
              .ne(SysUser::getId, dto.getId())
-             .and(sysUserLambdaQueryWrapper -> {
-                 sysUserLambdaQueryWrapper.eq(SysUser::getUsername, dto.getUsername())
-                                          .or()
-                                          .eq(SysUser::getEmail, dto.getEmail())
-                                          .or()
-                                          .eq(SysUser::getPhone, dto.getPhone());
-             })
+             .and(queryWrapper -> queryWrapper.eq(SysUser::getUsername, dto.getUsername())
+                                              .or()
+                                              .eq(SysUser::getEmail, dto.getEmail())
+                                              .or()
+                                              .eq(SysUser::getPhone, dto.getPhone()))
              .list()
-             .forEach(entity -> {
-                 super.validateFields(entity, dto, collection -> {
-                     if (!CollectionUtils.isEmpty(collection)) {
-                         throw new UserException(UserState.USER_INFO_EXISTING, collection.toString());
-                     }
-                 });
-             });
+             .forEach(entity -> super.validateFields(entity, dto, collection -> {
+                 if (!CollectionUtils.isEmpty(collection)) {
+                     throw new UserException(UserState.USER_INFO_EXISTING, collection.toString());
+                 }
+             }));
+        // 复制属性
         this.convert.copyProperties(dto, sysUser);
+        // 更新
         super.savaOrUpdate(sysUser);
+        // 更新依赖
         this.updateDependents(dto);
+        // 踢出当前被禁用用户
+        SessionManagement.removeSession(sysUser.getId());
         return null;
     }
 

@@ -1,5 +1,6 @@
 package com.zf1976.ant.common.core.validate;
 
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -18,16 +19,30 @@ public class Validator<T> {
     /**
      * 校验对象
      */
-    private T t;
+    private T value;
 
     private Validator() {
     }
 
-    public static <T> Validator<T> of(T value) {
-        if (value == null) {
-            throw new RuntimeException("data cannot been null!");
+    /**
+     * 具有空检测初始化
+     *
+     * @param t   value
+     * @param <T> 实际类型
+     * @return Validator<T>
+     */
+    public static <T> Validator<T> of(T t) {
+        return new Validator<T>().init(t);
+    }
+
+    public static <T> Validator<T> ofNullable(T t) {
+        return new Validator<T>().nullInit(t);
+    }
+
+    public void isPresent(Consumer<? super T> action) {
+        if (this.value != null) {
+            action.accept(this.value);
         }
-        return new Validator<T>().init(value);
     }
 
     /**
@@ -51,7 +66,12 @@ public class Validator<T> {
         if (t == null) {
             throw new RuntimeException("data cannot been null!");
         }
-        this.t = t;
+        this.value = t;
+        return this;
+    }
+
+    private Validator<T> nullInit(T t) {
+        this.value = t;
         return this;
     }
 
@@ -67,7 +87,7 @@ public class Validator<T> {
     public <X extends Throwable> Validator<T> withValidated(Predicate<T> predicate,
                                                             Supplier<? extends X> exceptionSupplier) throws X {
         boolean validated = this.with(predicate)
-                                .validated(this.t);
+                                .validated(this.value);
         if (!validated) {
             throw exceptionSupplier.get();
         }

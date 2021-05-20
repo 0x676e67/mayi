@@ -93,7 +93,7 @@ mybatis-plus:                                               #mybatis-plus 配置
       update-strategy: not_empty
   configuration:
     map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   mapper-locations: classpath:/mapper/*Dao.xml
   check-config-location: true
   type-enums-package: com.zf1976.ant.upms.biz.pojo.enums,com.zf1976.ant.common.log.pojo.enums

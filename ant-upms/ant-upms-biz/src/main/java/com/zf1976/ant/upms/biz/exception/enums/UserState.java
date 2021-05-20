@@ -19,12 +19,14 @@ public enum UserState {
     /**
      * 用户信息已存在
      */
-    USER_INFO_EXISTING(400,"用户信息：{}，已存在"),
+    USER_INFO_EXISTING(400, "用户信息：{}，已存在"),
 
     /**
      * 操作异常
      */
-    USER_OPT_ERROR(400, "操作错误");
+    USER_OPT_ERROR(400, "操作错误"),
+
+    USER_OPT_DISABLE_ONESELF_ERROR(400, "Prohibit disabling the current operating user");
 
     /**
      * 状态值
