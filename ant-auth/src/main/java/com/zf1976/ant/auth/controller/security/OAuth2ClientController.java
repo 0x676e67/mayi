@@ -7,7 +7,10 @@ import com.zf1976.ant.auth.service.impl.OAuth2ClientService;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.upms.biz.pojo.query.Query;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.constraints.NotBlank;
 
 /**
  * @author mac
@@ -33,13 +36,19 @@ public class OAuth2ClientController {
 
     @PostMapping("/add")
     @PreAuthorize("hasRole('admin')")
-    public DataResult<Void> addClient(@RequestBody ClientDetailsDTO dto) {
+    public DataResult<Void> addClient(@RequestBody @Validated ClientDetailsDTO dto) {
         return DataResult.success(this.oAuth2ClientService.addClient(dto));
+    }
+
+    @PutMapping("/edit")
+    @PreAuthorize("hasRole('admin')")
+    public DataResult<Void> editClient(@RequestBody @Validated ClientDetailsDTO dto) {
+        return DataResult.success(this.oAuth2ClientService.editClient(dto));
     }
 
     @DeleteMapping("/del")
     @PreAuthorize("hasRole('admin')")
-    public DataResult<Void> deleteClient(@RequestParam String clientId) {
+    public DataResult<Void> deleteClient(@RequestParam @NotBlank String clientId) {
         return DataResult.success(this.oAuth2ClientService.deleteClient(clientId));
     }
 

@@ -28,7 +28,7 @@ public interface SecurityConvert {
      * @return {@link PermissionVO}
      * @date 2021-05-11 23:56:07
      */
-    PermissionVO toPermissionVo(SysPermission sysPermission);
+    PermissionVO toPermissionVO(SysPermission sysPermission);
 
     /**
      * 实体转vo
@@ -36,7 +36,7 @@ public interface SecurityConvert {
      * @param clientDetails 实体
      * @return {@link ClientDetailsVO}
      */
-    ClientDetailsVO toClientDetailsVo(ClientDetails clientDetails);
+    ClientDetailsVO toClientDetailsVO(ClientDetails clientDetails);
 
 
     /**
@@ -58,11 +58,20 @@ public interface SecurityConvert {
     /**
      * 复制属性
      *
-     * @date 2021-05-12 09:13:09
-     * @param permissionDTO 权限DTO
-     * @param sysPermission 权限实体
+     * @param permissionDTO DTO
+     * @param sysPermission 实体
      * @throws
+     * @date 2021-05-12 09:13:09
      */
     void copyProperties(PermissionDTO permissionDTO, @MappingTarget SysPermission sysPermission);
+
+    /**
+     * 复制属性
+     *
+     * @param clientDetailsDTO DTO
+     * @param clientDetails    实体
+     * @throws
+     */
+    void copyProperties(ClientDetailsDTO clientDetailsDTO, @MappingTarget ClientDetails clientDetails);
 
 }

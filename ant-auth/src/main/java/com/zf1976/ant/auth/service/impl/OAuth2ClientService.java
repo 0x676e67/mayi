@@ -25,8 +25,11 @@ import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.DigestUtils;
 import org.springframework.util.ObjectUtils;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -39,7 +42,8 @@ import java.util.regex.Pattern;
 @CacheConfig(namespace = Namespace.CLIENT)
 public class OAuth2ClientService extends AbstractSecurityService<ClientDetailsDao, ClientDetails> {
 
-    private static final Pattern ID_SECRET_PATTERN = Pattern.compile("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{10,32}$");
+    private static final Pattern ID_SECRET_PATTERN = Pattern.compile("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{10,20}$");
+    private static final List<String> autoApproveScope = Arrays.asList("false", "true", "read", "write");
     private final int tokenMinTime = 3600;
     private final int tokenRefreshMinTime = 7200;
     private final int tokenMaxTime = 2678400;
@@ -70,7 +74,7 @@ public class OAuth2ClientService extends AbstractSecurityService<ClientDetailsDa
     public IPage<ClientDetailsVO> clientDetailsPage(Query<?> query) {
         Page<ClientDetails> sourcePage = super.lambdaQuery()
                                               .page(query.toPage());
-        return super.mapToTarget(sourcePage, convert::toClientDetailsVo);
+        return super.mapToTarget(sourcePage, convert::toClientDetailsVO);
     }
 
     /**
@@ -82,11 +86,83 @@ public class OAuth2ClientService extends AbstractSecurityService<ClientDetailsDa
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Void addClient(ClientDetailsDTO dto) {
+        // 校验客户端ID是否合格
+        Validator.of(dto.getClientId())
+                 .withValidated(data -> this.validateIdAndSecret(data), () -> new SecurityException("ID does not meet the requirements"));
+        // 校验客户端是否已存在
+        super.lambdaQuery()
+             .eq(ClientDetails::getClientId, dto.getClientId())
+             .oneOpt()
+             .ifPresent(clientDetails -> {
+                 throw new SecurityException("Client ID already exists");
+             });
+        // 校验表单
+        this.validateForm(dto);
+        // DTO转实体
+        ClientDetails clientDetails = this.convert.toClientDetailsEntity(dto);
+        // 设置加密密钥
+        this.setEncodeCLientSecret(clientDetails, dto.getClientSecret());
+        // 新增数据
+        if (!super.saveOrUpdate(clientDetails)) {
+            throw new SecurityException("Failed to insert client data");
+        }
+        return null;
+    }
+
+    /**
+     * 编辑更新客户端，需要重置密钥
+     *
+     * @param dto DTO
+     * @return {@link Void}
+     */
+    @CacheEvict
+    @Transactional(rollbackFor = Exception.class)
+    public Void editClient(ClientDetailsDTO dto) {
+        // 查询客户端
+        ClientDetails clientDetails = super.lambdaQuery()
+                                           .eq(ClientDetails::getClientId, dto.getClientId())
+                                           .oneOpt()
+                                           .orElseThrow(() -> new SecurityException("Client does not exist"));
+        // 校验表单
+        this.validateForm(dto);
+        // 复制属性
+        this.convert.copyProperties(dto, clientDetails);
+        // 设置加密密钥
+        this.setEncodeCLientSecret(clientDetails, dto.getClientSecret());
+        // 新增数据
+        if (!super.saveOrUpdate(clientDetails)) {
+            throw new SecurityException("Failed to insert client data");
+        }
+        return null;
+    }
+
+    /**
+     * 设置加密密钥
+     *
+     * @param clientDetails 实体
+     * @param secret        密钥
+     */
+    private void setEncodeCLientSecret(ClientDetails clientDetails, String secret) {
+        try {
+            // MD5加密明文密码，不可解密
+            clientDetails.setClientSecret(DigestUtils.md5DigestAsHex(secret.getBytes()));
+            // RSA加密明文密码，可解密
+            clientDetails.setRawClientSecret(EncryptUtil.encryptForRsaByPublicKey(secret));
+        } catch (Exception e) {
+            log.error(e.getMessage(), e.getCause());
+            throw new SecurityException("Operation failed");
+        }
+    }
+
+    /**
+     * 校验表单数据
+     *
+     * @param dto DTO
+     * @throws
+     */
+    private void validateForm(ClientDetailsDTO dto) {
         // 校验客户端ID，Secret是否合格
         Validator.of(dto)
-                 // 校验客户端ID是否合格
-                 .withValidated(data -> this.validateIdAndSecret(data.getClientId()),
-                         () -> new SecurityException("ID does not meet the requirements"))
                  // 校验客户端密钥是否合格
                  .withValidated(data -> this.validateIdAndSecret(data.getClientSecret()),
                          () -> new SecurityException("Secret does not meet the requirements"))
@@ -102,20 +178,10 @@ public class OAuth2ClientService extends AbstractSecurityService<ClientDetailsDa
                  // 校验权限范围
                  .withValidated(data -> data.getScope()
                                             .equals("all"),
-                         () -> new SecurityException("The scope of authority does not meet the requirements"));
-        ClientDetails clientDetails = this.convert.toClientDetailsEntity(dto);
-        try {
-            // 加密明文密码
-            clientDetails.setRawClientSecret(EncryptUtil.encryptForRsaByPublicKey(dto.getClientSecret()));
-        } catch (Exception e) {
-            log.error(e.getMessage(), e.getCause());
-            throw new SecurityException("Operation failed");
-        }
-        // 新增数据
-        if (!super.saveOrUpdate(clientDetails)) {
-            throw new SecurityException("Failed to insert client data");
-        }
-        return null;
+                         () -> new SecurityException("The scope of authority does not meet the requirements"))
+                 // 自动批准权限
+                 .withValidated(data -> autoApproveScope.contains(data.getAutoApprove()),
+                         () -> new SecurityException("Automatic approval permissions do not meet the requirements"));
     }
 
     /**

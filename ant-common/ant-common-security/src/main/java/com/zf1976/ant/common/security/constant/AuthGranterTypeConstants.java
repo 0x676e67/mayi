@@ -41,6 +41,12 @@ public interface AuthGranterTypeConstants {
      */
     String ACCESS_PHONE_CODE = "access_phone_code";
 
-    String[] ARRAY = new String[]{PASSWORD, PASSWORD_CODE, CLIENT_CREDENTIALS, ACCESS_EMAIL_CODE, ACCESS_PHONE_CODE, AUTHORIZATION_CODE, IMPLICIT};
+    String[] ARRAY = new String[]{PASSWORD,
+            PASSWORD_CODE,
+            CLIENT_CREDENTIALS,
+            ACCESS_EMAIL_CODE,
+            ACCESS_PHONE_CODE,
+            AUTHORIZATION_CODE,
+            IMPLICIT};
 
 }

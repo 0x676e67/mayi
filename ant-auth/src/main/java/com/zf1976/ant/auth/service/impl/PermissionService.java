@@ -40,7 +40,7 @@ public class PermissionService extends AbstractSecurityService<SysPermissionDao,
     public IPage<PermissionVO> selectPermissionByPage(Query<?> query) {
         Page<SysPermission> permissionPage = super.lambdaQuery()
                                                   .page(query.toPage());
-        return super.mapToTarget(permissionPage, convert::toPermissionVo);
+        return super.mapToTarget(permissionPage, convert::toPermissionVO);
     }
 
     /**

@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 /**
@@ -50,7 +51,7 @@ public class PermissionController {
 
     @DeleteMapping("/del")
     @PreAuthorize("hasRole('admin')")
-    public DataResult<Void> deletePermission(@RequestParam Long id) {
+    public DataResult<Void> deletePermission(@RequestParam @NotNull Long id) {
         return DataResult.success(this.service.deletePermissionById(id));
     }
 
