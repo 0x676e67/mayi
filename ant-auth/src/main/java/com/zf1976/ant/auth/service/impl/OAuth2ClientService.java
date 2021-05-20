@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.ObjectUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -123,6 +124,13 @@ public class OAuth2ClientService extends AbstractSecurityService<ClientDetailsDa
                                            .eq(ClientDetails::getClientId, dto.getClientId())
                                            .oneOpt()
                                            .orElseThrow(() -> new SecurityException("Client does not exist"));
+        // 加密后密钥
+        final String encodeSecret = DigestUtils.md5DigestAsHex(dto.getClientSecret()
+                                                                  .getBytes(StandardCharsets.UTF_8));
+        // 强制重置密钥
+        if (ObjectUtils.nullSafeEquals(clientDetails.getClientSecret(), encodeSecret)) {
+            throw new SecurityException("The client key cannot be duplicated");
+        }
         // 校验表单
         this.validateForm(dto);
         // 复制属性
