@@ -205,12 +205,20 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
                                .eq(SysUser::getId, id)
                                .oneOpt()
                                .orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
-        // 禁止操作oneself
-        Validator.of(sysUser)
-                 .withValidated(user -> user.getUsername()
-                                            .equals(this.securityProperties.getOwner()),
+
+        Long sessionId = SessionManagement.getSessionId();
+        // 禁止操作oneself,当前session ID与操作ID相等，说明操作到是当前用户
+        Validator.of(sessionId)
+                 .withValidated(sId -> !sId.equals(id),
                          () -> new UserException(UserState.USER_OPT_DISABLE_ONESELF_ERROR));
+        // 禁止禁用管理员
+        Validator.of(sysUser)
+                 .withValidated(user -> !user.getUsername()
+                                             .equals(this.securityProperties.getOwner()),
+                         () -> new UserException(UserState.USER_OPT_DISABLE_ONESELF_ERROR));
+        // 设置状态
         sysUser.setEnabled(enabled);
+        // 更新
         super.savaOrUpdate(sysUser);
         return null;
     }
@@ -422,8 +430,11 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
                      throw new UserException(UserState.USER_INFO_EXISTING, collection.toString());
                  }
              }));
+        // 转实体
         SysUser sysUser = this.convert.toEntity(dto);
+        // 设置加密密码
         sysUser.setPassword(DigestUtils.md5DigestAsHex(DEFAULT_PASSWORD_BYTE));
+        // 保存用户
         super.savaOrUpdate(sysUser);
         // 保存用户职位关联
         super.baseMapper.savePositionRelationById(sysUser.getId(), dto.getPositionIds());
@@ -454,7 +465,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
                              () -> new UserException(UserState.USER_OPT_DISABLE_ONESELF_ERROR));
             // 禁止禁用管理员
             Validator.of(dto.getUsername())
-                     .withValidated(username -> username.equals(this.securityProperties.getOwner()),
+                     .withValidated(username -> !username.equals(this.securityProperties.getOwner()),
                              () -> new UserException(UserState.USER_OPT_ERROR));
         }
         // 验证用户名，邮箱，手机是否已存在
