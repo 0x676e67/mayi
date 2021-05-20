@@ -203,7 +203,13 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         SysUser sysUser = super.lambdaQuery()
                                .select(SysUser::getId, SysUser::getEnabled)
                                .eq(SysUser::getId, id)
-                               .oneOpt().orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
+                               .oneOpt()
+                               .orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
+        // 禁止操作oneself
+        Validator.of(sysUser)
+                 .withValidated(user -> user.getUsername()
+                                            .equals(this.securityProperties.getOwner()),
+                         () -> new UserException(UserState.USER_OPT_DISABLE_ONESELF_ERROR));
         sysUser.setEnabled(enabled);
         super.savaOrUpdate(sysUser);
         return null;
