@@ -1,14 +1,13 @@
 package com.zf1976.ant.auth.controller.security;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zf1976.ant.auth.pojo.dto.PermissionDTO;
-import com.zf1976.ant.auth.pojo.po.SysPermission;
 import com.zf1976.ant.auth.pojo.vo.PermissionVO;
 import com.zf1976.ant.auth.service.impl.PermissionService;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.core.validate.ValidationInsertGroup;
 import com.zf1976.ant.common.core.validate.ValidationUpdateGroup;
+import com.zf1976.ant.upms.biz.pojo.query.Query;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -33,8 +32,8 @@ public class PermissionController {
 
     @PostMapping("/page")
     @PreAuthorize("hasRole('admin')")
-    public DataResult<IPage<PermissionVO>> selectPermissionPage(@RequestBody Page<SysPermission> page) {
-        return DataResult.success(this.service.selectPermissionByPage(page));
+    public DataResult<IPage<PermissionVO>> selectPermissionPage(@RequestBody Query<?> query) {
+        return DataResult.success(this.service.selectPermissionByPage(query));
     }
 
     @PostMapping("/add")

@@ -17,6 +17,11 @@ public interface AuthGranterTypeConstants {
     String PASSWORD = "password";
 
     /**
+     * 密码模式+验证码
+     */
+    String PASSWORD_CODE = "password_code";
+
+    /**
      * 隐藏式
      */
     String IMPLICIT = "implicit";
@@ -36,6 +41,6 @@ public interface AuthGranterTypeConstants {
      */
     String ACCESS_PHONE_CODE = "access_phone_code";
 
-
+    String[] ARRAY = new String[]{PASSWORD, PASSWORD_CODE, CLIENT_CREDENTIALS, ACCESS_EMAIL_CODE, ACCESS_PHONE_CODE, AUTHORIZATION_CODE, IMPLICIT};
 
 }

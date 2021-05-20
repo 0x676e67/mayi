@@ -22,6 +22,8 @@ public interface Namespace {
 
     String RESOURCE = "resource_namespace";
 
+    String PERMISSION = "permission_namespace";
+
     String DYNAMIC = "dynamic_namespace";
 
     String AUTH_SERVICE = "oauth2_service_namespace";

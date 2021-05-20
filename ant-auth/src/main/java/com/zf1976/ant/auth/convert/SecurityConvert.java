@@ -1,12 +1,12 @@
 package com.zf1976.ant.auth.convert;
 
 import com.zf1976.ant.auth.pojo.ClientDetails;
-import com.zf1976.ant.auth.pojo.ClientDetailsDTO;
+import com.zf1976.ant.auth.pojo.dto.ClientDetailsDTO;
 import com.zf1976.ant.auth.pojo.dto.PermissionDTO;
 import com.zf1976.ant.auth.pojo.po.SysPermission;
+import com.zf1976.ant.auth.pojo.vo.ClientDetailsVO;
 import com.zf1976.ant.auth.pojo.vo.PermissionVO;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
@@ -15,8 +15,8 @@ import org.mapstruct.factory.Mappers;
  * @author mac
  * @date 2021/5/11
  */
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
 @SuppressWarnings("all")
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface SecurityConvert {
 
     SecurityConvert INSTANCE = Mappers.getMapper(SecurityConvert.class);
@@ -24,19 +24,27 @@ public interface SecurityConvert {
     /**
      * 转权限vo
      *
-     * @date 2021-05-11 23:56:07
      * @param sysPermission 系统权限实体对象
      * @return {@link PermissionVO}
+     * @date 2021-05-11 23:56:07
      */
     PermissionVO toPermissionVo(SysPermission sysPermission);
+
+    /**
+     * 实体转vo
+     *
+     * @param clientDetails 实体
+     * @return {@link ClientDetailsVO}
+     */
+    ClientDetailsVO toClientDetailsVo(ClientDetails clientDetails);
 
 
     /**
      * 客户端dto转实体类
      *
-     * @date 2021-05-11 23:56:50
      * @param clientDetailsDTO DTO
      * @return {@link ClientDetails}
+     * @date 2021-05-11 23:56:50
      */
     ClientDetails toClientDetailsEntity(ClientDetailsDTO clientDetailsDTO);
 

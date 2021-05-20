@@ -2,71 +2,45 @@ package com.zf1976.ant.auth.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zf1976.ant.auth.convert.SecurityConvert;
 import com.zf1976.ant.auth.dao.SysPermissionDao;
 import com.zf1976.ant.auth.exception.SecurityException;
 import com.zf1976.ant.auth.pojo.dto.PermissionDTO;
 import com.zf1976.ant.auth.pojo.po.SysPermission;
 import com.zf1976.ant.auth.pojo.vo.PermissionVO;
-import com.zf1976.ant.common.core.foundation.exception.BusinessException;
-import com.zf1976.ant.common.core.foundation.exception.BusinessMsgState;
-import org.aspectj.weaver.ast.Var;
+import com.zf1976.ant.auth.service.AbstractSecurityService;
+import com.zf1976.ant.common.component.cache.annotation.CacheConfig;
+import com.zf1976.ant.common.component.cache.annotation.CacheEvict;
+import com.zf1976.ant.common.component.cache.annotation.CachePut;
+import com.zf1976.ant.common.core.constants.Namespace;
+import com.zf1976.ant.upms.biz.pojo.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
-import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * @author mac
  * @date 2021/5/11
  */
 @Service
-public class PermissionService extends ServiceImpl<SysPermissionDao, SysPermission> {
+@CacheConfig(namespace = Namespace.PERMISSION, dependsOn = {Namespace.ROLE, Namespace.RESOURCE})
+public class PermissionService extends AbstractSecurityService<SysPermissionDao, SysPermission> {
 
     private final SecurityConvert convert = SecurityConvert.INSTANCE;
 
     /**
      * 根据分页对象分页查询权限列表
      *
-     * @date 2021-05-12 00:18:24
-     * @param page 分页对象
-     * @return {@link IPage< PermissionVO>}
-     */
-    public IPage<PermissionVO> selectPermissionByPage(Page<SysPermission> page) {
-        Page<SysPermission> permissionPage = super.lambdaQuery()
-                                         .select(SysPermission::getId,
-                                                 SysPermission::getName,
-                                                 SysPermission::getValue,
-                                                 SysPermission::getDescription,
-                                                 SysPermission::getCreateBy)
-                                         .page(page);
-        return this.mapToTarget(permissionPage, convert::toPermissionVo);
-    }
-
-    /**
-     * 分页对象类型转换
-     *
-     * @date 2021-05-12 09:37:44
-     * @param sourcePage 源分页对象
-     * @param translator 翻译
+     * @param query 查询对象
      * @return {@link IPage<PermissionVO>}
      */
-    private IPage<PermissionVO> mapToTarget(IPage<SysPermission> sourcePage, Function<SysPermission, PermissionVO> translator) {
-        List<PermissionVO> targetPageList = sourcePage.getRecords()
-                                               .stream()
-                                               .map(translator)
-                                               .collect(Collectors.toList());
-        return new Page<PermissionVO>(sourcePage.getCurrent(),
-                sourcePage.getSize(),
-                sourcePage.getTotal(),
-                sourcePage.isSearchCount()).setRecords(targetPageList);
+    @CachePut(key = "#query")
+    public IPage<PermissionVO> selectPermissionByPage(Query<?> query) {
+        Page<SysPermission> permissionPage = super.lambdaQuery()
+                                                  .page(query.toPage());
+        return super.mapToTarget(permissionPage, convert::toPermissionVo);
     }
 
     /**
@@ -76,6 +50,7 @@ public class PermissionService extends ServiceImpl<SysPermissionDao, SysPermissi
      * @param permissionDTO DTO
      * @return {@link Void}
      */
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Void savePermission(PermissionDTO permissionDTO) {
         // 判断权限值是否已经存在
@@ -96,6 +71,7 @@ public class PermissionService extends ServiceImpl<SysPermissionDao, SysPermissi
      * @param permissionDTO DTO
      * @return {@link Void}
      */
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Void updatePermission(PermissionDTO permissionDTO) {
         // 判断权限该权限实体是否存在
@@ -140,6 +116,7 @@ public class PermissionService extends ServiceImpl<SysPermissionDao, SysPermissi
      * @param id 权限id
      * @return {@link Void}
      */
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Void deletePermissionById(Long id) {
         if (id != null) {
@@ -156,6 +133,7 @@ public class PermissionService extends ServiceImpl<SysPermissionDao, SysPermissi
      * @param ids id集合
      * @return {@link Void}
      */
+    @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Void deletePermissionByIds(Set<Long> ids) {
         //

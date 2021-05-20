@@ -1,22 +1,14 @@
-package com.zf1976.ant.auth.pojo;
-
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.extension.activerecord.Model;
+package com.zf1976.ant.auth.pojo.vo;
 
 /**
  * @author mac
- * @date 2021/4/10
+ * @date 2021/5/20
  */
-@TableName("oauth_client_details")
-public class ClientDetails extends Model<ClientDetails> {
+public class ClientDetailsVO {
 
     /**
      * 客户端id
      */
-    @TableId(type = IdType.ASSIGN_UUID)
     private String clientId;
 
     /**
@@ -28,11 +20,6 @@ public class ClientDetails extends Model<ClientDetails> {
      * 客户端访问密匙（原密钥经过加密后）
      */
     private String clientSecret;
-
-    /**
-     * 客户端原密钥
-     */
-    private String rawClientSecret;
 
     /**
      * 客户端申请的权限范围，可选值包括read,write,trust;若有多个权限范围用逗号(,)分隔
@@ -72,8 +59,6 @@ public class ClientDetails extends Model<ClientDetails> {
     /**
      * 设置用户是否自动批准授予权限操作, 默认值为 ‘false’, 可选值包括 ‘true’,‘false’, ‘read’,‘write’.
      */
-    @SuppressWarnings("all")
-    @TableField(value = "autoapprove")
     private String autoApprove;
 
     public String getClientId() {
@@ -82,14 +67,6 @@ public class ClientDetails extends Model<ClientDetails> {
 
     public void setClientId(String clientId) {
         this.clientId = clientId;
-    }
-
-    public String getRawClientSecret() {
-        return rawClientSecret;
-    }
-
-    public void setRawClientSecret(String rawClientSecret) {
-        this.rawClientSecret = rawClientSecret;
     }
 
     public String getResourceIds() {
@@ -172,4 +149,20 @@ public class ClientDetails extends Model<ClientDetails> {
         this.autoApprove = autoApprove;
     }
 
+    @Override
+    public String toString() {
+        return "ClientDetailsVO{" +
+                "clientId='" + clientId + '\'' +
+                ", resourceIds='" + resourceIds + '\'' +
+                ", clientSecret='" + clientSecret + '\'' +
+                ", scope='" + scope + '\'' +
+                ", authorizedGrantTypes='" + authorizedGrantTypes + '\'' +
+                ", webServerRedirectUri='" + webServerRedirectUri + '\'' +
+                ", authorities='" + authorities + '\'' +
+                ", accessTokenValidity=" + accessTokenValidity +
+                ", refreshTokenValidity=" + refreshTokenValidity +
+                ", additionalInformation='" + additionalInformation + '\'' +
+                ", autoApprove='" + autoApprove + '\'' +
+                '}';
+    }
 }

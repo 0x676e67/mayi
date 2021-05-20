@@ -1,6 +1,7 @@
 package com.zf1976.ant.upms.biz.pojo.query;
 
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.power.common.util.StringUtil;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -31,7 +32,7 @@ public class Query<T extends AbstractQueryParam> implements Serializable {
     public static final int MIN_PAGE = 0;
 
     /**
-     * 起始页
+     * 页
      */
     private int page;
 
@@ -100,14 +101,18 @@ public class Query<T extends AbstractQueryParam> implements Serializable {
         return ObjectUtils.isEmpty(this.getOrders());
     }
 
-    private List<OrderItem> parser(List<String> sort){
+    public <S> Page<S> toPage() {
+        return new Page<>(this.getPage(), this.getSize());
+    }
+
+    private List<OrderItem> parser(List<String> sort) {
         orders = new ArrayList<>();
         sort.forEach(str -> {
             String[] array = StringUtils.commaDelimitedListToStringArray(str);
             Direction direction = Direction.fromString(array[1]);
             if (direction.isDescending()) {
                 this.orders.add(OrderItem.desc(StringUtil.camelToUnderline(array[0])));
-            } else if (direction.isAscending()){
+            } else if (direction.isAscending()) {
                 this.orders.add(OrderItem.asc(StringUtil.camelToUnderline(array[0])));
             }
         });
@@ -156,7 +161,7 @@ public class Query<T extends AbstractQueryParam> implements Serializable {
 
     @Override
     public String toString() {
-        return "RequestPage{" +
+        return "Query{" +
                 "page=" + page +
                 ", size=" + size +
                 ", sort=" + sort +

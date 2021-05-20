@@ -1,11 +1,8 @@
-package com.zf1976.ant.auth.pojo;
+package com.zf1976.ant.auth.pojo.dto;
 
 
-import com.power.common.util.RandomUtil;
-import com.zf1976.ant.common.core.validate.ValidationUpdateGroup;
-
-import javax.validation.constraints.*;
-import java.util.Random;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author mac
@@ -17,14 +14,12 @@ public class ClientDetailsDTO {
      * 客户端ID
      */
     @NotNull(message = "新增/更新，客户端ID不允许为空")
-    @Size(min = 10, max = 10)
     private String clientId;
 
     /**
      * 客户端访问密匙
      */
     @NotBlank(message = "新增/更新，客户端密钥不允许为空")
-    @Size(min = 10, max = 32)
     private String clientSecret;
 
     /**
