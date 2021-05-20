@@ -2,9 +2,8 @@ package com.zf1976.ant.upms.biz.controller.handler;
 
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.core.foundation.exception.BusinessException;
+import com.zf1976.ant.common.security.support.session.exception.SessionException;
 import com.zf1976.ant.upms.biz.exception.base.SysBaseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.Arrays;
 import java.util.stream.Collectors;
 
 /**
@@ -23,45 +21,76 @@ import java.util.stream.Collectors;
 @SuppressWarnings("rawtypes")
 public class GlobalExceptionHandler {
 
-    private final Logger log = LoggerFactory.getLogger("[GlobalExceptionHandler]");
 
+    /**
+     * 全局异常类（拦截不到子类型处理）
+     *
+     * @param exception 异常
+     * @return {@link DataResult}
+     */
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    DataResult exceptionHandler(Exception e) {
-        log.error(Arrays.toString(e.getStackTrace()), e);
-        return DataResult.fail("internal server error");
+    DataResult exceptionHandler(Exception exception) {
+        return DataResult.fail(exception);
     }
 
+    /**
+     * 业务异常类
+     *
+     * @param exception 异常
+     * @return {@link DataResult}
+     */
     @ExceptionHandler(BusinessException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    DataResult badBusinessExceptionHandler(BusinessException e) {
-        log.error(e.getMessage(), e.getCause());
-        return DataResult.fail(e.getValue(), e.getReasonPhrase());
+    DataResult badBusinessExceptionHandler(BusinessException exception) {
+        return DataResult.fail(exception.getValue(), exception.getReasonPhrase());
     }
 
+    /**
+     * 方法参数异常
+     *
+     * @param exception 异常
+     * @return {@link DataResult}
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    DataResult validateExceptionHandler(MethodArgumentNotValidException e) {
-        String messages = e.getBindingResult()
-                           .getAllErrors()
-                           .stream()
-                           .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                           .collect(Collectors.joining(","));
-        log.error(messages, e.getCause());
+    DataResult validateExceptionHandler(MethodArgumentNotValidException exception) {
+        String messages = exception.getBindingResult()
+                                   .getAllErrors()
+                                   .stream()
+                                   .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                                   .collect(Collectors.joining(","));
         return DataResult.fail(messages);
     }
 
+    /**
+     * 后台系统业务异常
+     *
+     * @param exception 异常
+     * @return {@link DataResult}
+     */
     @ExceptionHandler(SysBaseException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    DataResult departmentExceptionHandler(SysBaseException e) {
+    DataResult SysBaseExceptionHandler(SysBaseException exception) {
         String message;
-        if (e.getLabel() != null) {
-            message = MessageFormatter.format(e.getReasonPhrase(), e.getLabel())
+        if (exception.getLabel() != null) {
+            message = MessageFormatter.format(exception.getReasonPhrase(), exception.getLabel())
                                       .getMessage();
         } else {
-            message = e.getReasonPhrase();
+            message = exception.getReasonPhrase();
         }
-        log.error(message, e.getCause());
-        return DataResult.fail(e.getValue(), message);
+        return DataResult.fail(exception.getValue(), message);
+    }
+
+    /**
+     * 会话状态异常
+     *
+     * @param exception 会话异常
+     * @return {@link DataResult}
+     */
+    @ExceptionHandler(SessionException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    DataResult handleSessionException(SessionException exception) {
+        return DataResult.fail(exception);
     }
 }

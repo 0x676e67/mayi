@@ -140,6 +140,7 @@ public class DataResult<T> implements Serializable {
 
     /**
      * 返回失败消息
+     *
      * @param errMsg 失败消息
      * @return 响应对象
      */
@@ -149,7 +150,18 @@ public class DataResult<T> implements Serializable {
 
     /**
      * 返回失败消息
-     * @param errMsg 错误消息
+     *
+     * @param exception 异常对象
+     * @return {@link DataResult}
+     */
+    public static <E> DataResult fail(Exception exception) {
+        return fail(exception.getMessage());
+    }
+
+    /**
+     * 返回失败消息
+     *
+     * @param errMsg  错误消息
      * @param errCode 错误码
      * @return 响应对象
      */
@@ -175,7 +187,6 @@ public class DataResult<T> implements Serializable {
         vo.setSuccess(false);
         vo.setErrCode(httpStatus.value());
         vo.setErrMsg(httpStatus.getReasonPhrase());
-        vo.setData(null);
         vo.setPath(getUri());
         vo.setTimestamp(DateTimeUtil.nowStrTime());
         return vo;
@@ -187,8 +198,12 @@ public class DataResult<T> implements Serializable {
      * @return uri
      */
     public static String getUri() {
-        return RequestUtil.getRequest()
-                          .getRequestURI();
+        try {
+            return RequestUtil.getRequest()
+                              .getRequestURI();
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 
     public Boolean getSuccess() {

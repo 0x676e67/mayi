@@ -2,6 +2,8 @@ package com.zf1976.ant.common.core.foundation.exception;
 
 
 /**
+ * 业务异常类
+ *
  * @author mac
  */
 public class BusinessException extends RuntimeException{

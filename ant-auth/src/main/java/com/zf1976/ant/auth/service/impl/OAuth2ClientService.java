@@ -10,8 +10,8 @@ import com.zf1976.ant.auth.pojo.ClientDetailsDTO;
 import com.zf1976.ant.common.component.cache.annotation.CacheConfig;
 import com.zf1976.ant.common.component.cache.annotation.CacheEvict;
 import com.zf1976.ant.common.core.constants.Namespace;
-import com.zf1976.ant.common.security.support.session.manager.SessionManagement;
 import com.zf1976.ant.common.security.support.session.Session;
+import com.zf1976.ant.common.security.support.session.manager.SessionManagement;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.stereotype.Service;
@@ -42,8 +42,8 @@ public class OAuth2ClientService extends ServiceImpl<ClientDetailsDao, ClientDet
         return super.lambdaQuery().page(page);
     }
 
-    @Transactional(rollbackFor = Exception.class)
     @CacheEvict
+    @Transactional(rollbackFor = Exception.class)
     public Void addClient(ClientDetailsDTO dto) {
 
         return null;
@@ -56,8 +56,8 @@ public class OAuth2ClientService extends ServiceImpl<ClientDetailsDao, ClientDet
      * @return {@link Optional< Void>}
      * @date 2021-05-05 19:48:08
      */
-    @Transactional(rollbackFor = Exception.class)
     @CacheEvict
+    @Transactional(rollbackFor = Exception.class)
     public Void deleteClient(String clientId) {
         final Session session = SessionManagement.getSession();
         if (ObjectUtils.nullSafeEquals(clientId, session.getClientId())) {

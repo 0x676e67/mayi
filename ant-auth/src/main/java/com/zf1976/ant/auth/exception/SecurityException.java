@@ -6,9 +6,7 @@ package com.zf1976.ant.auth.exception;
  */
 public class SecurityException extends RuntimeException {
 
-    private int value = 400;
-
-    private String message;
+    private final String message;
 
     public SecurityException(String message, Throwable cause) {
         super(message, cause);
@@ -21,6 +19,11 @@ public class SecurityException extends RuntimeException {
     }
 
     public int getValue() {
-        return value;
+        return 400;
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
     }
 }
