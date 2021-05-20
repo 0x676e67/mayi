@@ -8,6 +8,10 @@ package com.zf1976.ant.common.security.support.session.exception;
  */
 public class SessionException extends RuntimeException {
 
+    public SessionException() {
+        this("The current session has expired");
+    }
+
     public SessionException(String reason) {
         super(reason);
     }

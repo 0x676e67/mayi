@@ -11,6 +11,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.io.IOException;
+import java.util.Optional;
 
 
 /**
@@ -44,7 +45,7 @@ public abstract class AbstractSessionRepository {
      *
      * @return {@link Session}
      */
-    public abstract Session getSession();
+    public abstract Optional<Session> getSession();
 
     /**
      * 根据token获取会话
@@ -52,7 +53,7 @@ public abstract class AbstractSessionRepository {
      * @param token 令牌
      * @return {@link Session}
      */
-    public abstract Session getSession(String token);
+    public abstract Optional<Session> getSession(String token);
 
     /**
      * 根据session id获取会话
@@ -60,7 +61,7 @@ public abstract class AbstractSessionRepository {
      * @param sessionId 会话ID
      * @return {@link Session}
      */
-    public abstract Session getSession(long sessionId);
+    public abstract Optional<Session> getSession(long sessionId);
 
     /**
      * 删除当前会话

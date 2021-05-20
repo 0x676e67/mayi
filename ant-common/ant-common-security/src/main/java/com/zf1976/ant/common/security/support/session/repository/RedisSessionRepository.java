@@ -18,6 +18,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.Optional;
 
 /**
  * @author mac
@@ -42,32 +43,32 @@ public final class RedisSessionRepository extends AbstractSessionRepository {
     }
 
     @Override
-    public Session getSession() {
+    public Optional<Session> getSession() {
         return this.getSession(this.getToken());
     }
 
     @Override
-    public Session getSession(String token) {
+    public Optional<Session> getSession(String token) {
         if (token != null) {
             byte[] accessToSessionKey = this.serializeKey(this.getAccessToSessionKey(token));
             try (RedisConnection conn = this.getConnection()) {
                 byte[] data = conn.get(accessToSessionKey);
-                return this.deserialize(data);
+                return Optional.ofNullable(this.deserialize(data));
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
-    public Session getSession(long sessionId) {
+    public Optional<Session> getSession(long sessionId) {
         if (sessionId > 0) {
             byte[] idToSessionKey = this.serializeKey(this.getIdToSessionKey(sessionId));
             try (RedisConnection conn = this.getConnection()) {
                 byte[] data = conn.get(idToSessionKey);
-                return this.deserialize(data);
+                return Optional.ofNullable(this.deserialize(data));
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
@@ -96,17 +97,15 @@ public final class RedisSessionRepository extends AbstractSessionRepository {
                 log.error(e.getMessage(), e.getCause());
             }
             if (!isOk) {
-                throw new SessionException("session expiration!");
+                throw new SessionException();
             }
         }
     }
 
     @Override
     public void removeSession(long sessionId) {
-        Session session = this.getSession(sessionId);
-        if (session != null) {
-            this.removeSession(session.getToken());
-        }
+        this.getSession(sessionId)
+            .ifPresent(session -> this.removeSession(session.getToken()));
     }
 
     /**

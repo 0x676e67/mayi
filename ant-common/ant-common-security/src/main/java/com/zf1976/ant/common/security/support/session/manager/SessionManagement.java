@@ -7,19 +7,15 @@ import com.zf1976.ant.common.security.support.session.repository.AbstractSession
 import com.zf1976.ant.common.security.support.session.repository.RedisSessionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.RedisOperations;
-import org.springframework.data.redis.core.SessionCallback;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * 在同一个操作中需要开启事务 或默认SessionCallable支持，在当前session完成所有操作
@@ -66,11 +62,7 @@ public final class SessionManagement {
      * @return {@link String}
      */
     public static String getCurrentUsername() {
-        Session session = repository.getSession();
-        if (session == null) {
-            throw new SessionException("session expired");
-        }
-        return session.getUsername();
+        return getSession().getUsername();
     }
 
     /**
@@ -80,11 +72,8 @@ public final class SessionManagement {
      * @date 2021-03-23 12:19:55
      */
     public static Session getSession() {
-        Session session = repository.getSession();
-        if (session == null) {
-            throw new SessionException("session expired");
-        }
-        return session;
+        return repository.getSession()
+                         .orElseThrow(SessionException::new);
     }
 
     /**
@@ -94,11 +83,8 @@ public final class SessionManagement {
      * @return {@link Session}
      */
     public static Session getSession(String token) {
-        Session session = repository.getSession(token);
-        if (session == null) {
-            throw new SessionException("session expired");
-        }
-        return session;
+        return repository.getSession(token)
+                         .orElseThrow(SessionException::new);
     }
 
     /**
@@ -108,11 +94,8 @@ public final class SessionManagement {
      * @return session
      */
     public static Session getSession(Long sessionId) {
-        Session session = repository.getSession(sessionId);
-        if (session == null) {
-            throw new SessionException("session expired");
-        }
-        return session;
+        return repository.getSession(sessionId)
+                         .orElseThrow(SessionException::new);
     }
 
     /**
@@ -193,6 +176,9 @@ public final class SessionManagement {
         return getSession().getOwner();
     }
 
+    /**
+     * 确认必要初始化状态
+     */
     private void checkStatus() {
         Assert.notNull(properties, "security properties is null!");
         Assert.notNull(redisConnectionFactory, "redis connection factory is null");
