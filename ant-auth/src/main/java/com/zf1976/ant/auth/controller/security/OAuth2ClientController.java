@@ -6,11 +6,13 @@ import com.zf1976.ant.auth.pojo.vo.ClientDetailsVO;
 import com.zf1976.ant.auth.service.impl.OAuth2ClientService;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.upms.biz.pojo.query.Query;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotBlank;
+import java.util.Set;
 
 /**
  * @author mac
@@ -50,6 +52,12 @@ public class OAuth2ClientController {
     @PreAuthorize("hasRole('admin')")
     public DataResult<Void> deleteClient(@RequestParam @NotBlank String clientId) {
         return DataResult.success(this.oAuth2ClientService.deleteClient(clientId));
+    }
+
+    @DeleteMapping("/del/batch")
+    @PreAuthorize("hasRole('admin')")
+    public DataResult<Void> deleteBatchClient(@RequestBody @NonNull Set<String> clientIdList) {
+        return DataResult.success(this.oAuth2ClientService.deleteBatchClient(clientIdList));
     }
 
 

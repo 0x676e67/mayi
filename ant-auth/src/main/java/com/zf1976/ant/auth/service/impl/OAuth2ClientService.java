@@ -25,6 +25,7 @@ import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.ObjectUtils;
 
@@ -32,6 +33,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -45,6 +47,7 @@ public class OAuth2ClientService extends AbstractSecurityService<ClientDetailsDa
 
     private static final Pattern ID_SECRET_PATTERN = Pattern.compile("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{10,20}$");
     private static final List<String> autoApproveScope = Arrays.asList("false", "true", "read", "write");
+    private static final String SCOPE = "all";
     private final int tokenMinTime = 3600;
     private final int tokenRefreshMinTime = 7200;
     private final int tokenMaxTime = 2678400;
@@ -58,10 +61,6 @@ public class OAuth2ClientService extends AbstractSecurityService<ClientDetailsDa
         this.convert = SecurityConvert.INSTANCE;
         this.enhancer = jdbcClientDetailsServiceEnhancer;
         this.clientDetailsDao = clientDetailsDao;
-    }
-
-    public static void main(String[] args) {
-
     }
 
     /**
@@ -185,7 +184,7 @@ public class OAuth2ClientService extends AbstractSecurityService<ClientDetailsDa
                          () -> new SecurityException("The certification model does not meet the requirements"))
                  // 校验权限范围
                  .withValidated(data -> data.getScope()
-                                            .equals("all"),
+                                            .equals(SCOPE),
                          () -> new SecurityException("The scope of authority does not meet the requirements"))
                  // 自动批准权限
                  .withValidated(data -> autoApproveScope.contains(data.getAutoApprove()),
@@ -269,6 +268,30 @@ public class OAuth2ClientService extends AbstractSecurityService<ClientDetailsDa
             throw new OAuth2Exception("Prohibit deleting the currently logged in client");
         }
         if (!super.removeById(clientId)) {
+            throw new OAuth2Exception(OAuth2ErrorCodes.INVALID_CLIENT);
+        }
+        return null;
+    }
+
+    /**
+     * 批量删除客户端
+     *
+     * @param clientIdList 客户端ID列表
+     * @return {@link Void}
+     */
+    @CacheEvict
+    @Transactional(rollbackFor = Exception.class)
+    public Void deleteBatchClient(Set<String> clientIdList) {
+        if (CollectionUtils.isEmpty(clientIdList)) {
+            throw new OAuth2Exception(OAuth2ErrorCodes.TEMPORARILY_UNAVAILABLE);
+        }
+        final Session session = SessionManagement.getSession();
+        for (String clientId : clientIdList) {
+            if (ObjectUtils.nullSafeEquals(clientId, session.getClientId())) {
+                throw new OAuth2Exception("Prohibit deleting the currently logged in client");
+            }
+        }
+        if (!super.removeByIds(clientIdList)) {
             throw new OAuth2Exception(OAuth2ErrorCodes.INVALID_CLIENT);
         }
         return null;

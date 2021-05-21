@@ -47,9 +47,7 @@ public final class SessionManagement {
     public static List<Session> selectListByIds(Collection<Long> ids) {
         List<Session> sessions = new ArrayList<>();
         if (!CollectionUtils.isEmpty(ids)) {
-            ids.forEach(aLong -> {
-                sessions.add(getSession(aLong));
-            });
+            ids.forEach(aLong -> sessions.add(getSession(aLong)));
 
         }
         return sessions;
