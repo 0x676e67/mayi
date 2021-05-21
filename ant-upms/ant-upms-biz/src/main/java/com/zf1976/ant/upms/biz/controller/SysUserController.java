@@ -2,10 +2,9 @@ package com.zf1976.ant.upms.biz.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.common.component.mail.ValidateEmailService;
-import com.zf1976.ant.common.component.mail.ValidateMobileService;
-import com.zf1976.ant.common.component.mail.ValidateService;
-import com.zf1976.ant.common.component.mail.impl.ValidateServiceImpl;
 import com.zf1976.ant.common.core.foundation.DataResult;
+import com.zf1976.ant.common.core.validate.ValidationInsertGroup;
+import com.zf1976.ant.common.core.validate.ValidationUpdateGroup;
 import com.zf1976.ant.common.log.annotation.Log;
 import com.zf1976.ant.upms.biz.pojo.dto.user.UpdateEmailDTO;
 import com.zf1976.ant.upms.biz.pojo.dto.user.UpdateInfoDTO;
@@ -13,8 +12,6 @@ import com.zf1976.ant.upms.biz.pojo.dto.user.UpdatePasswordDTO;
 import com.zf1976.ant.upms.biz.pojo.dto.user.UserDTO;
 import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.query.UserQueryParam;
-import com.zf1976.ant.common.core.validate.ValidationInsertGroup;
-import com.zf1976.ant.common.core.validate.ValidationUpdateGroup;
 import com.zf1976.ant.upms.biz.pojo.vo.user.UserVO;
 import com.zf1976.ant.upms.biz.service.SysUserService;
 import org.springframework.context.annotation.DependsOn;
@@ -23,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -75,7 +71,7 @@ public class SysUserController {
     }
 
     @Log(description = "修改用户状态")
-    @PatchMapping("/status")
+    @PatchMapping("/update/status")
     public DataResult<Void> setUserStatus(@RequestParam @NotNull Long id, @RequestParam @NotNull Boolean enabled) {
         return DataResult.success(service.setUserStatus(id, enabled));
     }

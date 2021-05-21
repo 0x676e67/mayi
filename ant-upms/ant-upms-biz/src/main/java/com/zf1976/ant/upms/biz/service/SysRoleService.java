@@ -3,6 +3,7 @@ package com.zf1976.ant.upms.biz.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zf1976.ant.common.component.cache.annotation.CacheConfig;
 import com.zf1976.ant.common.component.cache.annotation.CacheEvict;
 import com.zf1976.ant.common.component.cache.annotation.CachePut;
@@ -62,7 +63,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
     public IPage<RoleVO> selectAll() {
         IPage<SysRole> page = super.lambdaQuery()
                                    .select(SysRole::getId, SysRole::getName)
-                                   .page(super.getConfigPage());
+                                   .page(new Page<>(1, 9999));
         return super.mapPageToTarget(page, this.convert::toVo);
     }
 

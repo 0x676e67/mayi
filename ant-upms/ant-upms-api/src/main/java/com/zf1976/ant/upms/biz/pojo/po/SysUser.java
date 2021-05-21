@@ -73,11 +73,6 @@ public class SysUser extends Model<SysUser> {
     private String avatarName;
 
     /**
-     * 头像真实路径
-     */
-    private String avatarPath;
-
-    /**
      * 密码
      */
     private String password;
@@ -210,14 +205,6 @@ public class SysUser extends Model<SysUser> {
         this.avatarName = avatarName;
     }
 
-    public String getAvatarPath() {
-        return avatarPath;
-    }
-
-    public void setAvatarPath(String avatarPath) {
-        this.avatarPath = avatarPath;
-    }
-
     public String getPassword() {
         return password;
     }
@@ -296,7 +283,6 @@ public class SysUser extends Model<SysUser> {
                 ", phone='" + phone + '\'' +
                 ", email='" + email + '\'' +
                 ", avatarName='" + avatarName + '\'' +
-                ", avatarPath='" + avatarPath + '\'' +
                 ", password='" + password + '\'' +
                 ", enabled=" + enabled +
                 ", pwdResetTime=" + pwdResetTime +

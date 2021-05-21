@@ -1,7 +1,6 @@
 package com.zf1976.ant.upms.biz.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.zf1976.ant.upms.biz.pojo.po.SysPosition;
 import com.zf1976.ant.upms.biz.pojo.po.SysUser;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
@@ -56,13 +55,14 @@ public interface SysUserDao extends BaseMapper<SysUser> {
     /**
      * 删除角色依赖关系
      *
-     * @param ids id collection
+     * @param id id
      */
     void deleteRoleRelationById(@Param("id") Long id);
 
     /**
      * 删除岗位依赖关系
-     * @param ids ids
+     *
+     * @param id id
      */
     void deletePositionRelationById(@Param("id") Long id);
 

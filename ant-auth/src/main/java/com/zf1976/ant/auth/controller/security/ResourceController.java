@@ -33,4 +33,6 @@ public class ResourceController {
     public DataResult<IPage<ResourceNode>> selectResourceByPage(@RequestBody Page<SysResource> page) {
         return DataResult.success(this.dynamicDataSourceService.selectResourceNodeByPage(page));
     }
+
+
 }

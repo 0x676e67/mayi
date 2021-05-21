@@ -201,7 +201,6 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     @Transactional(rollbackFor = Exception.class)
     public Void setUserStatus(Long id, Boolean enabled) {
         SysUser sysUser = super.lambdaQuery()
-                               .select(SysUser::getId, SysUser::getEnabled)
                                .eq(SysUser::getId, id)
                                .oneOpt()
                                .orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));

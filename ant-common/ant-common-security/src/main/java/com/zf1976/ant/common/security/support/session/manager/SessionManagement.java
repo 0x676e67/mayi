@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -104,7 +103,7 @@ public final class SessionManagement {
     public static void removeSession() {
         try {
             repository.removeSession();
-        } catch (SessionException | IOException e) {
+        } catch (Exception e) {
             log.error(e.getMessage(), e.getCause());
         }
     }
@@ -117,7 +116,7 @@ public final class SessionManagement {
     public static void removeSession(String token) {
         try {
             repository.removeSession(token);
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error(e.getMessage(), e.getCause());
         }
     }
@@ -131,7 +130,7 @@ public final class SessionManagement {
         if (sessionId != null) {
             try {
                 repository.removeSession(sessionId);
-            } catch (SessionException | IOException e) {
+            } catch (Exception e) {
                 log.error(e.getMessage(), e.getCause());
             }
         }
