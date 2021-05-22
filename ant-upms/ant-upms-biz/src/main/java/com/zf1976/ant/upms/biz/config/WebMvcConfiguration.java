@@ -40,8 +40,8 @@ public class WebMvcConfiguration implements WebMvcConfigurer, InitializingBean {
      *
      * @return {@link ThreadPoolTaskExecutor}
      */
-    @Bean
-    public ThreadPoolTaskExecutor getThreadPoolTaskExecutor() {
+    @Bean(name = "bigTaskExecutor")
+    public ThreadPoolTaskExecutor bigTaskExecutor() {
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
         //此方法返回可用处理器的虚拟机的最大数量; 不小于1
         taskExecutor.setBeanName(poolProperties.getBeanName());
