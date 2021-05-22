@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collection;
+import java.util.Map;
+
 /**
  * @author mac
  * @date 2021/4/10
@@ -19,7 +22,12 @@ public class TestEndpoint {
 
     @GetMapping("/test")
     public String test() {
-        return this.dynamicDataSourceService.demo();
+        return "";
+    }
+
+    @GetMapping("/test2")
+    public Map<String, Collection<String>> demo() {
+        return this.dynamicDataSourceService.loadDynamicDataSource();
     }
 
 }

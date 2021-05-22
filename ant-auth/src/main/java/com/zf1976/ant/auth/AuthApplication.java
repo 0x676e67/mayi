@@ -1,16 +1,14 @@
 package com.zf1976.ant.auth;
 
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Repository;
 import sun.misc.Unsafe;
 
-import javax.sql.DataSource;
-import javax.sql.PooledConnection;
 import java.lang.reflect.Field;
 
 /**
@@ -20,6 +18,7 @@ import java.lang.reflect.Field;
 @SpringBootApplication(scanBasePackages = "com.zf1976")
 @MapperScan(value = "com.zf1976", annotationClass = Repository.class)
 @EnableDiscoveryClient
+@EnableAsync
 @EnableConfigurationProperties
 public class AuthApplication {
 

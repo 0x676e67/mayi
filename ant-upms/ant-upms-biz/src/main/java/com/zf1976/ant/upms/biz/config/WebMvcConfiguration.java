@@ -2,20 +2,23 @@ package com.zf1976.ant.upms.biz.config;
 
 import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.power.common.util.FileUtil;
+import com.zf1976.ant.common.core.config.ThreadPoolProperties;
 import com.zf1976.ant.common.mybatis.handle.MetaDataHandler;
 import com.zf1976.ant.upms.biz.property.FileProperties;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import javax.servlet.*;
+import javax.servlet.Filter;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author mac
@@ -24,19 +27,45 @@ import java.io.File;
 @Configuration
 public class WebMvcConfiguration implements WebMvcConfigurer, InitializingBean {
 
-    public WebMvcConfiguration(FileProperties fileProperties) {
+    private final FileProperties fileProperties;
+    private final ThreadPoolProperties poolProperties;
+
+    public WebMvcConfiguration(FileProperties fileProperties, ThreadPoolProperties poolProperties) {
         this.fileProperties = fileProperties;
+        this.poolProperties = poolProperties;
     }
 
-    private final FileProperties fileProperties;
+    /**
+     * 配置线程池
+     *
+     * @return {@link ThreadPoolTaskExecutor}
+     */
+    @Bean
+    public ThreadPoolTaskExecutor getThreadPoolTaskExecutor() {
+        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        //此方法返回可用处理器的虚拟机的最大数量; 不小于1
+        taskExecutor.setBeanName(poolProperties.getBeanName());
+        taskExecutor.setThreadGroupName(poolProperties.getThreadGroupName());
+        taskExecutor.setCorePoolSize(poolProperties.getCorePoolSize());
+        taskExecutor.setMaxPoolSize(poolProperties.getMaxPoolSize());
+        taskExecutor.setQueueCapacity(poolProperties.getQueueCapacity());
+        taskExecutor.setKeepAliveSeconds(poolProperties.getKeepAliveSeconds());
+        taskExecutor.setThreadNamePrefix(poolProperties.getNamePrefix());//线程名称前缀
+        // 线程池对拒绝任务（无线程可用）的处理策略，目前只支持AbortPolicy、CallerRunsPolicy；默认为后者
+        taskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        taskExecutor.initialize();
+        return taskExecutor;
+    }
+
 
     /**
      * 允许iframe
+     *
      * @return Filter
      */
-    private Filter filter(){
+    private Filter filter() {
         return (servletRequest, servletResponse, filterChain) -> {
-            ((HttpServletResponse) servletResponse).addHeader("X-Frame-Options","ALLOW-FROM");
+            ((HttpServletResponse) servletResponse).addHeader("X-Frame-Options", "ALLOW-FROM");
             filterChain.doFilter(servletRequest, servletResponse);
         };
     }

@@ -44,13 +44,28 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
     protected final static AlternativeJdkIdGenerator JDK_ID_GENERATOR = new AlternativeJdkIdGenerator();
     protected final static String SYS_TEM_DIR = System.getProperty("java.io.tmpdir") + File.separator;
     protected final Logger log = LoggerFactory.getLogger(AbstractService.class);
-    protected final ThreadLocal<QueryChainWrapper<E>> queryChainWrapperThreadLocal = new ThreadLocal<>();
-    protected final ThreadLocal<Query<? extends AbstractQueryParam>> requestPageThreadLocal = new ThreadLocal<>();
+    protected final ThreadLocal<QueryChainWrapper<E>> wrapperThreadLocal = new ThreadLocal<>();
+    protected final ThreadLocal<Query<? extends AbstractQueryParam>> queryThreadLocal = new ThreadLocal<>();
 
     public AbstractService() {
         this.removeThreadLocalVariable();
     }
 
+    /**
+     * 确实是否保存ThreadLocal 变量
+     */
+    private void checkThreadLocalVariable() {
+        Assert.notNull(this.wrapperThreadLocal.get(), "queryChainWrapperThreadLocal failed to initialize");
+        Assert.notNull(this.queryThreadLocal.get(), "requestPageThreadLocal failed to initialize");
+    }
+
+    /**
+     * 删除ThreadLocal 保存变量
+     */
+    private void removeThreadLocalVariable() {
+        this.queryThreadLocal.remove();
+        this.wrapperThreadLocal.remove();
+    }
 
     /**
      * 根据id集合取回对象列表
@@ -120,28 +135,16 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
         return this.queryWrapper(ChainWrappers.queryChain(super.baseMapper));
     }
 
+    /**
+     * 链式 wrapper 查询
+     *
+     * @param queryChainWrapper wrapper
+     * @return {@link AbstractService<D,E>}
+     */
+
     protected AbstractService<D, E> queryWrapper(QueryChainWrapper<E> queryChainWrapper) {
-        this.queryChainWrapperThreadLocal.set(queryChainWrapper);
+        this.wrapperThreadLocal.set(queryChainWrapper);
         return this;
-    }
-
-    /**
-     * 确实是否保存ThreadLocal 变量
-     */
-    private void checkThreadLocalVariable() {
-        Assert.notNull(this.queryChainWrapperThreadLocal.get(), "queryChainWrapperThreadLocal failed to initialize");
-        Assert.notNull(this.requestPageThreadLocal.get(), "requestPageThreadLocal failed to initialize");
-    }
-
-
-    /**
-     * 删除ThreadLocal 保存变量
-     */
-    private void removeThreadLocalVariable() {
-        this.requestPageThreadLocal.remove();
-        this.queryChainWrapperThreadLocal.remove();
-        Assert.isNull(this.queryChainWrapperThreadLocal.get(), "queryChainWrapperThreadLocal removal of failure");
-        Assert.isNull(this.requestPageThreadLocal.get(), "requestPageThreadLocal removal of failure");
     }
 
     /**
@@ -150,13 +153,17 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
      * @return page entity
      */
     public IPage<E> selectPage() {
-        Query<? extends AbstractQueryParam> requestPage = Optional.ofNullable(this.requestPageThreadLocal.get())
-                                                                  .orElseGet(Query::new);
-        QueryChainWrapper<E> queryChainWrapper = Optional.ofNullable(this.queryChainWrapperThreadLocal.get())
-                                                          .orElseGet(() -> ChainWrappers.queryChain(super.baseMapper));
-        IPage<E> selectPage = this.selectPage(requestPage, queryChainWrapper);
+        // 查询对象参数
+        Query<? extends AbstractQueryParam> query = Optional.ofNullable(this.queryThreadLocal.get())
+                                                            .orElseGet(Query::new);
+        // 查询条件
+        QueryChainWrapper<E> queryChainWrapper = Optional.ofNullable(this.wrapperThreadLocal.get())
+                                                         .orElseGet(() -> ChainWrappers.queryChain(super.baseMapper));
+        // 分页查询
+        IPage<E> page = this.selectPage(query, queryChainWrapper);
+        // 清除本地变量
         this.removeThreadLocalVariable();
-        return selectPage;
+        return page;
     }
 
     /**
@@ -164,10 +171,12 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
      *
      * @return list of Entity
      */
-    public List<E> selectList(){
-        List<E> list = Optional.ofNullable(this.queryChainWrapperThreadLocal.get())
+    public List<E> selectList() {
+        // 列表查询
+        List<E> list = Optional.ofNullable(this.wrapperThreadLocal.get())
                                .orElseGet(() -> ChainWrappers.queryChain(super.baseMapper))
                                .list();
+        // 清除本地变量
         this.removeThreadLocalVariable();
         return list;
     }
@@ -175,22 +184,27 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
     /**
      * 获取查询页
      *
-     * @param requestPage request page param
+     * @param query request page param
      * @return page
      */
-    public IPage<E> selectPage(Query<? extends AbstractQueryParam> requestPage, QueryChainWrapper<E> queryChainWrapper) {
-        Page<E> configPage = this.getConfigPage(requestPage);
+    public IPage<E> selectPage(Query<? extends AbstractQueryParam> query, QueryChainWrapper<E> queryChainWrapper) {
+        Page<E> configPage = this.getPage(query);
+        // 清除本地变量
+        this.removeThreadLocalVariable();
         return queryChainWrapper.page(configPage);
     }
 
     /**
      * 获取查询页
      *
-     * @param requestPage request page param
+     * @param query request page param
      * @return page
      */
-    public IPage<E> selectPage(Query<? extends AbstractQueryParam> requestPage, LambdaQueryChainWrapper<E> lambdaQueryChainWrapper) {
-        Page<E> configPage = this.getConfigPage(requestPage);
+    public IPage<E> selectPage(Query<? extends AbstractQueryParam> query,
+                               LambdaQueryChainWrapper<E> lambdaQueryChainWrapper) {
+        Page<E> configPage = this.getPage(query);
+        // 清除本地变量
+        this.removeThreadLocalVariable();
         return lambdaQueryChainWrapper.page(configPage);
     }
 
@@ -199,7 +213,7 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
      *
      * @param query request param
      */
-    protected Page<E> getConfigPage(Query<? extends AbstractQueryParam> query) {
+    protected Page<E> getPage(Query<? extends AbstractQueryParam> query) {
         Assert.notNull(query, BusinessMsgState.PARAM_ILLEGAL.getReasonPhrase());
         Page<E> configPage = new Page<>();
         configPage.setOrders(query.getOrders());
@@ -207,8 +221,11 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
                          .setSize(query.getSize());
     }
 
-    protected Page<E> getConfigPage() {
-        return this.getConfigPage(new Query<>());
+    /**
+     * 默认分页配置
+     */
+    protected Page<E> getPage() {
+        return this.getPage(new Query<>());
     }
 
     /**
@@ -248,21 +265,21 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
     public AbstractService<D, E> chainQuery(Query<? extends AbstractQueryParam> query, Supplier<QueryChainWrapper<E>> supplier) {
         Assert.notNull(query, BusinessMsgState.PARAM_ILLEGAL.getReasonPhrase());
         AbstractQueryParam param = query.getQuery();
-        QueryChainWrapper<E> chainWrapper = supplier.get();
+        QueryChainWrapper<E> supplierWrapper = supplier.get();
         if (param == null) {
             return this;
         }
-        this.requestPageThreadLocal.set(query);
-        QueryChainWrapper<E> queryChainWrapper;
-        if (chainWrapper == null) {
-            queryChainWrapper = this.queryChainWrapperThreadLocal.get();
+        this.queryThreadLocal.set(query);
+        if (supplierWrapper == null) {
+            supplierWrapper = wrapperThreadLocal.get();
+            // 校验是否初始化
+            this.checkThreadLocalVariable();
         } else {
             // 自定义wrapper
-            this.queryChainWrapperThreadLocal.set(chainWrapper);
-            this.checkThreadLocalVariable();
-            queryChainWrapper = chainWrapper;
+            this.wrapperThreadLocal.set(supplierWrapper);
         }
-        for (Field field : param.getClass().getDeclaredFields()) {
+        for (Field field : param.getClass()
+                                .getDeclaredFields()) {
             ReflectionUtils.makeAccessible(field);
             String fieldName = StringUtil.camelToUnderline(field.getName());
             Object fieldVal = ReflectionUtils.getField(field, param);
@@ -273,41 +290,41 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
             }
             switch (annotation.type()) {
                 case EQ:
-                    queryChainWrapper.eq(fieldName, fieldVal);
+                    supplierWrapper.eq(fieldName, fieldVal);
                     break;
                 case NE:
-                    queryChainWrapper.ne(fieldName, fieldVal);
+                    supplierWrapper.ne(fieldName, fieldVal);
                     break;
                 case IN:
                     if (fieldVal instanceof Collection) {
-                        queryChainWrapper.in(fieldName, (Collection<?>) fieldVal);
+                        supplierWrapper.in(fieldName, (Collection<?>) fieldVal);
                     } else {
-                        queryChainWrapper.in(fieldName, fieldVal);
+                        supplierWrapper.in(fieldName, fieldVal);
                     }
                     break;
                 case LIKE:
                     String[] fields = field.getAnnotation(Param.class).fields();
                     if (ObjectUtils.isEmpty(fields)) {
-                        queryChainWrapper.like(fieldName, fieldVal);
+                        supplierWrapper.like(fieldName, fieldVal);
                     } else {
                         for (int i = 0; i < fields.length; i++) {
                             if (i == fields.length - 1) {
-                                queryChainWrapper.like(StringUtil.camelToUnderline(fields[i]), fieldVal);
+                                supplierWrapper.like(StringUtil.camelToUnderline(fields[i]), fieldVal);
                             } else {
-                                queryChainWrapper.like(StringUtil.camelToUnderline(fields[i]), fieldVal)
-                                                 .or();
+                                supplierWrapper.like(StringUtil.camelToUnderline(fields[i]), fieldVal)
+                                               .or();
                             }
                         }
                     }
                     break;
                 case NOT_LIKE:
-                    queryChainWrapper.notLike(fieldName, fieldVal);
+                    supplierWrapper.notLike(fieldName, fieldVal);
                     break;
                 case BETWEEN:
                     @SuppressWarnings("unchecked")
                     List<Date> list = (List<Date>) fieldVal;
                     assert list.size() == 2;
-                    queryChainWrapper.between(fieldName, list.get(0), list.get(1));
+                    supplierWrapper.between(fieldName, list.get(0), list.get(1));
                     break;
                 default:
                     break;

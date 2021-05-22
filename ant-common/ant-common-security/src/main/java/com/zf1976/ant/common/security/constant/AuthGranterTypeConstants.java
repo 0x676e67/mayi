@@ -31,22 +31,7 @@ public interface AuthGranterTypeConstants {
      */
     String CLIENT_CREDENTIALS = "client_credentials";
 
-    /**
-     * 账号邮箱验证码模式
-     */
-    String ACCESS_EMAIL_CODE = "access_email_code";
 
-    /**
-     * 账号手机验证码模式
-     */
-    String ACCESS_PHONE_CODE = "access_phone_code";
-
-    String[] ARRAY = new String[]{PASSWORD,
-            PASSWORD_CODE,
-            CLIENT_CREDENTIALS,
-            ACCESS_EMAIL_CODE,
-            ACCESS_PHONE_CODE,
-            AUTHORIZATION_CODE,
-            IMPLICIT};
+    String[] ARRAY = new String[]{PASSWORD, PASSWORD_CODE, CLIENT_CREDENTIALS, AUTHORIZATION_CODE, IMPLICIT};
 
 }

@@ -32,7 +32,6 @@ import org.springframework.util.ObjectUtils;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -257,8 +256,7 @@ public class OAuth2ClientService extends AbstractSecurityService<ClientDetailsDa
      * 删除OAuth客户端
      *
      * @param clientId 客户端id
-     * @return {@link Optional< Void>}
-     * @date 2021-05-05 19:48:08
+     * @return {@link Void}
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)

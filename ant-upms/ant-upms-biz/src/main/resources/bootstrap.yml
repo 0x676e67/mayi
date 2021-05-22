@@ -1,5 +1,9 @@
 server:
   port: 7777    #server 端口
+  tomcat:
+    threads:
+      max: 500
+    max-connections: 20000
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/master?useSSL=false&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&autoReconnect=true&failOverReadOnly=false&maxReconnects=10&serverTimezone=GMT
@@ -78,16 +82,33 @@ spring:
     default-property-inclusion: non_null
     date-format: yyyy-MM-dd HH:mm:ss
 
-  servlet:                                                  #servlet配置
+  servlet: #servlet配置
     multipart:
       enabled: true
 
-  thymeleaf:                                                #thymeleaf模版
+  thymeleaf: #thymeleaf模版
     suffix: .html
   application:
     name: ant-upms-bzi
 
-mybatis-plus:                                               #mybatis-plus 配置
+#共用线程池配置
+executor:
+  # 配置核心线程数
+  core-pool-size: 8
+  # 配置最大线程数
+  max-pool-size: 16
+  # 配置队列大小
+  queue-capacity: 1000
+  # 线程池名前缀
+  name-prefix: Core-task-
+  # 线程存活时间
+  Keep-alive-seconds: 200
+  # 线程组名
+  thred-group-name: [ Biz-Group ]
+  # bean名
+  bean-name: BitServerTaskExecutor
+
+mybatis-plus: #mybatis-plus 配置
   global-config:
     db-config:
       update-strategy: not_empty

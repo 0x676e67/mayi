@@ -1,12 +1,17 @@
 server:
   port: 9000
+  tomcat:
+    # 最大链接数
+    max-connections: 20000
+    # 最大线程数
+    threads:
+      max: 500
 #配置
 spring:
   profiles:
     active: conf,dev
   application:
     name: ant-auth
-
   datasource:
     username: root
     password: itcast
@@ -39,6 +44,24 @@ spring:
   servlet:
     multipart:
       enabled: true
+
+#公用线程池配置
+executor:
+  # 配置核心线程数
+  core-pool-size: 8
+  # 配置最大线程数
+  max-pool-size: 16
+  # 配置队列大小
+  queue-capacity: 1000
+  # 线程池名前缀
+  name-prefix: Core-task-
+  # 线程存活时间
+  Keep-alive-seconds: 200
+  # 线程组名
+  thred-group-name: [ Auth-Group ]
+  # bean名
+  bean-name: AuthorizationServerTaskExecutor
+
 
 #mybatis-plus 配置
 mybatis-plus:
