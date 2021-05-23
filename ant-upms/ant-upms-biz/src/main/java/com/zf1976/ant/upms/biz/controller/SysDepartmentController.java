@@ -2,18 +2,17 @@ package com.zf1976.ant.upms.biz.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.common.core.foundation.DataResult;
+import com.zf1976.ant.common.core.validate.ValidationInsertGroup;
+import com.zf1976.ant.common.core.validate.ValidationUpdateGroup;
 import com.zf1976.ant.upms.biz.pojo.dto.dept.DepartmentDTO;
 import com.zf1976.ant.upms.biz.pojo.query.DeptQueryParam;
 import com.zf1976.ant.upms.biz.pojo.query.Query;
-import com.zf1976.ant.common.core.validate.ValidationInsertGroup;
-import com.zf1976.ant.common.core.validate.ValidationUpdateGroup;
 import com.zf1976.ant.upms.biz.pojo.vo.dept.DepartmentVO;
 import com.zf1976.ant.upms.biz.service.SysDepartmentService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -32,22 +31,22 @@ public class SysDepartmentController {
 
     @PostMapping("/page")
     public DataResult<IPage<DepartmentVO>> selectDeptPage(@RequestBody Query<DeptQueryParam> query) {
-        return DataResult.success(service.selectDeptPage(query));
+        return DataResult.success(service.selectDepartmentPage(query));
     }
 
     @PostMapping("/vertex/{id}")
     public DataResult<IPage<DepartmentVO>> deptVertex(@PathVariable Long id) {
-        return DataResult.success(service.selectDeptVertex(id));
+        return DataResult.success(service.selectDepartmentVertex(id));
     }
 
     @PostMapping("/save")
     public DataResult<Void> saveDept(@RequestBody @Validated({ValidationInsertGroup.class}) DepartmentDTO dto) {
-        return DataResult.success(service.savaDept(dto));
+        return DataResult.success(service.savaDepartment(dto));
     }
 
     @PutMapping("/update")
     public DataResult<Void> updateDept(@RequestBody @Validated(ValidationUpdateGroup.class) DepartmentDTO dto) {
-        return DataResult.success(service.updateDept(dto));
+        return DataResult.success(service.updateDepartment(dto));
     }
 
     @DeleteMapping("/delete")
