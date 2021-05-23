@@ -27,7 +27,6 @@ public enum DataPermissionEnum implements IEnum<Integer> {
     @EnumValue
     public final int value;
 
-    @JsonValue
     public final String description;
 
     DataPermissionEnum(int value, String description) {
@@ -42,6 +41,6 @@ public enum DataPermissionEnum implements IEnum<Integer> {
 
     @Override
     public String toString() {
-        return this.description;
+        return Integer.toString(this.value);
     }
 }

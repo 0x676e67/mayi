@@ -19,7 +19,7 @@ public enum RoleState {
     /**
      * 存在依赖
      */
-    ROLE_DEPENDS_ERROR(400, "角色存在用户依赖，不能删除"),
+    ROLE_DEPENDS_ERROR(400, "角色存在用户依赖，不能禁用/删除"),
 
     /**
      * 操作异常

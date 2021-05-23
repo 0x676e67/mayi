@@ -27,9 +27,9 @@ public class Query<T extends AbstractQueryParam> implements Serializable {
      */
     public static final int MIN_SIZE = 5;
     /**
-     * 最大页
+     * 最小页
      */
-    public static final int MIN_PAGE = 0;
+    public static final int MIN_PAGE = 1;
 
     /**
      * 页

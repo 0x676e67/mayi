@@ -122,26 +122,23 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
     private IPage<DepartmentVO> deptTreeBuilder(IPage<SysDepartment> sourcePage) {
         final IPage<DepartmentVO> targetPage = super.mapPageToTarget(sourcePage, this.convert::toVo);
         // 所有节点
-        final List<DepartmentVO> vertex = targetPage.getRecords();
-        // 已被添加的节点
-        List<DepartmentVO> childrenVertex = new LinkedList<>();
+        final List<DepartmentVO> list = targetPage.getRecords();
         // 构建tree
-        vertex.forEach(var1 -> {
-            vertex.stream()
-                  .filter(var2 -> var2.getPid() != null && !ObjectUtils.nullSafeEquals(var1.getId(), var2.getId()) && ObjectUtils.nullSafeEquals(var1.getId(), var2.getPid()))
-                  .forEach(var2 -> {
-                      if (CollectionUtils.isEmpty(var1.getChildren())) {
-                          var1.setChildren(new LinkedList<>());
-                      }
-                      var1.getChildren().add(var2);
-                      childrenVertex.add(var2);
-                  });
-            // 设置dept tree properties
-            this.setDeptTreeProperties(var1);
-        });
+        for (DepartmentVO parent : list) {
+            for (DepartmentVO child : list) {
+                // 当前节点是上级节点的子节点
+                if (ObjectUtils.nullSafeEquals(parent.getId(), child.getPid())) {
+                    if (parent.getChildren() == null) {
+                        parent.setChildren(new ArrayList<>());
+                    }
+                    parent.getChildren().add(child);
+                }
+            }
+            // 设置dept node properties
+            this.setDeptTreeProperties(parent);
+        }
         // 清除已被添加的节点
-        vertex.removeAll(childrenVertex);
-        final List<DepartmentVO> target = vertex.stream()
+        final List<DepartmentVO> target = list.stream().filter(departmentVO -> departmentVO.getPid() == null)
                                                 .sorted(Comparator.comparingInt(DepartmentVO::getDeptSort))
                                                 .collect(Collectors.toList());
         return targetPage.setRecords(Collections.unmodifiableList(target));

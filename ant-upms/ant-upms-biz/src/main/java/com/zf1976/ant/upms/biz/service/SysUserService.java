@@ -456,6 +456,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         SysUser sysUser = super.lambdaQuery()
                                 .eq(SysUser::getId, dto.getId())
                                 .oneOpt().orElseThrow(() -> new UserException(UserState.USER_NOT_FOUND));
+        // 禁用
         if (!dto.getEnabled()) {
             Long sessionId = SessionManagement.getSessionId();
             // 禁止禁用oneself,禁止操作当前登录的用户
@@ -466,6 +467,8 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
             Validator.of(dto.getUsername())
                      .withValidated(username -> !username.equals(this.securityProperties.getOwner()),
                              () -> new UserException(UserState.USER_OPT_ERROR));
+            // 踢出当前被禁用用户
+            SessionManagement.removeSession(sysUser.getId());
         }
         // 验证用户名，邮箱，手机是否已存在
         super.lambdaQuery()
@@ -488,8 +491,6 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
         super.savaOrUpdate(sysUser);
         // 更新依赖
         this.updateDependents(dto);
-        // 踢出当前被禁用用户
-        SessionManagement.removeSession(sysUser.getId());
         return null;
     }
 

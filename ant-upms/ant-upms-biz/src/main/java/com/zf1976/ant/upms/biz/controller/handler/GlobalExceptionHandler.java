@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     DataResult exceptionHandler(Exception exception) {
-        return DataResult.fail(exception);
+        return DataResult.fail("Server Error");
     }
 
     /**
