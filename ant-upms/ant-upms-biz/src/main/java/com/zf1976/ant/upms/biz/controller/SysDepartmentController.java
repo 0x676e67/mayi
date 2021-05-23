@@ -30,33 +30,33 @@ public class SysDepartmentController {
     }
 
     @PostMapping("/page")
-    public DataResult<IPage<DepartmentVO>> selectDeptPage(@RequestBody Query<DeptQueryParam> query) {
+    public DataResult<IPage<DepartmentVO>> selectDepartmentPage(@RequestBody Query<DeptQueryParam> query) {
         return DataResult.success(service.selectDepartmentPage(query));
     }
 
     @PostMapping("/vertex/{id}")
-    public DataResult<IPage<DepartmentVO>> deptVertex(@PathVariable Long id) {
+    public DataResult<IPage<DepartmentVO>> departmentVertex(@PathVariable Long id) {
         return DataResult.success(service.selectDepartmentVertex(id));
     }
 
     @PostMapping("/save")
-    public DataResult<Void> saveDept(@RequestBody @Validated({ValidationInsertGroup.class}) DepartmentDTO dto) {
+    public DataResult<Void> saveDepartment(@RequestBody @Validated({ValidationInsertGroup.class}) DepartmentDTO dto) {
         return DataResult.success(service.savaDepartment(dto));
     }
 
     @PutMapping("/update")
-    public DataResult<Void> updateDept(@RequestBody @Validated(ValidationUpdateGroup.class) DepartmentDTO dto) {
+    public DataResult<Void> updateDepartment(@RequestBody @Validated(ValidationUpdateGroup.class) DepartmentDTO dto) {
         return DataResult.success(service.updateDepartment(dto));
     }
 
     @DeleteMapping("/delete")
-    public DataResult<Void> deleteDeptList(@RequestBody Set<Long> ids) {
+    public DataResult<Void> deleteDepartmentList(@RequestBody Set<Long> ids) {
         return DataResult.success(service.deleteDepartmentList(ids));
     }
 
     @PostMapping("/download")
-    public DataResult<Void> downloadDeptExcel(@RequestBody Query<DeptQueryParam> requestPage,
-                                              HttpServletResponse response) {
+    public DataResult<Void> downloadDepartmentExcel(@RequestBody Query<DeptQueryParam> requestPage,
+                                                    HttpServletResponse response) {
         return DataResult.success(service.downloadExcelDept(requestPage, response));
     }
 }
