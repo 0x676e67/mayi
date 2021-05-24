@@ -171,7 +171,6 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     public Set<Long> selectUserRoleIds(Long id) {
         return this.sysRoleDao.selectListByUserId(id)
                               .stream()
-                              .filter(SysRole::getEnabled)
                               .map(SysRole::getId)
                               .collect(Collectors.toSet());
     }
