@@ -63,7 +63,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) {
-        final User user = this.getUserInfo(username);
+        final User user = this.findUserByUsername(username);
         if (!user.getEnabled()) {
             throw new UserNotFountException(AuthenticationState.ACCOUNT_DISABLED);
         }
@@ -74,7 +74,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
         return new LoginUserDetails(user, grantedAuthorities, grantedDataPermission);
     }
 
-    private User getUserInfo(String username) {
+    private User findUserByUsername(String username) {
         // 初步验证用户是否存在
         SysUser sysUser = ChainWrappers.lambdaQueryChain(this.sysUserDao)
                                        .eq(SysUser::getUsername, username)
