@@ -3,19 +3,19 @@ package com.zf1976.ant.upms.biz.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.common.component.cache.annotation.CacheConfig;
-import com.zf1976.ant.common.component.cache.annotation.CachePut;
 import com.zf1976.ant.common.component.cache.annotation.CacheEvict;
+import com.zf1976.ant.common.component.cache.annotation.CachePut;
 import com.zf1976.ant.common.core.constants.Namespace;
-import com.zf1976.ant.upms.biz.pojo.po.SysPosition;
 import com.zf1976.ant.upms.biz.convert.SysPositionConvert;
 import com.zf1976.ant.upms.biz.dao.SysPositionDao;
-import com.zf1976.ant.upms.biz.pojo.query.Query;
+import com.zf1976.ant.upms.biz.exception.PositionException;
+import com.zf1976.ant.upms.biz.exception.enums.PositionState;
 import com.zf1976.ant.upms.biz.pojo.dto.position.PositionDTO;
+import com.zf1976.ant.upms.biz.pojo.po.SysPosition;
 import com.zf1976.ant.upms.biz.pojo.query.PositionQueryParam;
+import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.vo.job.PositionExcelVO;
 import com.zf1976.ant.upms.biz.pojo.vo.job.PositionVO;
-import com.zf1976.ant.upms.biz.exception.enums.PositionState;
-import com.zf1976.ant.upms.biz.exception.PositionException;
 import com.zf1976.ant.upms.biz.service.base.AbstractService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,6 +59,7 @@ public class SysPositionService extends AbstractService<SysPositionDao, SysPosit
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Void savePosition(PositionDTO dto) {
+        // 确认职位名是否已经存在
         super.lambdaQuery()
              .eq(SysPosition::getName, dto.getName())
              .oneOpt()
