@@ -10,8 +10,8 @@ import com.zf1976.ant.common.component.cache.annotation.CachePut;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.security.enums.AuthenticationState;
 import com.zf1976.ant.common.security.pojo.Details;
-import com.zf1976.ant.common.security.pojo.User;
 import com.zf1976.ant.common.security.pojo.Role;
+import com.zf1976.ant.common.security.pojo.User;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import com.zf1976.ant.common.security.support.session.manager.SessionManagement;
 import com.zf1976.ant.upms.biz.dao.*;
@@ -85,7 +85,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
                                                 .eq(SysDepartment::getId, sysUser.getDepartmentId())
                                                 .one();
         // 查询用户角色
-        List<SysRole> roleList = this.sysRoleDao.selectListByUserId(sysUser.getId());
+        List<SysRole> roleList = this.sysRoleDao.selectBatchByUserId(sysUser.getId());
         // 查询用户职位
         List<SysPosition> positionList = this.positionDao.selectBatchByUserId(sysUser.getId());
         sysUser.setDepartment(department);
@@ -181,7 +181,7 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
                               .map(SimpleGrantedAuthority::new)
                               .collect(Collectors.toList());
         } else {
-            List<SysRole> sysRoles = sysRoleDao.selectListByUserId(userInfo.getId());
+            List<SysRole> sysRoles = sysRoleDao.selectBatchByUserId(userInfo.getId());
             authorities = sysRoles.stream()
                                   .flatMap(sysRole -> sysMenuDao.selectListByRoleId(sysRole.getId()).stream())
                                   .map(SysMenu::getPermission)

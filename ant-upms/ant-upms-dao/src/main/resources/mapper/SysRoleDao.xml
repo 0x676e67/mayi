@@ -55,7 +55,7 @@
     </delete>
 
     <!--根据用户id查询用户所有角色-->
-    <select id="selectListByUserId" resultType="com.zf1976.ant.upms.biz.pojo.po.SysRole">
+    <select id="selectBatchByUserId" resultType="com.zf1976.ant.upms.biz.pojo.po.SysRole">
         select id,
                name,
                level,

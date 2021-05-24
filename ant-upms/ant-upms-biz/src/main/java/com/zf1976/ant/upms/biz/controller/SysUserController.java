@@ -73,7 +73,7 @@ public class SysUserController {
     @Log(description = "修改用户状态")
     @PatchMapping("/update/status")
     public DataResult<Void> setUserStatus(@RequestParam @NotNull Long id, @RequestParam @NotNull Boolean enabled) {
-        return DataResult.success(service.setUserStatus(id, enabled));
+        return DataResult.success(service.updateUserStatus(id, enabled));
     }
 
     @PostMapping("/update/avatar")

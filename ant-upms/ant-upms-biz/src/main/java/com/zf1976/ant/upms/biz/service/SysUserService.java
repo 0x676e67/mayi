@@ -169,7 +169,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      * @return role id
      */
     public Set<Long> selectUserRoleIds(Long id) {
-        return this.sysRoleDao.selectListByUserId(id)
+        return this.sysRoleDao.selectBatchByUserId(id)
                               .stream()
                               .map(SysRole::getId)
                               .collect(Collectors.toSet());
@@ -184,13 +184,12 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     public Set<Long> selectUserPositionIds(Long id) {
         return this.sysPositionDao.selectBatchByUserId(id)
                                   .stream()
-                                  .filter(SysPosition::getEnabled)
                                   .map(SysPosition::getId)
                                   .collect(Collectors.toSet());
     }
 
     /**
-     * 设置用户状态
+     * 更新用户状态
      *
      * @param id      id
      * @param enabled enabled
@@ -198,7 +197,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
      */
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
-    public Void setUserStatus(Long id, Boolean enabled) {
+    public Void updateUserStatus(Long id, Boolean enabled) {
         SysUser sysUser = super.lambdaQuery()
                                .eq(SysUser::getId, id)
                                .oneOpt()

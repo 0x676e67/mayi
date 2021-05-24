@@ -6,19 +6,19 @@ import com.zf1976.ant.common.component.cache.annotation.CacheEvict;
 import com.zf1976.ant.common.component.cache.annotation.CachePut;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.security.support.session.manager.SessionManagement;
-import com.zf1976.ant.upms.biz.pojo.po.SysMenu;
 import com.zf1976.ant.upms.biz.convert.SysMenuConvert;
 import com.zf1976.ant.upms.biz.dao.SysMenuDao;
 import com.zf1976.ant.upms.biz.dao.SysRoleDao;
-import com.zf1976.ant.upms.biz.pojo.po.SysRole;
-import com.zf1976.ant.upms.biz.pojo.query.Query;
+import com.zf1976.ant.upms.biz.exception.MenuException;
+import com.zf1976.ant.upms.biz.exception.enums.MenuState;
 import com.zf1976.ant.upms.biz.pojo.dto.menu.MenuDTO;
 import com.zf1976.ant.upms.biz.pojo.dto.menu.MenuTypeEnum;
+import com.zf1976.ant.upms.biz.pojo.po.SysMenu;
+import com.zf1976.ant.upms.biz.pojo.po.SysRole;
 import com.zf1976.ant.upms.biz.pojo.query.MenuQueryParam;
+import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.vo.menu.MenuBuildVO;
 import com.zf1976.ant.upms.biz.pojo.vo.menu.MenuVO;
-import com.zf1976.ant.upms.biz.exception.enums.MenuState;
-import com.zf1976.ant.upms.biz.exception.MenuException;
 import com.zf1976.ant.upms.biz.service.base.AbstractService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,7 +70,7 @@ public class SysMenuService extends AbstractService<SysMenuDao, SysMenu> {
             // 用户id
             final long sessionId = SessionManagement.getSessionId();
             // 获取用户所有角色id
-            final Set<Long> roleIds = sysRoleDao.selectListByUserId(sessionId)
+            final Set<Long> roleIds = sysRoleDao.selectBatchByUserId(sessionId)
                                                 .stream()
                                                 .map(SysRole::getId)
                                                 .collect(Collectors.toSet());
