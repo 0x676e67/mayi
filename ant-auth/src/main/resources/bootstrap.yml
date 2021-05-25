@@ -34,7 +34,6 @@ spring:
         max-wait: 10
         max-active: 32
         min-idle: 2
-
   #json序列化配置
   jackson:
     time-zone: GMT+8
@@ -44,6 +43,10 @@ spring:
   servlet:
     multipart:
       enabled: true
+  boot:
+    admin:
+      client:
+        url: http://localhost:10000
 
 #公用线程池配置
 executor:
@@ -70,7 +73,7 @@ mybatis-plus:
       update-strategy: not_empty
   configuration:
     map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   check-config-location: true
   type-enums-package: com.zf1976.ant.upms.biz.pojo.enums
   mapper-locations: classpath:/mapper/*.xml,classpath:/authMapper/*.xml

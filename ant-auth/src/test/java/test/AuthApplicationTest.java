@@ -1,6 +1,8 @@
 package test;
 
 import com.zf1976.ant.auth.AuthApplication;
+import com.zf1976.ant.auth.pojo.ResourceLink;
+import com.zf1976.ant.auth.service.impl.DynamicDataSourceService;
 import com.zf1976.ant.auth.service.impl.OAuth2ClientService;
 import com.zf1976.ant.auth.system.MySqlStrategyBackup;
 import com.zf1976.ant.common.encrypt.EncryptUtil;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.sql.DataSource;
+import java.util.List;
 
 
 /**
@@ -37,6 +40,9 @@ public class AuthApplicationTest {
     @Value("${sql-backup.path}")
     String path;
 
+    @Autowired
+    DynamicDataSourceService dynamicDataSourceService;
+
 
     @Test
     public void sessionTest() {
@@ -57,5 +63,10 @@ public class AuthApplicationTest {
         if (strategyBackupHolder.recover("/Users/mac/work/backup/2021-05-14-21-32-46.sql")) {
             System.out.println("恢复成功");
         }
+    }
+    @Test
+    public void resourceTreeTest() {
+        List<ResourceLink> resourceLinkList = this.dynamicDataSourceService.selectResourceLinkList();
+        System.out.println(resourceLinkList);
     }
 }

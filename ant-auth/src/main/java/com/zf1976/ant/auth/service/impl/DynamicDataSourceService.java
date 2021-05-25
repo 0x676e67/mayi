@@ -70,6 +70,17 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
     }
 
     /**
+     * 查询资源链接信息
+     *
+     * @return {@link List<ResourceLink>}
+     */
+    public List<ResourceLink> selectResourceLinkList() {
+        List<SysResource> resourceList = super.lambdaQuery().list();
+        List<ResourceNode> resourceTree = this.buildResourceTree(resourceList);
+        return this.buildResourceLinkList(resourceTree);
+    }
+
+    /**
      * 构建资源树
      *
      * @param resourceList 资源列表
@@ -111,7 +122,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
     /**
      * 根据资源树构建资源链接列表
      *
-     * @return {@link List< ResourceLink >}
+     * @return {@link List<ResourceLink>}
      * @date 2021-05-07 23:43:49
      */
     private List<ResourceLink> buildResourceLinkList(List<ResourceNode> resourceNodeTree) {
