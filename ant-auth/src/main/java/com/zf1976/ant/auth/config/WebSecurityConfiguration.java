@@ -127,8 +127,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
-            .requestMatchers(EndpointRequest.toAnyEndpoint())
-            .permitAll()
+            .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
             // 放行OPTIONS请求
             .antMatchers(HttpMethod.OPTIONS, "/**")
             .permitAll()
@@ -136,8 +135,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             .antMatchers(properties.getIgnoreUri())
             .permitAll()
             // 认证OAuth路径放行
-            .antMatchers("/oauth/**")
-            .permitAll()
+            .antMatchers("/oauth/**").permitAll()
             .anyRequest()
             .authenticated()
             .and()

@@ -43,10 +43,37 @@ spring:
   servlet:
     multipart:
       enabled: true
+#admin监控
   boot:
     admin:
       client:
         url: http://localhost:10000
+        username: admin
+        password: 123456
+
+#actuator监控
+management:
+  endpoints:
+    enabled-by-default: true
+    web:
+      exposure:
+        #暴露所有端点
+        include: '*'
+  # actuator端口独立，只允许内网使用
+  server:
+    port: 6666
+  endpoint:
+    health:
+      #显示所有细节
+      show-details: always
+    info:
+      enabled: true
+  health:
+    db:
+      enabled: true
+
+
+
 
 #公用线程池配置
 executor:

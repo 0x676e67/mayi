@@ -30,11 +30,11 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-oauth2'
     implementation 'org.springframework.cloud:spring-cloud-starter-security'
     implementation("de.codecentric:spring-boot-admin-starter-client:${adminMonitorVersion}")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation ("org.springframework.boot:spring-boot-starter-validation:${springbootVersion}")
     implementation "com.alibaba.cloud:spring-cloud-alibaba-dependencies:${nacosVersion}"
     implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery:${nacosVersion}"
     implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config:${nacosVersion}"
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation('org.springframework.boot:spring-boot-configuration-processor')
     implementation('org.springframework.boot:spring-boot-starter-jdbc')
     implementation('org.springframework.security:spring-security-oauth2-jose')

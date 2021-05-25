@@ -6,6 +6,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Repository;
 import sun.misc.Unsafe;
 
@@ -18,6 +19,7 @@ import java.lang.reflect.Field;
 @SpringBootApplication(scanBasePackages = "com.zf1976")
 @MapperScan(value = "com.zf1976", annotationClass = Repository.class)
 @EnableDiscoveryClient
+@EnableAsync
 @EnableFeignClients(basePackageClasses = SecurityClient.class)
 public class SystemApplication {
 

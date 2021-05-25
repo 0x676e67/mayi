@@ -1,2 +1,11 @@
 server:
   port: 10000
+#配置服务名
+spring:
+  application:
+    name: Admin-Monitor
+
+  security:
+    user:
+      name: admin
+      password: 123456

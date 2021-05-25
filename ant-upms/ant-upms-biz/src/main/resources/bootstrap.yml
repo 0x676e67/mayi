@@ -90,6 +90,13 @@ spring:
     suffix: .html
   application:
     name: ant-upms-bzi
+  #admin监控注册
+  boot:
+    admin:
+      client:
+        url: http://localhost:10000
+        username: admin
+        password: 123456
 
 #共用线程池配置
 executor:
@@ -151,3 +158,27 @@ email:
   expired: 300000
   name: Ant
   subject: 验证码
+
+
+  #admin监控
+
+#actuator监控
+management:
+  endpoints:
+    enabled-by-default: true
+    web:
+      exposure:
+        #暴露所有端点
+        include: '*'
+  # actuator端口独立，只允许内网使用
+  server:
+    port: 5555
+  endpoint:
+    health:
+      #显示所有细节
+      show-details: always
+    info:
+      enabled: true
+  health:
+    db:
+      enabled: true
