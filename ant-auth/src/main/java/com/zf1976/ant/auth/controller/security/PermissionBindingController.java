@@ -1,8 +1,6 @@
 package com.zf1976.ant.auth.controller.security;
 
-import com.zf1976.ant.auth.service.DynamicDataSourceService;
 import com.zf1976.ant.auth.service.PermissionBindingService;
-import com.zf1976.ant.auth.service.SecurityUserDetailsService;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
