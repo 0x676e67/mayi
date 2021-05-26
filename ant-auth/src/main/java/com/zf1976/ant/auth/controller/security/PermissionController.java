@@ -3,7 +3,7 @@ package com.zf1976.ant.auth.controller.security;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.auth.pojo.dto.PermissionDTO;
 import com.zf1976.ant.auth.pojo.vo.PermissionVO;
-import com.zf1976.ant.auth.service.impl.PermissionService;
+import com.zf1976.ant.auth.service.PermissionService;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.core.validate.ValidationInsertGroup;
 import com.zf1976.ant.common.core.validate.ValidationUpdateGroup;
@@ -61,9 +61,5 @@ public class PermissionController {
         return DataResult.success(this.service.deletePermissionByIds(ids));
     }
 
-    @PostMapping("/binding/resource")
-    @PreAuthorize("hasRole('admin')")
-    public DataResult<Void> bindPermission(@NotNull Long id, @RequestBody Set<Long> permissionList) {
-        return DataResult.success(this.service.bindingPermission(id, permissionList));
-    }
+
 }

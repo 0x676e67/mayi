@@ -2,21 +2,34 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zf1976.ant.auth.dao.SysPermissionDao">
 
-<!--  获取接口权限值-->
-    <select id="selectListByResourceId" resultType="java.lang.String">
-        select distinct value
-        from sys_permission
-                 join sys_resource_permission_relation srpr on sys_permission.id = srpr.permission_id
-        where srpr.resource_id = #{resourceId}
+<!--  获取资源权限值-->
+    <select id="selectPermissionsByResourceId" resultType="java.lang.String">
+        select distinct value from sys_resource_permission_relation join sys_permission sp on sys_resource_permission_relation.permission_id = sp.id
+        where resource_id = #{resourceId}
     </select>
 
-<!--资源权限绑定-->
+<!--  获取角色权限值-->
+    <select id="selectPermissionsByRoleId" resultType="java.lang.String">
+        select distinct value
+        from sys_permission join sys_role_permission_relation srpr on sys_permission.id = srpr.permission_id
+        where srpr.role_id = #{roleId}
+    </select>
+
+    <!--资源权限绑定-->
     <insert id="saveResourceRelation">
         insert into sys_resource_permission_relation
         values
-        <foreach collection="permissionList" item="permissionId" separator=",">
+        <foreach collection="permissionIdList" item="permissionId" separator=",">
             (#{resourceId}, #{permissionId})
         </foreach>
     </insert>
 
+<!--    角色权限绑定-->
+    <insert id="saveRoleRelation">
+        insert into sys_role_permission_relation
+        values
+        <foreach collection="permissionIdList" item="permissionId" separator=",">
+            (#{roleId}, #{permissionId})
+        </foreach>
+    </insert>
 </mapper>

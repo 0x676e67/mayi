@@ -1,6 +1,6 @@
 package com.zf1976.ant.auth;
 
-import com.zf1976.ant.auth.service.impl.DynamicDataSourceService;
+import com.zf1976.ant.auth.service.DynamicDataSourceService;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

@@ -1,6 +1,6 @@
 package com.zf1976.ant.auth;
 
-import com.zf1976.ant.auth.service.impl.DynamicDataSourceService;
+import com.zf1976.ant.auth.service.DynamicDataSourceService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 

@@ -1,6 +1,6 @@
 package com.zf1976.ant.auth.controller;
 
-import com.zf1976.ant.auth.service.impl.DynamicDataSourceService;
+import com.zf1976.ant.auth.service.DynamicDataSourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

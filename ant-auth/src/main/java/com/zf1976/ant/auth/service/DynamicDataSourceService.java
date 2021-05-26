@@ -1,4 +1,4 @@
-package com.zf1976.ant.auth.service.impl;
+package com.zf1976.ant.auth.service;
 
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -153,7 +153,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
                             .setEnabled(parentNode.getEnabled())
                             .setAllow(parentNode.getAllow());
                 // 查询权限
-                List<String> permissionList = super.baseMapper.selectResourcePermission(parentNode.getId());
+                List<String> permissionList = this.permissionDao.selectPermissionsByResourceId(parentNode.getId());
                 if (!CollectionUtils.isEmpty(permissionList)) {
                     String permissions = String.join(",", permissionList);
                     resourceLink.setPermissions(permissions);
@@ -242,7 +242,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
             this.buildResourceLink(resource, resourceLink, resourceMethod, resourceList);
             resourceLink.forEach((id, path) -> {
                 // 权限值
-                List<String> permissions = this.permissionDao.selectListByResourceId(id)
+                List<String> permissions = this.permissionDao.selectPermissionsByResourceId(id)
                                                              .stream()
                                                              .distinct()
                                                              .collect(Collectors.toList());

@@ -1,4 +1,4 @@
-package com.zf1976.ant.auth.service.impl;
+package com.zf1976.ant.auth.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -52,24 +52,7 @@ public class PermissionService extends AbstractSecurityService<SysPermissionDao,
         return super.mapToTarget(permissionPage, convert::toPermissionVO);
     }
 
-    @CacheEvict
-    @Transactional(rollbackFor = Exception.class)
-    public Void bindingPermission(Long id, Set<Long> permissionIdList) {
-        if (CollectionUtils.isEmpty(permissionIdList)) {
-            throw new SecurityException("权限值不能为空");
-        }
-        // 判断当前资源是否存在
-        final SysResource resource = ChainWrappers.lambdaQueryChain(this.resourceDao)
-                                                  .eq(SysResource::getId, id)
-                                                  .oneOpt()
-                                                  .orElseThrow(() -> new SecurityException("当前绑定资源不存在"));
-        // 当前资源节点不属于叶子节点，不允许绑定
-        if (resource.getPid() == null || !resource.getLeaf()) {
-            throw new SecurityException("当前资源节点不允许绑定");
-        }
-        super.baseMapper.saveResourceRelation(resource.getId(), permissionIdList);
-        return null;
-    }
+
 
     /**
      * 新增权限数据

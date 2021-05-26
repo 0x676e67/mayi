@@ -1,8 +1,9 @@
 package test;
 
 import com.zf1976.ant.auth.AuthApplication;
-import com.zf1976.ant.auth.service.impl.DynamicDataSourceService;
-import com.zf1976.ant.auth.service.impl.OAuth2ClientService;
+import com.zf1976.ant.auth.dao.SysPermissionDao;
+import com.zf1976.ant.auth.service.DynamicDataSourceService;
+import com.zf1976.ant.auth.service.OAuth2ClientService;
 import com.zf1976.ant.auth.system.MySqlStrategyBackup;
 import com.zf1976.ant.common.encrypt.EncryptUtil;
 import com.zf1976.ant.upms.biz.dao.SysRoleDao;
@@ -42,6 +43,9 @@ public class AuthApplicationTest {
     @Autowired
     DynamicDataSourceService dynamicDataSourceService;
 
+    @Autowired
+    private SysPermissionDao permissionDao;
+
 
     @Test
     public void sessionTest() {
@@ -65,7 +69,7 @@ public class AuthApplicationTest {
     }
     @Test
     public void resourceTreeTest() {
-        List<String> strings = this.dynamicDataSourceService.getBaseMapper()
-                                                            .selectResourcePermission(7L);
+        final List<String> strings1 = this.permissionDao.selectPermissionsByResourceId(7L);
+        List<String> strings = strings1;
     }
 }

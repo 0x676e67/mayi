@@ -3,7 +3,7 @@ package com.zf1976.ant.auth.controller.security;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.auth.pojo.dto.ClientDetailsDTO;
 import com.zf1976.ant.auth.pojo.vo.ClientDetailsVO;
-import com.zf1976.ant.auth.service.impl.OAuth2ClientService;
+import com.zf1976.ant.auth.service.OAuth2ClientService;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.upms.biz.pojo.query.Query;
 import org.springframework.lang.NonNull;

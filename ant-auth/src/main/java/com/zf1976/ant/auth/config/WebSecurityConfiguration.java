@@ -9,7 +9,7 @@ import com.zf1976.ant.auth.filter.SignatureAuthenticationFilter;
 import com.zf1976.ant.auth.filter.provider.DaoAuthenticationEnhancerProvider;
 import com.zf1976.ant.auth.filter.handler.logout.OAuth2LogoutHandler;
 import com.zf1976.ant.auth.filter.handler.logout.Oauth2LogoutSuccessHandler;
-import com.zf1976.ant.auth.service.impl.DynamicDataSourceService;
+import com.zf1976.ant.auth.service.DynamicDataSourceService;
 import com.zf1976.ant.common.security.property.AuthProperties;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;

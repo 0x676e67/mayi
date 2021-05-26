@@ -1,9 +1,11 @@
-package com.zf1976.ant.auth.service.impl;
+package com.zf1976.ant.auth.service;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.zf1976.ant.auth.LoginUserDetails;
 import com.zf1976.ant.auth.convert.UserConvert;
+import com.zf1976.ant.auth.dao.SysPermissionDao;
+import com.zf1976.ant.auth.exception.SecurityException;
 import com.zf1976.ant.auth.exception.UserNotFountException;
 import com.zf1976.ant.auth.service.UserDetailsServiceEnhancer;
 import com.zf1976.ant.common.component.cache.annotation.CachePut;
@@ -16,6 +18,7 @@ import com.zf1976.ant.common.security.property.SecurityProperties;
 import com.zf1976.ant.common.security.support.session.manager.SessionManagement;
 import com.zf1976.ant.upms.biz.dao.*;
 import com.zf1976.ant.upms.biz.pojo.po.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,7 +30,6 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -35,30 +37,17 @@ import java.util.stream.Collectors;
  * Create by Ant on 2020/9/2 下午7:02
  */
 @Service("userDetailsService")
-public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhancer {
+public class SecurityUserDetailsService implements UserDetailsServiceEnhancer {
 
-    private final SecurityProperties securityProperties;
-    private final SysDepartmentDao sysDepartmentDao;
-    private final SysUserDao sysUserDao;
-    private final SysRoleDao sysRoleDao;
-    private final SysMenuDao sysMenuDao;
-    private final SysPositionDao positionDao;
-    private final UserConvert convert;
+    private SecurityProperties securityProperties;
+    private SysDepartmentDao departmentDao;
+    private SysUserDao userDao;
+    private SysRoleDao roleDao;
+    private SysMenuDao menuDao;
+    private SysPositionDao positionDao;
+    private SysPermissionDao permissionDao;
+    private UserConvert convert = UserConvert.INSTANCE;
 
-    public SecurityUserDetailsServiceImpl(SecurityProperties properties,
-                                          SysDepartmentDao sysDepartmentDao,
-                                          SysUserDao sysUserDao,
-                                          SysRoleDao sysRoleDao,
-                                          SysMenuDao sysMenuDao,
-                                          SysPositionDao positionDao) {
-        this.sysUserDao = sysUserDao;
-        this.sysDepartmentDao = sysDepartmentDao;
-        this.sysRoleDao = sysRoleDao;
-        this.sysMenuDao = sysMenuDao;
-        this.securityProperties = properties;
-        this.positionDao = positionDao;
-        this.convert = UserConvert.INSTANCE;
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -76,21 +65,22 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
 
     private User findUserByUsername(String username) {
         // 初步验证用户是否存在
-        SysUser sysUser = ChainWrappers.lambdaQueryChain(this.sysUserDao)
+        SysUser sysUser = ChainWrappers.lambdaQueryChain(this.userDao)
                                        .eq(SysUser::getUsername, username)
                                        .oneOpt()
                                        .orElseThrow(() -> new UserNotFountException(AuthenticationState.USER_NOT_FOUNT));
         // 查询用户部门
-        SysDepartment department = ChainWrappers.lambdaQueryChain(this.sysDepartmentDao)
+        SysDepartment department = ChainWrappers.lambdaQueryChain(this.departmentDao)
                                                 .eq(SysDepartment::getId, sysUser.getDepartmentId())
                                                 .one();
+        sysUser.setDepartment(department);
         // 查询用户角色
-        List<SysRole> roleList = this.sysRoleDao.selectBatchByUserId(sysUser.getId());
+        List<SysRole> roleList = this.roleDao.selectBatchByUserId(sysUser.getId());
+        sysUser.setRoleList(roleList);
         // 查询用户职位
         List<SysPosition> positionList = this.positionDao.selectBatchByUserId(sysUser.getId());
-        sysUser.setDepartment(department);
-        sysUser.setRoleList(roleList);
         sysUser.setPositionList(positionList);
+
         return this.convert.convert(sysUser);
     }
 
@@ -98,21 +88,21 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
      * 获取用户数据权限
      * 实际上根据部门id作为数据范围值
      *
-     * @param userInfo 用户信息
+     * @param user 用户信息
      * @return 数据权限
      */
-    private Set<Long> grantedDataPermission(User userInfo) {
+    private Set<Long> grantedDataPermission(User user) {
 
         // 超级管理员
-        if (ObjectUtils.nullSafeEquals(userInfo.getUsername(), this.securityProperties.getOwner())) {
-            return this.sysDepartmentDao.selectList(Wrappers.emptyWrapper())
-                                        .stream()
-                                        .map(SysDepartment::getId)
-                                        .collect(Collectors.toSet());
+        if (ObjectUtils.nullSafeEquals(user.getUsername(), this.securityProperties.getOwner())) {
+            return this.departmentDao.selectList(Wrappers.emptyWrapper())
+                                     .stream()
+                                     .map(SysDepartment::getId)
+                                     .collect(Collectors.toSet());
         }
 
         // 用户级别角色排序
-        final Set<Role> roles = userInfo.getRoleList()
+        final Set<Role> roles = user.getRoleList()
                                         .stream()
                                         .sorted(Comparator.comparingInt(Role::getLevel))
                                         .collect(Collectors.toCollection(LinkedHashSet::new));
@@ -122,26 +112,26 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
             switch (Objects.requireNonNull(role.getDataScope())) {
                 case LEVEL:
                     // 本级数据权限 用户部门
-                    dataPermission.add(userInfo.getDepartment().getId());
+                    dataPermission.add(user.getDepartment().getId());
                     break;
 
                 case CUSTOMIZE:
                     // 自定义用户/角色所在部门的数据权限
-                    sysDepartmentDao.selectListByRoleId(role.getId())
-                                    .stream()
-                                    .map(SysDepartment::getId)
-                                    .forEach(id -> {
-                                  this.collectDepartmentTreeIds(id, () -> dataPermission);
+                    departmentDao.selectListByRoleId(role.getId())
+                                 .stream()
+                                 .map(SysDepartment::getId)
+                                 .forEach(id -> {
+                                  this.collectDepartmentTreeIds(id, dataPermission);
                               });
-                    dataPermission.add(userInfo.getDepartment().getId());
+                    dataPermission.add(user.getDepartment().getId());
                     break;
 
                 default:
                     // 所有数据权限
-                    return this.sysDepartmentDao.selectList(Wrappers.emptyWrapper())
-                                                .stream()
-                                                .map(SysDepartment::getId)
-                                                .collect(Collectors.toSet());
+                    return this.departmentDao.selectList(Wrappers.emptyWrapper())
+                                             .stream()
+                                             .map(SysDepartment::getId)
+                                             .collect(Collectors.toSet());
             }
         }
         return dataPermission;
@@ -153,14 +143,14 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
      * @param departmentId id
      * @param handler collect
      */
-    public void collectDepartmentTreeIds(Long departmentId, Supplier<Set<Long>> handler) {
+    public void collectDepartmentTreeIds(Long departmentId, Set<Long> handler) {
         Assert.notNull(departmentId, "department id can not been null");
-        handler.get().add(departmentId);
+        handler.add(departmentId);
         // 角色所有部门
-        sysDepartmentDao.selectChildrenById(departmentId)
-                        .stream()
-                        .map(SysDepartment::getId)
-                        .forEachOrdered(id -> {
+        departmentDao.selectChildrenById(departmentId)
+                     .stream()
+                     .map(SysDepartment::getId)
+                     .forEachOrdered(id -> {
                       this.collectDepartmentTreeIds(id, handler);
                   });
     }
@@ -168,22 +158,22 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
     /**
      * 获取用户权限
      *
-     * @param userInfo info
+     * @param user info
      * @return 返回用户权限信息
      */
-    private List<GrantedAuthority> grantedAuthorities(User userInfo) {
+    private List<GrantedAuthority> grantedAuthorities(User user) {
         Set<String> authorities = new HashSet<>();
         String markerAdmin = securityProperties.getOwner();
-        if (userInfo.getUsername().equals(markerAdmin)) {
+        if (user.getUsername().equals(markerAdmin)) {
             // 分配认证超级管理员角色
             authorities.add("ROLE_" + markerAdmin);
             return authorities.stream()
                               .map(SimpleGrantedAuthority::new)
                               .collect(Collectors.toList());
         } else {
-            List<SysRole> sysRoles = sysRoleDao.selectBatchByUserId(userInfo.getId());
-            authorities = sysRoles.stream()
-                                  .flatMap(sysRole -> sysMenuDao.selectListByRoleId(sysRole.getId()).stream())
+            List<SysRole> roles = roleDao.selectBatchByUserId(user.getId());
+            authorities = roles.stream()
+                                  .flatMap(role -> menuDao.selectListByRoleId(role.getId()).stream())
                                   .map(SysMenu::getPermission)
                                   .filter(s -> !StringUtils.isEmpty(s))
                                   .collect(Collectors.toSet());
@@ -197,19 +187,59 @@ public class SecurityUserDetailsServiceImpl implements UserDetailsServiceEnhance
         }
     }
 
+    /**
+     * 查询用户细节
+     *
+     * @param username 用户名
+     * @return {@link Details}
+     */
     @Override
     public Details selectUserDetails(String username) {
         LoginUserDetails userDetails = (LoginUserDetails) this.loadUserByUsername(username);
-        return new Details(userDetails.getPermission(),
-                userDetails.getDataPermission(),
-                userDetails.getUserInfo());
+        return new Details(userDetails.getPermission(), userDetails.getDataPermission(), userDetails.getUserInfo());
     }
+
 
     @Override
     @CachePut(namespace = Namespace.USER, dynamics = true)
     public Details selectUserDetails() {
         final String username = SessionManagement.getCurrentUsername();
         return this.selectUserDetails(username);
+    }
+
+    @Autowired
+    public void setSecurityProperties(SecurityProperties securityProperties) {
+        this.securityProperties = securityProperties;
+    }
+
+    @Autowired
+    public void setDepartmentDao(SysDepartmentDao departmentDao) {
+        this.departmentDao = departmentDao;
+    }
+
+    @Autowired
+    public void setUserDao(SysUserDao userDao) {
+        this.userDao = userDao;
+    }
+
+    @Autowired
+    public void setRoleDao(SysRoleDao roleDao) {
+        this.roleDao = roleDao;
+    }
+
+    @Autowired
+    public void setMenuDao(SysMenuDao menuDao) {
+        this.menuDao = menuDao;
+    }
+
+    @Autowired
+    public void setPositionDao(SysPositionDao positionDao) {
+        this.positionDao = positionDao;
+    }
+
+    @Autowired
+    public void setPermissionDao(SysPermissionDao permissionDao) {
+        this.permissionDao = permissionDao;
     }
 
 }

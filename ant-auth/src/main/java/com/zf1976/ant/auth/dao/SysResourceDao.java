@@ -15,13 +15,4 @@ import java.util.List;
 @Repository
 public interface SysResourceDao extends BaseMapper<SysResource> {
 
-    /**
-     * 查询资源所绑定权限
-     *
-     * @param id 资源id
-     * @return {@link List<String>}
-     */
-    List<String> selectResourcePermission(@Param("id") long id);
-
-
 }
