@@ -2,16 +2,12 @@ package com.zf1976.ant.auth.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.zf1976.ant.auth.convert.SecurityConvert;
 import com.zf1976.ant.auth.dao.SysPermissionDao;
-import com.zf1976.ant.auth.dao.SysResourceDao;
 import com.zf1976.ant.auth.exception.SecurityException;
 import com.zf1976.ant.auth.pojo.dto.PermissionDTO;
 import com.zf1976.ant.auth.pojo.po.SysPermission;
-import com.zf1976.ant.auth.pojo.po.SysResource;
 import com.zf1976.ant.auth.pojo.vo.PermissionVO;
-import com.zf1976.ant.auth.service.AbstractSecurityService;
 import com.zf1976.ant.common.component.cache.annotation.CacheConfig;
 import com.zf1976.ant.common.component.cache.annotation.CacheEvict;
 import com.zf1976.ant.common.component.cache.annotation.CachePut;
@@ -19,7 +15,6 @@ import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.upms.biz.pojo.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.util.Set;
@@ -33,11 +28,6 @@ import java.util.Set;
 public class PermissionService extends AbstractSecurityService<SysPermissionDao, SysPermission> {
 
     private final SecurityConvert convert = SecurityConvert.INSTANCE;
-    private final SysResourceDao resourceDao;
-
-    public PermissionService(SysResourceDao resourceDao) {
-        this.resourceDao = resourceDao;
-    }
 
     /**
      * 根据分页对象分页查询权限列表
@@ -132,6 +122,10 @@ public class PermissionService extends AbstractSecurityService<SysPermissionDao,
     public Void deletePermissionById(Long id) {
         if (id != null) {
             super.removeById(id);
+            // 删除权限-角色关系
+            super.baseMapper.deleteRoleRelationById(id);
+            // 删除权限-资源关系
+            super.baseMapper.deleteResourceRelationById(id);
             return null;
         }
         throw new SecurityException("permission id cannot been null");

@@ -54,6 +54,16 @@
         </foreach>
     </delete>
 
+<!--    删除角色权限依赖关系-->
+    <delete id="deletePermissionRelationByIds">
+        delete from sys_role_permission_relation
+        where role_id
+        in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
     <!--根据用户id查询用户所有角色-->
     <select id="selectBatchByUserId" resultType="com.zf1976.ant.upms.biz.pojo.po.SysRole">
         select id,

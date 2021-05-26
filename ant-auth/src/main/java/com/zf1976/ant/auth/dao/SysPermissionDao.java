@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author mac
@@ -47,4 +46,18 @@ public interface SysPermissionDao extends BaseMapper<SysPermission> {
      * @param permissionList 权限id列表
      */
     void saveRoleRelation(@Param("roleId") long roleId, @Param("permissionIdList") Collection<Long> permissionList);
+
+    /**
+     * 根据权限id删除 权限-资源关系
+     *
+     * @param id 权限id
+     */
+    void deleteResourceRelationById(@Param("id") long id);
+
+    /**
+     * 根据权限id删除 权限-角色关系
+     *
+     * @param id 权限id
+     */
+    void deleteRoleRelationById(@Param("id") long id);
 }

@@ -56,6 +56,13 @@ public interface SysRoleDao extends BaseMapper<SysRole> {
     void deleteUserRelationByIds(@Param("ids") Collection<Long> ids);
 
     /**
+     * 删除权限依赖关系
+     *
+     * @param ids 角色id集合
+     */
+    void deletePermissionRelationByIds(@Param("ids") Collection<Long> ids);
+
+    /**
      * 查询角色依赖关系
      *
      * @param id id

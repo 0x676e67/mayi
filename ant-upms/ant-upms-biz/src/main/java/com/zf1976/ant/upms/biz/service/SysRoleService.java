@@ -282,6 +282,8 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
         super.baseMapper.deleteDepartmentRelationByIds(ids);
         // 删除user-role
         super.baseMapper.deleteUserRelationByIds(ids);
+        // 删除role-permission
+        super.baseMapper.deletePermissionRelationByIds(ids);
         return null;
     }
 
