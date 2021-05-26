@@ -71,7 +71,6 @@ spring:
     port: 465
     properties:
       mail:
-        debug: true
         smtp:
           socketFactory:
             class: javax.net.ssl.SSLSocketFactory

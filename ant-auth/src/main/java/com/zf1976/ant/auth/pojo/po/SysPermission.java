@@ -36,22 +36,10 @@ public class SysPermission extends Model<SysPermission> {
     private String createBy;
 
     /**
-     * 更新着
-     */
-    @TableField(fill = FieldFill.UPDATE)
-    private String updateBy;
-
-    /**
      * 创建日期
      */
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;
-
-    /**
-     * 更新时间
-     */
-    @TableField(fill = FieldFill.UPDATE)
-    private Date updateTime;
 
     /**
      * 版本号
@@ -99,28 +87,12 @@ public class SysPermission extends Model<SysPermission> {
         this.createBy = createBy;
     }
 
-    public String getUpdateBy() {
-        return updateBy;
-    }
-
-    public void setUpdateBy(String updateBy) {
-        this.updateBy = updateBy;
-    }
-
     public Date getCreateTime() {
         return createTime;
     }
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
-    }
-
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
     }
 
     public Integer getVersion() {
@@ -139,9 +111,7 @@ public class SysPermission extends Model<SysPermission> {
                 ", value='" + value + '\'' +
                 ", description='" + description + '\'' +
                 ", createBy='" + createBy + '\'' +
-                ", updateBy='" + updateBy + '\'' +
                 ", createTime=" + createTime +
-                ", updateTime=" + updateTime +
                 ", version=" + version +
                 '}';
     }

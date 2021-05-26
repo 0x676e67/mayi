@@ -24,14 +24,8 @@ public class MetaDataHandler implements MetaObjectHandler {
 
     @Override
     public void updateFill(MetaObject metaObject) {
-        final Object updateTime = getFieldValByName("updateTime", metaObject);
-        if (updateTime != null) {
-            this.setFieldValByName("updateTime", new Date(), metaObject);
-        }
-        final Object updateBy = getFieldValByName("updateBy", metaObject);
-        if (updateBy != null) {
-            this.setFieldValByName("updateBy", this.getPrincipal(), metaObject);
-        }
+        this.setFieldValByName("updateTime", new Date(), metaObject);
+        this.setFieldValByName("updateBy", this.getPrincipal(), metaObject);
     }
 
     private String getPrincipal() {
