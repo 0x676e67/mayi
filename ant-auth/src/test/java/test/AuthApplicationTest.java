@@ -1,7 +1,6 @@
 package test;
 
 import com.zf1976.ant.auth.AuthApplication;
-import com.zf1976.ant.auth.pojo.ResourceLink;
 import com.zf1976.ant.auth.service.impl.DynamicDataSourceService;
 import com.zf1976.ant.auth.service.impl.OAuth2ClientService;
 import com.zf1976.ant.auth.system.MySqlStrategyBackup;
@@ -66,7 +65,7 @@ public class AuthApplicationTest {
     }
     @Test
     public void resourceTreeTest() {
-        List<ResourceLink> resourceLinkList = this.dynamicDataSourceService.selectResourceLinkList();
-        System.out.println(resourceLinkList);
+        List<String> strings = this.dynamicDataSourceService.getBaseMapper()
+                                                            .selectResourcePermission(7L);
     }
 }

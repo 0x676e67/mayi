@@ -26,7 +26,7 @@ public class ResourceLink {
     /**
      * 资源描述
      */
-    private String description;
+    private String permissions;
     /**
      * 放行
      */
@@ -77,22 +77,20 @@ public class ResourceLink {
         return this;
     }
 
-    public String getDescription() {
-        return description;
+    public String getPermissions() {
+        return permissions;
     }
 
-    public ResourceLink setDescription(String description) {
-        this.description = description;
-        return this;
+    public void setPermissions(String permissions) {
+        this.permissions = permissions;
     }
 
     public Boolean getAllow() {
         return allow;
     }
 
-    public ResourceLink setAllow(Boolean allow) {
+    public void setAllow(Boolean allow) {
         this.allow = allow;
-        return this;
     }
 
     @Override
@@ -103,7 +101,7 @@ public class ResourceLink {
                 ", uri='" + uri + '\'' +
                 ", method='" + method + '\'' +
                 ", enabled=" + enabled +
-                ", description='" + description + '\'' +
+                ", permissions='" + permissions + '\'' +
                 ", allow=" + allow +
                 '}';
     }

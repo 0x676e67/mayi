@@ -6,17 +6,17 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
+import com.zf1976.ant.auth.dao.SysPermissionDao;
+import com.zf1976.ant.auth.dao.SysResourceDao;
 import com.zf1976.ant.auth.pojo.ResourceLink;
 import com.zf1976.ant.auth.pojo.ResourceNode;
+import com.zf1976.ant.auth.pojo.po.SysResource;
 import com.zf1976.ant.common.component.cache.annotation.CacheConfig;
 import com.zf1976.ant.common.component.cache.annotation.CacheEvict;
 import com.zf1976.ant.common.component.cache.annotation.CachePut;
 import com.zf1976.ant.common.core.constants.KeyConstants;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.common.security.property.SecurityProperties;
-import com.zf1976.ant.auth.dao.SysPermissionDao;
-import com.zf1976.ant.auth.dao.SysResourceDao;
-import com.zf1976.ant.auth.pojo.po.SysResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -40,8 +40,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
     private final SysPermissionDao permissionDao;
     private final SecurityProperties securityProperties;
 
-    public DynamicDataSourceService(SysPermissionDao sysPermissionDao,
-                                    SecurityProperties securityProperties) {
+    public DynamicDataSourceService(SysPermissionDao sysPermissionDao, SecurityProperties securityProperties) {
         this.permissionDao = sysPermissionDao;
         this.securityProperties = securityProperties;
     }
@@ -151,8 +150,13 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
                             .setUri(parentNode.getUri())
                             .setMethod(parentNode.getMethod())
                             .setEnabled(parentNode.getEnabled())
-                            .setAllow(parentNode.getAllow())
-                            .setDescription(parentNode.getDescription());
+                            .setAllow(parentNode.getAllow());
+                // 查询权限
+                List<String> permissionList = super.baseMapper.selectResourcePermission(parentNode.getId());
+                if (!CollectionUtils.isEmpty(permissionList)) {
+                    String permissions = String.join(",", permissionList);
+                    resourceLink.setPermissions(permissions);
+                }
                 resourceLinkList.add(resourceLink);
             }
         } else {
