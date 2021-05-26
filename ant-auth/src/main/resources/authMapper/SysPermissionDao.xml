@@ -10,4 +10,13 @@
         where srpr.resource_id = #{resourceId}
     </select>
 
+<!--资源权限绑定-->
+    <insert id="saveResourceRelation">
+        insert into sys_resource_permission_relation
+        values
+        <foreach collection="permissionList" item="permissionId" separator=",">
+            (#{resourceId}, #{permissionId})
+        </foreach>
+    </insert>
+
 </mapper>

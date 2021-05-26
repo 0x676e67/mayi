@@ -5,6 +5,7 @@ import com.zf1976.ant.auth.pojo.po.SysResource;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -21,5 +22,6 @@ public interface SysResourceDao extends BaseMapper<SysResource> {
      * @return {@link List<String>}
      */
     List<String> selectResourcePermission(@Param("id") long id);
+
 
 }

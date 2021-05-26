@@ -2,11 +2,14 @@ package com.zf1976.ant.auth.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.zf1976.ant.auth.convert.SecurityConvert;
 import com.zf1976.ant.auth.dao.SysPermissionDao;
+import com.zf1976.ant.auth.dao.SysResourceDao;
 import com.zf1976.ant.auth.exception.SecurityException;
 import com.zf1976.ant.auth.pojo.dto.PermissionDTO;
 import com.zf1976.ant.auth.pojo.po.SysPermission;
+import com.zf1976.ant.auth.pojo.po.SysResource;
 import com.zf1976.ant.auth.pojo.vo.PermissionVO;
 import com.zf1976.ant.auth.service.AbstractSecurityService;
 import com.zf1976.ant.common.component.cache.annotation.CacheConfig;
@@ -16,6 +19,7 @@ import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.upms.biz.pojo.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.util.Set;
@@ -29,6 +33,11 @@ import java.util.Set;
 public class PermissionService extends AbstractSecurityService<SysPermissionDao, SysPermission> {
 
     private final SecurityConvert convert = SecurityConvert.INSTANCE;
+    private final SysResourceDao resourceDao;
+
+    public PermissionService(SysResourceDao resourceDao) {
+        this.resourceDao = resourceDao;
+    }
 
     /**
      * 根据分页对象分页查询权限列表
@@ -41,6 +50,25 @@ public class PermissionService extends AbstractSecurityService<SysPermissionDao,
         Page<SysPermission> permissionPage = super.lambdaQuery()
                                                   .page(query.toPage());
         return super.mapToTarget(permissionPage, convert::toPermissionVO);
+    }
+
+    @CacheEvict
+    @Transactional(rollbackFor = Exception.class)
+    public Void bindingPermission(Long id, Set<Long> permissionIdList) {
+        if (CollectionUtils.isEmpty(permissionIdList)) {
+            throw new SecurityException("权限值不能为空");
+        }
+        // 判断当前资源是否存在
+        final SysResource resource = ChainWrappers.lambdaQueryChain(this.resourceDao)
+                                                  .eq(SysResource::getId, id)
+                                                  .oneOpt()
+                                                  .orElseThrow(() -> new SecurityException("当前绑定资源不存在"));
+        // 当前资源节点不属于叶子节点，不允许绑定
+        if (resource.getPid() == null || !resource.getLeaf()) {
+            throw new SecurityException("当前资源节点不允许绑定");
+        }
+        super.baseMapper.saveResourceRelation(resource.getId(), permissionIdList);
+        return null;
     }
 
     /**

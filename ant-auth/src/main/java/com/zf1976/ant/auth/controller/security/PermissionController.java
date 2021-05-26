@@ -60,4 +60,10 @@ public class PermissionController {
     public DataResult<Void> deletePermission(@RequestBody Set<Long> ids) {
         return DataResult.success(this.service.deletePermissionByIds(ids));
     }
+
+    @PostMapping("/binding/resource")
+    @PreAuthorize("hasRole('admin')")
+    public DataResult<Void> bindPermission(@NotNull Long id, @RequestBody Set<Long> permissionList) {
+        return DataResult.success(this.service.bindingPermission(id, permissionList));
+    }
 }

@@ -24,4 +24,12 @@ public interface SysPermissionDao extends BaseMapper<SysPermission> {
      */
     List<String> selectListByResourceId(@Param("resourceId") long resourceId);
 
+    /**
+     * 保存权限与资源关系
+     *
+     * @param resourceId 资源id
+     * @param permissionList 权限列表
+     */
+    void saveResourceRelation(@Param("resourceId") long resourceId, @Param("permissionList") Collection<Long> permissionList);
+
 }
