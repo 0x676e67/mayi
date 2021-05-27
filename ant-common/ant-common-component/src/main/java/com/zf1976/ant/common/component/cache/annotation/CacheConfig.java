@@ -28,4 +28,11 @@ public @interface CacheConfig {
      * @return /
      */
     String[] dependsOn() default {};
+
+    /**
+     * 支持清除后调用方法,只支持无参方法
+     *
+     * @return {@link String}
+     */
+    String[] postInvoke() default {};
 }

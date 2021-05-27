@@ -92,7 +92,6 @@ public interface ICache<K, V> {
     /**
      * 强制格式化命名空间
      *
-     * @param prefix 前缀
      * @param namespace 命名空间
      * @return {@link String}
      */

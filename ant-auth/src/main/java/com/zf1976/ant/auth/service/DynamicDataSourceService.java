@@ -8,12 +8,10 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.zf1976.ant.auth.dao.SysPermissionDao;
 import com.zf1976.ant.auth.dao.SysResourceDao;
-import com.zf1976.ant.auth.exception.SecurityException;
 import com.zf1976.ant.auth.pojo.ResourceLink;
 import com.zf1976.ant.auth.pojo.ResourceNode;
 import com.zf1976.ant.auth.pojo.po.SysResource;
 import com.zf1976.ant.common.component.cache.annotation.CacheConfig;
-import com.zf1976.ant.common.component.cache.annotation.CacheEvict;
 import com.zf1976.ant.common.component.cache.annotation.CachePut;
 import com.zf1976.ant.common.core.constants.KeyConstants;
 import com.zf1976.ant.common.core.constants.Namespace;
@@ -29,12 +27,17 @@ import java.util.stream.Collectors;
 
 
 /**
+ * 动态资源服务
+ *
  * @author mac
  * @date 2020/12/26
  **/
 @Service
-@CacheConfig(namespace = Namespace.RESOURCE)
-public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysResource> {
+@CacheConfig(
+        namespace = Namespace.RESOURCE,
+        postInvoke = {"initialize"}
+)
+public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysResource> implements InitPermission{
 
     private final Map<String, String> resourceMethodMap = new HashMap<>(16);
     private final Set<String> allowMethodSet = new HashSet<>(16);
@@ -74,6 +77,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
      *
      * @return {@link List<ResourceLink>}
      */
+    @CachePut(key = "selectResourceLinkList")
     public List<ResourceLink> selectResourceLinkList() {
         List<SysResource> resourceList = super.lambdaQuery().list();
         List<ResourceNode> resourceTree = this.buildResourceTree(resourceList);
@@ -205,11 +209,6 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
         return parentUri;
     }
 
-    @Transactional(readOnly = true)
-    @CacheEvict(postInvoke = {"loadDynamicDataSource", "loadAllowUri"})
-    public String demo() {
-        throw new RuntimeException("测试删除后调用接口");
-    }
 
     /**
      * 加载动态数据源资源 （URI--Permissions）
@@ -264,10 +263,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
      * @param methodMap       id-method映射
      * @date 2021-05-05 19:56:08
      */
-    private void buildResourceLink(SysResource parent,
-                                   Map<Long, String> resourceLinkMap,
-                                   Map<Long, String> methodMap,
-                                   List<SysResource> resourceList) {
+    private void buildResourceLink(SysResource parent, Map<Long, String> resourceLinkMap, Map<Long, String> methodMap, List<SysResource> resourceList) {
         var parentId = parent.getId();
         var parentUri = parent.getUri();
         var parentMethod = parent.getMethod();
@@ -314,4 +310,9 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
     }
 
 
+    @Override
+    public void initialize() {
+        this.loadDynamicDataSource();
+        this.loadAllowUri();
+    }
 }

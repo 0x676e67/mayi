@@ -25,10 +25,12 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 
-import javax.annotation.Nullable;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * @author WINDOWS
@@ -129,8 +131,12 @@ public class LoadCacheAspect {
             }
         }
         Object proceed = joinPoint.proceed();
+
+        List<String> methodList = Arrays.stream(ArrayUtils.addAll(annotation.postInvoke(), classAnnotation != null? classAnnotation.postInvoke() : new String[0]))
+                                        .distinct()
+                                        .collect(Collectors.toUnmodifiableList());
         // 清除缓存后执行调用方法
-        if (ArrayUtils.isNotEmpty(annotation.postInvoke())) {
+        if (!CollectionUtils.isEmpty(methodList)) {
             for (String methodName : annotation.postInvoke()) {
                 Method postInvokeMethod = ReflectionUtils.findMethod(targetClass, methodName);
                 if (postInvokeMethod != null) {

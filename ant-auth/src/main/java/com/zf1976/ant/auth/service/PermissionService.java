@@ -13,6 +13,7 @@ import com.zf1976.ant.common.component.cache.annotation.CacheEvict;
 import com.zf1976.ant.common.component.cache.annotation.CachePut;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.upms.biz.pojo.query.Query;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -24,10 +25,20 @@ import java.util.Set;
  * @date 2021/5/11
  */
 @Service
-@CacheConfig(namespace = Namespace.PERMISSION, dependsOn = {Namespace.ROLE, Namespace.RESOURCE})
-public class PermissionService extends AbstractSecurityService<SysPermissionDao, SysPermission> {
+@CacheConfig(
+        namespace = Namespace.PERMISSION,
+        dependsOn = {Namespace.ROLE, Namespace.RESOURCE},
+        postInvoke = {"initialize"}
+)
+public class PermissionService extends AbstractSecurityService<SysPermissionDao, SysPermission> implements InitPermission{
 
     private final SecurityConvert convert = SecurityConvert.INSTANCE;
+    private DynamicDataSourceService dynamicDataSourceService;
+
+    @Autowired
+    public void setDynamicDataSourceService(DynamicDataSourceService dynamicDataSourceService) {
+        this.dynamicDataSourceService = dynamicDataSourceService;
+    }
 
     /**
      * 根据分页对象分页查询权限列表
@@ -37,12 +48,9 @@ public class PermissionService extends AbstractSecurityService<SysPermissionDao,
      */
     @CachePut(key = "#query")
     public IPage<PermissionVO> selectPermissionByPage(Query<?> query) {
-        Page<SysPermission> permissionPage = super.lambdaQuery()
-                                                  .page(query.toPage());
+        Page<SysPermission> permissionPage = super.lambdaQuery().page(query.toPage());
         return super.mapToTarget(permissionPage, convert::toPermissionVO);
     }
-
-
 
     /**
      * 新增权限数据
@@ -108,8 +116,6 @@ public class PermissionService extends AbstractSecurityService<SysPermissionDao,
                     .isPresent();
     }
 
-
-
     /**
      * 根据权限属性id删除
      *
@@ -145,6 +151,17 @@ public class PermissionService extends AbstractSecurityService<SysPermissionDao,
         if (!super.removeByIds(ids)) {
             throw new SecurityException("permission ids is empty");
         }
+        for (Long id : ids) {
+            // 删除权限-角色关系
+            super.baseMapper.deleteRoleRelationById(id);
+            // 删除权限-资源关系
+            super.baseMapper.deleteResourceRelationById(id);
+        }
         return null;
+    }
+
+    @Override
+    public void initialize() {
+        this.dynamicDataSourceService.initialize();
     }
 }

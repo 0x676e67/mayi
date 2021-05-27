@@ -30,16 +30,6 @@ public class RedisCacheProvider<K, V> implements ICache<K, V> {
     }
 
     @Override
-    public void recordNamespace(String namespace) {
-        throw new UnsupportedOperationException("unsupported this record method");
-    }
-
-    @Override
-    public String formatNamespace(String namespace) {
-        return this.properties.getKeyPrefix().concat("[" + namespace + "]");
-    }
-
-    @Override
     public void setValue(String namespace, K key, V value, Long expired) {
         final String formatNamespace = this.formatNamespace(namespace);
         this.redisTemplate.opsForHash().put(formatNamespace, key, value);
@@ -50,25 +40,6 @@ public class RedisCacheProvider<K, V> implements ICache<K, V> {
     public void setValue(String namespace, K key, V value) {
         this.setValue(namespace, key, value, properties.getExpireAlterWrite());
     }
-
-    @Override
-    public void invalidate(String namespace) {
-        this.redisTemplate.delete(this.formatNamespace(namespace));
-    }
-
-    @Override
-    public void invalidate(String namespace, K key) {
-        this.redisTemplate.opsForHash().delete(namespace, key);
-    }
-
-    @Override
-    public void invalidateAll() {
-        final Set<String> keys = RedisUtil.scanKeys(this.formatNamespace("*"));
-        if (!CollectionUtils.isEmpty(keys)) {
-            this.redisTemplate.delete(keys);
-        }
-    }
-
 
     @Override
     public V getValueAndSupplier(String namespace, K key, Long expired, Supplier<V> supplier) {
@@ -114,5 +85,33 @@ public class RedisCacheProvider<K, V> implements ICache<K, V> {
         @SuppressWarnings("unchecked")
         V value = (V) this.redisTemplate.opsForHash().get(this.formatNamespace(namespace), key);
         return value;
+    }
+
+    @Override
+    public void invalidate(String namespace) {
+        this.redisTemplate.delete(this.formatNamespace(namespace));
+    }
+
+    @Override
+    public void invalidate(String namespace, K key) {
+        this.redisTemplate.opsForHash().delete(namespace, key);
+    }
+
+    @Override
+    public void invalidateAll() {
+        final Set<String> keys = RedisUtil.scanKeys(this.formatNamespace("*"));
+        if (!CollectionUtils.isEmpty(keys)) {
+            this.redisTemplate.delete(keys);
+        }
+    }
+
+    @Override
+    public void recordNamespace(String namespace) {
+        throw new UnsupportedOperationException("unsupported this record method");
+    }
+
+    @Override
+    public String formatNamespace(String namespace) {
+        return this.properties.getKeyPrefix().concat("[" + namespace + "]");
     }
 }
