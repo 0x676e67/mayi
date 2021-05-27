@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.sql.DataSource;
-import java.util.List;
 
 
 /**
@@ -69,7 +68,6 @@ public class AuthApplicationTest {
     }
     @Test
     public void resourceTreeTest() {
-        final List<String> strings1 = this.permissionDao.selectPermissionsByResourceId(7L);
-        List<String> strings = strings1;
+
     }
 }

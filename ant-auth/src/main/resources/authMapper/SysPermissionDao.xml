@@ -13,15 +13,37 @@
         where permission_id = #{id}
     </delete>
 
+<!--    解绑资源权限-->
+    <delete id="deleteResourceRelationByResourceIdAndPermissionIdList">
+        delete from sys_resource_permission_relation
+        where resource_id = #{resourceId}
+          and permission_id
+             in
+        <foreach collection="permissionIdList" item="permissionId" open="("  close=")" separator=",">
+            #{permissionId}
+        </foreach>
+    </delete>
+
+<!--    解绑角色权限-->
+    <delete id="deleteRoleRelationByRoleIdAndPermissionIdList">
+        delete from sys_role_permission_relation
+        where role_id = #{roleId}
+            and permission_id
+            in
+        <foreach collection="permissionIdList" item="permissionId" open="("  close=")" separator=",">
+            #{permissionId}
+        </foreach>
+    </delete>
+
     <!--  获取资源权限值-->
-    <select id="selectPermissionsByResourceId" resultType="java.lang.String">
-        select distinct value from sys_resource_permission_relation join sys_permission sp on sys_resource_permission_relation.permission_id = sp.id
+    <select id="selectPermissionsByResourceId" resultType="com.zf1976.ant.auth.pojo.BindingPermission">
+        select distinct permission_id as id, value from sys_resource_permission_relation join sys_permission sp on sys_resource_permission_relation.permission_id = sp.id
         where resource_id = #{resourceId}
     </select>
 
 <!--  获取角色权限值-->
-    <select id="selectPermissionsByRoleId" resultType="java.lang.String">
-        select distinct value
+    <select id="selectPermissionsByRoleId" resultType="com.zf1976.ant.auth.pojo.BindingPermission">
+        select distinct permission_id as id, value
         from sys_permission join sys_role_permission_relation srpr on sys_permission.id = srpr.permission_id
         where srpr.role_id = #{roleId}
     </select>

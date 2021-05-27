@@ -8,6 +8,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.zf1976.ant.auth.dao.SysPermissionDao;
 import com.zf1976.ant.auth.dao.SysResourceDao;
+import com.zf1976.ant.auth.pojo.BindingPermission;
 import com.zf1976.ant.auth.pojo.ResourceLink;
 import com.zf1976.ant.auth.pojo.ResourceNode;
 import com.zf1976.ant.auth.pojo.po.SysResource;
@@ -157,10 +158,9 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
                             .setEnabled(parentNode.getEnabled())
                             .setAllow(parentNode.getAllow());
                 // 查询权限
-                List<String> permissionList = this.permissionDao.selectPermissionsByResourceId(parentNode.getId());
+                List<BindingPermission> permissionList = this.permissionDao.selectPermissionsByResourceId(parentNode.getId());
                 if (!CollectionUtils.isEmpty(permissionList)) {
-                    String permissions = String.join(",", permissionList);
-                    resourceLink.setPermissions(permissions);
+                    resourceLink.setBindingPermissions(permissionList);
                 }
                 resourceLinkList.add(resourceLink);
             }
@@ -243,6 +243,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
                 // 权限值
                 List<String> permissions = this.permissionDao.selectPermissionsByResourceId(id)
                                                              .stream()
+                                                             .map(BindingPermission::getValue)
                                                              .distinct()
                                                              .collect(Collectors.toList());
                 // 方法

@@ -1,5 +1,7 @@
 package com.zf1976.ant.auth.pojo;
 
+import java.util.List;
+
 /**
  * @author mac
  * @date 2021/5/6
@@ -24,13 +26,13 @@ public class ResourceLink {
      */
     private Boolean enabled;
     /**
-     * 资源描述
-     */
-    private String permissions;
-    /**
      * 放行
      */
     private Boolean allow;
+    /**
+     * 绑定权限列表
+     */
+    private List<BindingPermission> bindingPermissions;
 
     public Long getId() {
         return id;
@@ -77,20 +79,22 @@ public class ResourceLink {
         return this;
     }
 
-    public String getPermissions() {
-        return permissions;
-    }
-
-    public void setPermissions(String permissions) {
-        this.permissions = permissions;
-    }
-
     public Boolean getAllow() {
         return allow;
     }
 
-    public void setAllow(Boolean allow) {
+    public ResourceLink setAllow(Boolean allow) {
         this.allow = allow;
+        return this;
+    }
+
+    public List<BindingPermission> getBindingPermissions() {
+        return bindingPermissions;
+    }
+
+    public ResourceLink setBindingPermissions(List<BindingPermission> bindingPermissions) {
+        this.bindingPermissions = bindingPermissions;
+        return this;
     }
 
     @Override
@@ -101,9 +105,8 @@ public class ResourceLink {
                 ", uri='" + uri + '\'' +
                 ", method='" + method + '\'' +
                 ", enabled=" + enabled +
-                ", permissions='" + permissions + '\'' +
                 ", allow=" + allow +
+                ", bindingPermissions=" + bindingPermissions +
                 '}';
     }
-
 }

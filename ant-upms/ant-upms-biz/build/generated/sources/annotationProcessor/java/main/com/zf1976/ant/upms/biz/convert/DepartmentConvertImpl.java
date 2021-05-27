@@ -9,7 +9,7 @@ import javax.annotation.processing.Generated;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2021-05-26T23:23:18+0800",
+    date = "2021-05-27T16:40:26+0800",
     comments = "version: 1.3.1.Final, compiler: javac, environment: Java 11.0.7 (Oracle Corporation)"
 )
 public class DepartmentConvertImpl implements DepartmentConvert {

@@ -91,6 +91,51 @@ public class PermissionBindingService implements InitPermission{
         return null;
     }
 
+    /**
+     * 解绑资源权限
+     *
+     * @param id  资源id
+     * @param permissionIdList 权限id集合
+     * @return {@link Void}
+     */
+    @CacheEvict
+    @Transactional(rollbackFor = Exception.class)
+    public Void unbindingResource(Long id, Set<Long> permissionIdList) {
+        if (CollectionUtils.isEmpty(permissionIdList)) {
+            throw new SecurityException("The permission value cannot be empty");
+        }
+        // 查找当前绑定资源是否存在
+        ChainWrappers.lambdaQueryChain(this.resourceDao)
+                     .eq(SysResource::getId, id)
+                     .oneOpt()
+                     .orElseThrow(() -> new SecurityException("The bound resource does not exist"));
+        this.permissionDao.deleteResourceRelationByResourceIdAndPermissionIdList(id, permissionIdList);
+        return null;
+    }
+
+    /**
+     * 解绑角色权限
+     *
+     * @param id  角色id
+     * @param permissionIdList 权限id集合
+     * @return {@link Void}
+     */
+    @CacheEvict
+    @Transactional(rollbackFor = Exception.class)
+    public Void unbindingRole(Long id, Set<Long> permissionIdList) {
+        if (CollectionUtils.isEmpty(permissionIdList)) {
+            throw new SecurityException("The permission value cannot be empty");
+        }
+        // 查找当前绑定角色是否存在
+        ChainWrappers.lambdaQueryChain(this.roleDao)
+                     .eq(SysRole::getId, id)
+                     .oneOpt()
+                     .orElseThrow(() -> new SecurityException("Bound role does not exist"));
+        // 保存角色-资源关系
+        this.permissionDao.deleteRoleRelationByRoleIdAndPermissionIdList(id, permissionIdList);
+        return null;
+    }
+
     @Override
     public void initialize() {
         this.permissionService.initialize();
