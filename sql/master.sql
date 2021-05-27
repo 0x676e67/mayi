@@ -11,7 +11,7 @@
  Target Server Version : 50732
  File Encoding         : 65001
 
- Date: 27/05/2021 00:28:47
+ Date: 27/05/2021 23:03:09
 */
 
 SET NAMES utf8mb4;
@@ -43,7 +43,7 @@ CREATE TABLE `oauth_client_details` (
 BEGIN;
 INSERT INTO `oauth_client_details` VALUES ('1vkPAMQJNd0p', NULL, '92b7fe88e2c039f33dfa3c84a2653fd1', 'all', 'password_code', '', '', 3600, 7200, '', 'true', 'KOggFY0REq5b4qBVtZFriuwwWYdIm1KL1q9edgML5ULQOhGRl95l7fSerSyp9MW340rzW3sOf/ggS7MvvecFZA==');
 INSERT INTO `oauth_client_details` VALUES ('DcuKtg7XRxrFXuYW', '', '9a92e9df764c0bd6e94a6c867db14467', 'all', 'implicit', '', '', 3600, 7200, '', 'false', 'pllubY1oIr2WiwxbJZTlvfF2wWgJfLocDnePvuAA1qcvPuD+rZv1BRdmWY58VRrpGKuwK+7UyiPFrrsMkQl2kw==');
-INSERT INTO `oauth_client_details` VALUES ('HA4yM2UWfsCfbpo', NULL, '9a7e390f7a96e7d4e3ea3d40a6d08912', 'all', 'password_code,password', '', '', 3600, 7200, '', 'false', 'gEymPQ7QperK57C4GwQk1CsU28Kxju0ycPlmh1tjuuRArd2tGss0STtqa7nu/e9ANojlKYwfXpIuoUm2mJKtXQ==');
+INSERT INTO `oauth_client_details` VALUES ('HA4yM2UWfsCfbpo', NULL, '41a29340b5bf69906994dd66d3ec4f19', 'all', 'password_code,password', '', '', 3600, 7200, '', 'false', 'PYbHfcLojfnYfiWRHSKMzXpBSHlwUNPDxhM++0DJ8aaXXTjgWd/3z4XBdrUk5QwEUstjTOSBRLsDlUK1DaNCEQ==');
 INSERT INTO `oauth_client_details` VALUES ('K69omxxhXKfHzq', '', '122329b14df60e8e42a4602be4a845f2', 'all', 'password', '', '', 3600, 7200, '', 'true', 'ZlTK/zzRDXo3k3DFRAUvTzUR8m2qSrE2PwfSNvHNKoJaZdqyw6+3uxE9PwRtbw1zUKaRTy++9B8e3flBqkkqBw==');
 INSERT INTO `oauth_client_details` VALUES ('kHO29MpgCeOYW9', 'asd', '0eab6c59aec19382e9dffe0a250e4d79', 'all', 'implicit', '', '', 3600, 7200, '', 'false', 'SbeAnX1geJdgGMQzpg80RD+8xCRUdq+oM5merlq6wDYmX9CoKO1SpKcO/ezGY7THAYA6d2ixHueFUYN+eB3jiw==');
 INSERT INTO `oauth_client_details` VALUES ('kJkdnqOh4xIeuU', 'asd', '2c307c8b95976e3bdc9a062d0aad99ad', 'all', 'password_code', '', '', 3600, 7200, '', 'false', 'e8131F2dn2p5IV4zWmp4mEU1+3L9MK2N96FMln2nMTQOLxSnXnq5m4HYWA3EMd+bi2e3HCtvN1zGB4tSlpVhFg==');
@@ -624,7 +624,7 @@ CREATE TABLE `sys_permission` (
   `version` int(255) NOT NULL DEFAULT '0' COMMENT '版本号',
   PRIMARY KEY (`id`),
   UNIQUE KEY `sys_permission_value_uindex` (`value`)
-) ENGINE=InnoDB AUTO_INCREMENT=93 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='权限表';
+) ENGINE=InnoDB AUTO_INCREMENT=98 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='权限表';
 
 -- ----------------------------
 -- Records of sys_permission
@@ -654,8 +654,11 @@ INSERT INTO `sys_permission` VALUES (27, '添加字典', 'dict:add', '添加字�
 INSERT INTO `sys_permission` VALUES (28, '编辑字典', 'dict:edit', '编辑字典权限', '2020-12-25 16:03:54', 'admin', 1);
 INSERT INTO `sys_permission` VALUES (29, '删除字典', 'dict:del', '删除字典权限', '2020-12-25 16:03:54', 'admin', 1);
 INSERT INTO `sys_permission` VALUES (30, '查询字典', 'dict:list', '查询字典权限', '2020-12-25 16:03:54', 'admin', 1);
-INSERT INTO `sys_permission` VALUES (91, 'asda', 'aas', '涨撒大', '2021-05-26 16:01:14', 'admin', 3);
-INSERT INTO `sys_permission` VALUES (92, 'safdsfsdf', 'dsaddas', 'dsdasdd', '2021-05-26 16:06:45', 'admin', 0);
+INSERT INTO `sys_permission` VALUES (93, 'dsf', 'sdfsd', 'dsfs', '2021-05-27 02:49:47', 'admin', 0);
+INSERT INTO `sys_permission` VALUES (94, 'sdf', 'fsdfdsf', 'dsf', '2021-05-27 02:49:51', 'admin', 0);
+INSERT INTO `sys_permission` VALUES (95, 'fdsfsd', 'dsf', 'sfsdf', '2021-05-27 02:49:54', 'admin', 0);
+INSERT INTO `sys_permission` VALUES (96, 'dasdsa', 'asdasd', 'asda', '2021-05-27 09:13:09', 'admin', 0);
+INSERT INTO `sys_permission` VALUES (97, 'adad', 'ddad', 'asdasd', '2021-05-27 09:13:16', 'admin', 0);
 COMMIT;
 
 -- ----------------------------
