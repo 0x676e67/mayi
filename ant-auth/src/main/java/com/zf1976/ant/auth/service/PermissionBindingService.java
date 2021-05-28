@@ -119,7 +119,13 @@ public class PermissionBindingService implements InitPermission{
                      .eq(SysResource::getId, id)
                      .oneOpt()
                      .orElseThrow(() -> new SecurityException("The bound resource does not exist"));
-        this.permissionDao.deleteResourceRelationByResourceIdAndPermissionIdList(id, permissionIdList);
+        // 进行资源权限解绑
+        try {
+            this.permissionDao.deleteResourceRelationByResourceIdAndPermissionIdList(id, permissionIdList);
+        } catch (Exception e) {
+            // 异常转译
+            throw new SecurityException("Failed to unbind resource permissions", e.getCause());
+        }
         return null;
     }
 
@@ -142,7 +148,12 @@ public class PermissionBindingService implements InitPermission{
                      .oneOpt()
                      .orElseThrow(() -> new SecurityException("Bound role does not exist"));
         // 保存角色-资源关系
-        this.permissionDao.deleteRoleRelationByRoleIdAndPermissionIdList(id, permissionIdList);
+        try {
+            this.permissionDao.deleteRoleRelationByRoleIdAndPermissionIdList(id, permissionIdList);
+        } catch (Exception e) {
+            // 异常转译
+            throw new SecurityException("Failed to unbind role permissions", e.getCause());
+        }
         return null;
     }
 
