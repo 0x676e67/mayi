@@ -60,7 +60,12 @@ public class PermissionBindingService implements InitPermission{
                      .oneOpt()
                      .orElseThrow(() -> new SecurityException("Bound role does not exist"));
         // 保存角色-资源关系
-        this.permissionDao.saveRoleRelation(id, permissionIdList);
+        try {
+            this.permissionDao.saveRoleRelation(id, permissionIdList);
+        } catch (Exception e) {
+            // 异常转译
+            throw new SecurityException("Non-repeatable binding", e.getCause());
+        }
         return null;
     }
 
@@ -87,7 +92,12 @@ public class PermissionBindingService implements InitPermission{
             throw new SecurityException("The current resource node does not allow binding");
         }
         // 保存权限-资源关系
-        this.permissionDao.saveResourceRelation(resource.getId(), permissionIdList);
+        try {
+            this.permissionDao.saveResourceRelation(resource.getId(), permissionIdList);
+        } catch (Exception e) {
+            // 异常转译
+            throw new SecurityException("Non-repeatable binding", e.getCause());
+        }
         return null;
     }
 
