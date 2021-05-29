@@ -9,7 +9,7 @@ import com.google.common.collect.Lists;
 import com.zf1976.ant.auth.dao.SysPermissionDao;
 import com.zf1976.ant.auth.dao.SysResourceDao;
 import com.zf1976.ant.auth.pojo.BindingPermission;
-import com.zf1976.ant.auth.pojo.ResourceLink;
+import com.zf1976.ant.auth.pojo.ResourceLinkBinding;
 import com.zf1976.ant.auth.pojo.ResourceNode;
 import com.zf1976.ant.auth.pojo.po.SysResource;
 import com.zf1976.ant.common.component.cache.annotation.CacheConfig;
@@ -50,6 +50,12 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
         this.securityProperties = securityProperties;
     }
 
+    /**
+     * 分页查询资源节点
+     *
+     * @param page 分页对象
+     * @return {@link IPage<ResourceNode>}
+     */
     @CachePut(key = "#page")
     @Transactional(readOnly = true)
     public IPage<ResourceNode> selectResourceNodeByPage(Page<SysResource> page) {
@@ -74,25 +80,13 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
     }
 
     /**
-     * 查询资源链接信息
-     *
-     * @return {@link List<ResourceLink>}
-     */
-    @CachePut(key = "selectResourceLinkList")
-    public List<ResourceLink> selectResourceLinkList() {
-        List<SysResource> resourceList = super.lambdaQuery().list();
-        List<ResourceNode> resourceTree = this.buildResourceTree(resourceList);
-        return this.buildResourceLinkList(resourceTree);
-    }
-
-    /**
      * 构建资源树
      *
      * @param resourceList 资源列表
      * @return {@link List<ResourceNode>}
      * @date 2021-05-07 08:42:41
      */
-    private List<ResourceNode> buildResourceTree(List<SysResource> resourceList) {
+    public List<ResourceNode> buildResourceTree(List<SysResource> resourceList) {
         List<ResourceNode> treeList = resourceList.stream()
                                                   .map(ResourceNode::new)
                                                   .collect(Collectors.toList());
@@ -127,11 +121,11 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
     /**
      * 根据资源树构建资源链接列表
      *
-     * @return {@link List<ResourceLink>}
+     * @return {@link List<ResourceLinkBinding>}
      * @date 2021-05-07 23:43:49
      */
-    private List<ResourceLink> buildResourceLinkList(List<ResourceNode> resourceNodeTree) {
-        List<ResourceLink> resourceLinkList = new LinkedList<>();
+    public List<ResourceLinkBinding> buildResourceLinkBindingList(List<ResourceNode> resourceNodeTree) {
+        List<ResourceLinkBinding> resourceLinkList = new LinkedList<>();
         resourceNodeTree.forEach(resourceNode -> {
             this.traverseNode(resourceNode, resourceLinkList);
         });
@@ -145,23 +139,21 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
      * @param resourceLinkList 资源链接列表
      * @date 2021-05-07 23:40:54
      */
-    private void traverseNode(ResourceNode parentNode, List<ResourceLink> resourceLinkList) {
+    private void traverseNode(ResourceNode parentNode, List<ResourceLinkBinding> resourceLinkList) {
         // 递归到叶子节点
         if (parentNode.getChildren() == null) {
             if (resourceLinkList != null) {
                 // 构造完整资源链接
-                ResourceLink resourceLink = new ResourceLink();
+                ResourceLinkBinding resourceLink = new ResourceLinkBinding();
                 resourceLink.setId(parentNode.getId())
                             .setName(parentNode.getName())
                             .setUri(parentNode.getUri())
                             .setMethod(parentNode.getMethod())
                             .setEnabled(parentNode.getEnabled())
                             .setAllow(parentNode.getAllow());
-                // 查询权限
-                List<BindingPermission> permissionList = this.permissionDao.selectPermissionsByResourceId(parentNode.getId());
-                if (!CollectionUtils.isEmpty(permissionList)) {
-                    resourceLink.setBindingPermissions(permissionList);
-                }
+                // 查询资源权限
+                List<BindingPermission> bindingPermissions = this.permissionDao.selectPermissionsByResourceId(parentNode.getId());
+                resourceLink.setBindingPermissions(bindingPermissions);
                 resourceLinkList.add(resourceLink);
             }
         } else {
@@ -291,6 +283,11 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
         }
     }
 
+    /**
+     * 获取资源匹配方法Map
+     *
+     * @return {@link Map<String,String>}
+     */
     @CachePut(key = KeyConstants.MATCH_METHOD)
     public Map<String, String> getResourceMethodMap() {
         if (CollectionUtils.isEmpty(this.resourceMethodMap)) {

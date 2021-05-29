@@ -56,6 +56,15 @@ public class Query<T extends AbstractQueryParam> implements Serializable {
      */
     private T query;
 
+    public Query() {
+        this(MIN_PAGE, MIN_SIZE);
+    }
+
+    public Query(int page, int size) {
+        this.page = page;
+        this.size = size;
+    }
+
     public int getPage() {
         return Math.max(this.page, MIN_PAGE);
     }

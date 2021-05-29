@@ -159,10 +159,10 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
         // 查询条件
         QueryChainWrapper<E> queryChainWrapper = Optional.ofNullable(this.wrapperThreadLocal.get())
                                                          .orElseGet(() -> ChainWrappers.queryChain(super.baseMapper));
-        // 分页查询
-        IPage<E> page = this.selectPage(query, queryChainWrapper);
         // 清除本地变量
         this.removeThreadLocalVariable();
+        // 分页查询
+        IPage<E> page = this.selectPage(query, queryChainWrapper);
         return page;
     }
 
@@ -188,9 +188,9 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
      * @return page
      */
     public IPage<E> selectPage(Query<? extends AbstractQueryParam> query, QueryChainWrapper<E> queryChainWrapper) {
-        Page<E> configPage = this.getPage(query);
         // 清除本地变量
         this.removeThreadLocalVariable();
+        Page<E> configPage = this.getPage(query);
         return queryChainWrapper.page(configPage);
     }
 
@@ -211,7 +211,7 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
     /**
      * 分页配置
      *
-     * @param query request param
+     * @param query 查询参数
      */
     protected Page<E> getPage(Query<? extends AbstractQueryParam> query) {
         Assert.notNull(query, BusinessMsgState.PARAM_ILLEGAL.getReasonPhrase());
@@ -253,6 +253,8 @@ public abstract class AbstractService<D extends BaseMapper<E>, E> extends Servic
      * @return this
      */
     public AbstractService<D, E> chainQuery(Query<? extends AbstractQueryParam> query) {
+        // 设置本地查询变量
+        this.queryThreadLocal.set(query);
         return this.chainQuery(query, () -> null);
     }
 
