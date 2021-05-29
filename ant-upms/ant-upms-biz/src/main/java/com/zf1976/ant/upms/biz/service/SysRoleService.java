@@ -60,7 +60,7 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
      * @return /
      */
     @CachePut(key = "selectAllRole")
-    public IPage<RoleVO> selectAll() {
+    public IPage<RoleVO> selectAllRole() {
         IPage<SysRole> page = super.lambdaQuery()
                                    .select(SysRole::getId, SysRole::getName)
                                    .page(new Page<>(1, 9999));

@@ -2,19 +2,18 @@ package com.zf1976.ant.upms.biz.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.ant.common.core.foundation.DataResult;
+import com.zf1976.ant.common.core.validate.ValidationInsertGroup;
+import com.zf1976.ant.common.core.validate.ValidationUpdateGroup;
 import com.zf1976.ant.common.log.annotation.Log;
 import com.zf1976.ant.upms.biz.pojo.dto.role.RoleDTO;
 import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.query.RoleQueryParam;
-import com.zf1976.ant.common.core.validate.ValidationInsertGroup;
-import com.zf1976.ant.common.core.validate.ValidationUpdateGroup;
 import com.zf1976.ant.upms.biz.pojo.vo.role.RoleVO;
 import com.zf1976.ant.upms.biz.service.SysRoleService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -32,8 +31,8 @@ public class SysRoleController {
     }
 
     @GetMapping("/all")
-    public DataResult<IPage<RoleVO>> selectAll() {
-        return DataResult.success(this.service.selectAll());
+    public DataResult<IPage<RoleVO>> selectAllRole() {
+        return DataResult.success(this.service.selectAllRole());
     }
 
     @PostMapping("/page")

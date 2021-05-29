@@ -1,7 +1,7 @@
 package com.zf1976.ant.upms.biz.service;
 
+import cn.hutool.core.collection.ConcurrentHashSet;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.zf1976.ant.common.component.cache.annotation.CacheConfig;
 import com.zf1976.ant.common.component.cache.annotation.CacheEvict;
 import com.zf1976.ant.common.component.cache.annotation.CachePut;
@@ -27,7 +27,6 @@ import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 
@@ -41,6 +40,7 @@ import java.util.stream.Collectors;
 @CacheConfig(namespace = Namespace.DEPARTMENT, dependsOn = {Namespace.ROLE, Namespace.USER})
 public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysDepartment> {
 
+    private final int MAX_PAGE_DEPARTMENT = 9999;
     private final DepartmentConvert convert = DepartmentConvert.INSTANCE;
 
     /**
@@ -66,17 +66,17 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
     @CachePut(key = "#id")
     @Transactional(readOnly = true)
     public IPage<DepartmentVO> selectDepartmentVertex(Long id) {
-        // 记录是否存在
+        // 查询部门是否存在
         super.lambdaQuery()
              .eq(SysDepartment::getId, id)
              .oneOpt()
              .orElseThrow(() -> new BusinessException(BusinessMsgState.DATA_NOT_FOUNT));
         // 获取查询页
         IPage<SysDepartment> sourcePage = super.queryWrapper()
-                                               .chainQuery(new Query<>())
+                                               .chainQuery(new Query<>(1, MAX_PAGE_DEPARTMENT))
                                                .selectPage();
         // 收集下级部门id集合
-        Set<Long> nextLowDeptIds = this.collectCurrentChildrenDepartmentIds(id, null, HashSet::new);
+        Set<Long> nextLowDeptIds = this.collectCurrentChildrenDepartmentIds(id, null, new ConcurrentHashSet<>());
         // 过滤掉下级部门 以及本部门
         final List<SysDepartment> collect = sourcePage.getRecords()
                                                       .stream()
@@ -172,8 +172,8 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
              .ifPresent(sysDept -> {
                  throw new DepartmentException(DepartmentState.DEPARTMENT_EXISTING, dto.getName());
              });
-        SysDepartment sysDept = this.convert.toEntity(dto);
-        super.savaOrUpdate(sysDept);
+        SysDepartment department = this.convert.toEntity(dto);
+        super.savaOrUpdate(department);
         return null;
     }
 
@@ -186,16 +186,15 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Void updateDepartment(DepartmentDTO dto) {
-
         // 查询部门
-        SysDepartment sysDepartment = super.lambdaQuery()
+        SysDepartment department = super.lambdaQuery()
                                            .eq(SysDepartment::getId, dto.getId())
                                            .oneOpt()
                                            .orElseThrow(() -> new DepartmentException(DepartmentState.DEPARTMENT_NOT_FOUND));
         // 确认部门是否已存在
-        if (!ObjectUtils.nullSafeEquals(dto.getName(), sysDepartment.getName())) {
+        if (!ObjectUtils.nullSafeEquals(dto.getName(), department.getName())) {
             super.lambdaQuery()
-                 .ne(SysDepartment::getId, sysDepartment.getId())
+                 .ne(SysDepartment::getId, department.getId())
                  .eq(SysDepartment::getName, dto.getName())
                  .oneOpt()
                  .ifPresent(var1 -> {
@@ -215,7 +214,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
                  });
         }
         // 禁止状态下禁止修改
-        if (!ObjectUtils.isEmpty(dto.getPid())) {
+        if (dto.getPid() != null) {
             final SysDepartment parentDept = super.lambdaQuery()
                                                   .select(SysDepartment::getEnabled)
                                                   .eq(SysDepartment::getId, dto.getPid())
@@ -224,25 +223,22 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
                 throw new DepartmentException(DepartmentState.DEPARTMENT_PARENT_CLOSE);
             }
         }
-        /*
-         * 禁止设置本级部门成为子部门的部门
-         * 获取所有子部门id集合
-         */
-        final Set<Long> childrenDeptIds = this.collectCurrentChildrenDepartmentIds(sysDepartment.getId(), null, HashSet::new);
-        // 确认预设置pid 是否为子部门id
-        if (!CollectionUtils.isEmpty(childrenDeptIds) && !ObjectUtils.isEmpty(dto.getPid())) {
+        // 所有子部门id集合
+        final Set<Long> childrenDeptIds = this.collectCurrentChildrenDepartmentIds(department.getId(), null, new ConcurrentHashSet<>());
+        // 禁止以子部门为父级部门
+        if (!childrenDeptIds.isEmpty() && dto.getPid() != null) {
             if (childrenDeptIds.contains(dto.getPid())) {
                 throw new DepartmentException(DepartmentState.DEPARTMENT_BAN_PARENT);
             }
         }
-        // 禁止设置上级部门为本级部门
-        if (ObjectUtils.nullSafeEquals(dto.getPid(), sysDepartment.getId())) {
+        // 禁止以本级部门为父级部门
+        if (ObjectUtils.nullSafeEquals(dto.getPid(), department.getId())) {
             throw new DepartmentException(DepartmentState.DEPARTMENT_BAN_CURRENT);
         }
         // 复制属性
-        this.convert.copyProperties(dto, sysDepartment);
+        this.convert.copyProperties(dto, department);
         // 更新实体
-        super.savaOrUpdate(sysDepartment);
+        super.savaOrUpdate(department);
         return null;
     }
 
@@ -256,7 +252,7 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Void deleteDepartmentList(Set<Long> ids) {
-        final Set<Long> treeIds = this.collectCurrentDepartmentTreeIds(ids, HashSet::new);
+        final Set<Long> treeIds = this.collectCurrentDepartmentTreeIds(ids, new HashSet<>());
         if (!CollectionUtils.isEmpty(treeIds)) {
             treeIds.forEach(id -> {
                 if (super.baseMapper.selectDependsOnById(id) > 0) {
@@ -276,22 +272,19 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      *
      * @param ids id collection
      */
-    private Set<Long> collectCurrentDepartmentTreeIds(Set<Long> ids, Supplier<Set<Long>> supplier) {
+    private Set<Long> collectCurrentDepartmentTreeIds(Set<Long> ids, Set<Long> supplier) {
         if (CollectionUtils.isEmpty(ids)) {
             return Collections.emptySet();
         }
         Assert.notNull(supplier, "collectionIds can not been null");
-        supplier.get()
-                .addAll(ids);
-        Set<Long> set = supplier.get();
-        set.addAll(ids);
+        supplier.addAll(ids);
         ids.forEach(id -> {
             // 子部门id集合
             final Set<Long> collectIds = this.collectNextLowDepartmentIds(id, null);
             // 收集子部门id集合
             this.collectCurrentDepartmentTreeIds(collectIds, supplier);
         });
-        return set;
+        return supplier;
     }
 
     /**
@@ -302,19 +295,18 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      * @param supplier  supplied object
      * @return ids
      */
-    private Set<Long> collectCurrentChildrenDepartmentIds(long id, Boolean condition, Supplier<Set<Long>> supplier) {
+    private Set<Long> collectCurrentChildrenDepartmentIds(long id, Boolean condition, Set<Long> supplier) {
         // 子部门id集合
         final Set<Long> childrenIds = this.collectNextLowDepartmentIds(id, condition);
+        // 收集
+        supplier.addAll(childrenIds);
         if (!CollectionUtils.isEmpty(childrenIds)) {
-            // collect
-            supplier.get()
-                    .addAll(childrenIds);
             // 继续往下子部门收集
-            childrenIds.forEach(childrenId -> {
+            for (Long childrenId : childrenIds) {
                 this.collectCurrentChildrenDepartmentIds(childrenId, condition, supplier);
-            });
+            }
         }
-        return supplier.get();
+        return supplier;
     }
 
     /**
@@ -325,16 +317,14 @@ public class SysDepartmentService extends AbstractService<SysDepartmentDao, SysD
      * @return children ids
      */
     private Set<Long> collectNextLowDepartmentIds(Long id, Boolean condition) {
-        final LambdaQueryChainWrapper<SysDepartment> lambdaQuery = super.lambdaQuery();
-        if (condition != null) {
-            lambdaQuery.eq(SysDepartment::getEnabled, condition);
-        }
         // 子部门id集合
-        return lambdaQuery.eq(SysDepartment::getPid, id)
-                          .list()
-                          .stream()
-                          .map(SysDepartment::getId)
-                          .collect(Collectors.toSet());
+        return super.lambdaQuery()
+                    .eq(condition != null, SysDepartment::getEnabled, condition)
+                    .eq(SysDepartment::getPid, id)
+                    .list()
+                    .stream()
+                    .map(SysDepartment::getId)
+                    .collect(Collectors.toSet());
     }
 
     /**
