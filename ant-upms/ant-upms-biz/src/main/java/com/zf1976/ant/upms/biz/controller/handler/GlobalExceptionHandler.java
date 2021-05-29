@@ -3,7 +3,7 @@ package com.zf1976.ant.upms.biz.controller.handler;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.core.foundation.exception.BusinessException;
 import com.zf1976.ant.common.security.support.session.exception.SessionException;
-import com.zf1976.ant.upms.biz.exception.base.SysBaseException;
+import com.zf1976.ant.upms.biz.service.exception.SysBaseException;
 import org.slf4j.helpers.MessageFormatter;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -74,8 +74,7 @@ public class GlobalExceptionHandler {
     DataResult SysBaseExceptionHandler(SysBaseException exception) {
         String message;
         if (exception.getLabel() != null) {
-            message = MessageFormatter.format(exception.getReasonPhrase(), exception.getLabel())
-                                      .getMessage();
+            message = MessageFormatter.format(exception.getReasonPhrase(), exception.getLabel()).getMessage();
         } else {
             message = exception.getReasonPhrase();
         }

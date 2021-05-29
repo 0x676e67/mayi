@@ -1,30 +1,30 @@
-package com.zf1976.ant.upms.biz.exception.enums;
+package com.zf1976.ant.upms.biz.service.exception.enums;
 
 /**
  * @author mac
  * @date 2020/12/17
  **/
-public enum RoleState {
+public enum MenuState {
 
     /**
      * 数据不存在
      */
-    ROLE_NOT_FOUND(400, "角色不存在"),
+    MENU_NOT_FOUND(400, "菜单不存在"),
 
     /**
      * 数据已存在
      */
-    ROLE_EXISTING(400, "角色：{}，已经存在"),
+    MENU_EXISTING(400, "菜单：{}，已经存在"),
 
     /**
-     * 存在依赖
+     * 信息已存在
      */
-    ROLE_DEPENDS_ERROR(400, "角色存在用户依赖，不能禁用/删除"),
+    MENU_INFO_EXISTING(400, "菜单信息：{}，已经存在"),
 
     /**
      * 操作异常
      */
-    ROLE_OPT_ERROR(400, "操作错误");
+    MENU_OPT_ERROR(400, "操作错误");
 
     /**
      * 状态值
@@ -36,7 +36,7 @@ public enum RoleState {
      */
     private final String reasonPhrase;
 
-    RoleState(int value, String reasonPhrase) {
+    MenuState(int value, String reasonPhrase) {
         this.value = value;
         this.reasonPhrase = reasonPhrase;
     }

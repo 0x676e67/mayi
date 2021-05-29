@@ -2,6 +2,7 @@ package test;
 
 import com.zf1976.ant.auth.AuthApplication;
 import com.zf1976.ant.auth.dao.SysPermissionDao;
+import com.zf1976.ant.auth.pojo.RoleBinding;
 import com.zf1976.ant.auth.service.DynamicDataSourceService;
 import com.zf1976.ant.auth.service.OAuth2ClientService;
 import com.zf1976.ant.auth.system.MySqlStrategyBackup;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.sql.DataSource;
+import java.util.List;
 
 
 /**
@@ -68,6 +70,6 @@ public class AuthApplicationTest {
     }
     @Test
     public void resourceTreeTest() {
-
+        List<RoleBinding> roleBindings = this.permissionDao.selectRoleBindingList();
     }
 }

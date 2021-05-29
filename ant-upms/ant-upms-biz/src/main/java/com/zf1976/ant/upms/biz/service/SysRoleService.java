@@ -13,8 +13,6 @@ import com.zf1976.ant.upms.biz.convert.SysRoleConvert;
 import com.zf1976.ant.upms.biz.dao.SysDepartmentDao;
 import com.zf1976.ant.upms.biz.dao.SysMenuDao;
 import com.zf1976.ant.upms.biz.dao.SysRoleDao;
-import com.zf1976.ant.upms.biz.exception.RoleException;
-import com.zf1976.ant.upms.biz.exception.enums.RoleState;
 import com.zf1976.ant.upms.biz.pojo.dto.role.RoleDTO;
 import com.zf1976.ant.upms.biz.pojo.enums.DataPermissionEnum;
 import com.zf1976.ant.upms.biz.pojo.po.SysDepartment;
@@ -24,6 +22,8 @@ import com.zf1976.ant.upms.biz.pojo.query.Query;
 import com.zf1976.ant.upms.biz.pojo.query.RoleQueryParam;
 import com.zf1976.ant.upms.biz.pojo.vo.role.RoleVO;
 import com.zf1976.ant.upms.biz.service.base.AbstractService;
+import com.zf1976.ant.upms.biz.service.exception.RoleException;
+import com.zf1976.ant.upms.biz.service.exception.enums.RoleState;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -188,12 +188,12 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
         super.lambdaQuery()
              .eq(SysRole::getName, dto.getName())
              .oneOpt()
-             .ifPresent(sysRole -> {
-                 throw new RoleException(RoleState.ROLE_EXISTING, sysRole.getName());
+             .ifPresent(var -> {
+                 throw new RoleException(RoleState.ROLE_EXISTING, var.getName());
              });
-        SysRole sysRole = this.convert.toEntity(dto);
-        super.savaOrUpdate(sysRole);
-        dto.setId(sysRole.getId());
+        SysRole role = this.convert.toEntity(dto);
+        super.savaOrUpdate(role);
+        dto.setId(role.getId());
         if (permissionEnum == DataPermissionEnum.ALL) {
             Set<Long> result = this.sysDepartmentDao.selectList(Wrappers.emptyWrapper())
                                                     .stream()
@@ -217,14 +217,21 @@ public class SysRoleService extends AbstractService<SysRoleDao, SysRole> {
         // 范围消息
         DataPermissionEnum permissionEnum = Optional.ofNullable(dto.getDataScope())
                                                     .orElseThrow(() -> new RoleException(RoleState.ROLE_OPT_ERROR));
-        //查询角色是否存在
+        // 查询角色是否存在
         SysRole sysRole = super.lambdaQuery()
                                .eq(SysRole::getId, dto.getId())
                                .oneOpt()
                                .orElseThrow(() -> new RoleException(RoleState.ROLE_NOT_FOUND));
+        // 校验角色是否已存在
+        super.lambdaQuery()
+             .eq(SysRole::getName, dto.getName())
+             .oneOpt()
+             .ifPresent(var -> {
+                 throw new RoleException(RoleState.ROLE_EXISTING, var.getName());
+             });
         switch (permissionEnum) {
             case ALL:
-                Set<Long> dataPermission = this.sysDepartmentDao.selectList(null)
+                Set<Long> dataPermission = this.sysDepartmentDao.selectList(Wrappers.emptyWrapper())
                                                                 .stream()
                                                                 .map(SysDepartment::getId)
                                                                 .collect(Collectors.toSet());

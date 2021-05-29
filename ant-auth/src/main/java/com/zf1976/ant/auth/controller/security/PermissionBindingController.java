@@ -1,21 +1,38 @@
 package com.zf1976.ant.auth.controller.security;
 
+import com.zf1976.ant.auth.pojo.ResourceLinkBinding;
+import com.zf1976.ant.auth.pojo.RoleBinding;
 import com.zf1976.ant.auth.service.PermissionBindingService;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/oauth/security/permission")
+@RequestMapping(
+        value = "/oauth/security/permission"
+)
 public class PermissionBindingController {
 
    private final PermissionBindingService bindingService;
 
     public PermissionBindingController(PermissionBindingService bindingService) {
         this.bindingService = bindingService;
+    }
+
+    @PostMapping("/binding/role/list")
+    @PreAuthorize("hasRole('admin')")
+    public DataResult<List<RoleBinding>> selectBindingRoleList() {
+        return DataResult.success(bindingService.selectRoleBindingList());
+    }
+
+    @PostMapping("/binding/resource/list")
+    @PreAuthorize("hasRole('admin')")
+    public DataResult<List<ResourceLinkBinding>> selectBindingResourceList() {
+        return DataResult.success(this.bindingService.selectResourceLinkBindingList());
     }
 
     @PostMapping("/binding/resource")

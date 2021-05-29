@@ -4,9 +4,13 @@ import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.zf1976.ant.auth.dao.SysPermissionDao;
 import com.zf1976.ant.auth.dao.SysResourceDao;
 import com.zf1976.ant.auth.exception.SecurityException;
+import com.zf1976.ant.auth.pojo.ResourceLinkBinding;
+import com.zf1976.ant.auth.pojo.ResourceNode;
+import com.zf1976.ant.auth.pojo.RoleBinding;
 import com.zf1976.ant.auth.pojo.po.SysResource;
 import com.zf1976.ant.common.component.cache.annotation.CacheConfig;
 import com.zf1976.ant.common.component.cache.annotation.CacheEvict;
+import com.zf1976.ant.common.component.cache.annotation.CachePut;
 import com.zf1976.ant.common.core.constants.Namespace;
 import com.zf1976.ant.upms.biz.dao.SysRoleDao;
 import com.zf1976.ant.upms.biz.pojo.po.SysRole;
@@ -15,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -29,6 +34,7 @@ public class PermissionBindingService implements InitPermission{
     private final SysResourceDao resourceDao;
     private final SysRoleDao roleDao;
     private PermissionService permissionService;
+    private DynamicDataSourceService dynamicDataSourceService;
 
     public PermissionBindingService(SysPermissionDao permissionDao, SysResourceDao resourceDao, SysRoleDao roleDao) {
         this.permissionDao = permissionDao;
@@ -40,6 +46,37 @@ public class PermissionBindingService implements InitPermission{
     public void setPermissionService(PermissionService permissionService) {
         this.permissionService = permissionService;
     }
+
+    @Autowired
+    public void setDynamicDataSourceService(DynamicDataSourceService dynamicDataSourceService) {
+        this.dynamicDataSourceService = dynamicDataSourceService;
+    }
+
+    /**
+     * 查询绑定权限角色列表
+     *
+     * @return {@link List<RoleBinding>}
+     */
+    @CachePut(key = "selectRoleBindingList")
+    public List<RoleBinding> selectRoleBindingList() {
+        return permissionDao.selectRoleBindingList();
+    }
+
+    /**
+     * 查询绑定权限资源链接列表
+     *
+     * @return {@link List<ResourceLinkBinding>}
+     */
+    @CachePut(key = "selectResourceLinkBindingList")
+    public List<ResourceLinkBinding> selectResourceLinkBindingList() {
+        // 资源列表
+        List<SysResource> resourceList = this.dynamicDataSourceService.list();
+        // 资源树
+        List<ResourceNode> resourceNodeList = this.dynamicDataSourceService.buildResourceTree(resourceList);
+        // 构建资源绑定权限链接
+        return this.dynamicDataSourceService.buildResourceLinkBindingList(resourceNodeList);
+    }
+
 
     /**
      * 绑定角色权限

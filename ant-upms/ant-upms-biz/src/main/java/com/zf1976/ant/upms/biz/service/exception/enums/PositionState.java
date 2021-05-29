@@ -1,25 +1,25 @@
-package com.zf1976.ant.upms.biz.exception.enums;
+package com.zf1976.ant.upms.biz.service.exception.enums;
 
 /**
  * @author mac
  * @date 2020/12/17
  **/
-public enum DictState {
+public enum PositionState {
 
     /**
      * 数据不存在
      */
-    DICT_NOT_FOUND(400, "字典不存在"),
+    POSITION_NOT_FOUND(400, "岗位不存在"),
 
     /**
      * 数据已存在
      */
-    DICT_EXISTING(400, "字典：{}，已经存在"),
+    POSITION_EXISTING(400, "岗位：{}，已经存在"),
 
     /**
      * 操作异常
      */
-    DICT_OPT_ERROR(400, "操作错误");
+    POSITION_OPT_ERROR(400, "操作错误");
 
     /**
      * 状态值
@@ -31,7 +31,7 @@ public enum DictState {
      */
     private final String reasonPhrase;
 
-    DictState(int value, String reasonPhrase) {
+    PositionState(int value, String reasonPhrase) {
         this.value = value;
         this.reasonPhrase = reasonPhrase;
     }

@@ -10,7 +10,6 @@ import com.zf1976.ant.auth.exception.SecurityException;
 import com.zf1976.ant.auth.pojo.ClientDetails;
 import com.zf1976.ant.auth.pojo.dto.ClientDetailsDTO;
 import com.zf1976.ant.auth.pojo.vo.ClientDetailsVO;
-import com.zf1976.ant.auth.service.AbstractSecurityService;
 import com.zf1976.ant.common.component.cache.annotation.CacheConfig;
 import com.zf1976.ant.common.component.cache.annotation.CacheEvict;
 import com.zf1976.ant.common.component.cache.annotation.CachePut;
@@ -182,8 +181,7 @@ public class OAuth2ClientService extends AbstractSecurityService<ClientDetailsDa
                  .withValidated(data -> this.ValidateGranterType(data.getAuthorizedGrantTypes()),
                          () -> new SecurityException("The certification model does not meet the requirements"))
                  // 校验权限范围
-                 .withValidated(data -> data.getScope()
-                                            .equals(SCOPE),
+                 .withValidated(data -> data.getScope().equals(SCOPE),
                          () -> new SecurityException("The scope of authority does not meet the requirements"))
                  // 自动批准权限
                  .withValidated(data -> autoApproveScope.contains(data.getAutoApprove()),

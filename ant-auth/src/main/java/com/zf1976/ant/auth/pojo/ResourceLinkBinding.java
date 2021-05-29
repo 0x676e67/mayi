@@ -6,7 +6,7 @@ import java.util.List;
  * @author mac
  * @date 2021/5/6
  */
-public class ResourceLink {
+public class ResourceLinkBinding {
 
     private Long id;
     /**
@@ -38,7 +38,7 @@ public class ResourceLink {
         return id;
     }
 
-    public ResourceLink setId(Long id) {
+    public ResourceLinkBinding setId(Long id) {
         this.id = id;
         return this;
     }
@@ -47,7 +47,7 @@ public class ResourceLink {
         return name;
     }
 
-    public ResourceLink setName(String name) {
+    public ResourceLinkBinding setName(String name) {
         this.name = name;
         return this;
     }
@@ -56,7 +56,7 @@ public class ResourceLink {
         return uri;
     }
 
-    public ResourceLink setUri(String uri) {
+    public ResourceLinkBinding setUri(String uri) {
         this.uri = uri;
         return this;
     }
@@ -65,7 +65,7 @@ public class ResourceLink {
         return method;
     }
 
-    public ResourceLink setMethod(String method) {
+    public ResourceLinkBinding setMethod(String method) {
         this.method = method;
         return this;
     }
@@ -74,7 +74,7 @@ public class ResourceLink {
         return enabled;
     }
 
-    public ResourceLink setEnabled(Boolean enabled) {
+    public ResourceLinkBinding setEnabled(Boolean enabled) {
         this.enabled = enabled;
         return this;
     }
@@ -83,7 +83,7 @@ public class ResourceLink {
         return allow;
     }
 
-    public ResourceLink setAllow(Boolean allow) {
+    public ResourceLinkBinding setAllow(Boolean allow) {
         this.allow = allow;
         return this;
     }
@@ -92,7 +92,7 @@ public class ResourceLink {
         return bindingPermissions;
     }
 
-    public ResourceLink setBindingPermissions(List<BindingPermission> bindingPermissions) {
+    public ResourceLinkBinding setBindingPermissions(List<BindingPermission> bindingPermissions) {
         this.bindingPermissions = bindingPermissions;
         return this;
     }

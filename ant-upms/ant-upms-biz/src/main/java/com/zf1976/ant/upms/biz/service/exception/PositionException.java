@@ -1,7 +1,6 @@
-package com.zf1976.ant.upms.biz.exception;
+package com.zf1976.ant.upms.biz.service.exception;
 
-import com.zf1976.ant.upms.biz.exception.base.SysBaseException;
-import com.zf1976.ant.upms.biz.exception.enums.PositionState;
+import com.zf1976.ant.upms.biz.service.exception.enums.PositionState;
 
 /**
  * @author mac

@@ -2,6 +2,7 @@ package com.zf1976.ant.auth.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.zf1976.ant.auth.pojo.BindingPermission;
+import com.zf1976.ant.auth.pojo.RoleBinding;
 import com.zf1976.ant.auth.pojo.po.SysPermission;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -31,6 +32,13 @@ public interface SysPermissionDao extends BaseMapper<SysPermission> {
      * @return {@link List<String>}
      */
     List<BindingPermission> selectPermissionsByRoleId(@Param("roleId") long roleId);
+
+    /**
+     * 查询绑定权限的角色列表
+     *
+     * @return {@link List<RoleBinding>}
+     */
+    List<RoleBinding> selectRoleBindingList();
 
     /**
      * 保存权限与资源关系
