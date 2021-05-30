@@ -4,7 +4,6 @@ import com.zf1976.ant.auth.service.DynamicDataSourceService;
 import com.zf1976.ant.common.security.pojo.Details;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
@@ -35,8 +34,8 @@ public class SecurityContextHolder extends org.springframework.security.core.con
     }
 
     public static Details getAuthorizationDetails() {
-        Authentication shareObject = getShareObject(Authentication.class);
-        LoginUserDetails details = (LoginUserDetails) shareObject.getPrincipal();
+        LoginUserDetails details = (LoginUserDetails) getContext().getAuthentication()
+                                                                  .getDetails();
         return new Details(details.getPermission(), details.getDataPermission(), details.getUser());
     }
 

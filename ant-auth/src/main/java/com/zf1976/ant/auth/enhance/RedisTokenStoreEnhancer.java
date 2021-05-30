@@ -10,7 +10,6 @@ import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.ScanOptions;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.common.ExpiringOAuth2RefreshToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2RefreshToken;
@@ -267,7 +266,8 @@ public class RedisTokenStoreEnhancer implements TokenStore {
         // 保存认证成功细节
         authentication.setDetails(details);
         // 保存认证
-        SecurityContextHolder.setShareObject(Authentication.class, authentication);
+        SecurityContextHolder.getContext()
+                             .setAuthentication(authentication);
         // 序列化Session
         byte[] serializeSession = this.jacksonSerialize(this.generationSession(token, authentication));
         // 序列化AccessToken
