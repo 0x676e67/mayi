@@ -88,9 +88,7 @@ public class PermissionBindingService implements InitPermission{
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Void bindingRole(Long id, Set<Long> permissionIdList) {
-        if (CollectionUtils.isEmpty(permissionIdList)) {
-            throw new SecurityException("The permission value cannot be empty");
-        }
+        this.checkPermissionIdList(permissionIdList);
         // 查找当前绑定角色是否存在
         ChainWrappers.lambdaQueryChain(this.roleDao)
                      .eq(SysRole::getId, id)
@@ -116,9 +114,7 @@ public class PermissionBindingService implements InitPermission{
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Void bindingResource(Long id, Set<Long> permissionIdList) {
-        if (CollectionUtils.isEmpty(permissionIdList)) {
-            throw new SecurityException("The permission value cannot be empty");
-        }
+        this.checkPermissionIdList(permissionIdList);
         // 查找当前绑定资源是否存在
         final SysResource resource = ChainWrappers.lambdaQueryChain(this.resourceDao)
                                           .eq(SysResource::getId, id)
@@ -148,9 +144,7 @@ public class PermissionBindingService implements InitPermission{
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Void unbindingResource(Long id, Set<Long> permissionIdList) {
-        if (CollectionUtils.isEmpty(permissionIdList)) {
-            throw new SecurityException("The permission value cannot be empty");
-        }
+        this.checkPermissionIdList(permissionIdList);
         // 查找当前绑定资源是否存在
         ChainWrappers.lambdaQueryChain(this.resourceDao)
                      .eq(SysResource::getId, id)
@@ -176,9 +170,7 @@ public class PermissionBindingService implements InitPermission{
     @CacheEvict
     @Transactional(rollbackFor = Exception.class)
     public Void unbindingRole(Long id, Set<Long> permissionIdList) {
-        if (CollectionUtils.isEmpty(permissionIdList)) {
-            throw new SecurityException("The permission value cannot be empty");
-        }
+        this.checkPermissionIdList(permissionIdList);
         // 查找当前绑定角色是否存在
         ChainWrappers.lambdaQueryChain(this.roleDao)
                      .eq(SysRole::getId, id)
@@ -192,6 +184,12 @@ public class PermissionBindingService implements InitPermission{
             throw new SecurityException("Failed to unbind role permissions", e.getCause());
         }
         return null;
+    }
+
+    private void checkPermissionIdList(Set<Long> permissionIdList) {
+        if (CollectionUtils.isEmpty(permissionIdList)) {
+            throw new SecurityException("The permission value cannot be empty");
+        }
     }
 
     @Override
