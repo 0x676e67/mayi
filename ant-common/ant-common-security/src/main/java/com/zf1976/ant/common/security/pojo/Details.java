@@ -1,8 +1,6 @@
 package com.zf1976.ant.common.security.pojo;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.io.Serializable;
 import java.util.Set;
 
@@ -20,20 +18,19 @@ public class Details implements Serializable {
     /**
      * 数据权限
      */
-    @JsonIgnore
     private Set<Long> dataPermission;
     /**
      * 用户信息
      */
-    private User userInfo;
+    private User user;
 
     public Details() {
     }
 
-    public Details(Set<String> permission, Set<Long> dataPermission, User userInfo) {
+    public Details(Set<String> permission, Set<Long> dataPermission, User user) {
         this.permission = permission;
         this.dataPermission = dataPermission;
-        this.userInfo = userInfo;
+        this.user = user;
     }
 
     public Set<String> getPermission() {
@@ -44,7 +41,6 @@ public class Details implements Serializable {
         this.permission = permission;
     }
 
-    @JsonIgnore
     public Set<Long> getDataPermission() {
         return dataPermission;
     }
@@ -53,12 +49,12 @@ public class Details implements Serializable {
         this.dataPermission = dataPermission;
     }
 
-    public User getUserInfo() {
-        return userInfo;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserInfo(User userInfo) {
-        this.userInfo = userInfo;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override
@@ -66,7 +62,7 @@ public class Details implements Serializable {
         return "UserDetails{" +
                 "permission=" + permission +
                 ", dataPermission=" + dataPermission +
-                ", userInfo=" + userInfo +
+                ", userInfo=" + user +
                 '}';
     }
 }

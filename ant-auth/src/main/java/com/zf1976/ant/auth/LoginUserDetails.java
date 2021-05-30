@@ -15,12 +15,12 @@ import java.util.Set;
  */
 public class LoginUserDetails implements UserDetails {
 
-    private final User userInfo;
+    private final User user;
     private final Set<Long> dataPermission;
     private final Set<String> permission;
 
-    public LoginUserDetails(User userInfo, Collection<? extends GrantedAuthority> authorities, Set<Long> dataPermission) {
-        this.userInfo = userInfo;
+    public LoginUserDetails(User user, Collection<? extends GrantedAuthority> authorities, Set<Long> dataPermission) {
+        this.user = user;
         this.dataPermission = dataPermission;
         this.permission = AuthorityUtils.authorityListToSet(authorities);
     }
@@ -33,8 +33,8 @@ public class LoginUserDetails implements UserDetails {
         return this.dataPermission;
     }
 
-    public User getUserInfo() {
-        return this.userInfo;
+    public User getUser() {
+        return this.user;
     }
 
     @JsonIgnore
@@ -46,19 +46,19 @@ public class LoginUserDetails implements UserDetails {
 
     @JsonIgnore
     public Long getId() {
-        return this.userInfo.getId();
+        return this.user.getId();
     }
 
     @JsonIgnore
     @Override
     public String getPassword() {
-        return userInfo.getPassword();
+        return user.getPassword();
     }
 
     @Override
     @JsonIgnore
     public String getUsername() {
-        return userInfo.getUsername();
+        return user.getUsername();
     }
 
     @JsonIgnore
@@ -82,6 +82,6 @@ public class LoginUserDetails implements UserDetails {
     @JsonIgnore
     @Override
     public boolean isEnabled() {
-        return userInfo.getEnabled();
+        return user.getEnabled();
     }
 }

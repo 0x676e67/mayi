@@ -1,11 +1,11 @@
 package com.zf1976.ant.auth.endpoint;
 
 import com.zf1976.ant.auth.AuthorizationResult;
+import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.auth.pojo.Captcha;
 import com.zf1976.ant.auth.service.UserDetailsServiceEnhancer;
 import com.zf1976.ant.common.component.validate.service.CaptchaService;
 import com.zf1976.ant.common.component.validate.support.CaptchaGenerator;
-import com.zf1976.ant.common.core.constants.AuthConstants;
 import com.zf1976.ant.common.core.foundation.DataResult;
 import com.zf1976.ant.common.security.pojo.Details;
 import org.slf4j.Logger;
@@ -58,9 +58,7 @@ public class TokenEndpointEnhancer {
             OAuth2AccessToken oAuth2AccessToken = responseEntity.getBody();
             if (responseEntity.getStatusCode()
                               .is2xxSuccessful() && oAuth2AccessToken != null) {
-                String username = (String) oAuth2AccessToken.getAdditionalInformation()
-                                                            .get(AuthConstants.USERNAME);
-                return DataResult.success(new AuthorizationResult(oAuth2AccessToken, userDetailsService.selectUserDetails(username)));
+                return DataResult.success(new AuthorizationResult(oAuth2AccessToken, SecurityContextHolder.getAuthorizationDetails()));
             }
             throw new InsufficientAuthenticationException("Client authentication failed.");
         }

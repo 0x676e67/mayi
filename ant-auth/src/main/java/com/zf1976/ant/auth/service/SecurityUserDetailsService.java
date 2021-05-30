@@ -194,7 +194,7 @@ public class SecurityUserDetailsService implements UserDetailsServiceEnhancer {
     @Override
     public Details selectUserDetails(String username) {
         LoginUserDetails userDetails = (LoginUserDetails) this.loadUserByUsername(username);
-        return new Details(userDetails.getPermission(), userDetails.getDataPermission(), userDetails.getUserInfo());
+        return new Details(userDetails.getPermission(), userDetails.getDataPermission(), userDetails.getUser());
     }
 
 

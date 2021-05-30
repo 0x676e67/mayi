@@ -1,6 +1,7 @@
 package com.zf1976.ant.auth.enhance;
 
 import com.zf1976.ant.auth.LoginUserDetails;
+import com.zf1976.ant.auth.SecurityContextHolder;
 import com.zf1976.ant.auth.enhance.serialize.JacksonSerializationStrategy;
 import com.zf1976.ant.common.core.util.RequestUtil;
 import com.zf1976.ant.common.security.property.SecurityProperties;
@@ -9,6 +10,7 @@ import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.ScanOptions;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.common.ExpiringOAuth2RefreshToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2RefreshToken;
@@ -260,7 +262,12 @@ public class RedisTokenStoreEnhancer implements TokenStore {
      * @param authentication {@link OAuth2Authentication}
      */
     public void storeAccessToken(OAuth2AccessToken token, OAuth2Authentication authentication) {
+        // 认证成功信息细节
         LoginUserDetails details = (LoginUserDetails) authentication.getPrincipal();
+        // 保存认证成功细节
+        authentication.setDetails(details);
+        // 保存认证
+        SecurityContextHolder.setShareObject(Authentication.class, authentication);
         // 序列化Session
         byte[] serializeSession = this.jacksonSerialize(this.generationSession(token, authentication));
         // 序列化AccessToken

@@ -1,13 +1,16 @@
 package com.zf1976.ant.auth;
 
 import com.zf1976.ant.auth.service.DynamicDataSourceService;
+import com.zf1976.ant.common.security.pojo.Details;
 import com.zf1976.ant.common.security.property.SecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 只适合单机适用
@@ -27,8 +30,14 @@ public class SecurityContextHolder extends org.springframework.security.core.con
         CONTENTS_MAP.put(clazz, object);
     }
 
-    public static <T> T getShareObject(Class<T> clazz){
+    public static <T> T getShareObject(Class<T> clazz) {
         return clazz.cast(CONTENTS_MAP.get(clazz));
+    }
+
+    public static Details getAuthorizationDetails() {
+        Authentication shareObject = getShareObject(Authentication.class);
+        LoginUserDetails details = (LoginUserDetails) shareObject.getPrincipal();
+        return new Details(details.getPermission(), details.getDataPermission(), details.getUser());
     }
 
     /**
@@ -36,7 +45,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
      *
      * @return /
      */
-    public static String getIssuer(){
+    public static String getIssuer() {
         return securityProperties.getTokenIssuer();
     }
 
