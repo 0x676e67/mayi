@@ -1,4 +1,4 @@
-package com.zf1976.ant.upms.biz.config;
+package com.zf1976.ant.common.core.config;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -14,8 +14,8 @@ import java.io.IOException;
 
 /**
  * @author mac
- * @date 2021/1/1
- **/
+ * @date 2021/5/30
+ */
 @Configuration
 public class JacksonConfiguration {
 
@@ -37,5 +37,4 @@ public class JacksonConfiguration {
                     });
         return objectMapper;
     }
-
 }
