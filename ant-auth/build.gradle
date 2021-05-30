@@ -43,7 +43,7 @@ dependencies {
     implementation('org.springframework.security:spring-security-test')
     implementation('org.springframework.boot:spring-boot-test')
     implementation("com.baomidou:mybatis-plus-boot-starter:${mybatisPlusVersion}")
-    runtimeOnly("mysql:mysql-connector-java:${mysqlconnectorVersion}")
+    runtimeOnly("mysql:mysql-connector-java:${mysqlConnectorVersion}")
 
 }
 

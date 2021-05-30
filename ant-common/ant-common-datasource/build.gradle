@@ -11,5 +11,5 @@ dependencies {
     implementation("com.baomidou:dynamic-datasource-spring-boot-starter:${dynamicDataSourceVersion}")
     implementation("com.baomidou:mybatis-plus-boot-starter:${mybatisPlusVersion}")
     implementation("com.alibaba:druid-spring-boot-starter:${druidVersion}")
-    runtimeOnly("mysql:mysql-connector-java:${mysqlconnectorVersion}")
+    runtimeOnly("mysql:mysql-connector-java:${mysqlConnectorVersion}")
 }
