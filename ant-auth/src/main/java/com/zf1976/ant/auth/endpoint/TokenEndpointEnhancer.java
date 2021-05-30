@@ -1,6 +1,6 @@
 package com.zf1976.ant.auth.endpoint;
 
-import com.zf1976.ant.auth.DetailsResult;
+import com.zf1976.ant.auth.AuthorizationResult;
 import com.zf1976.ant.auth.pojo.Captcha;
 import com.zf1976.ant.auth.service.UserDetailsServiceEnhancer;
 import com.zf1976.ant.common.component.validate.service.CaptchaService;
@@ -49,8 +49,8 @@ public class TokenEndpointEnhancer {
     }
 
     @PostMapping("/token")
-    public DataResult<DetailsResult> postAccessToken(Principal principal,
-                                                     @RequestParam Map<String, String> parameters) throws HttpRequestMethodNotSupportedException {
+    public DataResult<AuthorizationResult> postAccessToken(Principal principal,
+                                                           @RequestParam Map<String, String> parameters) throws HttpRequestMethodNotSupportedException {
         if (!(principal instanceof Authentication)) {
             throw new InsufficientAuthenticationException("There is no client authentication. Try adding an appropriate authentication filter.");
         } else {
@@ -60,7 +60,7 @@ public class TokenEndpointEnhancer {
                               .is2xxSuccessful() && oAuth2AccessToken != null) {
                 String username = (String) oAuth2AccessToken.getAdditionalInformation()
                                                             .get(AuthConstants.USERNAME);
-                return DataResult.success(new DetailsResult(oAuth2AccessToken, userDetailsService.selectUserDetails(username)));
+                return DataResult.success(new AuthorizationResult(oAuth2AccessToken, userDetailsService.selectUserDetails(username)));
             }
             throw new InsufficientAuthenticationException("Client authentication failed.");
         }
