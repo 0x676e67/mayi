@@ -2,7 +2,6 @@ package com.zf1976.ant.upms.biz.pojo.enums;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.baomidou.mybatisplus.core.enums.IEnum;
-import com.fasterxml.jackson.annotation.JsonValue;
 
 
 /**
@@ -14,7 +13,7 @@ public enum DataPermissionEnum implements IEnum<Integer> {
     /**
      * 用户部门权限
      */
-    LEVEL(0, "本级"),
+    LEVEL(0, "用户"),
     /**
      * 自定义数据权限
      */

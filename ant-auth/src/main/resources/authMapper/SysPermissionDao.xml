@@ -9,7 +9,8 @@
         <result property="enabled" column="enabled" jdbcType="BIT"/>
         <result property="dataScope" column="data_scope" jdbcType="INTEGER"/>
         <result property="description" column="description" jdbcType="VARCHAR"/>
-        <association property="bindingPermissions" column="id" javaType="com.zf1976.ant.auth.pojo.BindingPermission" select="selectPermissionsByRoleId" />
+        <!--        嵌套子查询-->
+        <collection property="bindingPermissions" column="id" select="selectPermissionsByRoleId"/>
     </resultMap>
 
 <!--   根据权限id删除 权限-资源关系-->
@@ -63,7 +64,7 @@
     <select id="selectRoleBindingList" resultMap="roleBindingMap">
         select id,
                name,
-               level,
+               data_scope,
                description,
                enabled
         from sys_role

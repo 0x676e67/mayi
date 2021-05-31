@@ -33,6 +33,11 @@ public class SecurityContextHolder extends org.springframework.security.core.con
         return clazz.cast(CONTENTS_MAP.get(clazz));
     }
 
+    /**
+     * 获取授权成功后细节
+     *
+     * @return {@link Details}
+     */
     public static Details getAuthorizationDetails() {
         LoginUserDetails details = (LoginUserDetails) getContext().getAuthentication()
                                                                   .getDetails();
@@ -42,7 +47,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
     /**
      * 获取签发方
      *
-     * @return /
+     * @return {@link String}
      */
     public static String getIssuer() {
         return securityProperties.getTokenIssuer();
