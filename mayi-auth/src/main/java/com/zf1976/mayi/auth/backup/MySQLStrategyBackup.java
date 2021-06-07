@@ -1,4 +1,4 @@
-package com.zf1976.mayi.auth.system;
+package com.zf1976.mayi.auth.backup;
 
 import com.zf1976.mayi.auth.exception.SQLBackupException;
 import org.slf4j.Logger;
@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  * @author ant
  * Create by Ant on 2021/3/16 8:58 AM
  */
-public class MySQLStrategyBackup implements SQLBackup {
+public class MySQLStrategyBackup implements SQLBackupStrategy {
 
     private final Logger log = LoggerFactory.getLogger("[SQL-BACKUP]");
     private final static  String INDEX_END = ";";
@@ -41,7 +41,6 @@ public class MySQLStrategyBackup implements SQLBackup {
         this.dataSource = dataSource;
         this.mysqlRecover = "mysql --defaults-extra-file=/etc/my.cnf " + this.getDatabase() + " < ";
         this.mysqlDump = "mysqldump --defaults-extra-file=/etc/my.cnf " + this.getDatabase();
-
     }
 
     /**
@@ -116,7 +115,7 @@ public class MySQLStrategyBackup implements SQLBackup {
                 }
                 // 执行备份文件命令
                 if (executeStrategyCommand(backupFile)) {
-                    log.info("Successfully backed up the database");
+                    log.info("The {} Database backup is successful", getDatabase());
                 }
                 return true;
             } catch (IOException | InterruptedException exception) {

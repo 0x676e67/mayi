@@ -237,26 +237,4 @@ public class SecurityProperties {
         return this;
     }
 
-    @Override
-    public String toString() {
-        return "SecurityProperties{" +
-                "owner='" + owner + '\'' +
-                ", tokenHeader='" + tokenHeader + '\'' +
-                ", tokenIssuer='" + tokenIssuer + '\'' +
-                ", tokenSingle=" + tokenSingle +
-                ", tokenAuthoritiesKey='" + tokenAuthoritiesKey + '\'' +
-                ", prefixToken='" + prefixToken + '\'' +
-                ", tokenBase64Secret='" + tokenBase64Secret + '\'' +
-                ", tokenExpiredTime=" + tokenExpiredTime +
-                ", tokenDetect=" + tokenDetect +
-                ", tokenRestore=" + tokenRestore +
-                ", prefixSessionId='" + prefixSessionId + '\'' +
-                ", prefixSessionToken='" + prefixSessionToken + '\'' +
-                ", tokenRefresh=" + tokenRefresh +
-                ", tokenRefreshScope=" + tokenRefreshScope +
-                ", rsaSecret='" + rsaSecret + '\'' +
-                ", logoutUrl='" + logoutUrl + '\'' +
-                ", ignoreUri=" + Arrays.toString(ignoreUri) +
-                '}';
-    }
 }

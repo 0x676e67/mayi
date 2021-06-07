@@ -39,11 +39,4 @@ public class AuthProperties {
         return this;
     }
 
-    @Override
-    public String toString() {
-        return "AuthProperties{" +
-                "enableSignature=" + enableSignature +
-                ", model=" + model +
-                '}';
-    }
 }

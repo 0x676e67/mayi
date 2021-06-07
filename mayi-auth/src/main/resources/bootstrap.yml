@@ -34,6 +34,7 @@ spring:
         max-wait: 10
         max-active: 32
         min-idle: 2
+
   #json序列化配置
   jackson:
     time-zone: GMT+8
@@ -71,9 +72,6 @@ management:
   health:
     db:
       enabled: true
-
-
-
 
 #公用线程池配置
 executor:
@@ -115,8 +113,10 @@ auth:
   enable-signature: true
   model: false
 
+# 数据库备份
 sql-backup:
-  path: /work/backup
+  home: user.home
+  directory: /.mayi/backup
 
 ---
 #nacos配置

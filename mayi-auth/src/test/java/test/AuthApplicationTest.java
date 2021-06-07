@@ -1,11 +1,13 @@
 package test;
 
 import com.zf1976.mayi.auth.AuthApplication;
+import com.zf1976.mayi.auth.backup.SQLBackupStrategy;
+import com.zf1976.mayi.auth.backup.service.MySQLBackupService;
 import com.zf1976.mayi.auth.dao.SysPermissionDao;
 import com.zf1976.mayi.auth.pojo.RoleBinding;
 import com.zf1976.mayi.auth.service.DynamicDataSourceService;
 import com.zf1976.mayi.auth.service.OAuth2ClientService;
-import com.zf1976.mayi.auth.system.MySQLStrategyBackup;
+import com.zf1976.mayi.auth.backup.MySQLStrategyBackup;
 import com.zf1976.mayi.common.encrypt.EncryptUtil;
 import com.zf1976.mayi.upms.biz.dao.SysRoleDao;
 import com.zf1976.mayi.upms.biz.dao.SysUserDao;
@@ -38,15 +40,19 @@ public class AuthApplicationTest {
     @Autowired
     DataSource dataSource;
 
-    @Value("${sql-backup.path}")
-    String path;
-
     @Autowired
     DynamicDataSourceService dynamicDataSourceService;
 
     @Autowired
     private SysPermissionDao permissionDao;
 
+    @Autowired
+    private MySQLBackupService mySQLBackupService;
+
+    @Test
+    public void sqlBackupTest() {
+        this.mySQLBackupService.createBackup();
+    }
 
     @Test
     public void sessionTest() {
@@ -55,21 +61,5 @@ public class AuthApplicationTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    @Test
-    public void backupTest() {
-        final MySQLStrategyBackup strategyBackupHolder = new MySQLStrategyBackup(this.dataSource);
-        final boolean backup = strategyBackupHolder.backup(System.getProperty("user.home"), this.path);
-        if (backup) {
-            System.out.println("备份成功");
-        }
-        if (strategyBackupHolder.recover("/Users/mac/work/backup/2021-05-14-21-32-46.sql")) {
-            System.out.println("恢复成功");
-        }
-    }
-    @Test
-    public void resourceTreeTest() {
-        List<RoleBinding> roleBindings = this.permissionDao.selectRoleBindingList();
     }
 }

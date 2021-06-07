@@ -129,7 +129,7 @@ mybatis-plus: #mybatis-plus 配置
 file:
   config:
     # 工作文件根目录
-    work-file-path: /work
+    work-file-path: /.mayi
     # 普通文件大小/M
     file-max-size: 50
     # 头像大小

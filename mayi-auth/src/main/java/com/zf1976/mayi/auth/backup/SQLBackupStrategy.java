@@ -1,4 +1,4 @@
-package com.zf1976.mayi.auth.system;
+package com.zf1976.mayi.auth.backup;
 
 import java.io.File;
 import java.io.InputStream;
@@ -10,7 +10,7 @@ import java.nio.file.Paths;
  * Create by Ant on 2021/6/8 4:21 上午
  */
 @SuppressWarnings("unused")
-public interface SQLBackup {
+public interface SQLBackupStrategy {
 
     /**
      * 生成备份文件

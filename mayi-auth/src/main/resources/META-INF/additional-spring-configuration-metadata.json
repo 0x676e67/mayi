@@ -4,5 +4,15 @@
       "name": "auth.enable-signature",
       "type": "java.lang.String",
       "description": "开启接口方法签名."
-  }
-]}
+    },
+    {
+      "name": "sql-backup.directoty",
+      "type": "java.lang.String",
+      "description": "Description for sql-backup.directoty"
+    },
+    {
+      "name": "executor.core-pool-size",
+      "type": "java.lang.String",
+      "description": "Description for executor.core-pool-size."
+    }
+  ]}
