@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zf1976.mayi.upms.biz.dao.SysMenuDao">
+    <resultMap type="com.zf1976.mayi.upms.biz.pojo.po.SysMenu" id="SysMenuMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="pid" column="pid" jdbcType="INTEGER"/>
+        <result property="type" column="type" jdbcType="INTEGER"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="componentName" column="component_name" jdbcType="VARCHAR"/>
+        <result property="componentPath" column="component_path" jdbcType="VARCHAR"/>
+        <result property="menuSort" column="menu_sort" jdbcType="INTEGER"/>
+        <result property="icon" column="icon" jdbcType="VARCHAR"/>
+        <result property="routePath" column="route_path" jdbcType="VARCHAR"/>
+        <result property="iframe" column="iframe" jdbcType="BOOLEAN"/>
+        <result property="cache" column="cache" jdbcType="BOOLEAN"/>
+        <result property="hidden" column="hidden" jdbcType="BOOLEAN"/>
+        <result property="permission" column="permission" jdbcType="VARCHAR"/>
+        <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
+        <result property="updateBy" column="update_by" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <!--根据角色id集合删除所有关联菜单-->
+    <delete id="deleteRoleRelationByIds">
+        delete
+        from sys_role_menu_relation
+        where menu_id
+        in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+    <!-- 查询角色关联菜单-->
+    <select id="selectListByRoleId" resultType="com.zf1976.mayi.upms.biz.pojo.po.SysMenu">
+        select id,
+               pid,
+               type,
+               title,
+               component_name,
+               component_path,
+               menu_sort,
+               icon,
+               route_path,
+               iframe,
+               cache,
+               hidden,
+               permission,
+               create_by,
+               update_by,
+               create_time,
+               update_time
+        from sys_menu
+                 join sys_role_menu_relation srm on sys_menu.id = srm.menu_id
+        where role_id = #{roleId}
+    </select>
+
+    <!-- 查询多个角色所关联菜单-->
+    <select id="selectListByRoleIds" resultType="com.zf1976.mayi.upms.biz.pojo.po.SysMenu">
+        select distinct
+        id,
+        pid,
+        type,
+        title,
+        component_name,
+        component_path,
+        menu_sort,
+        icon,
+        route_path,
+        iframe,
+        cache,
+        hidden,
+        permission,
+        create_by,
+        update_by,
+        create_time,
+        update_time
+        from sys_menu join sys_role_menu_relation srm on sys_menu.id = srm.menu_id
+        where role_id
+        in
+        <foreach collection="roleIds" item="roleId" index="index" open="(" close=")" separator=",">
+            #{roleId}
+        </foreach>
+    </select>
+
+    <!--查询 menu-user 依赖关系-->
+    <select id="selectRoleDependsOnById" resultType="java.lang.Long">
+        select count(*)
+        from sys_role_menu_relation
+        where menu_id = #{id}
+    </select>
+
+    <!--查询菜单最大类型值-->
+    <select id="selectMaxType" resultType="java.lang.Long">
+        select max(type)
+        from sys_menu
+    </select>
+    <!--——————————————————————————————————————————————————————————————————————————————————————————-->
+</mapper>

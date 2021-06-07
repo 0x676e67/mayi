@@ -1,0 +1,24 @@
+group 'com.zf1976'
+version '0.0.1-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':mayi-upms:mayi-upms-api')
+    implementation project(':mayi-upms:mayi-upms-dao')
+    implementation project(':mayi-common:mayi-common-core')
+    implementation project(':mayi-common:mayi-common-encrypt')
+    implementation("org.redisson:redisson:${redissonVersion}")
+    implementation("io.jsonwebtoken:jjwt-api:${jwtVersion}")
+    implementation("io.jsonwebtoken:jjwt-impl:${jwtVersion}")
+    implementation("io.jsonwebtoken:jjwt-jackson:${jwtVersion}")
+    implementation("org.springframework.boot:spring-boot-starter-web:${springbootVersion}")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis:${springbootVersion}")
+    implementation("com.baomidou:mybatis-plus-boot-starter:${mybatisPlusVersion}")
+}
+
+test {
+    useJUnitPlatform()
+}

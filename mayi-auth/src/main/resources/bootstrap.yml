@@ -1,0 +1,145 @@
+server:
+  port: 9000
+  tomcat:
+    # 最大链接数
+    max-connections: 20000
+    # 最大线程数
+    threads:
+      max: 500
+#配置
+spring:
+  profiles:
+    active: conf,dev
+  application:
+    name: mayi-auth
+  datasource:
+    username: root
+    password: itcast
+    url: jdbc:mysql://localhost:3306/master?useSSL=false&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&autoReconnect=true&failOverReadOnly=false&maxReconnects=10&serverTimezone=GMT
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 20
+      max-lifetime: 1800000
+      minimum-idle: 5
+
+  redis:
+    host: 127.0.0.1
+    password:
+    port: 6379
+    database: 0
+    timeout: 5000
+    jedis:
+      pool:
+        max-wait: 10
+        max-active: 32
+        min-idle: 2
+  #json序列化配置
+  jackson:
+    time-zone: GMT+8
+    default-property-inclusion: non_null
+    date-format: yyyy-MM-dd HH:mm:ss
+
+  servlet:
+    multipart:
+      enabled: true
+#admin监控
+  boot:
+    admin:
+      client:
+        url: http://localhost:4444
+        username: admin
+        password: 123456
+
+#actuator监控
+management:
+  endpoints:
+    enabled-by-default: true
+    web:
+      exposure:
+        #暴露所有端点
+        include: '*'
+  # actuator端口独立，只允许内网使用
+  server:
+    port: 6666
+  endpoint:
+    health:
+      #显示所有细节
+      show-details: always
+    info:
+      enabled: true
+  health:
+    db:
+      enabled: true
+
+
+
+
+#公用线程池配置
+executor:
+  # 配置核心线程数
+  core-pool-size: 8
+  # 配置最大线程数
+  max-pool-size: 16
+  # 配置队列大小
+  queue-capacity: 1000
+  # 线程池名前缀
+  name-prefix: Core-task-
+  # 线程存活时间
+  Keep-alive-seconds: 200
+  # 线程组名
+  thred-group-name: [ Auth-Group ]
+  # bean名
+  bean-name: AuthorizationServerTaskExecutor
+
+
+#mybatis-plus 配置
+mybatis-plus:
+  global-config:
+    db-config:
+      update-strategy: not_empty
+  configuration:
+    map-underscore-to-camel-case: true
+    #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  check-config-location: true
+  type-enums-package: com.zf1976.ant.upms.biz.pojo.enums
+  mapper-locations: classpath:/mapper/*.xml,classpath:/authMapper/*.xml
+
+# api接口加密
+api-encrypt:
+  open: true
+  show-log: true
+
+# 开启接口签名
+auth:
+  enable-signature: true
+  model: false
+
+sql-backup:
+  path: /work/backup
+
+---
+#nacos配置
+spring:
+  profiles: prod
+  cloud:
+    nacos:
+      config:
+        file-extension: yaml
+      server-addr: innas.cn:8848
+      discovery:
+        register-enabled: true
+        enabled: true
+
+---
+#nacos配置
+spring:
+  profiles: dev
+  cloud:
+    nacos:
+      config:
+        file-extension: yaml
+      server-addr: 127.0.0.1:8848
+      discovery:
+        register-enabled: true
+        enabled: true

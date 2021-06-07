@@ -1,0 +1,54 @@
+plugins {
+    id 'org.springframework.boot' version "${springbootVersion}"
+    id 'io.spring.dependency-management' version "${springDependencyManagerVersion}"
+}
+
+dependencies {
+    implementation project(':mayi-upms:mayi-upms-api')
+    implementation project(':mayi-upms:mayi-upms-dao')
+    implementation project(':mayi-common:mayi-common-core')
+    implementation project(':mayi-common:mayi-common-log')
+    implementation project(':mayi-common:mayi-common-encrypt')
+    implementation project(':mayi-common:mayi-common-security')
+    implementation project(':mayi-common:mayi-common-component')
+    implementation project(':mayi-common:mayi-common-mybatis')
+    implementation project(':mayi-common:mayi-common-datasource')
+    implementation project(':mayi-common:mayi-common-feign')
+    implementation project(':mayi-visual:mayi-visual-monitor')
+    implementation('cn.hutool:hutool-poi:5.4.5')
+    implementation('org.apache.poi:poi-ooxml:4.1.2')
+    implementation("de.codecentric:spring-boot-admin-starter-client:${adminMonitorVersion}")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("com.baomidou:mybatis-plus-boot-starter:${mybatisPlusVersion}")
+    implementation "com.alibaba.cloud:spring-cloud-alibaba-dependencies:${nacosVersion}"
+    implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery:${nacosVersion}"
+    implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config:${nacosVersion}"
+    implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
+    implementation('org.springframework.boot:spring-boot-starter-web')
+    implementation('org.springframework.boot:spring-boot-test')
+    implementation('org.springframework.boot:spring-boot-starter-validation')
+    implementation('org.springframework.boot:spring-boot-starter-data-redis')
+    implementation("org.springframework.boot:spring-boot-configuration-processor")
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+//bootRun{
+//    setMain("com.zf1976.ant.upms.biz.SystemApplication")
+//}
+
+jar.enabled = true
+
+
+//bootJar {
+//    mainClassName = "com.zf1976.ant.upms.biz.SystemApplication"
+//    launchScript()
+//}
