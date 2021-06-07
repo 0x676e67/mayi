@@ -19,13 +19,13 @@ spring:
           predicates:
             - Path=/v1/**
         # 认证服务器
-        - id: ant-auth
-          uri: lb://ant-auth
+        - id: mayi-auth
+          uri: lb://mayi-auth
           predicates:
             - Path=/oauth/**
         # 后台
-        - id: ant-upms-bzi
-          uri: lb://ant-upms-bzi
+        - id: mayi-upms-bzi
+          uri: lb://mayi-upms-bzi
           predicates:
             - Path=/api/**, /avatar/**, /static/**, /druid/**
   #          filters:
