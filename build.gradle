@@ -8,10 +8,13 @@ configurations.all() {
             // 修改 gradle不自动处理版本冲突
             failOnVersionConflict()
         }
-
 }
 
+// 所有项目设置
 allprojects {
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+    }
     apply plugin: 'java'
     apply plugin: 'maven'
     apply from: this.rootProject.file('gradle.properties')
@@ -29,6 +32,7 @@ allprojects {
     }
 }
 
+// 子项目设置
 subprojects {
      repositories {
          mavenLocal()
