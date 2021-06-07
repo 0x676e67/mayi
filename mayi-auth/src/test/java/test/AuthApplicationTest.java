@@ -5,7 +5,7 @@ import com.zf1976.mayi.auth.dao.SysPermissionDao;
 import com.zf1976.mayi.auth.pojo.RoleBinding;
 import com.zf1976.mayi.auth.service.DynamicDataSourceService;
 import com.zf1976.mayi.auth.service.OAuth2ClientService;
-import com.zf1976.mayi.auth.system.MySqlStrategyBackup;
+import com.zf1976.mayi.auth.system.MySQLStrategyBackup;
 import com.zf1976.mayi.common.encrypt.EncryptUtil;
 import com.zf1976.mayi.upms.biz.dao.SysRoleDao;
 import com.zf1976.mayi.upms.biz.dao.SysUserDao;
@@ -59,7 +59,7 @@ public class AuthApplicationTest {
 
     @Test
     public void backupTest() {
-        final MySqlStrategyBackup strategyBackupHolder = new MySqlStrategyBackup(this.dataSource);
+        final MySQLStrategyBackup strategyBackupHolder = new MySQLStrategyBackup(this.dataSource);
         final boolean backup = strategyBackupHolder.backup(System.getProperty("user.home"), this.path);
         if (backup) {
             System.out.println("备份成功");

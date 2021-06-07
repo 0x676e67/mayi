@@ -1,12 +1,12 @@
 package com.zf1976.mayi.auth.system;
 
+import com.zf1976.mayi.auth.exception.SQLBackupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import javax.sql.DataSource;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  * @author ant
  * Create by Ant on 2021/3/16 8:58 AM
  */
-public class MySqlStrategyBackup {
+public class MySQLStrategyBackup implements SQLBackup {
 
     private final Logger log = LoggerFactory.getLogger("[SQL-BACKUP]");
     private final static  String INDEX_END = ";";
@@ -36,11 +36,11 @@ public class MySqlStrategyBackup {
     private final DataSource dataSource;
     private final String database;
 
-    public MySqlStrategyBackup(DataSource dataSource) {
+    public MySQLStrategyBackup(DataSource dataSource) {
         this.database = this.extractDatabase(dataSource);
         this.dataSource = dataSource;
-        this.mysqlRecover = "mysql --defaults-extra-file=/etc/my.cnf " + this.database + " < ";
-        this.mysqlDump = "mysqldump --defaults-extra-file=/etc/my.cnf " + this.database;
+        this.mysqlRecover = "mysql --defaults-extra-file=/etc/my.cnf " + this.getDatabase() + " < ";
+        this.mysqlDump = "mysqldump --defaults-extra-file=/etc/my.cnf " + this.getDatabase();
 
     }
 
@@ -76,10 +76,10 @@ public class MySqlStrategyBackup {
                     }
                 }
             }
-            return null;
+            throw new SQLBackupException("Cannot match data source name");
         } catch (SQLException e) {
             log.error("Invalid data source", e.getCause());
-            return null;
+            throw new SQLBackupException("Invalid datasource", e.getCause());
         }
     }
 
@@ -93,39 +93,6 @@ public class MySqlStrategyBackup {
         return this.database;
     }
 
-    /**
-     * 备份并生成文件
-     *
-     * @date 2021-05-14 18:12:23
-     * @param fileDirectory 备份目录
-     * @return {@link boolean}
-     */
-    public boolean backup(String fileDirectory) {
-        return backup(Paths.get(fileDirectory).toFile());
-    }
-
-    /**
-     * 备份并生成文件
-     *
-     * @date 2021-05-14 21:18:18
-     * @param path 路径
-     * @return {@link boolean}
-     */
-    public boolean backup(Path path) {
-        return this.backup(path.toFile());
-    }
-
-    /**
-     * 备份并生成文件
-     *
-     * @date 2021-05-14 21:19:46
-     * @param firstPath 首路径
-     * @param more 子路径
-     * @return {@link boolean}
-     */
-    public boolean backup(String firstPath, String ...more) {
-        return this.backup(Paths.get(firstPath, more));
-    }
 
     /**
      * 备份并生成文件
@@ -134,6 +101,7 @@ public class MySqlStrategyBackup {
      * @param fileDirectory 备份目录
      * @return {@link boolean}
      */
+    @Override
     public boolean backup(File fileDirectory) {
         if (!fileDirectory.exists() && !fileDirectory.mkdirs()) {
             log.warn("Create a directory：{} failure", fileDirectory);
@@ -161,27 +129,10 @@ public class MySqlStrategyBackup {
         return false;
     }
 
-    /**
-     * 备份恢复
-     *
-     * @date 2021-05-14 18:13:41
-     * @param absolutePath 备份文件绝对路径
-     * @return {@link boolean}
-     */
-    public boolean recover(String absolutePath) {
-        return recover(Paths.get(absolutePath).toFile());
-    }
-
-    /**
-     * 备份恢复
-     *
-     * @date 2021-05-14 18:14:04
-     * @param sqlFile 备份SQL文件对象
-     * @return {@link boolean}
-     */
-    public boolean recover(File sqlFile){
-        if(sqlFile.exists() && sqlFile.canRead() && sqlFile.length() > 0){
-            String absolutePath = sqlFile.getAbsolutePath();
+    @Override
+    public boolean recover(File absolutePathFile){
+        if(absolutePathFile.exists() && absolutePathFile.canRead() && absolutePathFile.length() > 0){
+            String absolutePath = absolutePathFile.getAbsolutePath();
             try {
                 Process p = Runtime.getRuntime().exec(new String[]{"bash", "-c", mysqlRecover + absolutePath});
                 if(p.waitFor() == 0){
@@ -197,13 +148,7 @@ public class MySqlStrategyBackup {
         return false;
     }
 
-    /**
-     * 读取sql文件流执行SQL
-     *
-     * @date 2021-05-14 18:29:21
-     * @param sqlInputStream sql文件流
-     * @return {@link boolean}
-     */
+    @Override
     public boolean recover(InputStream sqlInputStream) {
         try {
             List<String> sqlStatement = readFileByLines(sqlInputStream);
