@@ -214,11 +214,4 @@ public class MySQLBackupService {
         }
     }
 
-    public static void main(String[] args) {
-        var file = Paths.get("/Users/mac", "/.mayi/backup")
-                        .toFile();
-        var files = file.listFiles((pathname -> pathname.isDirectory() && pathname.exists()));
-        assert files != null;
-
-    }
 }
