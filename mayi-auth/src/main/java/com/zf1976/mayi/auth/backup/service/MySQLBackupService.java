@@ -72,6 +72,7 @@ public class MySQLBackupService {
                             if (this.sqlBackupStrategy.backup(childFileDirectory)) {
                                 break;
                             }
+                            throw new SQLBackupException("Failed to backup database");
                         } else {
                             // 新增目录上限判断
                             if ((childFileDirectoryArray.length + 1) <= this.pageSize) {
@@ -95,14 +96,13 @@ public class MySQLBackupService {
         } else {
             condition = true;
         }
-
         if (condition) {
             // 按0-9序号划分目录并创建文件
             for (int i = 0; i <= this.pageSize; i++) {
                 var childFileDirectory = this.getBackupChildFileDirectory(i);
                 // 创建备份文件成功退出
-                if (this.sqlBackupStrategy.backup(childFileDirectory)) {
-                    break;
+                if (!this.sqlBackupStrategy.backup(childFileDirectory)) {
+                    throw new SQLBackupException("Failed to backup database");
                 }
             }
         }

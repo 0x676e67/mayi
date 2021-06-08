@@ -37,7 +37,6 @@ public class MySQLStrategyBackup implements SQLBackupStrategy {
     private final Pattern patternDefault = Pattern.compile("([/])([a-zA-Z]*)");
     private final DataSource dataSource;
     private final String database;
-    private final AlternativeJdkIdGenerator jdkIdGenerator = new AlternativeJdkIdGenerator();
 
     public MySQLStrategyBackup(DataSource dataSource) {
         this.database = this.extractDatabase(dataSource);
