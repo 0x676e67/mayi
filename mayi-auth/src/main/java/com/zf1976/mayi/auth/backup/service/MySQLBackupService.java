@@ -6,11 +6,17 @@ import com.zf1976.mayi.auth.backup.SQLBackupStrategy;
 import com.zf1976.mayi.auth.backup.property.SQLBackupProperties;
 import com.zf1976.mayi.auth.exception.SQLBackupException;
 import com.zf1976.mayi.auth.pojo.BackupFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -24,7 +30,8 @@ import java.util.stream.Collectors;
 @Service(value = "mySQLBackupService")
 public class MySQLBackupService {
 
-    private final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+    private final Logger log = LoggerFactory.getLogger("MySQLBackupService");
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     private final Pattern pattern = Pattern.compile("[0-9]");
     private final SQLBackupStrategy sqlBackupStrategy;
     private final SQLBackupProperties properties;
@@ -90,7 +97,7 @@ public class MySQLBackupService {
                 }
             }
             // 创建新目录并备份
-            if (createNewIndexDirectory) {
+            if (createNewIndexDirectory && (childFileDirectoryArray.length + 1) <= this.pageCount) {
                 File backupChildFileDirectory = this.getBackupChildFileDirectory(childFileDirectoryArray.length);
                 this.createBackupFile(backupChildFileDirectory);
             }
@@ -134,7 +141,8 @@ public class MySQLBackupService {
                                           .setCanRead(file.canRead())
                                           .setCanWrite(file.canWrite())
                                           .setHidden(file.isHidden())
-                                          .setLastModifyDate(new Date(file.lastModified()));
+                                          .setLastModifyDate(new Date(file.lastModified()))
+                                          .setMd5(this.getFileMD5(file));
                                 targetFileList.add(backupFile);
                             }
                             return targetFileList;
@@ -158,6 +166,38 @@ public class MySQLBackupService {
         return Collections.emptyList();
     }
 
+    /**
+     * 根据文件名进行删除备份文件(类似递归查找)
+     *
+     * @param filename 文件名
+     * @return {@link Void}
+     */
+    public Void deleteBackupFileByFilename(String filename) {
+        File backupParentFileDirectory = this.getBackupParentFileDirectory();
+        File[] dateFileDirectoryArray = this.getArrayFilterHiddenAndDirectory(backupParentFileDirectory);
+        if (dateFileDirectoryArray != null) {
+            for (File dateFileDirectory : dateFileDirectoryArray) {
+                File[] childFileDirectoryArray = this.getArrayFilterHiddenAndDirectory(dateFileDirectory);
+                for (File childFileDirectory : childFileDirectoryArray) {
+                    File[] backupFileArray = childFileDirectory.listFiles(pathname -> !pathname.isHidden() && pathname.getName().startsWith(this.sqlBackupStrategy.getDatabase()));
+                    if (backupFileArray != null) {
+                        for (File backupFile : backupFileArray) {
+                            if (backupFile.getName().equals(filename)) {
+                                try {
+                                    Files.delete(backupFile.toPath());
+                                    return null;
+                                } catch (IOException e) {
+                                    log.error(e.getMessage(), e.getCause());
+                                    throw new SQLBackupException("Failed to delete file：" + filename, e.getCause());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
 
     private File[] getChildFileAndFilter(File dateFileDirectory) {
         return dateFileDirectory.listFiles(pathname -> {
@@ -211,6 +251,14 @@ public class MySQLBackupService {
     private String getDateDirectoryName(){
         synchronized (this) {
             return DATE_FORMAT.format(new Date());
+        }
+    }
+
+    private String getFileMD5(File file) {
+        try {
+            return DigestUtils.md5DigestAsHex(new FileInputStream(file));
+        } catch (IOException e) {
+            throw new SQLBackupException("Generate file MD5 error");
         }
     }
 

@@ -53,8 +53,7 @@ public class AuthApplicationTest {
 
     @Test
     public void sqlBackupTest() throws InterruptedException {
-        List<String> dateList = this.mySQLBackupService.selectBackupDate();
-        List<BackupFile> backupFiles = this.mySQLBackupService.selectBackupFileByDate(dateList.get(0), 1);
+        this.mySQLBackupService.deleteBackupFileByFilename("master-backup_2021-06-08_22-05-48_1623161148428.sql");
     }
 
     @Test
