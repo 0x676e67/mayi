@@ -1,20 +1,19 @@
 package com.zf1976.mayi.auth.backup.service;
 
+import com.power.common.util.PrettyMemoryUtil;
 import com.zf1976.mayi.auth.backup.MySQLStrategyBackup;
 import com.zf1976.mayi.auth.backup.SQLBackupStrategy;
 import com.zf1976.mayi.auth.backup.property.SQLBackupProperties;
 import com.zf1976.mayi.auth.exception.SQLBackupException;
 import com.zf1976.mayi.auth.pojo.BackupFile;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
 import java.io.File;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -29,12 +28,12 @@ public class MySQLBackupService {
     private final Pattern pattern = Pattern.compile("[0-9]");
     private final SQLBackupStrategy sqlBackupStrategy;
     private final SQLBackupProperties properties;
-    private final int pageSize;
+    private final int pageCount;
 
     public MySQLBackupService(DataSource dataSource, SQLBackupProperties properties) {
         this.sqlBackupStrategy = new MySQLStrategyBackup(dataSource);
         this.properties = properties;
-        this.pageSize = properties.getDayTotal() / properties.getFileCountSize();
+        this.pageCount = properties.getDayTotal() / properties.getFileCountSize();
     }
 
     /**
@@ -46,7 +45,7 @@ public class MySQLBackupService {
         // 备份文件目录
         var backupFileDirectory = this.getBackupParentFileDirectory();
         // 根据目录存在备份子目录过滤
-        var dateDirectoryArray = backupFileDirectory.listFiles(pathname -> pathname.isDirectory() && !pathname.isHidden());
+        var dateDirectoryArray = this.getArrayFilterHiddenAndDirectory(backupFileDirectory);
 
         // 按日期划分目录不存在
         if (dateDirectoryArray == null) {
@@ -82,7 +81,7 @@ public class MySQLBackupService {
                         }
                     } else {
                         // 新增目录上限判断
-                        if ((childFileDirectoryArray.length + 1) <= this.pageSize) {
+                        if ((childFileDirectoryArray.length + 1) <= this.pageCount) {
                             createNewIndexDirectory = true;
                         } else {
                             throw new SQLBackupException("Maximum number of backup files created that day");
@@ -100,14 +99,50 @@ public class MySQLBackupService {
     }
 
     /**
-     * 按字符串日期进行查询备份文件
+     * 按字符串日期进行分页查询备份文件
      *
      * @param date 自定义字符串日期格式
      * @return {@link List<BackupFile>}
      */
-    public List<BackupFile> selectBackupFileByDate(String date){
-
-
+    public List<BackupFile> selectBackupFileByDate(String date, Integer page){
+        if (StringUtils.isEmpty(date)) {
+            return Collections.emptyList();
+        }
+        File backupParentFileDirectory = this.getBackupParentFileDirectory();
+        File[] dateFileDirectoryArray = this.getArrayFilterHiddenAndDirectory(backupParentFileDirectory);
+        if (dateFileDirectoryArray != null) {
+            File targetFileDirectory = null;
+            for (File dateFileDirectory : dateFileDirectoryArray) {
+                if (dateFileDirectory.getName().equals(date)) {
+                    targetFileDirectory = dateFileDirectory;
+                    break;
+                }
+            }
+            if (targetFileDirectory != null) {
+                if (page != null && page > 0 && page <= this.pageCount) {
+                    File[] childFileDirectory = this.getArrayFilterHiddenAndDirectory(targetFileDirectory);
+                    if (childFileDirectory != null) {
+                        File[] targetFileArray = childFileDirectory[page].listFiles(pathname -> !pathname.isHidden() && pathname.getName()
+                                                                                                                      .startsWith(this.sqlBackupStrategy.getDatabase()));
+                        if (targetFileArray != null) {
+                            List<BackupFile> targetFileList = new LinkedList<>();
+                            for (File file : targetFileArray) {
+                                BackupFile backupFile = new BackupFile();
+                                backupFile.setName(file.getName())
+                                          .setSize(PrettyMemoryUtil.prettyByteSize(file.length()))
+                                          .setDirectory(file.isDirectory())
+                                          .setCanRead(file.canRead())
+                                          .setCanWrite(file.canWrite())
+                                          .setHidden(file.isHidden())
+                                          .setLastModifyDate(new Date(file.lastModified()));
+                                targetFileList.add(backupFile);
+                            }
+                            return targetFileList;
+                        }
+                    }
+                }
+            }
+        }
         return Collections.emptyList();
     }
 
@@ -116,7 +151,7 @@ public class MySQLBackupService {
         File[] files = backupParentFileDirectory.listFiles();
         if (files != null) {
             return Arrays.stream(files)
-                         .filter(File::isHidden)
+                         .filter(file -> !file.isHidden())
                          .map(File::getName)
                          .collect(Collectors.toList());
         }
@@ -127,14 +162,17 @@ public class MySQLBackupService {
     private File[] getChildFileAndFilter(File dateFileDirectory) {
         return dateFileDirectory.listFiles(pathname -> {
             // 按数字序号过滤目录文件名
-            for (int i = 0; i < this.pageSize; i++) {
-                if (String.valueOf(i)
-                          .equals(pathname.getName())) {
+            for (int i = 0; i < this.pageCount; i++) {
+                if (String.valueOf(i).equals(pathname.getName())) {
                     return true;
                 }
             }
             return false;
         });
+    }
+
+    private File[] getArrayFilterHiddenAndDirectory(File targetFile) {
+        return targetFile.listFiles(pathname -> !pathname.isHidden() && pathname.isDirectory());
     }
 
     private void createBackupFile(File directory) {

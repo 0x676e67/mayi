@@ -4,6 +4,7 @@ import com.zf1976.mayi.auth.AuthApplication;
 import com.zf1976.mayi.auth.backup.SQLBackupStrategy;
 import com.zf1976.mayi.auth.backup.service.MySQLBackupService;
 import com.zf1976.mayi.auth.dao.SysPermissionDao;
+import com.zf1976.mayi.auth.pojo.BackupFile;
 import com.zf1976.mayi.auth.pojo.RoleBinding;
 import com.zf1976.mayi.auth.service.DynamicDataSourceService;
 import com.zf1976.mayi.auth.service.OAuth2ClientService;
@@ -52,10 +53,8 @@ public class AuthApplicationTest {
 
     @Test
     public void sqlBackupTest() throws InterruptedException {
-        for (int i  = 0; i < 2 ; i++) {
-            mySQLBackupService.createBackup();
-        }
-
+        List<String> dateList = this.mySQLBackupService.selectBackupDate();
+        List<BackupFile> backupFiles = this.mySQLBackupService.selectBackupFileByDate(dateList.get(0), 1);
     }
 
     @Test

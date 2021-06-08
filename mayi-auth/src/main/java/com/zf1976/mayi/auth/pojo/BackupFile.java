@@ -41,7 +41,7 @@ public class BackupFile {
     /**
      * 最后更改时间
      */
-    private Date date;
+    private Date lastModifyDate;
 
     public String getName() {
         return name;
@@ -97,12 +97,12 @@ public class BackupFile {
         return this;
     }
 
-    public Date getDate() {
-        return date;
+    public Date getLastModifyDate() {
+        return lastModifyDate;
     }
 
-    public BackupFile setDate(Date date) {
-        this.date = date;
+    public BackupFile setLastModifyDate(Date lastModifyDate) {
+        this.lastModifyDate = lastModifyDate;
         return this;
     }
 
@@ -115,7 +115,7 @@ public class BackupFile {
                 ", canRead=" + canRead +
                 ", canWrite=" + canWrite +
                 ", hidden=" + hidden +
-                ", date=" + date +
+                ", date=" + lastModifyDate +
                 '}';
     }
 }
