@@ -1,11 +1,12 @@
 package com.zf1976.mayi.auth.controller.security;
 
 import com.zf1976.mayi.auth.backup.service.MySQLBackupService;
+import com.zf1976.mayi.auth.pojo.BackupFile;
 import com.zf1976.mayi.common.core.foundation.DataResult;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author ant
@@ -24,8 +25,27 @@ public class SQLBackupController {
     }
 
     @PreAuthorize("hasRole('admin')")
+    @PostMapping("/select/files")
+    DataResult<List<BackupFile>> selectBackupList(@RequestParam String date, @RequestParam Integer page) {
+        return DataResult.success(this.mySQLBackupService.selectBackupFileByDate(date, page));
+    }
+
+    @PreAuthorize("hasRole('admin')")
+    @GetMapping("/select/dates")
+    DataResult<List<String>> selectDateList() {
+        return DataResult.success(this.mySQLBackupService.selectBackupDate());
+    }
+
+    @PreAuthorize("hasRole('admin')")
     @PostMapping("/create")
     DataResult<Void> createBackup(){
         return DataResult.success(this.mySQLBackupService.createBackup());
     }
+
+    @PreAuthorize("hasRole('admin')")
+    @DeleteMapping("/delete")
+    DataResult<Void> deleteBackupFile(@RequestParam String filename) {
+        return DataResult.success(this.mySQLBackupService.deleteBackupFileByFilename(filename));
+    }
+
 }
