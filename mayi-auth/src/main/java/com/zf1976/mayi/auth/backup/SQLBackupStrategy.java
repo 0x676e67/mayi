@@ -100,4 +100,12 @@ public interface SQLBackupStrategy {
      */
     boolean recover(InputStream inputStream);
 
+
+    /**
+     * 获取链接的数据库
+     *
+     * @return {@link String}
+     */
+    String getDatabase();
+
 }

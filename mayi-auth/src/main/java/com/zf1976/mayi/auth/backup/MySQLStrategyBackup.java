@@ -4,6 +4,8 @@ import com.zf1976.mayi.auth.exception.SQLBackupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.util.AlternativeJdkIdGenerator;
+
 import javax.sql.DataSource;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -35,6 +37,7 @@ public class MySQLStrategyBackup implements SQLBackupStrategy {
     private final Pattern patternDefault = Pattern.compile("([/])([a-zA-Z]*)");
     private final DataSource dataSource;
     private final String database;
+    private final AlternativeJdkIdGenerator jdkIdGenerator = new AlternativeJdkIdGenerator();
 
     public MySQLStrategyBackup(DataSource dataSource) {
         this.database = this.extractDatabase(dataSource);
@@ -88,7 +91,8 @@ public class MySQLStrategyBackup implements SQLBackupStrategy {
      * @date 2021-05-14 21:04:35
      * @return {@link String}
      */
-    private String getDatabase() {
+    @Override
+    public String getDatabase() {
         return this.database;
     }
 
@@ -141,7 +145,7 @@ public class MySQLStrategyBackup implements SQLBackupStrategy {
                     log.info("Database recovery failed, data source:{}", absolutePath);
                 }
             } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
+                log.error(e.getMessage());
             }
         }
         return false;
@@ -164,7 +168,7 @@ public class MySQLStrategyBackup implements SQLBackupStrategy {
                 log.info("No execute sqlStatement...");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
         }
         return false;
     }
@@ -246,11 +250,8 @@ public class MySQLStrategyBackup implements SQLBackupStrategy {
      */
     private File generationStrategyFile(File directory) throws IOException {
         File file = Paths.get(directory.getAbsolutePath(), this.generatorFilename()).toFile();
-        if (file.isFile()) {
-            throw new UnsupportedOperationException("File path is not supported");
-        }
         if (!file.createNewFile()) {
-            throw new RuntimeException("Failed to create file：" + directory.getName());
+            throw new SQLBackupException("Failed to create file：" + file.getName());
         }
         return file;
     }
@@ -317,8 +318,10 @@ public class MySQLStrategyBackup implements SQLBackupStrategy {
      * @return {@link String}
      */
     private String generatorFilename() {
-        synchronized (DATE_FORMAT) {
-            return this.database + "-backup_"  + DATE_FORMAT.format(Calendar.getInstance().getTime()) + ".sql";
+        synchronized (this) {
+            Date date = Calendar.getInstance().getTime();
+            // 加上时间戳保证生成文件唯一性，失败前提是执行一次时间极短
+            return this.database + "-backup_"  + DATE_FORMAT.format(date) + "_" + date.getTime() + ".sql";
         }
     }
 

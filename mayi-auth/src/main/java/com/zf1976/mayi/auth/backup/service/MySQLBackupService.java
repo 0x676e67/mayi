@@ -8,15 +8,13 @@ import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.regex.Matcher;
+import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author ant
@@ -29,10 +27,12 @@ public class MySQLBackupService {
     private final Pattern pattern = Pattern.compile("[0-9]");
     private final SQLBackupStrategy sqlBackupStrategy;
     private final SQLBackupProperties properties;
+    private final int pageSize;
 
     public MySQLBackupService(DataSource dataSource, SQLBackupProperties properties) {
         this.sqlBackupStrategy = new MySQLStrategyBackup(dataSource);
         this.properties = properties;
+        this.pageSize = properties.getDayTotal() / properties.getFileCountSize();
     }
 
     /**
@@ -44,48 +44,67 @@ public class MySQLBackupService {
         // 备份文件目录
         var backupFileDirectory = this.getBackupParentFileDirectory();
         // 根据目录存在备份子目录过滤
-        var dateDirectoryList = backupFileDirectory.listFiles(pathname -> pathname.isDirectory() && pathname.exists());
-        // 按时间划分目录不存在
-        if (dateDirectoryList != null) {
+        var dateDirectoryArray = backupFileDirectory.listFiles(pathname -> pathname.isDirectory() && pathname.exists());
+        boolean condition = false;
+        // 按日期划分目录不存在
+        if (dateDirectoryArray != null && dateDirectoryArray.length > 0) {
             // 按备份日期划分
-            var backupDateFileDirectory = this.createBackupDateFileDirectory();
-            // 子目录文件列表
-            var childFileDirectoryList = backupDateFileDirectory.listFiles(pathname -> {
-                int count = 0;
-                // 匹配到两个数字命名侧过滤
-                int flag = 2;
-                while (this.pattern.matcher(pathname.getName()).find()) {
-                    if ((++count) == 2) {
-                        return false;
+            var dateFileDirectory = this.getBackupDateFileDirectory();
+            // 过滤子目录文件列表
+            var childFileDirectoryArray = this.getChildFileAndFilter(dateFileDirectory);
+            // 存在按0-9序号划分目录
+            boolean createNewIndexDirectory = false;
+            if (childFileDirectoryArray != null && childFileDirectoryArray.length > 0) {
+                // 按0-9序号划分
+                for (File childFileDirectory : childFileDirectoryArray) {
+                    // 重置标记
+                    createNewIndexDirectory = false;
+                    File[] backupFileArray = childFileDirectory.listFiles();
+                    // 当前目录存在备份文件
+                    if (backupFileArray != null) {
+                        List<File> backupFileList = Arrays.stream(backupFileArray)
+                                                          .filter(file -> !file.isHidden() && file.getName()
+                                                                                                  .startsWith(this.sqlBackupStrategy.getDatabase()))
+                                                          .collect(Collectors.toList());
+                        // 当目录备份文件数小于限定
+                        if (backupFileList.size() < this.properties.getFileCountSize()) {
+                            // 创建备份文件成功退出
+                            if (this.sqlBackupStrategy.backup(childFileDirectory)) {
+                                break;
+                            }
+                        } else {
+                            // 新增目录上限判断
+                            if ((childFileDirectoryArray.length + 1) <= this.pageSize) {
+                                createNewIndexDirectory = true;
+                            } else {
+                                throw new SQLBackupException("Maximum number of backup files created that day");
+                            }
+                        }
                     }
                 }
-                return true;
-            });
-
-            if (childFileDirectoryList != null) {
-                for (File childrenFileDirectory : childFileDirectoryList) {
-
+                // 创建新目录并备份
+                if (createNewIndexDirectory) {
+                    File backupChildFileDirectory = this.getBackupChildFileDirectory(childFileDirectoryArray.length);
+                    if (this.sqlBackupStrategy.backup(backupChildFileDirectory)) {
+                        return null;
+                    }
                 }
             } else {
-                // 按序号创建子目录
-                for (int i = 0; i <= this.properties.getDayTotal(); i++) {
-                    var childFileDirectory = this.createBackupChildFileDirectory(getDateDirectoryName(), i);
-                    // 创建备份文件成功退出
-                    if (this.sqlBackupStrategy.backup(childFileDirectory)) {
-                        break;
-                    }
-                }
+                condition = true;
             }
         } else {
-            // 按备份日期划分、按序号创建子目录
-            for (int i = 0; i <= this.properties.getDayTotal(); i++) {
-                var childFileDirectory = this.createBackupChildFileDirectory(getDateDirectoryName(), i);
+            condition = true;
+        }
+
+        if (condition) {
+            // 按0-9序号划分目录并创建文件
+            for (int i = 0; i <= this.pageSize; i++) {
+                var childFileDirectory = this.getBackupChildFileDirectory(i);
                 // 创建备份文件成功退出
                 if (this.sqlBackupStrategy.backup(childFileDirectory)) {
                     break;
                 }
             }
-
         }
         return null;
     }
@@ -100,34 +119,37 @@ public class MySQLBackupService {
     }
 
 
+    private File[] getChildFileAndFilter(File dateFileDirectory) {
+        return dateFileDirectory.listFiles(pathname -> {
+            // 按数字序号过滤目录文件名
+            for (int i = 0; i < this.pageSize; i++) {
+                if (String.valueOf(i)
+                          .equals(pathname.getName())) {
+                    return true;
+                }
+            }
+            return false;
+        });
+    }
 
     private File getBackupParentFileDirectory() {
-        var backupFileDirectory = Paths.get(this.properties.getHome(), this.properties.getDirectory())
-                        .toFile();
-        if (!backupFileDirectory.isDirectory()) {
-            throw new SQLBackupException("Not a directory");
-        }
-        return backupFileDirectory;
+        return Paths.get(this.properties.getHome(), this.properties.getDirectory())
+                    .toFile();
     }
 
-    private File createBackupDateFileDirectory() {
+    private File getBackupDateFileDirectory() {
         var parentFileDirectory = this.getBackupParentFileDirectory();
-        var path = Paths.get(parentFileDirectory.getAbsolutePath(), this.getDateDirectoryName());
-        try {
-            return Files.createFile(path).toFile();
-        } catch (IOException e) {
-            throw new SQLBackupException("创建备份目录失败", e.getCause());
-        }
+        return Paths.get(parentFileDirectory.getAbsolutePath(), this.getDateDirectoryName())
+                    .toFile();
     }
 
-    private File createBackupChildFileDirectory(String parent, int index) {
-        var path = Paths.get(parent, String.valueOf(index));
-        try {
-            return Files.createDirectory(path)
-                        .toFile();
-        } catch (IOException e) {
-            throw new SQLBackupException("创建备份目录失败", e.getCause());
-        }
+    private File getBackupChildFileDirectory(String parent, int index) {
+        return Paths.get(parent, String.valueOf(index)).toFile();
+    }
+
+    private File getBackupChildFileDirectory(int index) {
+        File backupDateFileDirectory = this.getBackupDateFileDirectory();
+        return this.getBackupChildFileDirectory(backupDateFileDirectory.getAbsolutePath(), index);
     }
 
     private String getDateDirectoryName(){
@@ -137,14 +159,10 @@ public class MySQLBackupService {
     }
 
     public static void main(String[] args) {
-        var file = Paths.get("/Users/ant", "/.mayi/backup")
+        var file = Paths.get("/Users/mac", "/.mayi/backup")
                         .toFile();
         var files = file.listFiles((pathname -> pathname.isDirectory() && pathname.exists()));
         assert files != null;
-        for (File file1 : files) {
-            System.out.println(file1.getName());
-        }
-        var matcher = Pattern.compile("[0-9]").matcher("123");
 
     }
 }

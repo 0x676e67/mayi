@@ -18,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.sql.DataSource;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -50,8 +51,10 @@ public class AuthApplicationTest {
     private MySQLBackupService mySQLBackupService;
 
     @Test
-    public void sqlBackupTest() {
-        this.mySQLBackupService.createBackup();
+    public void sqlBackupTest() throws InterruptedException {
+        for (int i = 0; i < 1; i++) {
+            this.mySQLBackupService.createBackup();
+        }
     }
 
     @Test
