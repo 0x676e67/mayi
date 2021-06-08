@@ -52,9 +52,10 @@ public class AuthApplicationTest {
 
     @Test
     public void sqlBackupTest() throws InterruptedException {
-        for (int i = 0; i < 1; i++) {
-            this.mySQLBackupService.createBackup();
+        for (int i  = 0; i < 2 ; i++) {
+            mySQLBackupService.createBackup();
         }
+
     }
 
     @Test

@@ -41,14 +41,14 @@ test {
     useJUnitPlatform()
 }
 
-//bootRun{
-//    setMain("com.zf1976.ant.upms.biz.SystemApplication")
-//}
+bootRun{
+    setMain("com.zf1976.mayi.upms.biz.SystemApplication")
+}
 
 jar.enabled = true
 
 
-//bootJar {
-//    mainClassName = "com.zf1976.ant.upms.biz.SystemApplication"
-//    launchScript()
-//}
+bootJar {
+    mainClassName = "com.zf1976.mayi.upms.biz.SystemApplication"
+    launchScript()
+}

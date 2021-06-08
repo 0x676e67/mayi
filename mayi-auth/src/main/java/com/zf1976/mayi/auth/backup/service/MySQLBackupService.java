@@ -4,6 +4,7 @@ import com.zf1976.mayi.auth.backup.MySQLStrategyBackup;
 import com.zf1976.mayi.auth.backup.SQLBackupStrategy;
 import com.zf1976.mayi.auth.backup.property.SQLBackupProperties;
 import com.zf1976.mayi.auth.exception.SQLBackupException;
+import com.zf1976.mayi.auth.pojo.BackupFile;
 import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
@@ -11,6 +12,7 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -44,78 +46,81 @@ public class MySQLBackupService {
         // 备份文件目录
         var backupFileDirectory = this.getBackupParentFileDirectory();
         // 根据目录存在备份子目录过滤
-        var dateDirectoryArray = backupFileDirectory.listFiles(pathname -> pathname.isDirectory() && pathname.exists());
-        boolean condition = false;
+        var dateDirectoryArray = backupFileDirectory.listFiles(pathname -> pathname.isDirectory() && !pathname.isHidden());
+
         // 按日期划分目录不存在
-        if (dateDirectoryArray != null && dateDirectoryArray.length > 0) {
-            // 按备份日期划分
-            var dateFileDirectory = this.getBackupDateFileDirectory();
-            // 过滤子目录文件列表
-            var childFileDirectoryArray = this.getChildFileAndFilter(dateFileDirectory);
-            // 存在按0-9序号划分目录
-            boolean createNewIndexDirectory = false;
-            if (childFileDirectoryArray != null && childFileDirectoryArray.length > 0) {
-                // 按0-9序号划分
-                for (File childFileDirectory : childFileDirectoryArray) {
-                    // 重置标记
-                    createNewIndexDirectory = false;
-                    File[] backupFileArray = childFileDirectory.listFiles();
-                    // 当前目录存在备份文件
-                    if (backupFileArray != null) {
-                        List<File> backupFileList = Arrays.stream(backupFileArray)
-                                                          .filter(file -> !file.isHidden() && file.getName()
-                                                                                                  .startsWith(this.sqlBackupStrategy.getDatabase()))
-                                                          .collect(Collectors.toList());
-                        // 当目录备份文件数小于限定
-                        if (backupFileList.size() < this.properties.getFileCountSize()) {
-                            // 创建备份文件成功退出
-                            if (this.sqlBackupStrategy.backup(childFileDirectory)) {
-                                break;
-                            }
-                            throw new SQLBackupException("Failed to backup database");
+        if (dateDirectoryArray == null) {
+            this.createBackupFileByDefault();
+            return null;
+        }
+
+        // 按备份日期划分
+        var dateFileDirectory = this.getBackupDateFileDirectory();
+        // 过滤子目录文件列表
+        var childFileDirectoryArray = this.getChildFileAndFilter(dateFileDirectory);
+        // 存在按0-9序号划分目录
+        boolean createNewIndexDirectory = false;
+        if (childFileDirectoryArray == null) {
+           this.createBackupFileByDefault();
+        } else {
+            // 按0-9序号划分
+            for (File childFileDirectory : childFileDirectoryArray) {
+                // 重置标记
+                createNewIndexDirectory = false;
+                File[] backupFileArray = childFileDirectory.listFiles();
+                // 当前目录存在备份文件
+                if (backupFileArray != null) {
+                    List<File> backupFileList = Arrays.stream(backupFileArray)
+                                                      .filter(file -> !file.isHidden() && file.getName()
+                                                                                              .startsWith(this.sqlBackupStrategy.getDatabase()))
+                                                      .collect(Collectors.toList());
+                    // 当目录备份文件数小于限定
+                    if (backupFileList.size() < this.properties.getFileCountSize()) {
+                        // 创建备份文件成功退出
+                        if (this.sqlBackupStrategy.backup(childFileDirectory)) {
+                            break;
+                        }
+                    } else {
+                        // 新增目录上限判断
+                        if ((childFileDirectoryArray.length + 1) <= this.pageSize) {
+                            createNewIndexDirectory = true;
                         } else {
-                            // 新增目录上限判断
-                            if ((childFileDirectoryArray.length + 1) <= this.pageSize) {
-                                createNewIndexDirectory = true;
-                            } else {
-                                throw new SQLBackupException("Maximum number of backup files created that day");
-                            }
+                            throw new SQLBackupException("Maximum number of backup files created that day");
                         }
                     }
                 }
-                // 创建新目录并备份
-                if (createNewIndexDirectory) {
-                    File backupChildFileDirectory = this.getBackupChildFileDirectory(childFileDirectoryArray.length);
-                    if (this.sqlBackupStrategy.backup(backupChildFileDirectory)) {
-                        return null;
-                    }
-                }
-            } else {
-                condition = true;
             }
-        } else {
-            condition = true;
-        }
-        if (condition) {
-            // 按0-9序号划分目录并创建文件
-            for (int i = 0; i <= this.pageSize; i++) {
-                var childFileDirectory = this.getBackupChildFileDirectory(i);
-                // 创建备份文件成功退出
-                if (!this.sqlBackupStrategy.backup(childFileDirectory)) {
-                    throw new SQLBackupException("Failed to backup database");
-                }
+            // 创建新目录并备份
+            if (createNewIndexDirectory) {
+                File backupChildFileDirectory = this.getBackupChildFileDirectory(childFileDirectoryArray.length);
+                this.createBackupFile(backupChildFileDirectory);
             }
         }
         return null;
     }
 
-    public void selectBackupFile(){
-        var backupFileDirectory = this.getBackupParentFileDirectory();
-        var backupFileList = backupFileDirectory.listFiles();
-        if (backupFileList != null) {
-            for (File backupFile : backupFileList) {
-            }
+    /**
+     * 按字符串日期进行查询备份文件
+     *
+     * @param date 自定义字符串日期格式
+     * @return {@link List<BackupFile>}
+     */
+    public List<BackupFile> selectBackupFileByDate(String date){
+
+
+        return Collections.emptyList();
+    }
+
+    public List<String> selectBackupDate() {
+        File backupParentFileDirectory = this.getBackupParentFileDirectory();
+        File[] files = backupParentFileDirectory.listFiles();
+        if (files != null) {
+            return Arrays.stream(files)
+                         .filter(File::isHidden)
+                         .map(File::getName)
+                         .collect(Collectors.toList());
         }
+        return Collections.emptyList();
     }
 
 
@@ -130,6 +135,19 @@ public class MySQLBackupService {
             }
             return false;
         });
+    }
+
+    private void createBackupFile(File directory) {
+        if (!this.sqlBackupStrategy.backup(directory)) {
+            throw new SQLBackupException("Failed to create backup file");
+        }
+    }
+
+    private void createBackupFileByDefault() {
+        // 从0序号划分目录并创建文件
+        var childFileDirectory = this.getBackupChildFileDirectory(0);
+        // 创建备份
+        this.createBackupFile(childFileDirectory);
     }
 
     private File getBackupParentFileDirectory() {
