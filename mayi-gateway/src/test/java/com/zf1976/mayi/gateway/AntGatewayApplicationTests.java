@@ -1,4 +1,4 @@
-package com.zf1976.ant.gateway;
+package com.zf1976.mayi.gateway;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
