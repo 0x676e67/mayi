@@ -116,7 +116,9 @@ auth:
 # 数据库备份
 sql-backup:
   home: user.home
-  directory: /.mayi/backup
+  directory: /.mayi/backup  # 备份目录
+  file-count-size: 10 # 当天备份的每个目录文件数量大小
+  day-total: 100  # 当天最大备份次数
 
 ---
 #nacos配置

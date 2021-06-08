@@ -15,6 +15,28 @@ public class SQLBackupProperties {
 
     private String directory;
 
+    private Integer dayTotal;
+
+    private Integer fileCountSize;
+
+    public Integer getFileCountSize() {
+        return fileCountSize;
+    }
+
+    public SQLBackupProperties setFileCountSize(Integer fileCountSize) {
+        this.fileCountSize = fileCountSize;
+        return this;
+    }
+
+    public Integer getDayTotal() {
+        return dayTotal;
+    }
+
+    public SQLBackupProperties setDayTotal(Integer dayTotal) {
+        this.dayTotal = dayTotal;
+        return this;
+    }
+
     public String getHome() {
         return home;
     }
