@@ -20,7 +20,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -32,7 +31,6 @@ public class MySQLBackupService {
 
     private final Logger log = LoggerFactory.getLogger("MySQLBackupService");
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-    private final Pattern pattern = Pattern.compile("[0-9]");
     private final SQLBackupStrategy sqlBackupStrategy;
     private final SQLBackupProperties properties;
     private final int pageCount;
