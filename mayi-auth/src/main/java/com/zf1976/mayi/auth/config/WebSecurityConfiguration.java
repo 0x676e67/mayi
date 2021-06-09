@@ -17,11 +17,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -42,6 +44,7 @@ import java.security.KeyPair;
  */
 @Configuration
 @EnableWebSecurity
+@Order(1)
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final SecurityProperties properties;
@@ -112,6 +115,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             // 允许跨域
             .cors()
             .and()
+            .formLogin()
+            .and()
             // 登出处理
             .logout()
             .logoutUrl("/oauth/logout")
@@ -128,6 +133,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             .and()
             .authorizeRequests()
             .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
+            .antMatchers("/login", "/oauth/authorize").permitAll()
             // 放行OPTIONS请求
             .antMatchers(HttpMethod.OPTIONS, "/**")
             .permitAll()
@@ -137,7 +143,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             // 认证OAuth路径放行
             .antMatchers("/oauth/**").permitAll()
             .anyRequest()
-            .authenticated()
+            .fullyAuthenticated()
+            .and().httpBasic()
             .and()
             .addFilterAt(new DynamicSecurityFilter(this.properties, this.dynamicDataSourceService), FilterSecurityInterceptor.class)
             .addFilterBefore(new OAuth2TokenAuthenticationFilter(properties), LogoutFilter.class);

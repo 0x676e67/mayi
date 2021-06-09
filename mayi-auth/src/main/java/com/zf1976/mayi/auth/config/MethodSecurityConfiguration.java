@@ -12,7 +12,7 @@ import org.springframework.security.config.annotation.method.configuration.Globa
  * Create by Ant on 2020/10/14 8:10 下午
  */
 @Configuration
-@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class MethodSecurityConfiguration extends GlobalMethodSecurityConfiguration {
 
     @Override

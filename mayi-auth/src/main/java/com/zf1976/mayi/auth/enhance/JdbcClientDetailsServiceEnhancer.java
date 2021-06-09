@@ -121,7 +121,6 @@ public class JdbcClientDetailsServiceEnhancer extends JdbcClientDetailsService i
     }
 
     @Override
-    @CachePut(key = "#clientId")
     public Client selectClientByClientId(String clientId) {
         // 查询客户端
         var clientDetails = this.loadClientByClientId(clientId);

@@ -4,6 +4,7 @@ import com.zf1976.mayi.auth.LoginUserDetails;
 import com.zf1976.mayi.auth.SecurityContextHolder;
 import com.zf1976.mayi.auth.enhance.serialize.JacksonSerializationStrategy;
 import com.zf1976.mayi.common.core.util.RequestUtil;
+import com.zf1976.mayi.common.security.constant.AuthGranterTypeConstants;
 import com.zf1976.mayi.common.security.property.SecurityProperties;
 import com.zf1976.mayi.common.security.support.session.Session;
 import org.springframework.data.redis.connection.RedisConnection;
@@ -41,6 +42,7 @@ public class RedisTokenStoreEnhancer implements TokenStore {
     private RedisTokenStoreSerializationStrategy jdkSerializationStrategy = new JdkSerializationStrategy();
     private RedisTokenStoreSerializationStrategy jacksonSerializationStrategy = new JacksonSerializationStrategy();
     private Method redisConnectionSet_2_0;
+    private final TokenStore tokenStore;
 
     public RedisTokenStoreEnhancer(RedisConnectionFactory connectionFactory, SecurityProperties properties) {
         this.properties = properties;
@@ -48,7 +50,7 @@ public class RedisTokenStoreEnhancer implements TokenStore {
         if (springDataRedis_2_0) {
             this.loadRedisConnectionMethods_2_0();
         }
-
+        this.tokenStore = new RedisTokenStore(connectionFactory);
     }
 
     public void setAuthenticationKeyGenerator(AuthenticationKeyGenerator authenticationKeyGenerator) {
@@ -261,6 +263,10 @@ public class RedisTokenStoreEnhancer implements TokenStore {
      * @param authentication {@link OAuth2Authentication}
      */
     public void storeAccessToken(OAuth2AccessToken token, OAuth2Authentication authentication) {
+        if (authentication.getOAuth2Request().getGrantType().equals(AuthGranterTypeConstants.CLIENT_CREDENTIALS)) {
+            this.tokenStore.storeAccessToken(token, authentication);
+            return;
+        }
         // 认证成功信息细节
         LoginUserDetails details = (LoginUserDetails) authentication.getPrincipal();
         // 保存认证成功细节
@@ -270,12 +276,12 @@ public class RedisTokenStoreEnhancer implements TokenStore {
                              .setAuthentication(authentication);
         // 序列化Session
         byte[] serializeSession = this.jacksonSerialize(this.generationSession(token, authentication));
+        // 序列化id-token键
+        byte[] idToSessionKey = this.jacksonSerializeKey(properties.getPrefixSessionId() + details.getId());
         // 序列化AccessToken
         byte[] serializedAccessToken = this.jdkSerialize(token);
         // 序列化Authentication
         byte[] serializedAuth = this.jdkSerialize(authentication);
-        // 序列化id-token键
-        byte[] idToSessionKey = this.jacksonSerializeKey(properties.getPrefixSessionId() + details.getId());
         // 序列化session-token键
         byte[] accessToSessionKey = this.jacksonSerializeKey(properties.getPrefixSessionToken() + token.getValue());
         // 序列化access-token键

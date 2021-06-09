@@ -53,7 +53,7 @@ import java.util.List;
  **/
 @Configuration
 @EnableAuthorizationServer
-public class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter implements SmartLifecycle {
+public class OAuth2AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter implements SmartLifecycle {
 
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
@@ -66,14 +66,14 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     private final KeyPair keyPair;
     private boolean isRunning = false;
 
-    public AuthorizationServerConfiguration(UserDetailsService userDetailsService,
-                                            PasswordEncoder passwordEncoder,
-                                            AuthenticationManager authenticationManager,
-                                            SecurityProperties securityProperties,
-                                            RedisTemplate<Object, Object> template,
-                                            JdbcClientDetailsServiceEnhancer jdbcClientDetailsServiceEnhancer,
-                                            CaptchaService captchaService,
-                                            KeyPair keyPair) {
+    public OAuth2AuthorizationServerConfiguration(UserDetailsService userDetailsService,
+                                                  PasswordEncoder passwordEncoder,
+                                                  AuthenticationManager authenticationManager,
+                                                  SecurityProperties securityProperties,
+                                                  RedisTemplate<Object, Object> template,
+                                                  JdbcClientDetailsServiceEnhancer jdbcClientDetailsServiceEnhancer,
+                                                  CaptchaService captchaService,
+                                                  KeyPair keyPair) {
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;

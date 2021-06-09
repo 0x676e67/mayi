@@ -22,7 +22,6 @@ public class JwtTokenEnhancer implements TokenEnhancer {
     @Override
     public OAuth2AccessToken enhance(OAuth2AccessToken oAuth2AccessToken, OAuth2Authentication oAuth2Authentication) {
         OAuth2Request oAuth2Request = oAuth2Authentication.getOAuth2Request();
-        LoginUserDetails loginDetails = (LoginUserDetails) oAuth2Authentication.getPrincipal();
         Integer expiredIn = oAuth2AccessToken.getExpiresIn();
         Map<String, Object> additionalInformation = new LinkedHashMap<>();
         // 签发方
@@ -33,10 +32,10 @@ public class JwtTokenEnhancer implements TokenEnhancer {
         additionalInformation.put(AuthConstants.JTI, oAuth2AccessToken.getValue());
         // 客户端id
         additionalInformation.put(AuthConstants.JWT_CLIENT_ID_KEY, oAuth2Request.getClientId());
-        // 用户名
-        additionalInformation.put(AuthConstants.USERNAME, loginDetails.getUsername());
         // grant类型
         additionalInformation.put(AuthConstants.GRANT_TYPE, oAuth2Request.getGrantType());
+        // resourceId
+        additionalInformation.put(AuthConstants.RESOURCE_IDS, oAuth2Request.getResourceIds());
         // 设置自定义information
         ((DefaultOAuth2AccessToken) oAuth2AccessToken).setAdditionalInformation(additionalInformation);
         return oAuth2AccessToken;
