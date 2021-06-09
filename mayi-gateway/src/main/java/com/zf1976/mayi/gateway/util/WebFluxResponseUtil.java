@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets;
  * @author ant
  * Create by Ant on 2021/3/7 3:42 PM
  */
-@SuppressWarnings("rawtypes")
+@SuppressWarnings({"rawtypes", "unused"})
 public class WebFluxResponseUtil {
 
     public static Mono<Void> responseWriter(ServerWebExchange exchange, int httpStatus, String msg) {

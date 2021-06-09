@@ -41,6 +41,7 @@ import java.util.regex.Pattern;
  * Create by Ant on 2021/3/6 8:52 AM
  */
 
+@SuppressWarnings("unused")
 public class OAuth2TokenAuthenticationFilter implements WebFilter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Pattern authorizationPattern = Pattern.compile(

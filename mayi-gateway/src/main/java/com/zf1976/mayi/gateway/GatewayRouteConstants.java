@@ -1,9 +1,10 @@
-package com.zf1976.ant.gateway;
+package com.zf1976.mayi.gateway;
 
 /**
  * @author ant
  * Create by Ant on 2021/3/6 8:30 AM
  */
+@SuppressWarnings("unused")
 public interface GatewayRouteConstants {
 
     /**

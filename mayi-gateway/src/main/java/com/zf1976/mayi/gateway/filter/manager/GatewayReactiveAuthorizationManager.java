@@ -3,7 +3,7 @@ package com.zf1976.mayi.gateway.filter.manager;
 import com.zf1976.mayi.common.core.constants.AuthConstants;
 import com.zf1976.mayi.common.core.constants.KeyConstants;
 import com.zf1976.mayi.common.core.constants.Namespace;
-import com.zf1976.ant.gateway.GatewayRouteConstants;
+import com.zf1976.mayi.gateway.GatewayRouteConstants;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.server.reactive.ServerHttpRequest;

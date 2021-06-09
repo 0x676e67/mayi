@@ -29,6 +29,7 @@ import java.util.Map;
  * @author mac
  * @date 2021/2/11
  **/
+@SuppressWarnings("CodeBlock2Expr")
 @Configuration
 @EnableWebFluxSecurity
 public class ResourceServerSecurityConfigurer {
