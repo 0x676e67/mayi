@@ -1,33 +1,6 @@
 <p align="center">
-	<a href="https://justauth.wiki"><img src="https://gitee.com/yadong.zhang/static/raw/master/JustAuth/Justauth.png" width="400"></a>
-</p>
-<p align="center">
-	<strong>Login, so easy.</strong>
-</p>
-<p align="center">
-	<a target="_blank" href="https://search.maven.org/search?q=JustAuth">
-		<img src="https://img.shields.io/badge/Maven%20Central-1.16.1-blue" ></img>
-	</a>
-	<a target="_blank" href="https://gitee.com/yadong.zhang/JustAuth/blob/master/LICENSE">
-		<img src="https://img.shields.io/apm/l/vim-mode.svg?color=yellow" ></img>
-	</a>
 	<a target="_blank" href="https://www.oracle.com/technetwork/java/javase/downloads/index.html">
-		<img src="https://img.shields.io/badge/JDK-1.8+-green.svg" ></img>
-	</a>
-	<a target="_blank" href="https://apidoc.gitee.com/yadong.zhang/JustAuth/" title="API文档">
-		<img src="https://img.shields.io/badge/Api%20Docs-1.16.1-orange" ></img>
-	</a>
-	<a target="_blank" href="https://justauth.wiki" title="参考文档">
-		<img src="https://img.shields.io/badge/Docs-latest-blueviolet.svg" ></img>
-	</a>
-	<a href="https://codecov.io/gh/justauth/JustAuth">
-		<img src="https://codecov.io/gh/justauth/JustAuth/branch/master/graph/badge.svg?token=zYiAqd9aFz" />
-	</a>
-	<a href='https://gitee.com/yadong.zhang/JustAuth/stargazers'>
-	  <img src='https://gitee.com/yadong.zhang/JustAuth/badge/star.svg?theme=gvp' alt='star'></img>
-	</a>
-	<a target="_blank" href='https://github.com/zhangyd-c/JustAuth'>
-		<img src="https://img.shields.io/github/stars/zhangyd-c/JustAuth.svg?style=social" alt="github star"></img>
+		<img src="https://img.shields.io/badge/JDK-11+-green.svg" ></img>
 	</a>
 </p>
 
