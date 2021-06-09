@@ -24,7 +24,7 @@ security:
   #token 头
   token-header: ANT-ADMIN
   # 签发方
-  token-issuer: Ant
+  token-issuer: http:127.0.0.1:9000
   # 是否限制单用户登录
   token-single: true
   # authorities key

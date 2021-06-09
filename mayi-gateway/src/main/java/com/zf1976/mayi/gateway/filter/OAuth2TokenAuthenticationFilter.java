@@ -110,7 +110,7 @@ public class OAuth2TokenAuthenticationFilter implements WebFilter {
     private boolean checkToken(String token) {
         try {
             Assert.hasText(token, "token cannot be empty");
-            // 向服务端校验token 有效性
+            // 由于只用公钥无法确认当前用户是否在线、向服务端校验token 有效性
             ResponseEntity<Map> responseEntity = this.restTemplate.getForEntity(this.jwtCheckUrl, Map.class, token);
             return responseEntity.getStatusCode()
                                  .is2xxSuccessful();

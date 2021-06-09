@@ -36,6 +36,7 @@ spring:
         jwt:
           jwk-set-uri: http://127.0.0.1:9000/oauth/token_key
           jwt-check-uri: http://127.0.0.1:9000/oauth/check_token
+          issuer-uri: http:127.0.0.1:9000
   #redis
   redis:
     host: 127.0.0.1
