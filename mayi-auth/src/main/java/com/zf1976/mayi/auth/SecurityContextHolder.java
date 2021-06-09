@@ -39,9 +39,12 @@ public class SecurityContextHolder extends org.springframework.security.core.con
      * @return {@link Details}
      */
     public static Details getAuthorizationDetails() {
-        LoginUserDetails details = (LoginUserDetails) getContext().getAuthentication()
-                                                                  .getDetails();
-        return new Details(details.getPermission(), details.getDataPermission(), details.getUser());
+        try {
+            LoginUserDetails details = (LoginUserDetails) getContext().getAuthentication().getDetails();
+            return new Details(details.getPermission(), details.getDataPermission(), details.getUser());
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 
     /**

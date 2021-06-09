@@ -25,6 +25,7 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -44,7 +45,7 @@ import java.security.KeyPair;
  */
 @Configuration
 @EnableWebSecurity
-@Order(1)
+@Order(100)
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final SecurityProperties properties;
@@ -109,50 +110,37 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        //关闭CSRF
-        http.csrf()
-            .disable()
-            // 允许跨域
-            .cors()
-            .and()
-            .formLogin()
-            .and()
-            // 登出处理
-            .logout()
-            .logoutUrl("/oauth/logout")
-            .addLogoutHandler(new OAuth2LogoutHandler())
-            .logoutSuccessHandler(new Oauth2LogoutSuccessHandler())
-            .and()
-            // 防止iframe跨域
-            .headers()
-            .frameOptions().disable()
-            .and()
-            // 关闭会话创建
-            .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
-            .authorizeRequests()
+        //登录处理
+       http.csrf().disable()
+           .cors()
+           .and()
+           .formLogin()
+           .and()
+           .logout().logoutUrl("/oauth/logout").deleteCookies("JSESSIONID").invalidateHttpSession(true)
+           .addLogoutHandler(new OAuth2LogoutHandler())
+           .logoutSuccessHandler(new Oauth2LogoutSuccessHandler())
+           .and()
+           .headers().frameOptions().disable()
+           .and()
+           .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
+
+       // 授权认证处理
+        http.authorizeRequests()
             .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
-            .antMatchers("/login", "/oauth/authorize").permitAll()
-            // 放行OPTIONS请求
-            .antMatchers(HttpMethod.OPTIONS, "/**")
-            .permitAll()
-            // 白名单
-            .antMatchers(properties.getIgnoreUri())
-            .permitAll()
-            // 认证OAuth路径放行
-            .antMatchers("/oauth/**").permitAll()
-            .anyRequest()
-            .fullyAuthenticated()
-            .and().httpBasic()
+            .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+            .antMatchers(properties.getIgnoreUri()).permitAll()
+            .anyRequest().authenticated()
+            .and()
+            .httpBasic()
             .and()
             .addFilterAt(new DynamicSecurityFilter(this.properties, this.dynamicDataSourceService), FilterSecurityInterceptor.class)
             .addFilterBefore(new OAuth2TokenAuthenticationFilter(properties), LogoutFilter.class);
+
         var jdbcClientDetailsServiceEnhancer = SecurityContextHolder.getShareObject(JdbcClientDetailsServiceEnhancer.class);
         if (this.authProperties.getEnableSignature()) {
             http.addFilterBefore(new SignatureAuthenticationFilter(jdbcClientDetailsServiceEnhancer,
-                            "/oauth/**","/**"
-                    ), SecurityContextPersistenceFilter.class);
+                    "/oauth/**", "/**"
+            ), SecurityContextPersistenceFilter.class);
         }
     }
 

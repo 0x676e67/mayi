@@ -24,7 +24,7 @@ security:
   #token 头
   token-header: ANT-ADMIN
   # 签发方
-  token-issuer: http:127.0.0.1:9000
+  token-issuer: http://127.0.0.1:9000
   # 是否限制单用户登录
   token-single: true
   # authorities key
@@ -63,11 +63,14 @@ security:
     - /**/*.html
     - /**/*.css
     - /**/*.js
+    - /**/*.jpg
+    - /static/**
     - /webSocket/**
     - /avatar/**
     - /file/**
     # 阿里巴巴监控
     - /druid/**
+    - /login/**
 
 #公用缓存配置
 cache:

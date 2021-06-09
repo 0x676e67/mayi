@@ -1,4 +1,4 @@
-package com.zf1976.mayi.common.security.standard;
+package com.zf1976.mayi.common.security.constant;
 
 /**
  * @author mac

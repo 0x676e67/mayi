@@ -51,6 +51,16 @@ spring:
         url: http://localhost:4444
         username: admin
         password: 123456
+  thymeleaf:
+    check-template: true
+    check-template-location: true
+    enabled: true
+    mode: HTML5
+    prefix: classpath:/templates/
+    encoding: UTF-8
+    servlet:
+      content-type: text/html
+    suffix: .html
 
 #actuator监控
 management:
@@ -72,6 +82,7 @@ management:
   health:
     db:
       enabled: true
+
 
 #公用线程池配置
 executor:

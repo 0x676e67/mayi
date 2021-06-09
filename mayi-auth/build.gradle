@@ -36,6 +36,7 @@ dependencies {
     implementation "com.alibaba.cloud:spring-cloud-alibaba-dependencies:${nacosVersion}"
     implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery:${nacosVersion}"
     implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config:${nacosVersion}"
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
     implementation('org.springframework.boot:spring-boot-configuration-processor')
     implementation('org.springframework.boot:spring-boot-starter-jdbc')

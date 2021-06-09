@@ -41,6 +41,8 @@ public interface AuthConstants {
      */
     String JWT_AUTHORITIES_KEY = "authorities";
 
+    String RESOURCE_IDS = "resourceIds";
+
     /**
      * 空值权限
      */
