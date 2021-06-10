@@ -78,7 +78,7 @@ spring:
 
   jackson:                                                  #json序列化配置
     time-zone: GMT+8
-    default-property-inclusion: not_null
+    default-property-inclusion: non_empty
     date-format: yyyy-MM-dd HH:mm:ss
 
   servlet: #servlet配置
