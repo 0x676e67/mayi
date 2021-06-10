@@ -39,7 +39,7 @@ public class DynamicSecurityFilter extends AbstractSecurityInterceptor implement
         this.properties = properties;
         this.dynamicDataSourceService = dynamicDataSourceService;
         this.dynamicSecurityMetadataSource = new DynamicSecurityMetadataSource(dynamicDataSourceService);
-        super.setAccessDecisionManager(new DynamicAccessDecisionManager(this.dynamicDataSourceService));
+        super.setAccessDecisionManager(new DynamicAccessDecisionManager(dynamicDataSourceService));
         this.checkState();
     }
 
