@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.zf1976.mayi.auth.LoginUserDetails;
 import com.zf1976.mayi.auth.convert.UserConvert;
-import com.zf1976.mayi.auth.dao.SysPermissionDao;
 import com.zf1976.mayi.auth.exception.UserNotFountException;
 import com.zf1976.mayi.common.component.cache.annotation.CachePut;
 import com.zf1976.mayi.common.core.constants.Namespace;
@@ -43,7 +42,6 @@ public class SecurityUserDetailsService implements UserDetailsServiceEnhancer {
     private SysRoleDao roleDao;
     private SysMenuDao menuDao;
     private SysPositionDao positionDao;
-    private SysPermissionDao permissionDao;
     private final UserConvert convert = UserConvert.INSTANCE;
 
 
@@ -233,11 +231,6 @@ public class SecurityUserDetailsService implements UserDetailsServiceEnhancer {
     @Autowired
     public void setPositionDao(SysPositionDao positionDao) {
         this.positionDao = positionDao;
-    }
-
-    @Autowired
-    public void setPermissionDao(SysPermissionDao permissionDao) {
-        this.permissionDao = permissionDao;
     }
 
 }

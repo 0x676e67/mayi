@@ -11,7 +11,7 @@
  Target Server Version : 50732
  File Encoding         : 65001
 
- Date: 27/05/2021 23:03:09
+ Date: 10/06/2021 14:12:03
 */
 
 SET NAMES utf8mb4;
@@ -31,9 +31,9 @@ CREATE TABLE `oauth_client_details` (
   `authorities` varchar(256) CHARACTER SET utf8 DEFAULT NULL COMMENT '客户端所拥有的Spring Security的权限值,可选, 若有多个权限值,用逗号(,)分隔\n',
   `access_token_validity` int(11) DEFAULT NULL COMMENT '设定客户端的access_token的有效时间值(单位:秒)，若不设定值则使用默认的有效时间值(60 * 60 * 12, 12小时)\n',
   `refresh_token_validity` int(11) DEFAULT NULL COMMENT '设定客户端的refresh_token的有效时间值(单位:秒)，若不设定值则使用默认的有效时间值(60 * 60 * 24 * 30, 30天)\n',
-  `additional_information` varchar(4096) CHARACTER SET utf8 DEFAULT NULL COMMENT '这是一个预留的字段,在Oauth的流程中没有实际的使用,可选,但若设置值,必须是JSON格式的数据\n',
   `autoapprove` varchar(256) CHARACTER SET utf8 DEFAULT NULL COMMENT '设置用户是否自动批准授予权限操作, 默认值为 ‘false’, 可选值包括 ‘true’,‘false’, ‘read’,‘write’.\n',
   `raw_client_secret` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `additional_information` varchar(4096) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`client_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='OAuth2客户端表';
 
@@ -41,17 +41,19 @@ CREATE TABLE `oauth_client_details` (
 -- Records of oauth_client_details
 -- ----------------------------
 BEGIN;
-INSERT INTO `oauth_client_details` VALUES ('1vkPAMQJNd0p', NULL, '92b7fe88e2c039f33dfa3c84a2653fd1', 'all', 'password_code', '', '', 3600, 7200, '', 'true', 'KOggFY0REq5b4qBVtZFriuwwWYdIm1KL1q9edgML5ULQOhGRl95l7fSerSyp9MW340rzW3sOf/ggS7MvvecFZA==');
-INSERT INTO `oauth_client_details` VALUES ('DcuKtg7XRxrFXuYW', '', '9a92e9df764c0bd6e94a6c867db14467', 'all', 'implicit', '', '', 3600, 7200, '', 'false', 'pllubY1oIr2WiwxbJZTlvfF2wWgJfLocDnePvuAA1qcvPuD+rZv1BRdmWY58VRrpGKuwK+7UyiPFrrsMkQl2kw==');
-INSERT INTO `oauth_client_details` VALUES ('HA4yM2UWfsCfbpo', NULL, '41a29340b5bf69906994dd66d3ec4f19', 'all', 'password_code,password', '', '', 3600, 7200, '', 'false', 'PYbHfcLojfnYfiWRHSKMzXpBSHlwUNPDxhM++0DJ8aaXXTjgWd/3z4XBdrUk5QwEUstjTOSBRLsDlUK1DaNCEQ==');
-INSERT INTO `oauth_client_details` VALUES ('K69omxxhXKfHzq', '', '122329b14df60e8e42a4602be4a845f2', 'all', 'password', '', '', 3600, 7200, '', 'true', 'ZlTK/zzRDXo3k3DFRAUvTzUR8m2qSrE2PwfSNvHNKoJaZdqyw6+3uxE9PwRtbw1zUKaRTy++9B8e3flBqkkqBw==');
-INSERT INTO `oauth_client_details` VALUES ('kHO29MpgCeOYW9', 'asd', '0eab6c59aec19382e9dffe0a250e4d79', 'all', 'implicit', '', '', 3600, 7200, '', 'false', 'SbeAnX1geJdgGMQzpg80RD+8xCRUdq+oM5merlq6wDYmX9CoKO1SpKcO/ezGY7THAYA6d2ixHueFUYN+eB3jiw==');
-INSERT INTO `oauth_client_details` VALUES ('kJkdnqOh4xIeuU', 'asd', '2c307c8b95976e3bdc9a062d0aad99ad', 'all', 'password_code', '', '', 3600, 7200, '', 'false', 'e8131F2dn2p5IV4zWmp4mEU1+3L9MK2N96FMln2nMTQOLxSnXnq5m4HYWA3EMd+bi2e3HCtvN1zGB4tSlpVhFg==');
-INSERT INTO `oauth_client_details` VALUES ('ng0zH0raBXf12Un', '', 'a248c39a296af91cd65d83292eb3bbbe', 'all', 'password', '', '', 3600, 7200, '', 'write', 'H2feDdcRhaSQaeSDsltr9fUH+UO3Lpm3CjcOP4ZLp5tQPq6Iv3Lb1pZdYpp1YXGhXNPGCeSzUc3zoF1RIb7mWQ==');
-INSERT INTO `oauth_client_details` VALUES ('pxaLhIMN5fU8hC51s', 'asd', 'ff7599d0872979c297c45fba650737e7', 'all', 'password', '', '', 3600, 7200, '', 'false', 'ZIgzgPSQCpRVyetyzDcSlcrlbxgAj0Rk2BLizYLO/xuSXZZB1bLIiyx4IkgTemlGMAOmsvim8picBnjh99A5Hg==');
-INSERT INTO `oauth_client_details` VALUES ('system', NULL, 'e10adc3949ba59abbe56e057f20f883e', 'all', 'password,password_code,implicit,client_credentials,authorization_code,refresh_token', 'http://www.baidu.com', NULL, 36000, 86400, NULL, NULL, 's9xsmvKXtYGT/XhVrLdYrxlmC/fHkaP1BbYd+fCKCE6auQxUaTVtOvujvRfD4oBRUnD6xAMXH5wcuRY1rscHnA==');
-INSERT INTO `oauth_client_details` VALUES ('TPuF4KnQXJpARWk', NULL, '30211fe617e75f5b4e4932126afe799b', 'all', 'implicit', '', '', 3600, 7200, '', 'false', 'nOsrE6BFy/9YW0e4HWCIpIFaQF/+6cJ68S6zxbtqtveWhPjtEnFKHzS0T4Pal4mJKcQ9zitZKacZi04oLIaj/A==');
-INSERT INTO `oauth_client_details` VALUES ('ZlD7rzjnQa6SfB4qc3u', 'asd', '9998d6b2b4c6088c373a1c1dba5032d2', 'all', 'implicit', '', '', 3600, 7200, '', 'write', 'OFqL8ohnwDuhFZXO0mBc5ovrNEKcvUTfZ5Nbktk9oz2Fv/elc6H5geTo1RylDYitOI6UTOOquTwL8rON7eKxbA==');
+INSERT INTO `oauth_client_details` VALUES ('1vkPAMQJNd0p', NULL, '92b7fe88e2c039f33dfa3c84a2653fd1', 'all', 'password_code', '', '', 3600, 7200, 'true', 'KOggFY0REq5b4qBVtZFriuwwWYdIm1KL1q9edgML5ULQOhGRl95l7fSerSyp9MW340rzW3sOf/ggS7MvvecFZA==', NULL);
+INSERT INTO `oauth_client_details` VALUES ('6ENWVzSIDhtg8S', '', 'dc5289b162997a7022072a3c69563079', 'all', 'password', '', '', 3600, 7200, 'write', 'YkUCjEjW+vkeRzhKSgG9WRRm/fx9xpa/Ros7ZTpVWCrOdNdoZLHuSzb1Uz4lZNr5T29w802b+wcNsYZxcZ0vPg==', '');
+INSERT INTO `oauth_client_details` VALUES ('DcuKtg7XRxrFXuYW', NULL, '9a92e9df764c0bd6e94a6c867db14467', 'all', 'implicit', '', '', 3600, 7200, 'false', 'pllubY1oIr2WiwxbJZTlvfF2wWgJfLocDnePvuAA1qcvPuD+rZv1BRdmWY58VRrpGKuwK+7UyiPFrrsMkQl2kw==', NULL);
+INSERT INTO `oauth_client_details` VALUES ('HA4yM2UWfsCfbpo', NULL, '41a29340b5bf69906994dd66d3ec4f19', 'all', 'password_code,password', '', '', 3600, 7200, 'false', 'PYbHfcLojfnYfiWRHSKMzXpBSHlwUNPDxhM++0DJ8aaXXTjgWd/3z4XBdrUk5QwEUstjTOSBRLsDlUK1DaNCEQ==', NULL);
+INSERT INTO `oauth_client_details` VALUES ('K69omxxhXKfHzq', NULL, '122329b14df60e8e42a4602be4a845f2', 'all', 'password', '', '', 3600, 7200, 'true', 'ZlTK/zzRDXo3k3DFRAUvTzUR8m2qSrE2PwfSNvHNKoJaZdqyw6+3uxE9PwRtbw1zUKaRTy++9B8e3flBqkkqBw==', NULL);
+INSERT INTO `oauth_client_details` VALUES ('kHO29MpgCeOYW9', NULL, '0eab6c59aec19382e9dffe0a250e4d79', 'all', 'implicit', '', '', 3600, 7200, 'false', 'SbeAnX1geJdgGMQzpg80RD+8xCRUdq+oM5merlq6wDYmX9CoKO1SpKcO/ezGY7THAYA6d2ixHueFUYN+eB3jiw==', NULL);
+INSERT INTO `oauth_client_details` VALUES ('kJkdnqOh4xIeuU', NULL, '2c307c8b95976e3bdc9a062d0aad99ad', 'all', 'password_code', '', '', 3600, 7200, 'false', 'e8131F2dn2p5IV4zWmp4mEU1+3L9MK2N96FMln2nMTQOLxSnXnq5m4HYWA3EMd+bi2e3HCtvN1zGB4tSlpVhFg==', NULL);
+INSERT INTO `oauth_client_details` VALUES ('ng0zH0raBXf12Un', NULL, 'a248c39a296af91cd65d83292eb3bbbe', 'all', 'password', '', '', 3600, 7200, 'write', 'H2feDdcRhaSQaeSDsltr9fUH+UO3Lpm3CjcOP4ZLp5tQPq6Iv3Lb1pZdYpp1YXGhXNPGCeSzUc3zoF1RIb7mWQ==', NULL);
+INSERT INTO `oauth_client_details` VALUES ('pxaLhIMN5fU8hC51s', NULL, 'ff7599d0872979c297c45fba650737e7', 'all', 'password', '', '', 3600, 7200, 'false', 'ZIgzgPSQCpRVyetyzDcSlcrlbxgAj0Rk2BLizYLO/xuSXZZB1bLIiyx4IkgTemlGMAOmsvim8picBnjh99A5Hg==', NULL);
+INSERT INTO `oauth_client_details` VALUES ('system', NULL, 'e10adc3949ba59abbe56e057f20f883e', 'all', 'password,password_code,implicit,client_credentials,authorization_code,refresh_token', 'http://www.baidu.com', NULL, 36000, 86400, 'false', 's9xsmvKXtYGT/XhVrLdYrxlmC/fHkaP1BbYd+fCKCE6auQxUaTVtOvujvRfD4oBRUnD6xAMXH5wcuRY1rscHnA==', NULL);
+INSERT INTO `oauth_client_details` VALUES ('TPuF4KnQXJpARWk', NULL, '30211fe617e75f5b4e4932126afe799b', 'all', 'implicit', '', '', 3600, 7200, 'false', 'nOsrE6BFy/9YW0e4HWCIpIFaQF/+6cJ68S6zxbtqtveWhPjtEnFKHzS0T4Pal4mJKcQ9zitZKacZi04oLIaj/A==', NULL);
+INSERT INTO `oauth_client_details` VALUES ('Veprmr2FisXzGEp', '', 'ae4d090589db23497b81c19d17525dba', 'all', 'client_credentials', '', '123', 3600, 7200, 'write', 'tEMAh6B7TTbX4hDQv4Iz91rKEEJqAyvpA4Ktb744XlwqVZv/1sigSsufTv+65BgKTCb0ckhdz4ZsftsPt3QzgQ==', '');
+INSERT INTO `oauth_client_details` VALUES ('ZlD7rzjnQa6SfB4qc3u', NULL, '9998d6b2b4c6088c373a1c1dba5032d2', 'all', 'implicit', '', '', 3600, 7200, 'write', 'OFqL8ohnwDuhFZXO0mBc5ovrNEKcvUTfZ5Nbktk9oz2Fv/elc6H5geTo1RylDYitOI6UTOOquTwL8rON7eKxbA==', NULL);
 COMMIT;
 
 -- ----------------------------
@@ -624,7 +626,7 @@ CREATE TABLE `sys_permission` (
   `version` int(255) NOT NULL DEFAULT '0' COMMENT '版本号',
   PRIMARY KEY (`id`),
   UNIQUE KEY `sys_permission_value_uindex` (`value`)
-) ENGINE=InnoDB AUTO_INCREMENT=98 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='权限表';
+) ENGINE=InnoDB AUTO_INCREMENT=99 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='权限表';
 
 -- ----------------------------
 -- Records of sys_permission
@@ -659,6 +661,7 @@ INSERT INTO `sys_permission` VALUES (94, 'sdf', 'fsdfdsf', 'dsf', '2021-05-27 02
 INSERT INTO `sys_permission` VALUES (95, 'fdsfsd', 'dsf', 'sfsdf', '2021-05-27 02:49:54', 'admin', 0);
 INSERT INTO `sys_permission` VALUES (96, 'dasdsa', 'asdasd', 'asda', '2021-05-27 09:13:09', 'admin', 0);
 INSERT INTO `sys_permission` VALUES (97, 'adad', 'ddad', 'asdasd', '2021-05-27 09:13:16', 'admin', 0);
+INSERT INTO `sys_permission` VALUES (98, 'asdasd', 'dsad', 'sadasd', '2021-06-10 06:08:33', 'admin', 0);
 COMMIT;
 
 -- ----------------------------
@@ -1014,7 +1017,7 @@ CREATE TABLE `sys_user` (
 -- Records of sys_user
 -- ----------------------------
 BEGIN;
-INSERT INTO `sys_user` VALUES (1, 8, 'admin', 'e10adc3949ba59abbe56e057f20f883e', '15277656083', '201507802@qq.com', 0, '5A896D37FF2F0ADD0943CFFB033DA20C.png', 'Ant', 221, 1, NULL, NULL, '2018-08-23 09:11:56', NULL, '2020-05-03 16:38:31');
+INSERT INTO `sys_user` VALUES (1, 8, 'admin', 'e10adc3949ba59abbe56e057f20f883e', '15277656083', '201507802@qq.com', 0, '3FD80AF938501638586BAEA46179575B.png', 'Ant', 221, 1, '2021-06-10 05:44:22', 'admin', '2018-08-23 09:11:56', NULL, '2020-05-03 16:38:31');
 INSERT INTO `sys_user` VALUES (2, 8, 'test', 'e10adc3949ba59abbe56e057f20f883e', '18888888888', '231@qq.com', 1, NULL, '测试', 54, 1, '2021-05-24 01:39:08', 'admin', '2020-05-05 11:15:49', 'admin', NULL);
 INSERT INTO `sys_user` VALUES (3, 36, 'super_admin', 'e10adc3949ba59abbe56e057f20f883e', '18776530219', '1596863112@qq.com', 0, NULL, 'ant', 52, 1, '2021-05-24 01:47:33', 'admin', '2020-08-24 16:14:52', 'admin', NULL);
 INSERT INTO `sys_user` VALUES (5, 37, 'Zhangfeng123', NULL, '18776530218', '942203376@qq.com', 0, NULL, 'sadad', 8, 1, NULL, NULL, '2021-04-06 06:23:04', 'admin', NULL);

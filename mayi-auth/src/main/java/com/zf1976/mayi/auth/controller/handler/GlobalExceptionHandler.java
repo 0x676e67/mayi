@@ -1,6 +1,5 @@
 package com.zf1976.mayi.auth.controller.handler;
 
-import com.zf1976.mayi.auth.exception.SQLBackupException;
 import com.zf1976.mayi.auth.exception.SecurityException;
 import com.zf1976.mayi.common.core.foundation.DataResult;
 import com.zf1976.mayi.common.security.support.session.exception.SessionException;
@@ -40,18 +39,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(SessionException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     DataResult handleSessionException(SessionException exception) {
-        return DataResult.fail(exception);
-    }
-
-    /**
-     * 数据库备份异常
-     *
-     * @param exception 备份异常
-     * @return {@link DataResult}
-     */
-    @ExceptionHandler(SQLBackupException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    DataResult handleSessionException(SQLBackupException exception) {
         return DataResult.fail(exception);
     }
 

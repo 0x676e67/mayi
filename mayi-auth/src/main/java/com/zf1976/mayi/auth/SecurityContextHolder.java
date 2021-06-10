@@ -1,6 +1,5 @@
 package com.zf1976.mayi.auth;
 
-import com.zf1976.mayi.auth.service.DynamicDataSourceService;
 import com.zf1976.mayi.common.security.pojo.Details;
 import com.zf1976.mayi.common.security.property.SecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,6 @@ public class SecurityContextHolder extends org.springframework.security.core.con
 
     private static final AntPathMatcher PATH_MATCHER= new AntPathMatcher();
     private static final Map<Class<?>, Object> CONTENTS_MAP = new HashMap<>(16);
-    private static DynamicDataSourceService dynamicDataSourceService;
     private static SecurityProperties securityProperties;
 
     public static void setShareObject(Class<?> clazz, Object object) {
@@ -59,11 +57,6 @@ public class SecurityContextHolder extends org.springframework.security.core.con
     @Autowired
     public void setSecurityProperties(SecurityProperties securityProperties) {
         SecurityContextHolder.securityProperties = securityProperties;
-    }
-
-    @Autowired
-    public void setDynamicDataSourceService(DynamicDataSourceService dynamicDataSourceService) {
-        SecurityContextHolder.dynamicDataSourceService = dynamicDataSourceService;
     }
 
 }

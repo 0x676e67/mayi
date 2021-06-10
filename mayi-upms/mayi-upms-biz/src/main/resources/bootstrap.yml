@@ -78,7 +78,7 @@ spring:
 
   jackson:                                                  #json序列化配置
     time-zone: GMT+8
-    default-property-inclusion: non_null
+    default-property-inclusion: not_null
     date-format: yyyy-MM-dd HH:mm:ss
 
   servlet: #servlet配置
@@ -96,6 +96,24 @@ spring:
         url: http://localhost:4444
         username: admin
         password: 123456
+
+  security:
+    oauth2:
+      resourceserver:
+        resource-id: mayi-upms-bzi
+        jwt:
+          issuer-uri: http://127.0.0.1:9000
+          jwk-set-uri: http://127.0.0.1:9000/oauth/token_key
+          jwt-check-uri: http://127.0.0.1:9000/oauth/check_token
+        opaquetoken:
+          client-id: system
+          client-secret: 123456
+# 数据库备份
+sql-backup:
+  home: user.home
+  directory: /.mayi/backup  # 备份目录
+  file-count-size: 10 # 当天备份的每个目录文件数量大小
+  day-total: 100  # 当天最大备份次数
 
 #共用线程池配置
 executor:

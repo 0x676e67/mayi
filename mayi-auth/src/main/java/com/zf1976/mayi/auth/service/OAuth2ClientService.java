@@ -2,8 +2,9 @@ package com.zf1976.mayi.auth.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.base.Splitter;
-import com.zf1976.mayi.auth.convert.SecurityConvert;
+import com.zf1976.mayi.auth.convert.ClientConvert;
 import com.zf1976.mayi.auth.dao.ClientDetailsDao;
 import com.zf1976.mayi.auth.enhance.JdbcClientDetailsServiceEnhancer;
 import com.zf1976.mayi.auth.exception.SecurityException;
@@ -32,7 +33,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author mac
@@ -41,7 +44,7 @@ import java.util.regex.Pattern;
 @Service
 @SuppressWarnings("all")
 @CacheConfig(namespace = Namespace.CLIENT)
-public class OAuth2ClientService extends AbstractSecurityService<ClientDetailsDao, ClientDetails> {
+public class OAuth2ClientService extends ServiceImpl<ClientDetailsDao, ClientDetails> {
 
     private static final Pattern ID_SECRET_PATTERN = Pattern.compile("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{10,20}$");
     private static final List<String> autoApproveScope = Arrays.asList("false", "true", "read", "write");
@@ -52,11 +55,11 @@ public class OAuth2ClientService extends AbstractSecurityService<ClientDetailsDa
     private final int tokenRefreshMaxTime = 5356800;
     private final JdbcClientDetailsServiceEnhancer enhancer;
     private final ClientDetailsDao clientDetailsDao;
-    private final SecurityConvert convert;
+    private final ClientConvert convert;
 
     public OAuth2ClientService(JdbcClientDetailsServiceEnhancer jdbcClientDetailsServiceEnhancer,
                                ClientDetailsDao clientDetailsDao) {
-        this.convert = SecurityConvert.INSTANCE;
+        this.convert = ClientConvert.INSTANCE;
         this.enhancer = jdbcClientDetailsServiceEnhancer;
         this.clientDetailsDao = clientDetailsDao;
     }
@@ -72,7 +75,27 @@ public class OAuth2ClientService extends AbstractSecurityService<ClientDetailsDa
     public IPage<ClientDetailsVO> clientDetailsPage(Query<?> query) {
         Page<ClientDetails> sourcePage = super.lambdaQuery()
                                               .page(query.toPage());
-        return super.mapToTarget(sourcePage, convert::toClientDetailsVO);
+        return this.pageMapToTarget(sourcePage, convert::toClientDetailsVO);
+    }
+
+
+    /**
+     * 分页对象类型转换
+     *
+     * @param sourcePage 源分页对象
+     * @param translator 翻译
+     * @return {@link IPage < PermissionVO >}
+     * @date 2021-05-12 09:37:44
+     */
+    protected <T> IPage<T> pageMapToTarget(IPage<ClientDetails> sourcePage, Function<ClientDetails, T> translator) {
+        List<T> targetPageList = sourcePage.getRecords()
+                                           .stream()
+                                           .map(translator)
+                                           .collect(Collectors.toList());
+        return new Page<T>(sourcePage.getCurrent(),
+                sourcePage.getSize(),
+                sourcePage.getTotal(),
+                sourcePage.isSearchCount()).setRecords(targetPageList);
     }
 
     /**

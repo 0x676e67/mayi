@@ -3,13 +3,11 @@ package com.zf1976.mayi.auth.config;
 import com.zf1976.mayi.auth.SecurityContextHolder;
 import com.zf1976.mayi.auth.enhance.JdbcClientDetailsServiceEnhancer;
 import com.zf1976.mayi.auth.enhance.MD5PasswordEncoder;
-import com.zf1976.mayi.auth.filter.DynamicSecurityFilter;
 import com.zf1976.mayi.auth.filter.OAuth2TokenAuthenticationFilter;
 import com.zf1976.mayi.auth.filter.SignatureAuthenticationFilter;
 import com.zf1976.mayi.auth.filter.provider.DaoAuthenticationEnhancerProvider;
 import com.zf1976.mayi.auth.filter.handler.logout.OAuth2LogoutHandler;
 import com.zf1976.mayi.auth.filter.handler.logout.Oauth2LogoutSuccessHandler;
-import com.zf1976.mayi.auth.service.DynamicDataSourceService;
 import com.zf1976.mayi.common.security.property.AuthProperties;
 import com.zf1976.mayi.common.security.property.SecurityProperties;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
@@ -23,9 +21,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -52,16 +48,13 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final PasswordEncoder passwordEncoder;
     private final UserDetailsService userDetailsService;
     private final AuthProperties authProperties;
-    private final DynamicDataSourceService dynamicDataSourceService;
 
     public WebSecurityConfiguration(SecurityProperties securityProperties,
                                     UserDetailsService userDetailsService,
-                                    AuthProperties authProperties,
-                                    DynamicDataSourceService dynamicDataSourceService) {
+                                    AuthProperties authProperties) {
         this.properties = securityProperties;
         this.userDetailsService = userDetailsService;
         this.authProperties = authProperties;
-        this.dynamicDataSourceService = dynamicDataSourceService;
         this.passwordEncoder = new MD5PasswordEncoder();
     }
 
@@ -110,6 +103,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+
         //登录处理
        http.csrf().disable()
            .cors()
@@ -133,7 +127,6 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             .and()
             .httpBasic()
             .and()
-            .addFilterAt(new DynamicSecurityFilter(this.properties, this.dynamicDataSourceService), FilterSecurityInterceptor.class)
             .addFilterBefore(new OAuth2TokenAuthenticationFilter(properties), LogoutFilter.class);
 
         var jdbcClientDetailsServiceEnhancer = SecurityContextHolder.getShareObject(JdbcClientDetailsServiceEnhancer.class);

@@ -1,25 +1,18 @@
 package test;
 
 import com.zf1976.mayi.auth.AuthApplication;
-import com.zf1976.mayi.auth.backup.SQLBackupStrategy;
-import com.zf1976.mayi.auth.backup.service.MySQLBackupService;
-import com.zf1976.mayi.auth.dao.SysPermissionDao;
-import com.zf1976.mayi.auth.pojo.BackupFile;
-import com.zf1976.mayi.auth.pojo.RoleBinding;
+import com.zf1976.mayi.upms.biz.security.backup.service.MySQLBackupService;
+import com.zf1976.mayi.upms.biz.dao.SysPermissionDao;
 import com.zf1976.mayi.auth.service.DynamicDataSourceService;
 import com.zf1976.mayi.auth.service.OAuth2ClientService;
-import com.zf1976.mayi.auth.backup.MySQLStrategyBackup;
 import com.zf1976.mayi.common.encrypt.EncryptUtil;
 import com.zf1976.mayi.upms.biz.dao.SysRoleDao;
 import com.zf1976.mayi.upms.biz.dao.SysUserDao;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.sql.DataSource;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 
 /**

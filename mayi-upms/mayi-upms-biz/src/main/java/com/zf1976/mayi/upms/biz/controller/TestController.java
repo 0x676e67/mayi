@@ -25,7 +25,7 @@ public class TestController {
 
     @Log(description = "测试B接口")
     @GetMapping("/testB")
-    public void testB(){
-        SessionManagement.removeSession(1L);
+    public String testB(){
+        return "OAuth2 A testB";
     }
 }

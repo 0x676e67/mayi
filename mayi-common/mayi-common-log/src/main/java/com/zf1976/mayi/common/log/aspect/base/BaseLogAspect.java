@@ -43,7 +43,7 @@ public abstract class BaseLogAspect {
         String className = proceed.getClass().getName();
         // 方法名
         String methodSignatureName = methodSignature.getName();
-        // 当前session name
+        // 调用者
         String username = null;
         try {
             Session currentSession = SessionManagement.getSession();

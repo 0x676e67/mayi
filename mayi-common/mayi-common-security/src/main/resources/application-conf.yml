@@ -22,7 +22,7 @@ security:
   #管理员名字 自己配置就好了/前端也需要修改。。
   owner: admin
   #token 头
-  token-header: ANT-ADMIN
+  token-header: MAYI-ADMIN
   # 签发方
   token-issuer: http://127.0.0.1:9000
   # 是否限制单用户登录
@@ -71,6 +71,7 @@ security:
     # 阿里巴巴监控
     - /druid/**
     - /login/**
+    - /oauth/code
 
 #公用缓存配置
 cache:
