@@ -1,6 +1,6 @@
 package com.zf1976.mayi.auth;
 
-import com.zf1976.ant.auth.feign.RoleServiceClient;
+import com.zf1976.mayi.auth.feign.RoleServiceClient;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

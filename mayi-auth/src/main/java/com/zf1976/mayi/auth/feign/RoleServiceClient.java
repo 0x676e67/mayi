@@ -1,4 +1,4 @@
-package com.zf1976.ant.auth.feign;
+package com.zf1976.mayi.auth.feign;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.mayi.common.core.foundation.DataResult;
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
  * @author mac
  * @date 2021/5/29
  */
-@FeignClient("ant-upms-bzi")
+@FeignClient("mayi-upms-bzi")
 public interface RoleServiceClient {
 
     @GetMapping("/api/roles/all")

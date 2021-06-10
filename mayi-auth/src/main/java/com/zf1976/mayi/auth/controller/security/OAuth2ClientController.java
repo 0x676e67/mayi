@@ -1,4 +1,4 @@
-package com.zf1976.mayi.auth.controller;
+package com.zf1976.mayi.auth.controller.security;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zf1976.mayi.auth.pojo.dto.ClientDetailsDTO;
