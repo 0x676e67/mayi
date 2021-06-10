@@ -3,7 +3,6 @@ package com.zf1976.mayi.upms.biz.security;
 import com.zf1976.mayi.upms.biz.security.service.DynamicDataSourceService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
 
 /**
  * 容器启动后执行一些任务

@@ -50,8 +50,7 @@ public class SysDictController {
     }
 
     @PostMapping("/download")
-    public DataResult<Void> downloadDictExcel(@RequestBody Query<DictQueryParam> requestPage,
-                                              HttpServletResponse response) {
+    public DataResult<Void> downloadDictExcel(@RequestBody Query<DictQueryParam> requestPage, HttpServletResponse response) {
         return DataResult.success(service.downloadDictExcel(requestPage, response));
     }
 
