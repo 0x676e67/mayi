@@ -36,7 +36,7 @@ public class RoleBinding {
     /**
      * 权限列表
      */
-    private List<BindingPermission> bindingPermissions;
+    private List<Permission> bindingPermissions;
 
     public Long getId() {
         return id;
@@ -83,11 +83,11 @@ public class RoleBinding {
         return this;
     }
 
-    public List<BindingPermission> getBindingPermissions() {
+    public List<Permission> getBindingPermissions() {
         return bindingPermissions;
     }
 
-    public RoleBinding setBindingPermissions(List<BindingPermission> bindingPermissions) {
+    public RoleBinding setBindingPermissions(List<Permission> bindingPermissions) {
         this.bindingPermissions = bindingPermissions;
         return this;
     }

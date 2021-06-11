@@ -5,6 +5,8 @@ import com.zf1976.mayi.common.core.foundation.exception.BusinessException;
 import com.zf1976.mayi.common.security.support.session.exception.SessionException;
 import com.zf1976.mayi.upms.biz.security.backup.exception.SQLBackupException;
 import com.zf1976.mayi.upms.biz.service.exception.SysBaseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings("rawtypes")
 public class GlobalExceptionHandler {
 
+    private final Logger log = LoggerFactory.getLogger("[GlobalExceptionHandler]");
 
     /**
      * 全局异常类（拦截不到子类型处理）
@@ -32,6 +35,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     DataResult exceptionHandler(Exception exception) {
+        log.error(exception.getMessage(), exception.getCause());
         return DataResult.fail("Server Error");
     }
 

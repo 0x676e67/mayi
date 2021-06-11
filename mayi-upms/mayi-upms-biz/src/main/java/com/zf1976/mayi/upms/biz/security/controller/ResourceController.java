@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zf1976.mayi.upms.biz.pojo.ResourceNode;
 import com.zf1976.mayi.upms.biz.pojo.po.SysResource;
 import com.zf1976.mayi.common.core.foundation.DataResult;
+import com.zf1976.mayi.upms.biz.pojo.query.AbstractQueryParam;
+import com.zf1976.mayi.upms.biz.pojo.query.Query;
 import com.zf1976.mayi.upms.biz.security.service.DynamicDataSourceService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,7 +32,7 @@ public class ResourceController {
 
     @PostMapping("/page")
     @PreAuthorize("hasRole('admin')")
-    public DataResult<IPage<ResourceNode>> selectResourceByPage(@RequestBody Page<SysResource> page) {
+    public DataResult<IPage<ResourceNode>> selectResourceByPage(@RequestBody Query<?> page) {
         return DataResult.success(this.dynamicDataSourceService.selectResourceNodeByPage(page));
     }
 

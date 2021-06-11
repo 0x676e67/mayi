@@ -1,16 +1,12 @@
 package test;
 
-import com.zf1976.mayi.common.security.support.ResourceTrie;
-import com.zf1976.mayi.common.security.support.session.manager.SessionManagement;
 import com.zf1976.mayi.upms.biz.SystemApplication;
+import com.zf1976.mayi.upms.biz.dao.SysPermissionDao;
+import com.zf1976.mayi.upms.biz.dao.SysResourceDao;
 import com.zf1976.mayi.upms.biz.security.service.DynamicDataSourceService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.util.AntPathMatcher;
-
-import java.util.Collection;
-import java.util.Map;
 
 /**
  * @author mac
@@ -22,21 +18,16 @@ public class SystemApplicationTest {
     @Autowired
     DynamicDataSourceService dynamicDataSourceService;
 
+    @Autowired
+    private SysResourceDao resourceDao;
+
+    @Autowired
+    private SysPermissionDao sysPermissionDao;
+
     @Test
     public void sessionTest() {
-        ResourceTrie resourceTrie = new ResourceTrie();
-        String url = "/api/roles/delete";
-        AntPathMatcher antPathMatcher = new AntPathMatcher();
-        Map<String, Collection<String>> stringCollectionMap = this.dynamicDataSourceService.loadDynamicDataSource();
-
-        long mapStart = System.currentTimeMillis();
-        for (Map.Entry<String, Collection<String>> entry : stringCollectionMap.entrySet()) {
-            if (entry.getKey().equals(url)) {
-                System.out.println("map count: " + (System.currentTimeMillis() - mapStart));
-                break;
-            }
-        }
-
+        System.out.println(sysPermissionDao.selectResourceBindingList());
+        System.out.println(sysPermissionDao.selectRoleBindingList());
     }
 
 }

@@ -64,16 +64,16 @@ public class PermissionBindingService implements InitPermission{
     /**
      * 查询绑定权限资源链接列表
      *
-     * @return {@link List<ResourceLinkBinding>}
+     * @return {@link List< ResourceLinkBinding >}
      */
     @CachePut(key = "selectResourceLinkBindingList")
     public List<ResourceLinkBinding> selectResourceLinkBindingList() {
         // 资源列表
         List<SysResource> resourceList = this.dynamicDataSourceService.list();
         // 资源树
-        List<ResourceNode> resourceNodeList = this.dynamicDataSourceService.buildResourceTree(resourceList);
+        List<ResourceNode> resourceNodeList = this.dynamicDataSourceService.generatorResourceTree(resourceList);
         // 构建资源绑定权限链接
-        return this.dynamicDataSourceService.buildResourceLinkBindingList(resourceNodeList);
+        return this.dynamicDataSourceService.generatorResourceLinkBindingList(resourceNodeList);
     }
 
 

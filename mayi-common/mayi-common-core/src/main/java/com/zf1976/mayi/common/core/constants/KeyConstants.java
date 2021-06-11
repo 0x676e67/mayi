@@ -6,9 +6,9 @@ package com.zf1976.mayi.common.core.constants;
  **/
 public interface KeyConstants {
 
-    String ALLOW = "allow";
+    String RESOURCE_ALLOW = "resource_allow";
 
-    String RESOURCES = "resources";
+    String RESOURCE_LIST = "resource_list";
 
-    String MATCH_METHOD = "matchMethod";
+    String RESOURCE_METHOD = "resource_method";
 }

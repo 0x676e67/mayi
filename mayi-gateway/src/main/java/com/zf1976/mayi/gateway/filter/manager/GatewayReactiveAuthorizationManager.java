@@ -110,7 +110,7 @@ public class GatewayReactiveAuthorizationManager implements ReactiveAuthorizatio
     private Map<String, String> loadResourcePermission() {
         Map map = this.redisTemplate.opsForValue().get(Namespace.RESOURCE);
         if (map != null) {
-            return (Map) map.get(KeyConstants.RESOURCES);
+            return (Map) map.get(KeyConstants.RESOURCE_LIST);
         }
         return Collections.emptyMap();
     }
@@ -118,7 +118,7 @@ public class GatewayReactiveAuthorizationManager implements ReactiveAuthorizatio
     private List<String> ignoreUri(){
         Map<Object, Object> map = this.redisTemplate.opsForValue().get(Namespace.DYNAMIC);
         if (map != null) {
-            return (List) map.get(KeyConstants.ALLOW);
+            return (List) map.get(KeyConstants.RESOURCE_ALLOW);
         }
         return Collections.emptyList();
     }

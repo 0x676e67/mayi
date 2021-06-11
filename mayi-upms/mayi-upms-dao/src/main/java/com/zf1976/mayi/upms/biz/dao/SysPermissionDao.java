@@ -1,9 +1,10 @@
 package com.zf1976.mayi.upms.biz.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.zf1976.mayi.upms.biz.pojo.BindingPermission;
+import com.zf1976.mayi.upms.biz.pojo.Permission;
 import com.zf1976.mayi.upms.biz.pojo.RoleBinding;
 import com.zf1976.mayi.upms.biz.pojo.po.SysPermission;
+import com.zf1976.mayi.upms.biz.pojo.po.SysResource;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -23,7 +24,7 @@ public interface SysPermissionDao extends BaseMapper<SysPermission> {
      * @param resourceId 资源id
      * @return {@link List<String>}
      */
-    List<BindingPermission> selectPermissionsByResourceId(@Param("resourceId") long resourceId);
+    List<Permission> selectPermissionsByResourceId(@Param("resourceId") long resourceId);
 
     /**
      * 获取角色权限值
@@ -31,7 +32,14 @@ public interface SysPermissionDao extends BaseMapper<SysPermission> {
      * @param roleId 角色id
      * @return {@link List<String>}
      */
-    List<BindingPermission> selectPermissionsByRoleId(@Param("roleId") long roleId);
+    List<Permission> selectPermissionsByRoleId(@Param("roleId") long roleId);
+
+    /**
+     * 查询资源权限绑定
+     *
+     * @return {@link List<SysResource>}
+     */
+    List<SysResource> selectResourceBindingList();
 
     /**
      * 查询绑定权限的角色列表

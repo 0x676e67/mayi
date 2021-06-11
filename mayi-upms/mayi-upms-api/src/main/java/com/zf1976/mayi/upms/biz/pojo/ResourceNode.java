@@ -2,13 +2,14 @@ package com.zf1976.mayi.upms.biz.pojo;
 
 import com.zf1976.mayi.upms.biz.pojo.po.SysResource;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * @author mac
  * @date 2021/5/6
  */
-public class ResourceNode {
+public class ResourceNode implements Serializable {
 
     private Long id;
     /**
@@ -47,10 +48,14 @@ public class ResourceNode {
      * 是否为叶子
      */
     private Boolean leaf;
+
+    private List<Permission> bindingPermissions;
     /**
      * 子节点
      */
     private List<ResourceNode> children;
+
+    public ResourceNode() {}
 
     public ResourceNode(SysResource sysResource) {
         this.id = sysResource.getId();
@@ -62,6 +67,16 @@ public class ResourceNode {
         this.leaf = sysResource.getLeaf();
         this.description = sysResource.getDescription();
         this.allow = sysResource.getAllow();
+        this.bindingPermissions = sysResource.getBindingPermissions();
+    }
+
+    public List<Permission> getBindingPermissions() {
+        return bindingPermissions;
+    }
+
+    public ResourceNode setBindingPermissions(List<Permission> bindingPermissions) {
+        this.bindingPermissions = bindingPermissions;
+        return this;
     }
 
     public Long getId() {

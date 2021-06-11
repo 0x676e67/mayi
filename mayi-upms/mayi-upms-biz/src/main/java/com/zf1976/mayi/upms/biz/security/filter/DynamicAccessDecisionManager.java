@@ -2,7 +2,6 @@ package com.zf1976.mayi.upms.biz.security.filter;
 
 import com.zf1976.mayi.common.security.support.session.manager.SessionManagement;
 import com.zf1976.mayi.upms.biz.security.service.DynamicDataSourceService;
-import org.springframework.boot.autoconfigure.security.servlet.AntPathRequestMatcherProvider;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
@@ -10,20 +9,11 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
-import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
-import org.springframework.web.servlet.mvc.method.annotation.PathVariableMethodArgumentResolver;
 
-import javax.servlet.*;
 import javax.servlet.http.*;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -58,7 +48,7 @@ public class DynamicAccessDecisionManager implements AccessDecisionManager {
         // 请求方法
         String method = request.getMethod();
         // URI-Method
-        Map<String, String> methodMap = this.dynamicDataSourceService.getResourceMethodMap();
+        Map<String, String> methodMap = this.dynamicDataSourceService.loadResourceMethodMap();
         // 条件
         boolean condition = false;
         Set<Map.Entry<String, String>> entrySet = methodMap.entrySet();

@@ -13,6 +13,26 @@
         <collection property="bindingPermissions" column="id" select="selectPermissionsByRoleId"/>
     </resultMap>
 
+<!--    资源绑定权限映射-->
+    <resultMap id="resourceBindingMap" type="com.zf1976.mayi.upms.biz.pojo.po.SysResource">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="pid" column="pid" jdbcType="BIGINT"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="uri" column="uri" jdbcType="VARCHAR"/>
+        <result property="enabled" column="enabled" jdbcType="BIT"/>
+        <result property="method" column="method" jdbcType="VARCHAR"/>
+        <result property="allow" column="allow" jdbcType="BIT"/>
+        <result property="description" column="description" jdbcType="VARCHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="version" column="version" jdbcType="INTEGER"/>
+        <result property="createBy" column="create_by" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="update_by" jdbcType="TIMESTAMP"/>
+        <result property="leaf" column="leaf" jdbcType="BIT"/>
+        <!--        嵌套子查询-->
+        <collection property="bindingPermissions" column="id" select="selectPermissionsByResourceId"/>
+    </resultMap>
+
 <!--   根据权限id删除 权限-资源关系-->
     <delete id="deleteResourceRelationById">
         delete from sys_resource_permission_relation
@@ -48,13 +68,14 @@
     </delete>
 
     <!--  获取资源权限值-->
-    <select id="selectPermissionsByResourceId" resultType="com.zf1976.mayi.upms.biz.pojo.BindingPermission">
-        select distinct permission_id as id, value from sys_resource_permission_relation join sys_permission sp on sys_resource_permission_relation.permission_id = sp.id
-        where resource_id = #{resourceId}
+    <select id="selectPermissionsByResourceId" resultType="com.zf1976.mayi.upms.biz.pojo.Permission">
+        select distinct permission_id as id, value
+        from  sys_permission join sys_resource_permission_relation srpr on  sys_permission.id = srpr.permission_id
+        where srpr.resource_id = #{resourceId}
     </select>
 
 <!--  获取角色权限值-->
-    <select id="selectPermissionsByRoleId" resultType="com.zf1976.mayi.upms.biz.pojo.BindingPermission">
+    <select id="selectPermissionsByRoleId" resultType="com.zf1976.mayi.upms.biz.pojo.Permission">
         select distinct permission_id as id, value
         from sys_permission join sys_role_permission_relation srpr on sys_permission.id = srpr.permission_id
         where srpr.role_id = #{roleId}
@@ -68,6 +89,24 @@
                description,
                enabled
         from sys_role
+    </select>
+
+    <select id="selectResourceBindingList" resultMap="resourceBindingMap">
+        select id,
+               pid,
+               name,
+               uri,
+               enabled,
+               method,
+               allow,
+               description,
+               update_time,
+               create_time,
+               version,
+               create_by,
+               update_by,
+               leaf
+        from sys_resource
     </select>
 
     <!--资源权限绑定-->

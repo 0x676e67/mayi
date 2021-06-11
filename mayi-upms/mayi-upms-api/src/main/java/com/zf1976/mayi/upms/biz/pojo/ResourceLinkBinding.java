@@ -32,7 +32,7 @@ public class ResourceLinkBinding {
     /**
      * 绑定权限列表
      */
-    private List<BindingPermission> bindingPermissions;
+    private List<Permission> bindingPermissions;
 
     public Long getId() {
         return id;
@@ -88,11 +88,11 @@ public class ResourceLinkBinding {
         return this;
     }
 
-    public List<BindingPermission> getBindingPermissions() {
+    public List<Permission> getBindingPermissions() {
         return bindingPermissions;
     }
 
-    public ResourceLinkBinding setBindingPermissions(List<BindingPermission> bindingPermissions) {
+    public ResourceLinkBinding setBindingPermissions(List<Permission> bindingPermissions) {
         this.bindingPermissions = bindingPermissions;
         return this;
     }

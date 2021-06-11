@@ -4,10 +4,10 @@ package com.zf1976.mayi.upms.biz.pojo;
  * @author mac
  * @date 2021/5/27
  */
-public class BindingPermission {
+public class Permission {
 
     /**
-     * 绑定权限id
+     * 权限id
      */
     private Long id;
 

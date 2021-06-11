@@ -24,6 +24,7 @@ public class ApplicationStartupRunner implements CommandLineRunner {
         // 动态数据源鉴权初始化资源
         this.dynamicDataSourceService.loadDynamicDataSource();
         this.dynamicDataSourceService.loadAllowUri();
+        this.dynamicDataSourceService.loadResourceMethodMap();
     }
 
 }

@@ -2,8 +2,10 @@ package com.zf1976.mayi.upms.biz.pojo.po;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.zf1976.mayi.upms.biz.pojo.Permission;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author mac
@@ -44,6 +46,9 @@ public class SysResource extends Model<SysResource> {
      * 资源描述
      */
     private String description;
+
+    @TableField(exist = false)
+    private List<Permission> bindingPermissions;
 
     /**
      * 放行
@@ -197,6 +202,15 @@ public class SysResource extends Model<SysResource> {
         this.version = version;
     }
 
+    public List<Permission> getBindingPermissions() {
+        return bindingPermissions;
+    }
+
+    public SysResource setBindingPermissions(List<Permission> bindingPermissions) {
+        this.bindingPermissions = bindingPermissions;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "SysResource{" +
@@ -207,6 +221,7 @@ public class SysResource extends Model<SysResource> {
                 ", method='" + method + '\'' +
                 ", enabled=" + enabled +
                 ", description='" + description + '\'' +
+                ", bindingPermissions=" + bindingPermissions +
                 ", allow=" + allow +
                 ", leaf=" + leaf +
                 ", createBy='" + createBy + '\'' +

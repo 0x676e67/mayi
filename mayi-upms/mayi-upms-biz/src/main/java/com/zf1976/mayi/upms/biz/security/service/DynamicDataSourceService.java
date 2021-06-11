@@ -8,7 +8,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.zf1976.mayi.upms.biz.dao.SysPermissionDao;
 import com.zf1976.mayi.upms.biz.dao.SysResourceDao;
-import com.zf1976.mayi.upms.biz.pojo.BindingPermission;
+import com.zf1976.mayi.upms.biz.pojo.Permission;
 import com.zf1976.mayi.upms.biz.pojo.ResourceLinkBinding;
 import com.zf1976.mayi.upms.biz.pojo.ResourceNode;
 import com.zf1976.mayi.upms.biz.pojo.po.SysResource;
@@ -17,13 +17,17 @@ import com.zf1976.mayi.common.component.cache.annotation.CachePut;
 import com.zf1976.mayi.common.core.constants.KeyConstants;
 import com.zf1976.mayi.common.core.constants.Namespace;
 import com.zf1976.mayi.common.security.property.SecurityProperties;
+import com.zf1976.mayi.upms.biz.pojo.query.AbstractQueryParam;
+import com.zf1976.mayi.upms.biz.pojo.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.PostConstruct;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
 
@@ -40,8 +44,8 @@ import java.util.stream.Collectors;
 )
 public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysResource> implements InitPermission{
 
-    private final Map<String, String> resourceMethodMap = new HashMap<>(16);
-    private final Set<String> allowMethodSet = new HashSet<>(16);
+    private final Map<String, String> resourceMethodMap = new ConcurrentHashMap<>(16);
+    private final Set<String> allowUriSet = new CopyOnWriteArraySet<>();
     private final SysPermissionDao permissionDao;
     private final SecurityProperties securityProperties;
 
@@ -56,23 +60,24 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
      * @param page 分页对象
      * @return {@link IPage<ResourceNode>}
      */
-    @CachePut(key = "#page")
+    @CachePut(key = "#query")
     @Transactional(readOnly = true)
-    public IPage<ResourceNode> selectResourceNodeByPage(Page<SysResource> page) {
-        // 独立根据根节点分页查询
+    public IPage<ResourceNode> selectResourceNodeByPage(Query<?> query) {
+        // 根据根节点分页查询
         Page<SysResource> sourcePage = super.lambdaQuery()
                                             .isNull(SysResource::getPid)
-                                            .page(page);
+                                            .page(query.toPage());
 
-        // 查询所有根节点的子节点
-        List<SysResource> childResourceList = super.lambdaQuery()
-                                                   .isNotNull(SysResource::getPid)
-                                                   .list();
-        // 合并所有节点
+        // 查询所有子节点
+        List<SysResource> childResourceList = this.permissionDao.selectResourceBindingList()
+                                                                .stream()
+                                                                .filter(sysResource -> sysResource.getPid() != null)
+                                                                .collect(Collectors.toList());
+        // 根节点、子节点合并
         @SuppressWarnings("all")
         FluentIterable<SysResource> allResourceList = FluentIterable.concat(childResourceList, sourcePage.getRecords());
         // 根据分页出来的根节点构建资源树
-        List<ResourceNode> resourceTreeList = this.buildResourceTree(allResourceList.toList());
+        List<ResourceNode> resourceTreeList = this.generatorResourceTree(allResourceList.toList());
         return new Page<ResourceNode>(sourcePage.getCurrent(),
                 sourcePage.getSize(),
                 sourcePage.getTotal(),
@@ -86,7 +91,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
      * @return {@link List<ResourceNode>}
      * @date 2021-05-07 08:42:41
      */
-    public List<ResourceNode> buildResourceTree(List<SysResource> resourceList) {
+    public List<ResourceNode> generatorResourceTree(List<SysResource> resourceList) {
         List<ResourceNode> treeList = resourceList.stream()
                                                   .map(ResourceNode::new)
                                                   .collect(Collectors.toList());
@@ -110,7 +115,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
                        .filter(resourceNode -> {
                            // 根据树构建完整uri
                            if (resourceNode.getPid() == null) {
-                               this.traverseNode(resourceNode);
+                               this.traverseTree(resourceNode);
                                return true;
                            }
                            return false;
@@ -121,28 +126,28 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
     /**
      * 根据资源树构建资源链接列表
      *
-     * @return {@link List<ResourceLinkBinding>}
+     * @return {@link List< ResourceLinkBinding >}
      * @date 2021-05-07 23:43:49
      */
-    public List<ResourceLinkBinding> buildResourceLinkBindingList(List<ResourceNode> resourceNodeTree) {
-        List<ResourceLinkBinding> resourceLinkList = new LinkedList<>();
+    public List<ResourceLinkBinding> generatorResourceLinkBindingList(List<ResourceNode> resourceNodeTree) {
+        List<ResourceLinkBinding> resourceLinkBindingList = new LinkedList<>();
         resourceNodeTree.forEach(resourceNode -> {
-            this.traverseNode(resourceNode, resourceLinkList);
+            this.traverseTree(resourceNode, resourceLinkBindingList);
         });
-        return resourceLinkList;
+        return resourceLinkBindingList;
     }
 
     /**
      * 遍历节点构造完整URI
      *
      * @param parentNode       父节点
-     * @param resourceLinkList 资源链接列表
+     * @param resourceLinkBindingList 资源-权限 链接列表
      * @date 2021-05-07 23:40:54
      */
-    private void traverseNode(ResourceNode parentNode, List<ResourceLinkBinding> resourceLinkList) {
+    private void traverseTree(ResourceNode parentNode, List<ResourceLinkBinding> resourceLinkBindingList) {
         // 递归到叶子节点
         if (parentNode.getChildren() == null) {
-            if (resourceLinkList != null) {
+            if (resourceLinkBindingList != null) {
                 // 构造完整资源链接
                 ResourceLinkBinding resourceLink = new ResourceLinkBinding();
                 resourceLink.setId(parentNode.getId())
@@ -150,11 +155,14 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
                             .setUri(parentNode.getUri())
                             .setMethod(parentNode.getMethod())
                             .setEnabled(parentNode.getEnabled())
-                            .setAllow(parentNode.getAllow());
-                // 查询资源权限
-                List<BindingPermission> bindingPermissions = this.permissionDao.selectPermissionsByResourceId(parentNode.getId());
-                resourceLink.setBindingPermissions(bindingPermissions);
-                resourceLinkList.add(resourceLink);
+                            .setAllow(parentNode.getAllow())
+                            .setBindingPermissions(parentNode.getBindingPermissions());
+                if (parentNode.getBindingPermissions() == null) {
+                    // 查询资源权限
+                    List<Permission> permissionList = this.permissionDao.selectPermissionsByResourceId(parentNode.getId());
+                    resourceLink.setBindingPermissions(permissionList);
+                }
+                resourceLinkBindingList.add(resourceLink);
             }
         } else {
             String parentUri = parentNode.getUri();
@@ -162,7 +170,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
                 // 构造uri
                 childNode.setUri(parentUri.concat(childNode.getUri()));
                 // 递归
-                this.traverseNode(childNode, resourceLinkList);
+                this.traverseTree(childNode, resourceLinkBindingList);
             }
         }
     }
@@ -173,7 +181,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
      * @param parentNode 父节点
      * @date 2021-05-07 23:40:54
      */
-    private void traverseNode(ResourceNode parentNode) {
+    private void traverseTree(ResourceNode parentNode) {
         // 递归到叶子节点
         if (parentNode.getChildren() != null) {
             String parentUri = this.initResourceNodeFullUri(parentNode);
@@ -182,7 +190,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
                 // 构造uri
                 childNode.setFullUri(parentUri.concat(childUri));
                 // 递归
-                this.traverseNode(childNode);
+                this.traverseTree(childNode);
             }
         }
     }
@@ -208,88 +216,44 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
      * @return {@link Map}
      * @date 2021-05-05 19:53:43
      */
-    @CachePut(key = KeyConstants.RESOURCES)
+    @CachePut(key = KeyConstants.RESOURCE_LIST)
     @Transactional(readOnly = true)
     public Map<String, Collection<String>> loadDynamicDataSource() {
         //清空缓存
-        if (!CollectionUtils.isEmpty(this.resourceMethodMap) || !CollectionUtils.isEmpty(allowMethodSet)) {
+        if (!CollectionUtils.isEmpty(this.resourceMethodMap) || !CollectionUtils.isEmpty(this.allowUriSet)) {
             this.resourceMethodMap.clear();
-            this.allowMethodSet.clear();
+            this.allowUriSet.clear();
         }
-        Map<String, Collection<String>> resourcePermissionMap = new HashMap<>(16);
+        final Map<String, Collection<String>> resourcePermissionMap = new HashMap<>(16);
         // 所有资源
-        List<SysResource> resourceList = super.lambdaQuery()
-                                              .list();
-        // 根节点资源
-        List<SysResource> root = resourceList.stream()
-                                             .filter(sysResource -> sysResource.getPid() == null)
-                                             .collect(Collectors.toList());
-        // 构造完整url 资源路径
-        for (SysResource resource : root) {
-            // 资源id-link
-            Map<Long, String> resourceLink = new HashMap<>(16);
-            // 资源id-method
-            Map<Long, String> resourceMethod = new HashMap<>(16);
-            this.buildResourceLink(resource, resourceLink, resourceMethod, resourceList);
-            resourceLink.forEach((id, path) -> {
-                // 权限值
-                List<String> permissions = this.permissionDao.selectPermissionsByResourceId(id)
-                                                             .stream()
-                                                             .map(BindingPermission::getValue)
-                                                             .distinct()
-                                                             .collect(Collectors.toList());
-                // 方法
-                String method = resourceMethod.get(id);
-                resourcePermissionMap.put(path, permissions);
-                this.resourceMethodMap.put(path, method);
-            });
-
-        }
+        List<SysResource> resourceList = this.permissionDao.selectResourceBindingList();
+        // 构建资源节点树
+        List<ResourceNode> resourceNodeTree = this.generatorResourceTree(resourceList);
+        // 绑定权限的资源链接列表
+        List<ResourceLinkBinding> resourceLinkBindingList = this.generatorResourceLinkBindingList(resourceNodeTree);
+        // 放行资源
+        resourceLinkBindingList.forEach(resourceLinkBinding -> {
+                                   this.resourceMethodMap.put(resourceLinkBinding.getUri(), resourceLinkBinding.getMethod());
+                                   List<String> permissions = resourceLinkBinding.getBindingPermissions()
+                                                                                 .stream()
+                                                                                 .map(Permission::getValue)
+                                                                                 .collect(Collectors.toList());
+                                   resourcePermissionMap.put(resourceLinkBinding.getUri(), permissions);
+                                   if (resourceLinkBinding.getAllow()) {
+                                       this.allowUriSet.add(resourceLinkBinding.getUri());
+                                   }
+                               });
         return resourcePermissionMap;
     }
 
-    /**
-     * 构造资源路径
-     *
-     * @param parent          节点资源
-     * @param resourceLinkMap id-path映射
-     * @param methodMap       id-method映射
-     * @date 2021-05-05 19:56:08
-     */
-    private void buildResourceLink(SysResource parent, Map<Long, String> resourceLinkMap, Map<Long, String> methodMap, List<SysResource> resourceList) {
-        var parentId = parent.getId();
-        var parentUri = parent.getUri();
-        var parentMethod = parent.getMethod();
-        // 判断是否make
-        var condition = true;
-        List<SysResource> childResourceList = resourceList.stream()
-                                                          .filter(sysResource -> ObjectUtils.nullSafeEquals(parentId, sysResource.getPid()))
-                                                          .collect(Collectors.toList());
-        for (SysResource child : childResourceList) {
-            // 路径深搜
-            child.setUri(parentUri.concat(child.getUri()));
-            // 继续make
-            this.buildResourceLink(child, resourceLinkMap, methodMap, resourceList);
-            // make完成
-            condition = false;
-        }
-        if (condition) {
-            resourceLinkMap.put(parentId, parentUri);
-            methodMap.put(parentId, parentMethod);
-            // 是否allow
-            if (parent.getAllow()) {
-                this.allowMethodSet.add(parentUri);
-            }
-        }
-    }
 
     /**
      * 获取资源匹配方法Map
      *
      * @return {@link Map<String,String>}
      */
-    @CachePut(key = KeyConstants.MATCH_METHOD)
-    public Map<String, String> getResourceMethodMap() {
+    @CachePut(key = KeyConstants.RESOURCE_METHOD)
+    public Map<String, String> loadResourceMethodMap() {
         if (CollectionUtils.isEmpty(this.resourceMethodMap)) {
             this.loadDynamicDataSource();
         }
@@ -301,14 +265,18 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
      *
      * @return getAllowUri
      */
-    @CachePut(key = KeyConstants.ALLOW)
+    @CachePut(key = KeyConstants.RESOURCE_ALLOW)
     public List<String> loadAllowUri() {
-        CollectionUtils.mergeArrayIntoCollection(securityProperties.getIgnoreUri(), this.allowMethodSet);
-        return Lists.newArrayList(this.allowMethodSet);
+        if (CollectionUtils.isEmpty(this.allowUriSet)) {
+            this.loadDynamicDataSource();
+        }
+        CollectionUtils.mergeArrayIntoCollection(securityProperties.getIgnoreUri(), this.allowUriSet);
+        return Lists.newArrayList(this.allowUriSet);
     }
 
 
     @Override
+    @PostConstruct
     public void initialize() {
         this.loadDynamicDataSource();
         this.loadAllowUri();
