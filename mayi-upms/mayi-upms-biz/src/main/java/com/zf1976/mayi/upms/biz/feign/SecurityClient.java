@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
  * @author ant
  * Create by Ant on 2021/3/28 5:03 PM
  */
-@FeignClient(name = "ant-auth")
+@FeignClient(name = "mayi-auth")
 public interface SecurityClient {
 
     /**

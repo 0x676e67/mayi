@@ -23,7 +23,7 @@ public class FeignConfiguration {
             final Collection<String> tokenHeader = requestTemplate.headers().get(HttpHeaders.AUTHORIZATION);
             if (CollectionUtils.isEmpty(tokenHeader)) {
                 final Session currentSession = SessionManagement.getSession();
-                requestTemplate.header(HttpHeaders.AUTHORIZATION, currentSession.getToken());
+                requestTemplate.header("Authorization", "Bearer " + currentSession.getToken());
             }
         };
     }

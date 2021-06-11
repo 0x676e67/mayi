@@ -18,14 +18,14 @@ public class TestController {
     private SysLogDao sysLogDao;
 
     @Log(description = "测试A接口")
-    @RequestMapping(method = RequestMethod.GET, path = "/testA")
+    @RequestMapping(method = RequestMethod.GET, path = "/demo")
     public void testA(@RequestParam String description) {
         throw new RuntimeException(this.getClass().getName());
     }
 
     @Log(description = "测试B接口")
-    @GetMapping("/testB")
-    public String testB(){
-        return "OAuth2 A testB";
+    @GetMapping("/{demo}")
+    public String testB(@PathVariable String demo){
+        return demo;
     }
 }

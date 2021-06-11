@@ -5,6 +5,7 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -41,26 +42,29 @@ public class DynamicSecurityMetadataSource implements FilterInvocationSecurityMe
     public Collection<ConfigAttribute> getAttributes(Object o) throws IllegalArgumentException {
         Assert.isInstanceOf(FilterInvocation.class, o, "target not is instance of FilterInvocation");
         HttpServletRequest request = ((FilterInvocation) o).getRequest();
-        // 请求uri
         String uri = request.getRequestURI();
-        // 动态数据源
-        Map<String, Collection<String>> dynamicDataSource = this.getDynamicDataSourceMap();
         // 资源URI--Permissions
-        for (Map.Entry<String, Collection<String>> entry : dynamicDataSource.entrySet()) {
-            boolean condition = false;
-            // eq匹配
+        Set<Map.Entry<String, Collection<String>>> entrySet = this.getDynamicDataSourceMap().entrySet();
+        // 匹配条件
+        boolean condition = false;
+        // eq匹配
+        for (Map.Entry<String, Collection<String>> entry : entrySet) {
+            // eq匹配成功退出
             if (ObjectUtils.nullSafeEquals(entry.getKey(), uri)) {
-                condition = true;
-                // 失败后进行模式匹配
-            } else if (pathMatcher.match(entry.getKey(), uri)) {
-                // 返回匹配URL权限值，自定义数据源
-                condition = true;
-            }
-            if (condition) {
                 return entry.getValue()
                             .stream()
                             .map(SecurityConfig::new)
                             .collect(Collectors.toUnmodifiableSet());
+            }
+        }
+        // 模式匹配
+        for (Map.Entry<String, Collection<String>> entry : entrySet) {
+            // 模式匹配成功退出
+            if (pathMatcher.match(entry.getKey(), uri)) {
+                return entry.getValue()
+                            .stream()
+                            .map(SecurityConfig::new)
+                            .collect(Collectors.toUnmodifiableList());
             }
         }
         // 不存在资源资源路径 返回空

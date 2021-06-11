@@ -2,6 +2,7 @@ package com.zf1976.mayi.upms.biz.security.filter;
 
 import com.zf1976.mayi.common.security.support.session.manager.SessionManagement;
 import com.zf1976.mayi.upms.biz.security.service.DynamicDataSourceService;
+import org.springframework.boot.autoconfigure.security.servlet.AntPathRequestMatcherProvider;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
@@ -60,23 +61,38 @@ public class DynamicAccessDecisionManager implements AccessDecisionManager {
         Map<String, String> methodMap = this.dynamicDataSourceService.getResourceMethodMap();
         // 条件
         boolean condition = false;
-        for (Map.Entry<String, String> entry : methodMap.entrySet()) {
-            // eq匹配
-            if (ObjectUtils.nullSafeEquals(entry.getKey(), uri) && ObjectUtils.nullSafeEquals(entry.getValue(), method)) {
-                condition = true;
-                break;
-                // 失败后进行模式匹配
-            } else if (pathMatcher.match(entry.getKey(), uri) && ObjectUtils.nullSafeEquals(method, entry.getValue())) {
+        Set<Map.Entry<String, String>> entrySet = methodMap.entrySet();
+        // eq匹配请求方法
+        for (Map.Entry<String, String> entry : entrySet) {
+            if (ObjectUtils.nullSafeEquals(entry.getKey(), uri)) {
+                // 匹配资源方法
+                if (!ObjectUtils.nullSafeEquals(entry.getValue(), method)) {
+                    throw new AccessDeniedException("Resource does not support request the method：" + method);
+                }
                 condition = true;
                 break;
             }
         }
+
+        if (!condition) {
+            // 模式匹配
+            for (Map.Entry<String, String> entry : entrySet) {
+                if (pathMatcher.match(entry.getKey(), uri)) {
+                    // 匹配资源方法
+                    if (!ObjectUtils.nullSafeEquals(method, entry.getValue())) {
+                        throw new AccessDeniedException("Resource does not support request the method：" + method);
+                    }
+                    condition = true;
+                    break;
+                }
+            }
+        }
+
         if (!condition) {
             throw new AccessDeniedException("You do not have permission to access, please contact the administrator");
         }
-        // 用户所有权限
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        // 所需要权限
+
+        // 资源所需要所需要权限
         Set<String> needPermission = collection.stream()
                                                .map(ConfigAttribute::getAttribute)
                                                .collect(Collectors.toSet());
@@ -84,6 +100,8 @@ public class DynamicAccessDecisionManager implements AccessDecisionManager {
         if (CollectionUtils.isEmpty(needPermission)) {
             return;
         }
+        // 用户所有权限
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         condition = authorities.stream()
                                .map(GrantedAuthority::getAuthority)
                                .collect(Collectors.toSet())
