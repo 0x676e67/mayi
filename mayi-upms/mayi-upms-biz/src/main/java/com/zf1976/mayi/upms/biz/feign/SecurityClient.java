@@ -1,7 +1,6 @@
 package com.zf1976.mayi.upms.biz.feign;
 
 import com.zf1976.mayi.common.core.foundation.DataResult;
-import com.zf1976.mayi.upms.biz.pojo.Details;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -24,22 +23,4 @@ public interface SecurityClient {
     @SuppressWarnings("rawtypes")
     DataResult logout(@RequestHeader(value = "Authorization") String token);
 
-    /**
-     * 根据令牌获取用户信息
-     *
-     * @date 2021-05-07 12:03:18
-     * @param token 令牌
-     * @return {@link DataResult<Details>}
-     */
-    @PostMapping("/oauth/info")
-    DataResult<Details> getUserDetails(@RequestHeader(value = "Authorization") String token);
-
-    /**
-     * 获取当前用户信息
-     *
-     * @date 2021-05-07 12:04:40
-     * @return {@link DataResult<Details>}
-     */
-    @PostMapping("/oauth/info")
-    DataResult<Details> getUserDetails();
 }

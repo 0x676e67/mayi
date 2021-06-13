@@ -49,14 +49,17 @@ public final class RedisSessionRepository extends AbstractSessionRepository {
 
     @Override
     public Optional<Session> getSession(String token) {
-        if (token != null) {
+        Session session = (Session) RequestUtil.getRequest().getAttribute("session");
+        if (token != null && session == null) {
             byte[] accessToSessionKey = this.serializeKey(this.getAccessToSessionKey(token));
             try (RedisConnection conn = this.getConnection()) {
                 byte[] data = conn.get(accessToSessionKey);
-                return Optional.ofNullable(this.deserialize(data));
+                session = this.deserialize(data);
+                RequestUtil.getRequest().setAttribute("session", session);
+                return Optional.ofNullable(session);
             }
         }
-        return Optional.empty();
+        return Optional.ofNullable(session);
     }
 
     @Override

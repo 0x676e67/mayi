@@ -1,7 +1,7 @@
 package com.zf1976.mayi.auth;
 
-import com.zf1976.mayi.upms.biz.pojo.Details;
 import com.zf1976.mayi.common.security.property.SecurityProperties;
+import com.zf1976.mayi.upms.biz.pojo.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
@@ -32,14 +32,14 @@ public class SecurityContextHolder extends org.springframework.security.core.con
     }
 
     /**
-     * 获取授权成功后细节
+     * 获取授权当前用户
      *
      * @return {@link Details}
      */
-    public static Details getAuthorizationDetails() {
+    public static User getAuthorizationUser() {
         try {
             LoginUserDetails details = (LoginUserDetails) getContext().getAuthentication().getDetails();
-            return new Details(details.getPermission(), details.getDataPermission(), details.getDelegate());
+            return details.getDelegate() ;
         } catch (Exception ignored) {
             return null;
         }

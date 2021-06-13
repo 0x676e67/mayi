@@ -6,6 +6,8 @@ import com.zf1976.mayi.common.core.foundation.DataResult;
 import com.zf1976.mayi.common.core.validate.ValidationInsertGroup;
 import com.zf1976.mayi.common.core.validate.ValidationUpdateGroup;
 import com.zf1976.mayi.common.log.annotation.Log;
+import com.zf1976.mayi.upms.biz.communication.Inner;
+import com.zf1976.mayi.upms.biz.pojo.User;
 import com.zf1976.mayi.upms.biz.pojo.dto.user.UpdateEmailDTO;
 import com.zf1976.mayi.upms.biz.pojo.dto.user.UpdateInfoDTO;
 import com.zf1976.mayi.upms.biz.pojo.dto.user.UpdatePasswordDTO;
@@ -99,5 +101,10 @@ public class SysUserController {
     @PatchMapping("/update/info")
     public DataResult<Void> updateInfo(@RequestBody @Validated UpdateInfoDTO dto) {
         return DataResult.success(service.updateInformation(dto));
+    }
+
+    @PostMapping("/info")
+    public DataResult<User> getUser() {
+        return DataResult.success(this.service.findUser());
     }
 }

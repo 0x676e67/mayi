@@ -1,6 +1,6 @@
 package com.zf1976.mayi.auth;
 
-import com.zf1976.mayi.upms.biz.pojo.Details;
+import com.zf1976.mayi.upms.biz.pojo.User;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 
 /**
@@ -10,27 +10,18 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 public class AuthorizationResult {
 
     private final OAuth2AccessToken oAuth2AccessToken;
-    private final Details details;
+    private final User user;
 
-    public AuthorizationResult(OAuth2AccessToken oAuth2AccessToken, Details details) {
+    public AuthorizationResult(OAuth2AccessToken oAuth2AccessToken,User user) {
         this.oAuth2AccessToken = oAuth2AccessToken;
-        this.details = details;
+        this.user = user;
     }
 
     public OAuth2AccessToken getOAuth2AccessToken() {
         return oAuth2AccessToken;
     }
 
-    public Details getDetails() {
-        return details;
+    public User getUser() {
+        return user;
     }
-
-    @Override
-    public String toString() {
-        return "LoginDetails{" +
-                "oAuth2AccessToken=" + oAuth2AccessToken +
-                ", details=" + details +
-                '}';
-    }
-
 }

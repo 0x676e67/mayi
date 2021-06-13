@@ -3,11 +3,9 @@ package com.zf1976.mayi.auth.endpoint;
 import com.zf1976.mayi.auth.AuthorizationResult;
 import com.zf1976.mayi.auth.SecurityContextHolder;
 import com.zf1976.mayi.common.security.pojo.Captcha;
-import com.zf1976.mayi.auth.service.UserDetailsServiceEnhancer;
 import com.zf1976.mayi.common.component.validate.service.CaptchaService;
 import com.zf1976.mayi.common.component.validate.support.CaptchaGenerator;
 import com.zf1976.mayi.common.core.foundation.DataResult;
-import com.zf1976.mayi.upms.biz.pojo.Details;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -34,12 +32,10 @@ public class TokenEndpointEnhancer {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final AlternativeJdkIdGenerator ALTERNATIVE_JDK_ID_GENERATOR = new AlternativeJdkIdGenerator();
     private final CaptchaService captchaService;
-    private final UserDetailsServiceEnhancer userDetailsService;
     private final TokenEndpoint tokenEndpoint;
 
-    public TokenEndpointEnhancer(CaptchaService captchaService, UserDetailsServiceEnhancer userDetailsService, TokenEndpoint tokenEndpoint) {
+    public TokenEndpointEnhancer(CaptchaService captchaService, TokenEndpoint tokenEndpoint) {
         this.captchaService = captchaService;
-        this.userDetailsService = userDetailsService;
         this.tokenEndpoint = tokenEndpoint;
     }
 
@@ -58,15 +54,10 @@ public class TokenEndpointEnhancer {
             OAuth2AccessToken oAuth2AccessToken = responseEntity.getBody();
             if (responseEntity.getStatusCode()
                               .is2xxSuccessful() && oAuth2AccessToken != null) {
-                return DataResult.success(new AuthorizationResult(oAuth2AccessToken, SecurityContextHolder.getAuthorizationDetails()));
+                return DataResult.success(new AuthorizationResult(oAuth2AccessToken, SecurityContextHolder.getAuthorizationUser()));
             }
             throw new InsufficientAuthenticationException("Client authentication failed.");
         }
-    }
-
-    @PostMapping("/info")
-    public DataResult<Details> getUserDetails(){
-        return DataResult.success(userDetailsService.selectUserDetails());
     }
 
     @GetMapping("/code")
