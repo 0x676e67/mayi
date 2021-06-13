@@ -24,8 +24,8 @@ spring:
           predicates:
             - Path=/oauth/**
         # 后台
-        - id: mayi-upms-bzi
-          uri: lb://mayi-upms-bzi
+        - id: mayi-upms-biz
+          uri: lb://mayi-upms-biz
           predicates:
             - Path=/api/**, /avatar/**, /static/**, /druid/**
   #          filters:

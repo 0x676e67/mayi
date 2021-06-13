@@ -1,14 +1,11 @@
 package com.zf1976.mayi.auth;
 
-import com.zf1976.mayi.auth.feign.RoleServiceClient;
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.stereotype.Repository;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
@@ -18,10 +15,9 @@ import java.lang.reflect.Field;
  * @date 2021/2/10
  **/
 @SpringBootApplication(scanBasePackages = "com.zf1976")
-@MapperScan(value = "com.zf1976", annotationClass = Repository.class)
 @EnableDiscoveryClient
 @EnableAsync
-@EnableFeignClients(basePackageClasses = RoleServiceClient.class)
+@EnableFeignClients(basePackageClasses = RemoteUserService.class)
 @EnableConfigurationProperties
 public class AuthApplication {
 

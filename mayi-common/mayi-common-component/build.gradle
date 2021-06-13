@@ -16,3 +16,5 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-configuration-processor:${springbootVersion}")
     implementation("com.baomidou:mybatis-plus-boot-starter:${mybatisPlusVersion}")
 }
+
+

@@ -3,17 +3,25 @@ package com.zf1976.mayi.upms.biz.security.config;
 import com.zf1976.mayi.common.security.property.SecurityProperties;
 import com.zf1976.mayi.upms.biz.security.filter.DynamicSecurityFilter;
 import com.zf1976.mayi.upms.biz.security.service.DynamicDataSourceService;
-import org.apache.http.client.methods.HttpOptions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationProcessingFilter;
+import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
+import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
+import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.util.ReflectionUtils;
+
+import javax.annotation.PostConstruct;
+import java.lang.reflect.Field;
 
 /**
  * @author mac
@@ -22,8 +30,6 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
 @Configuration
 @EnableResourceServer
 public class OAuth2ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
-
-    private final OAuth2ResourceServerProperties oAuth2ResourceServerProperties;
 
     @Value("${spring.security.oauth2.resourceserver.opaquetoken.client-id}")
     private String clientId;
@@ -36,15 +42,17 @@ public class OAuth2ResourceServerConfiguration extends ResourceServerConfigurerA
 
     @Value("${spring.security.oauth2.resourceserver.resource-id}")
     private String resourceId;
-
+    private ResourceServerSecurityConfigurer resourceServerSecurityConfigurer;
     private final DynamicDataSourceService dynamicDataSourceService;
+    private final RedisConnectionFactory redisConnectionFactory;
     private final SecurityProperties securityProperties;
 
     public OAuth2ResourceServerConfiguration(OAuth2ResourceServerProperties oAuth2ResourceServerProperties,
                                              DynamicDataSourceService dynamicDataSourceService,
+                                             RedisConnectionFactory redisConnectionFactory,
                                              SecurityProperties securityProperties) {
-        this.oAuth2ResourceServerProperties = oAuth2ResourceServerProperties;
         this.dynamicDataSourceService = dynamicDataSourceService;
+        this.redisConnectionFactory = redisConnectionFactory;
         this.securityProperties = securityProperties;
     }
 
@@ -53,22 +61,22 @@ public class OAuth2ResourceServerConfiguration extends ResourceServerConfigurerA
         // 资源服务器ID
         resources.resourceId(resourceId);
         // 远程校验token服务
-        resources.tokenServices(this.remoteTokenServices());
+        resources.tokenServices(this.remoteTokenServices(this.redisConnectionFactory));
         // 无状态
         resources.stateless(true);
+        this.resourceServerSecurityConfigurer = resources;
     }
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-
         // 拦截所有请求
         http.authorizeRequests()
             // OPTIONS放行
             .antMatchers(HttpMethod.OPTIONS,"/**").permitAll()
+            .antMatchers("/api/authorities/**").permitAll()
             .antMatchers(this.securityProperties.getIgnoreUri()).permitAll()
             .anyRequest()
             .authenticated();
-
 
         // 关闭CSRF和允许跨域
         http.csrf().disable()
@@ -82,20 +90,25 @@ public class OAuth2ResourceServerConfiguration extends ResourceServerConfigurerA
     }
 
     /**
-     * 远程访问认证服务器校验token
+     * 分布式缓存（Redis）校验token
      *
      * @return {@link RemoteTokenServices}
      */
-    private RemoteTokenServices remoteTokenServices() {
-        RemoteTokenServices remoteTokenServices = new RemoteTokenServices();
-        remoteTokenServices.setCheckTokenEndpointUrl(this.jwtCheckUri);
-        remoteTokenServices.setClientId(this.clientId);
-        remoteTokenServices.setClientSecret(this.clientSecret);
-        return remoteTokenServices;
+    private ResourceServerTokenServices remoteTokenServices(RedisConnectionFactory redisConnectionFactory) {
+        DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
+        defaultTokenServices.setTokenStore(new RedisTokenStore(redisConnectionFactory));
+        return defaultTokenServices;
     }
 
-    private OAuth2ResourceServerProperties.Jwt getJwt() {
-        return this.oAuth2ResourceServerProperties.getJwt();
-    }
+    @PostConstruct
+    public void overrideOAuth2PreAuthenticationFilter() {
+        if (this.resourceServerSecurityConfigurer != null) {
+            Field resourcesServerFilter = ReflectionUtils.findField(ResourceServerSecurityConfigurer.class, "resourcesServerFilter");
+            if (resourcesServerFilter != null) {
+                Object field = ReflectionUtils.getField(resourcesServerFilter, this.resourceServerSecurityConfigurer);
+                OAuth2AuthenticationProcessingFilter oAuth2AuthenticationProcessingFilter = (OAuth2AuthenticationProcessingFilter) field;
 
+            }
+        }
+    }
 }

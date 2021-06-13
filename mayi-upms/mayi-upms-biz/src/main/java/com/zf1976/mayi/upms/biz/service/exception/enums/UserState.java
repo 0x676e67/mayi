@@ -9,7 +9,7 @@ public enum UserState {
     /**
      * 数据不存在
      */
-    USER_NOT_FOUND(400, "用户不存在"),
+    USER_NOT_FOUND(400, "用户：{},不存在"),
 
     /**
      * 数据已存在

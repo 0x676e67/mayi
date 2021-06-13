@@ -13,13 +13,11 @@ ext {
 }
 
 dependencies {
+    implementation project(':mayi-upms:mayi-upms-api')
     implementation project(':mayi-common:mayi-common-core')
     implementation project(':mayi-common:mayi-common-encrypt')
     implementation project(':mayi-common:mayi-common-component')
-    implementation project(':mayi-common:mayi-common-mybatis')
     implementation project(':mayi-common:mayi-common-security')
-    implementation project(':mayi-upms:mayi-upms-api')
-    implementation project(':mayi-upms:mayi-upms-dao')
     implementation("io.jsonwebtoken:jjwt-api:${jwtVersion}")
     implementation("io.jsonwebtoken:jjwt-impl:${jwtVersion}")
     implementation("io.jsonwebtoken:jjwt-jackson:${jwtVersion}")
@@ -43,7 +41,6 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-data-redis')
     implementation('org.springframework.security:spring-security-test')
     implementation('org.springframework.boot:spring-boot-test')
-    implementation("com.baomidou:mybatis-plus-boot-starter:${mybatisPlusVersion}")
     runtimeOnly("mysql:mysql-connector-java:${mysqlConnectorVersion}")
 
 }

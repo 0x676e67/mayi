@@ -4,7 +4,7 @@ import com.zf1976.mayi.auth.LoginUserDetails;
 import com.zf1976.mayi.auth.SecurityContextHolder;
 import com.zf1976.mayi.auth.enhance.serialize.JacksonSerializationStrategy;
 import com.zf1976.mayi.common.core.util.RequestUtil;
-import com.zf1976.mayi.common.security.constant.AuthGranterTypeConstants;
+import com.zf1976.mayi.common.core.constants.AuthGranterTypeConstants;
 import com.zf1976.mayi.common.security.property.SecurityProperties;
 import com.zf1976.mayi.common.security.support.session.Session;
 import org.springframework.data.redis.connection.RedisConnection;

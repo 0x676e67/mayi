@@ -17,12 +17,6 @@ public class IpUtil {
 
     private static final Pattern INNER_IP_PATTERN = Pattern.compile("^(127\\.0\\.0\\.1)|(localhost)|(10\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})|(172\\.((1[6-9])|(2\\d)|(3[01]))\\.\\d{1,3}\\.\\d{1,3})|(192\\.168\\.\\d{1,3}\\.\\d{1,3})$");
 
-    public static void main(String[] args) {
-        Matcher matcher = INNER_IP_PATTERN.matcher("139.224.81.120");
-        System.out.println(matcher.find());
-    }
-
-
     /**
      * 判断是否为内网ip
      *

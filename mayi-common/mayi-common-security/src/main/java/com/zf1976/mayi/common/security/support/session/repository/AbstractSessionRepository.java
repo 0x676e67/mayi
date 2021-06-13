@@ -24,7 +24,7 @@ public abstract class AbstractSessionRepository {
 
     private final static String ID_TO_SESSION = "id_to_session:";
     private final static String ACCESS_TO_SESSION = "access_to_session:";
-    private final static String LOGOUT_URL = "http://localhost:8888/oauth/logout";
+    private String logoutUrl;
     protected final RedisConnectionFactory connectionFactory;
     protected final ObjectMapper objectMapper = JSONUtil.getJsonMapper();
     private final Logger logger = LoggerFactory.getLogger("[SessionStore]");
@@ -38,6 +38,7 @@ public abstract class AbstractSessionRepository {
     protected AbstractSessionRepository(RedisConnectionFactory connectionFactory, SecurityProperties properties) {
         this(connectionFactory);
         this.properties = properties;
+        this.logoutUrl = properties.getLogoutUrl();
     }
 
     /**
@@ -83,10 +84,7 @@ public abstract class AbstractSessionRepository {
     public abstract void removeSession(long sessionId) throws IOException;
 
     protected String getLogoutUrl() {
-        if (this.properties == null) {
-            return LOGOUT_URL;
-        }
-        return this.properties.getLogoutUrl();
+        return this.logoutUrl;
     }
 
     protected String getIdToSessionKey(long object) {

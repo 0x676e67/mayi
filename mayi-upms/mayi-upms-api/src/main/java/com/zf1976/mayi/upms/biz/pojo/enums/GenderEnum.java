@@ -4,8 +4,6 @@ import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.baomidou.mybatisplus.core.enums.IEnum;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import java.nio.charset.StandardCharsets;
-
 /**
  * @author mac
  * @date 2021/1/1

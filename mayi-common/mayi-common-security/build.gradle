@@ -7,7 +7,6 @@ repositories {
 
 dependencies {
     implementation project(':mayi-upms:mayi-upms-api')
-    implementation project(':mayi-upms:mayi-upms-dao')
     implementation project(':mayi-common:mayi-common-core')
     implementation project(':mayi-common:mayi-common-encrypt')
     implementation("org.redisson:redisson:${redissonVersion}")

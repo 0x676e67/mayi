@@ -1,6 +1,6 @@
 package com.zf1976.mayi.auth;
 
-import com.zf1976.mayi.common.security.pojo.Details;
+import com.zf1976.mayi.upms.biz.pojo.Details;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 
 /**

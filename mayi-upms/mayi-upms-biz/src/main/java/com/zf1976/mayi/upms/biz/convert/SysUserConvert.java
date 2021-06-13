@@ -1,7 +1,7 @@
 package com.zf1976.mayi.upms.biz.convert;
 
 
-import com.zf1976.mayi.common.security.pojo.User;
+import com.zf1976.mayi.upms.biz.pojo.User;
 import com.zf1976.mayi.upms.biz.convert.base.Convert;
 import com.zf1976.mayi.upms.biz.pojo.dto.user.UpdateInfoDTO;
 import com.zf1976.mayi.upms.biz.pojo.dto.user.UserDTO;

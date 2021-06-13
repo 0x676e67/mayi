@@ -5,7 +5,6 @@ plugins {
 
 dependencies {
     implementation project(':mayi-upms:mayi-upms-api')
-    implementation project(':mayi-upms:mayi-upms-dao')
     implementation project(':mayi-common:mayi-common-core')
     implementation project(':mayi-common:mayi-common-log')
     implementation project(':mayi-common:mayi-common-encrypt')
@@ -13,7 +12,6 @@ dependencies {
     implementation project(':mayi-common:mayi-common-component')
     implementation project(':mayi-common:mayi-common-mybatis')
     implementation project(':mayi-common:mayi-common-datasource')
-    implementation project(':mayi-common:mayi-common-feign')
     implementation project(':mayi-visual:mayi-visual-monitor')
     implementation('cn.hutool:hutool-poi:5.4.5')
     implementation('org.apache.poi:poi-ooxml:4.1.2')

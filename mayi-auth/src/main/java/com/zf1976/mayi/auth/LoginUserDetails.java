@@ -1,7 +1,7 @@
 package com.zf1976.mayi.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.zf1976.mayi.common.security.pojo.User;
+import com.zf1976.mayi.upms.biz.pojo.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,50 +15,45 @@ import java.util.Set;
  */
 public class LoginUserDetails implements UserDetails {
 
-    private final User user;
-    private final Set<Long> dataPermission;
-    private final Set<String> permission;
+    private final User delegate;
 
-    public LoginUserDetails(User user, Collection<? extends GrantedAuthority> authorities, Set<Long> dataPermission) {
-        this.user = user;
-        this.dataPermission = dataPermission;
-        this.permission = AuthorityUtils.authorityListToSet(authorities);
+    public LoginUserDetails(User user) {
+        this.delegate = user;
     }
 
     public Set<String> getPermission() {
-        return this.permission;
+        return this.delegate.getPermissions();
     }
 
     public Set<Long> getDataPermission() {
-        return this.dataPermission;
+        return this.delegate.getDataPermissions();
     }
 
-    public User getUser() {
-        return this.user;
+    public User getDelegate() {
+        return this.delegate;
     }
 
     @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        final String[] authority = permission.toArray(new String[1]);
-        return AuthorityUtils.createAuthorityList(authority);
+        return AuthorityUtils.commaSeparatedStringToAuthorityList(String.join(",", this.getPermission()));
     }
 
     @JsonIgnore
     public Long getId() {
-        return this.user.getId();
+        return this.delegate.getId();
     }
 
     @JsonIgnore
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return delegate.getPassword();
     }
 
     @Override
     @JsonIgnore
     public String getUsername() {
-        return user.getUsername();
+        return delegate.getUsername();
     }
 
     @JsonIgnore
@@ -82,6 +77,6 @@ public class LoginUserDetails implements UserDetails {
     @JsonIgnore
     @Override
     public boolean isEnabled() {
-        return user.getEnabled();
+        return delegate.getEnabled();
     }
 }

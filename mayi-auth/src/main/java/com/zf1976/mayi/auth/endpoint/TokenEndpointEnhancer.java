@@ -2,12 +2,12 @@ package com.zf1976.mayi.auth.endpoint;
 
 import com.zf1976.mayi.auth.AuthorizationResult;
 import com.zf1976.mayi.auth.SecurityContextHolder;
-import com.zf1976.mayi.auth.pojo.Captcha;
+import com.zf1976.mayi.common.security.pojo.Captcha;
 import com.zf1976.mayi.auth.service.UserDetailsServiceEnhancer;
 import com.zf1976.mayi.common.component.validate.service.CaptchaService;
 import com.zf1976.mayi.common.component.validate.support.CaptchaGenerator;
 import com.zf1976.mayi.common.core.foundation.DataResult;
-import com.zf1976.mayi.common.security.pojo.Details;
+import com.zf1976.mayi.upms.biz.pojo.Details;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;

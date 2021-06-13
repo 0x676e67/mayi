@@ -20,7 +20,7 @@ import java.lang.reflect.Field;
 @MapperScan(value = "com.zf1976", annotationClass = Repository.class)
 @EnableDiscoveryClient
 @EnableAsync
-@EnableFeignClients(basePackageClasses = SecurityClient.class)
+@EnableFeignClients(basePackages = "com.zf1976")
 public class SystemApplication {
 
     public static void main(String[] args) {

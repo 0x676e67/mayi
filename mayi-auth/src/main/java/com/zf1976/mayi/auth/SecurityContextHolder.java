@@ -1,6 +1,6 @@
 package com.zf1976.mayi.auth;
 
-import com.zf1976.mayi.common.security.pojo.Details;
+import com.zf1976.mayi.upms.biz.pojo.Details;
 import com.zf1976.mayi.common.security.property.SecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -39,7 +39,7 @@ public class SecurityContextHolder extends org.springframework.security.core.con
     public static Details getAuthorizationDetails() {
         try {
             LoginUserDetails details = (LoginUserDetails) getContext().getAuthentication().getDetails();
-            return new Details(details.getPermission(), details.getDataPermission(), details.getUser());
+            return new Details(details.getPermission(), details.getDataPermission(), details.getDelegate());
         } catch (Exception ignored) {
             return null;
         }

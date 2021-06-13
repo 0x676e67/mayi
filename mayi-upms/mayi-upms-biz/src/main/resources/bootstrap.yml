@@ -88,7 +88,7 @@ spring:
   thymeleaf: #thymeleaf模版
     suffix: .html
   application:
-    name: mayi-upms-bzi
+    name: mayi-upms-biz
   #admin监控注册
   boot:
     admin:
@@ -100,7 +100,7 @@ spring:
   security:
     oauth2:
       resourceserver:
-        resource-id: mayi-upms-bzi
+        resource-id: mayi-upms-biz
         jwt:
           issuer-uri: http://127.0.0.1:9000
           jwk-set-uri: http://127.0.0.1:9000/oauth/token_key

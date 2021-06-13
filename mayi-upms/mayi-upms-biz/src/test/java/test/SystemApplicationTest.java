@@ -1,8 +1,10 @@
 package test;
 
+import com.zf1976.mayi.upms.biz.pojo.User;
 import com.zf1976.mayi.upms.biz.SystemApplication;
 import com.zf1976.mayi.upms.biz.dao.SysPermissionDao;
 import com.zf1976.mayi.upms.biz.dao.SysResourceDao;
+import com.zf1976.mayi.upms.biz.security.service.AuthorizationUserService;
 import com.zf1976.mayi.upms.biz.security.service.DynamicDataSourceService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +25,13 @@ public class SystemApplicationTest {
 
     @Autowired
     private SysPermissionDao sysPermissionDao;
+    @Autowired
+    private AuthorizationUserService authorizationUserService;
 
     @Test
     public void sessionTest() {
-        System.out.println(sysPermissionDao.selectResourceBindingList());
-        System.out.println(sysPermissionDao.selectRoleBindingList());
+        User admin = authorizationUserService.findUserByUsername("admin");
+
     }
 
 }
