@@ -20,7 +20,7 @@ import java.util.Set;
  */
 @RestController
 @RequestMapping(
-        value = "/oauth/security/client"
+        value = "/api/security/client"
 )
 public class OAuth2ClientController {
 
@@ -60,6 +60,5 @@ public class OAuth2ClientController {
     public DataResult<Void> deleteBatchClient(@RequestBody @NonNull Set<String> clientIdList) {
         return DataResult.success(this.oAuth2ClientService.deleteBatchClient(clientIdList));
     }
-
 
 }

@@ -19,6 +19,7 @@ import org.springframework.security.oauth2.provider.token.ResourceServerTokenSer
 import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.web.client.RestOperations;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.Field;
@@ -61,7 +62,7 @@ public class OAuth2ResourceServerConfiguration extends ResourceServerConfigurerA
         // 资源服务器ID
         resources.resourceId(resourceId);
         // 远程校验token服务
-        resources.tokenServices(this.remoteTokenServices(this.redisConnectionFactory));
+        resources.tokenServices(this.remoteTokenServices());
         // 无状态
         resources.stateless(true);
         this.resourceServerSecurityConfigurer = resources;
@@ -94,21 +95,12 @@ public class OAuth2ResourceServerConfiguration extends ResourceServerConfigurerA
      *
      * @return {@link RemoteTokenServices}
      */
-    private ResourceServerTokenServices remoteTokenServices(RedisConnectionFactory redisConnectionFactory) {
-        DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
-        defaultTokenServices.setTokenStore(new RedisTokenStore(redisConnectionFactory));
-        return defaultTokenServices;
+    private ResourceServerTokenServices remoteTokenServices() {
+        RemoteTokenServices remoteTokenServices = new RemoteTokenServices();
+        remoteTokenServices.setClientSecret(this.clientSecret);
+        remoteTokenServices.setClientId(this.clientId);
+        remoteTokenServices.setCheckTokenEndpointUrl(this.jwtCheckUri);
+        return remoteTokenServices;
     }
 
-    @PostConstruct
-    public void overrideOAuth2PreAuthenticationFilter() {
-        if (this.resourceServerSecurityConfigurer != null) {
-            Field resourcesServerFilter = ReflectionUtils.findField(ResourceServerSecurityConfigurer.class, "resourcesServerFilter");
-            if (resourcesServerFilter != null) {
-                Object field = ReflectionUtils.getField(resourcesServerFilter, this.resourceServerSecurityConfigurer);
-                OAuth2AuthenticationProcessingFilter oAuth2AuthenticationProcessingFilter = (OAuth2AuthenticationProcessingFilter) field;
-
-            }
-        }
-    }
 }

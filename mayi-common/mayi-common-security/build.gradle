@@ -15,7 +15,6 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-jackson:${jwtVersion}")
     implementation("org.springframework.boot:spring-boot-starter-web:${springbootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-data-redis:${springbootVersion}")
-    implementation("com.baomidou:mybatis-plus-boot-starter:${mybatisPlusVersion}")
 }
 
 test {
