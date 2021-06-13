@@ -23,7 +23,7 @@ import com.zf1976.mayi.common.security.support.session.Session;
 import com.zf1976.mayi.common.security.support.session.manager.SessionManagement;
 import com.zf1976.mayi.upms.biz.convert.SysUserConvert;
 import com.zf1976.mayi.upms.biz.dao.*;
-import com.zf1976.mayi.upms.biz.feign.SecurityClient;
+import com.zf1976.mayi.upms.biz.feign.RemoteAuthClient;
 import com.zf1976.mayi.upms.biz.pojo.User;
 import com.zf1976.mayi.upms.biz.pojo.dto.user.UpdateEmailDTO;
 import com.zf1976.mayi.upms.biz.pojo.dto.user.UpdateInfoDTO;
@@ -67,7 +67,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     private final SysDepartmentDao departmentDao;
     private final SysRoleDao roleDao;
     private final SysUserConvert userConvert;
-    private final SecurityClient securityClient;
+    private final RemoteAuthClient securityClient;
     private final SysMenuDao menuDao;
     private final SecurityProperties securityProperties;
     private final MD5Encoder md5Encoder = new MD5Encoder();
@@ -76,7 +76,7 @@ public class SysUserService extends AbstractService<SysUserDao, SysUser> {
     public SysUserService(SysPositionDao sysPositionDao,
                           SysDepartmentDao sysDepartmentDao,
                           SysRoleDao sysRoleDao,
-                          SecurityClient securityClient,
+                          RemoteAuthClient securityClient,
                           SysMenuDao menuDao, SecurityProperties securityProperties) {
         this.positionDao = sysPositionDao;
         this.securityClient = securityClient;

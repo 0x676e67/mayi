@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
  * Create by Ant on 2021/3/28 5:03 PM
  */
 @FeignClient("mayi-auth")
-public interface SecurityClient {
+public interface RemoteAuthClient {
 
     /**
      * 远程调用服务登出处理

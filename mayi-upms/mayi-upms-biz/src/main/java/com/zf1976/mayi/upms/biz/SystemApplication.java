@@ -1,6 +1,5 @@
 package com.zf1976.mayi.upms.biz;
 
-import com.zf1976.mayi.upms.biz.feign.SecurityClient;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

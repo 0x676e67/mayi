@@ -8,7 +8,7 @@ import com.zf1976.mayi.common.security.support.session.manager.SessionManagement
 import com.zf1976.mayi.common.core.foundation.exception.BusinessMsgState;
 import com.zf1976.mayi.common.core.util.RedisUtil;
 import com.zf1976.mayi.common.core.util.StringUtil;
-import com.zf1976.mayi.upms.biz.feign.SecurityClient;
+import com.zf1976.mayi.upms.biz.feign.RemoteAuthClient;
 import com.zf1976.mayi.common.security.property.SecurityProperties;
 import com.zf1976.mayi.upms.biz.convert.SessionConvert;
 import com.zf1976.mayi.upms.biz.pojo.query.Query;
@@ -46,10 +46,10 @@ public class SysOnlineService {
     private final static String PATTERN_SUFFIX = "*";
     private final SessionConvert sessionConvert = SessionConvert.INSTANCE;
     private final RestTemplate restTemplate = new RestTemplate();
-    private final SecurityClient securityClient;
+    private final RemoteAuthClient securityClient;
     private ClientHttpRequest clientHttpRequest;
 
-    public SysOnlineService(RedisTemplate<Object, Object> template, SecurityProperties securityProperties, SecurityClient securityClient) {
+    public SysOnlineService(RedisTemplate<Object, Object> template, SecurityProperties securityProperties, RemoteAuthClient securityClient) {
         this.redisTemplate = template;
         this.securityProperties = securityProperties;
         this.securityClient = securityClient;
