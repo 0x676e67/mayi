@@ -17,7 +17,6 @@ import com.zf1976.mayi.common.component.cache.annotation.CachePut;
 import com.zf1976.mayi.common.core.constants.KeyConstants;
 import com.zf1976.mayi.common.core.constants.Namespace;
 import com.zf1976.mayi.common.security.property.SecurityProperties;
-import com.zf1976.mayi.upms.biz.pojo.query.AbstractQueryParam;
 import com.zf1976.mayi.upms.biz.pojo.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +48,8 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
     private final SysPermissionDao permissionDao;
     private final SecurityProperties securityProperties;
 
-    public DynamicDataSourceService(SysPermissionDao sysPermissionDao, SecurityProperties securityProperties) {
+    public DynamicDataSourceService(SysPermissionDao sysPermissionDao,
+            SecurityProperties securityProperties) {
         this.permissionDao = sysPermissionDao;
         this.securityProperties = securityProperties;
     }
@@ -57,7 +57,7 @@ public class DynamicDataSourceService extends ServiceImpl<SysResourceDao, SysRes
     /**
      * 分页查询资源节点
      *
-     * @param page 分页对象
+     * @param query 查询对象
      * @return {@link IPage<ResourceNode>}
      */
     @CachePut(key = "#query")
