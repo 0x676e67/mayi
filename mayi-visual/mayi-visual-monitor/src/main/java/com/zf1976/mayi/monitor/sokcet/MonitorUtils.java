@@ -1,7 +1,10 @@
 package com.zf1976.mayi.monitor.sokcet;
 
+import com.power.common.util.DateTimeUtil;
 import com.zf1976.mayi.common.core.util.IpUtil;
 import com.zf1976.mayi.monitor.pojo.*;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import oshi.SystemInfo;
@@ -149,12 +152,9 @@ public class MonitorUtils {
      */
     private static OperatingSystemVO getOperatingSystem(OperatingSystem operatingSystem) {
         OperatingSystemVO operatingSystemVo = new OperatingSystemVO();
-        long startTime = ManagementFactory.getRuntimeMXBean().getStartTime();
-        Date date = new Date(startTime);
-        String formatBetween = DATE_FORMAT_THREAD_LOCAL.get().format(date);
         operatingSystemVo.setOs(operatingSystem.toString());
         operatingSystemVo.setIp(IpUtil.getInterIP());
-        operatingSystemVo.setRunningDay(formatBetween);
+        operatingSystemVo.setRunningDay(FormatUtil.formatElapsedSecs(ManagementFactory.getRuntimeMXBean().getUptime()/1000));
         return operatingSystemVo;
     }
 }
