@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  * @author ant
  * Create by Ant on 2021/3/16 8:58 AM
  */
-public class MySQLStrategyBackup implements SQLBackupStrategy {
+public class MySQLBackupStrategy implements SQLBackupStrategy {
 
     private final Logger log = LoggerFactory.getLogger("[SQL-BACKUP]");
     private final static  String INDEX_END = ";";
@@ -37,7 +37,7 @@ public class MySQLStrategyBackup implements SQLBackupStrategy {
     private final DataSource dataSource;
     private final String database;
 
-    public MySQLStrategyBackup(DataSource dataSource) {
+    public MySQLBackupStrategy(DataSource dataSource) {
         this.database = this.extractDatabase(dataSource);
         this.dataSource = dataSource;
         this.mysqlRecover = "mysql --defaults-extra-file=/etc/my.cnf " + this.getDatabase() + " < ";

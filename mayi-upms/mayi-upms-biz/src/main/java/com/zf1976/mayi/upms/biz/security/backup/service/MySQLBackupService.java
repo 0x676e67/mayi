@@ -1,7 +1,7 @@
 package com.zf1976.mayi.upms.biz.security.backup.service;
 
 import com.power.common.util.PrettyMemoryUtil;
-import com.zf1976.mayi.upms.biz.security.backup.MySQLStrategyBackup;
+import com.zf1976.mayi.upms.biz.security.backup.MySQLBackupStrategy;
 import com.zf1976.mayi.upms.biz.security.backup.SQLBackupStrategy;
 import com.zf1976.mayi.upms.biz.security.backup.exception.SQLBackupException;
 import com.zf1976.mayi.upms.biz.security.backup.property.SQLBackupProperties;
@@ -36,7 +36,7 @@ public class MySQLBackupService {
     private final int pageCount;
 
     public MySQLBackupService(DataSource dataSource, SQLBackupProperties properties) {
-        this.sqlBackupStrategy = new MySQLStrategyBackup(dataSource);
+        this.sqlBackupStrategy = new MySQLBackupStrategy(dataSource);
         this.properties = properties;
         this.pageCount = properties.getDayTotal() / properties.getFileCountSize();
     }
