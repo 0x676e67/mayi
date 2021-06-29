@@ -63,8 +63,10 @@ public class OAuth2ResourceServerConfiguration extends ResourceServerConfigurerA
             .anyRequest()
             .authenticated();
 
-        // 关闭CSRF和允许跨域
+        // 关闭CSRF/允许跨域/允许Frame
         http.csrf().disable()
+            .headers().frameOptions().disable()
+            .and()
             .cors();
 
         // 关闭HttpBasic认证
