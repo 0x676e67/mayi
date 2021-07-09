@@ -22,7 +22,7 @@
 - 熔断组件：Sentinel
 - 服务监控：Spring Boot Actuator、Spring boot Admin
 - 网关组件：Spring Cloud Gateway
-- 运行容器：Tomcat9.0
+- 运行容器：Undertow
 
 ## 鸣谢
 

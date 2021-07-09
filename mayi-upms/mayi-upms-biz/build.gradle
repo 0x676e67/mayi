@@ -3,6 +3,11 @@ plugins {
     id 'io.spring.dependency-management' version "${springDependencyManagerVersion}"
 }
 
+configurations {
+    runtime.exclude group: "org.springframework.boot", module: "spring-boot-starter-tomcat"
+    compile.exclude group: "org.springframework.boot", module: "spring-boot-starter-tomcat"
+}
+
 dependencies {
     implementation project(':mayi-upms:mayi-upms-api')
     implementation project(':mayi-common:mayi-common-core')
@@ -23,6 +28,7 @@ dependencies {
     implementation("com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config:${nacosVersion}")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
     implementation('org.springframework.boot:spring-boot-starter-web')
+    implementation("org.springframework.boot:spring-boot-starter-undertow")
     implementation 'org.springframework.cloud:spring-cloud-starter-oauth2'
     implementation "org.springframework.security:spring-security-oauth2-jose"
     implementation('org.springframework.security:spring-security-test')

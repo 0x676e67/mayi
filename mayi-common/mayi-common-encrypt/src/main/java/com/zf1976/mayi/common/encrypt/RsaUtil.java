@@ -1,6 +1,7 @@
 package com.zf1976.mayi.common.encrypt;
 
-import org.apache.tomcat.util.codec.binary.Base64;
+
+import org.apache.commons.codec.binary.Base64;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;

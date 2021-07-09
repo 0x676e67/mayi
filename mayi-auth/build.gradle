@@ -6,8 +6,12 @@ plugins {
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
+        exclude module: "spring-boot-starter-tomcat"
     }
+    runtime.exclude group: "org.springframework.boot", module: "spring-boot-starter-tomcat"
+    compile.exclude group: "org.springframework.boot", module: "spring-boot-starter-tomcat"
 }
+
 ext {
     jwtVersion = "0.11.1"
 }
@@ -24,6 +28,7 @@ dependencies {
     implementation('com.github.whvcse:easy-captcha:1.6.2')
     implementation 'com.github.shalousun:common-util:1.9.2'
     implementation('org.springframework.boot:spring-boot-starter-web')
+    implementation("org.springframework.boot:spring-boot-starter-undertow")
     implementation('org.springframework.boot:spring-boot-starter-aop')
     implementation 'org.springframework.cloud:spring-cloud-starter-oauth2'
     implementation 'org.springframework.cloud:spring-cloud-starter-security'
