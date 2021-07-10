@@ -131,10 +131,10 @@ public class RsaUtil {
     }
 
 
-    /**
+    /*
      * RSA密钥对对象
      */
-    private static class RsaKeyPair {
+    public static class RsaKeyPair {
 
         private final String publicKey;
         private final String privateKey;
