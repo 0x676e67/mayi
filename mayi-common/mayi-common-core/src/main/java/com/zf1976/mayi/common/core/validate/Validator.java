@@ -94,6 +94,10 @@ public class Validator<T> {
         return this;
     }
 
+    public Validator<T> withValidated(Predicate<T> predicate, String message) {
+        return this.withValidated(predicate, () -> new RuntimeException(message));
+    }
+
     /**
      * 添加一个逻辑或校验策略
      *
@@ -117,6 +121,10 @@ public class Validator<T> {
             throw new RuntimeException("data cannot been null!");
         }
         return this.predicate.test(t);
+    }
+
+    public boolean Validated() {
+        return this.validated(this.value);
     }
 
 }
