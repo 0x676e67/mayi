@@ -112,7 +112,7 @@ public class SysLogService extends ServiceImpl<SysLogDao, SysLog> {
                                    .map(translator)
                                    .collect(Collectors.toList());
 
-        final com.baomidou.mybatisplus.extension.plugins.pagination.Page targetPage = new com.baomidou.mybatisplus.extension.plugins.pagination.Page(sourcePage.getCurrent(),
+        final IPage<S> targetPage = new Page<>(sourcePage.getCurrent(),
                 sourcePage.getSize(),
                 sourcePage.getTotal(),
                 sourcePage.isSearchCount());

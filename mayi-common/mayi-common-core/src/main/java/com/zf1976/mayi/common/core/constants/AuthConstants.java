@@ -21,7 +21,7 @@ public interface AuthConstants {
      */
     String DEFAULT_CODE_KEY = "DEFAULT_CODE_KEY:";
 
-    /**w
+    /**
      * 用户信息缓存
      */
     String DETAILS = "details";
