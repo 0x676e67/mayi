@@ -20,6 +20,8 @@ dependencies {
     implementation project(':mayi-visual:mayi-visual-monitor')
     implementation('cn.hutool:hutool-poi:5.4.5')
     implementation('org.apache.poi:poi-ooxml:4.1.2')
+    implementation("org.springframework.boot:spring-boot-starter-mail:${springbootVersion}")
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf:${springbootVersion}")
     implementation("de.codecentric:spring-boot-admin-starter-client:${adminMonitorVersion}")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("com.baomidou:mybatis-plus-boot-starter:${mybatisPlusVersion}")

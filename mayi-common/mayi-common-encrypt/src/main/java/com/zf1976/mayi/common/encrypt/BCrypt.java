@@ -8,7 +8,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Arrays;
-
+/**
+ * @author ant
+ * Create by Ant on 2021/3/23 3:42 PM
+ */
 @SuppressWarnings("all")
 public class BCrypt {
     private static final int GENSALT_DEFAULT_LOG2_ROUNDS = 10;

@@ -1,6 +1,6 @@
-package com.zf1976.mayi.common.component.mail;
+package com.zf1976.mayi.upms.biz.mail;
 
-import com.zf1976.mayi.common.component.mail.impl.ValidateServiceImpl;
+import com.zf1976.mayi.upms.biz.mail.impl.ValidateServiceImpl;
 
 /**
  * 验证接口

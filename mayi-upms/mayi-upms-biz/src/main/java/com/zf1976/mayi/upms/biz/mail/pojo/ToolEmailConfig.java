@@ -1,4 +1,4 @@
-package com.zf1976.mayi.common.component.mail.pojo;
+package com.zf1976.mayi.upms.biz.mail.pojo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

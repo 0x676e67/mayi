@@ -1,9 +1,9 @@
-package com.zf1976.mayi.common.component.mail;
+package com.zf1976.mayi.upms.biz.mail;
 
-import com.zf1976.mayi.common.component.mail.dao.ToolEmailConfigDao;
-import com.zf1976.mayi.common.component.mail.pojo.ToolEmailConfig;
-import com.zf1976.mayi.common.encrypt.EncryptUtil;
 import com.zf1976.mayi.common.core.util.SpringContextHolder;
+import com.zf1976.mayi.common.encrypt.EncryptUtil;
+import com.zf1976.mayi.upms.biz.mail.dao.ToolEmailConfigDao;
+import com.zf1976.mayi.upms.biz.mail.pojo.ToolEmailConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.mail.MailProperties;

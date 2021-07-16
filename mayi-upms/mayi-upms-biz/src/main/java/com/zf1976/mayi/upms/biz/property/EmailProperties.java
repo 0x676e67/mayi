@@ -1,4 +1,4 @@
-package com.zf1976.mayi.common.component.property;
+package com.zf1976.mayi.upms.biz.property;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

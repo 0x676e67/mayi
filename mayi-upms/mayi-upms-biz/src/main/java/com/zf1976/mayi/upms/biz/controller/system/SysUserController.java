@@ -1,12 +1,11 @@
 package com.zf1976.mayi.upms.biz.controller.system;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.zf1976.mayi.common.component.mail.ValidateEmailService;
 import com.zf1976.mayi.common.core.foundation.DataResult;
 import com.zf1976.mayi.common.core.validate.ValidationInsertGroup;
 import com.zf1976.mayi.common.core.validate.ValidationUpdateGroup;
 import com.zf1976.mayi.common.log.annotation.Log;
-import com.zf1976.mayi.upms.biz.communication.Inner;
+import com.zf1976.mayi.upms.biz.mail.ValidateEmailService;
 import com.zf1976.mayi.upms.biz.pojo.User;
 import com.zf1976.mayi.upms.biz.pojo.dto.user.UpdateEmailDTO;
 import com.zf1976.mayi.upms.biz.pojo.dto.user.UpdateInfoDTO;

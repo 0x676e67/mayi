@@ -1,15 +1,15 @@
-package com.zf1976.mayi.common.component.mail.impl;
+package com.zf1976.mayi.upms.biz.mail.impl;
 
 import com.power.common.util.RandomUtil;
 import com.power.common.util.ValidateUtil;
-import com.zf1976.mayi.common.component.mail.MailSenderProvider;
-import com.zf1976.mayi.common.component.mail.ValidateEmailService;
-import com.zf1976.mayi.common.component.mail.ValidateMobileService;
-import com.zf1976.mayi.common.component.mail.pojo.ToolEmailConfig;
 import com.zf1976.mayi.common.core.foundation.exception.BusinessException;
 import com.zf1976.mayi.common.core.foundation.exception.BusinessMsgState;
 import com.zf1976.mayi.common.core.util.RedisUtil;
-import com.zf1976.mayi.common.component.property.EmailProperties;
+import com.zf1976.mayi.upms.biz.mail.MailSenderProvider;
+import com.zf1976.mayi.upms.biz.mail.ValidateEmailService;
+import com.zf1976.mayi.upms.biz.mail.ValidateMobileService;
+import com.zf1976.mayi.upms.biz.mail.pojo.ToolEmailConfig;
+import com.zf1976.mayi.upms.biz.property.EmailProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.javamail.JavaMailSender;

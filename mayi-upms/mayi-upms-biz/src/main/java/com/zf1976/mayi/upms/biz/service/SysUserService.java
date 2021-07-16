@@ -8,7 +8,6 @@ import com.power.common.util.ValidateUtil;
 import com.zf1976.mayi.common.component.cache.annotation.CacheConfig;
 import com.zf1976.mayi.common.component.cache.annotation.CacheEvict;
 import com.zf1976.mayi.common.component.cache.annotation.CachePut;
-import com.zf1976.mayi.common.component.mail.ValidateEmailService;
 import com.zf1976.mayi.common.core.constants.Namespace;
 import com.zf1976.mayi.common.core.constants.SecurityConstants;
 import com.zf1976.mayi.common.core.foundation.exception.BusinessException;
@@ -24,6 +23,7 @@ import com.zf1976.mayi.common.security.support.session.manager.SessionManagement
 import com.zf1976.mayi.upms.biz.convert.SysUserConvert;
 import com.zf1976.mayi.upms.biz.dao.*;
 import com.zf1976.mayi.upms.biz.feign.RemoteAuthClient;
+import com.zf1976.mayi.upms.biz.mail.ValidateEmailService;
 import com.zf1976.mayi.upms.biz.pojo.User;
 import com.zf1976.mayi.upms.biz.pojo.dto.user.UpdateEmailDTO;
 import com.zf1976.mayi.upms.biz.pojo.dto.user.UpdateInfoDTO;
